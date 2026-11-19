@@ -2055,20 +2055,30 @@ function rollTreasure194(random=Math.random){
 }
 // 1.9.3 held boss relics at IDs 30+, which must shift after five newly added UR items.
 // Convert the saved indices before any older load wrapper validates or filters them.
+const initialBefore194=initial;
+initial=function(){
+  const newState=initialBefore194();
+  newState.treasureIds194Migrated=true;
+  return newState;
+};
 const previousLoad194=load;
 load=function(){
-  const raw=localStorage.getItem(SAVE_KEY);
-  if(raw){
-    const parsed=JSON.parse(raw);
-    if(parsed?.version===1&&!parsed.treasureIds194Migrated){
-      const remap=a=>Array.isArray(a)?[...new Set(a.map(n=>Number.isInteger(n)&&n>=30?n+5:n))]:a;
-      parsed.treasures=remap(parsed.treasures);
-      if(parsed.bestiary&&Array.isArray(parsed.bestiary.treasures)){
-        parsed.bestiary.treasures=remap(parsed.bestiary.treasures);
+  try{
+    const raw=localStorage.getItem(SAVE_KEY);
+    if(raw){
+      const parsed=JSON.parse(raw);
+      if(parsed?.version===1&&!parsed.treasureIds194Migrated){
+        const remap=a=>Array.isArray(a)?[...new Set(a.map(n=>Number.isInteger(n)&&n>=30?n+5:n))]:a;
+        parsed.treasures=remap(parsed.treasures);
+        if(parsed.bestiary&&Array.isArray(parsed.bestiary.treasures)){
+          parsed.bestiary.treasures=remap(parsed.bestiary.treasures);
+        }
+        parsed.treasureIds194Migrated=true;
+        localStorage.setItem(SAVE_KEY,JSON.stringify(parsed));
       }
-      parsed.treasureIds194Migrated=true;
-      localStorage.setItem(SAVE_KEY,JSON.stringify(parsed));
     }
+  }catch(e){
+    // Keep the existing loader's invalid-save recovery behavior.
   }
   return previousLoad194();
 };
