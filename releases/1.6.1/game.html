@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>もんすたー日和 Ver.1.5 | まもの牧場シミュレーション</title>
+<style>
+:root{--ink:#263d42;--muted:#74878a;--mint:#2d978a;--mint-dark:#20796f;--cream:#fffdf6;--bg:#e9f0e5;--line:#dae5db;--yellow:#f4ba54;--red:#e77969;--shadow:0 5px 0 #cddbd2,0 12px 28px #18372d15}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);background:radial-gradient(ellipse at 50% -100px,#f8faed 0%,#e6eee5 85%);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;font-size:13px;-webkit-font-smoothing:antialiased}button,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.43}.app{max-width:1650px;margin:auto;padding:18px 18px 22px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}.brand{display:flex;align-items:center;gap:12px}.brand-badge{height:51px;width:51px;background:#344c53;box-shadow:inset 0 -5px #1d343a,0 5px #bacbc0;border:3px solid #fff5df;border-radius:12px;display:grid;place-items:center;font-size:27px;transform:rotate(-3deg)}.brand small{font-size:10px;letter-spacing:.24em;font-weight:900;color:#729187;display:block}.brand h1{font-size:23px;letter-spacing:.02em;line-height:1.1;margin:3px 0 0;font-weight:950}.top-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.clock{font-size:13px;color:#54736a;font-weight:900;background:#d8e9dc;border:1px solid #c3dccb;border-radius:10px;padding:12px 14px}.button{border:1px solid #cfddd1;background:var(--cream);padding:10px 12px;border-radius:10px;color:#365c57;font-weight:900;box-shadow:0 3px 0 #d2dfd6;transition:transform .1s,background .1s}.button:hover:not(:disabled){background:#f3faf2;transform:translateY(-1px)}.button:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #d2dfd6}.button.primary{background:#26988b;border-color:#1b8077;color:white;box-shadow:0 3px 0 #176b63}.button.primary:hover:not(:disabled){background:#178879}.button.warn{color:#c36455}.speed-group{display:flex;background:#dde9de;border-radius:10px;padding:4px;gap:3px}.speed-group button{background:transparent;border:0;border-radius:7px;color:#648178;font-size:12px;font-weight:900;padding:7px 10px}.speed-group button.on{color:white;background:#365c57;box-shadow:0 2px 0 #25443f}.layout{display:grid;grid-template-columns:238px minmax(480px,1fr) 300px;gap:16px;align-items:start}.panel{border:1px solid #dfebe0;background:#fffef8;border-radius:15px;box-shadow:var(--shadow);overflow:hidden}.panel-heading{padding:15px 16px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px}.panel-heading h2{font-size:13px;margin:0;font-weight:950}.subtext{color:#8aa097;font-size:11px;font-weight:700}.side-left,.side-right{display:flex;flex-direction:column;gap:16px}.resources{padding:0 14px 12px}.resource{display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-bottom:1px dashed #e4eee5}.resource:last-child{border-bottom:0}.resource-label{display:flex;align-items:center;gap:9px;color:#5f7874;font-weight:800}.resource-icon{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:16px}.ri-money{background:#fff0c4}.ri-food{background:#e6f5d8}.ri-stock{background:#f9e9d9}.ri-magic{background:#e9e8ff}.ri-fame{background:#ffe9dc}.resource-value{font-size:17px;font-weight:950;letter-spacing:-.03em;font-variant-numeric:tabular-nums}.resource small{font-size:10px;color:#95aaa0}.progress-section{padding:0 15px 16px}.progress-top{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#67827b;font-weight:800;margin:8px 0}.progress-track{height:9px;background:#e7ede5;border-radius:10px;overflow:hidden;border:1px solid #d8e6dc}.progress-bar{height:100%;background:linear-gradient(90deg,#81cbaa,#35a28d);border-radius:10px;transition:width .3s}.quests{padding:0 12px 13px}.quest{background:#f6f9f0;border:1px solid #e6eddd;border-radius:10px;padding:11px 11px 9px;margin:6px 0}.quest-title{display:flex;align-items:center;justify-content:space-between;gap:7px;font-size:11px;font-weight:900}.quest-title span:last-child{color:#3f9783;font-size:10px;white-space:nowrap}.quest .progress-track{margin:8px 0 4px;height:6px}.quest-bottom{color:#8da397;display:flex;justify-content:space-between;font-size:10px;font-weight:700}.tip-box{padding:14px 15px;background:#fef9ec;color:#806f4e;font-size:11px;line-height:1.75;border-top:1px solid #f0ebd8}.tip-box strong{color:#a6793b}.world-shell{padding:12px}.world-header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 5px 12px}.world-title{font-size:15px;font-weight:950}.world-title small{display:block;color:#9caf9c;font-size:10px;letter-spacing:.08em;margin-top:3px}.world-badges{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.world-tag{background:#e8f3e9;color:#568475;font-size:10px;font-weight:900;padding:6px 9px;border-radius:7px}.world-tag.gold{background:#fff1d5;color:#a98445}.canvas-frame{position:relative;border-radius:9px;overflow:hidden;border:4px solid #f3f4dc;outline:1px solid #d9e1c5;background:#8ecb78;box-shadow:inset 0 0 0 4px #fff;line-height:0}#game{width:100%;height:auto;display:block;image-rendering:pixelated;cursor:grab;touch-action:none;user-select:none}#game:active{cursor:grabbing}#battleCanvas{display:block;width:100%;height:auto;image-rendering:pixelated;aspect-ratio:800/280}.battle-scene{background:#e7f3eb;border:3px solid #fbf5d6;border-radius:11px;overflow:hidden;box-shadow:inset 0 0 0 2px #a7cdb1}.battle-caption{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:9px 0 8px;color:#537d6d;font-weight:900;font-size:11px}.battle-caption strong{font-size:12px;color:#2f6c5d}.camera-toolbar{display:flex;align-items:center;justify-content:space-between;gap:5px;background:#f5f8ed;border:1px solid #e3ead8;border-radius:9px;padding:6px 7px;margin:0 3px 9px;flex-wrap:wrap;font-weight:900;font-size:11px;color:#6d8e7d}.camera-toolbar .camera-buttons{display:flex;align-items:center;gap:5px}.camera-toolbar button{border:1px solid #c9ded0;border-radius:7px;background:#fffefa;color:#38675b;padding:5px 11px;font-size:13px;font-weight:950;cursor:pointer}.camera-toolbar button:hover{background:#def2df}.battle-stats{font-size:10px;padding:6px 10px;color:#678e7b;line-height:1.5;background:#f6f8ec}.relocate-hint{background:#f0f1ff;border:1px solid #d0d6fa;color:#6566a1}.facility-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.facility-actions button{font-size:11px}.mini-instruction{font-size:10px;color:#859b8e}.canvas-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 4px 0;gap:8px;flex-wrap:wrap;font-size:11px;color:#8b9f97;font-weight:700}.building-mode{display:none;background:#fff2c6;border:1px solid #f0d78b;color:#9b7826;border-radius:9px;padding:9px 11px;line-height:1.5;margin-top:10px;font-weight:900;font-size:12px}.building-mode.active{display:flex;align-items:center;justify-content:space-between;gap:10px}.game-log{padding:0 14px 14px;max-height:200px;overflow:auto}.log-entry{display:flex;gap:9px;padding:9px 1px;border-bottom:1px dashed #e6ebe3;font-size:11px;line-height:1.45;color:#617971}.log-entry:last-child{border-bottom:0}.log-time{white-space:nowrap;font-size:10px;color:#a1b2a7;font-weight:800}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:10px 10px 0}.tab{background:#eff3ec;color:#78938a;border:0;padding:10px 0;border-radius:8px 8px 6px 6px;font-size:11px;font-weight:950}.tab.on{background:#2c8f82;color:white}.tab-body{padding:12px;min-height:445px;max-height:690px;overflow:auto}.help{font-size:11px;color:#8ca095;line-height:1.6;margin:3px 2px 10px}.build-option,.entity-row,.research-option{border:1px solid #e2e9de;background:#fcfdf7;border-radius:11px;padding:10px;margin-bottom:8px;transition:background .15s,border-color .15s}.build-option:hover{border-color:#b3d7c1}.build-option.selected{border-color:#4ba98f;background:#e9f7e9}.option-header{display:flex;align-items:center;gap:10px}.building-icon{width:45px;height:45px;flex:none;background:#eaf2dd;border:1px solid #e0ead5;display:grid;place-items:center;font-size:24px;border-radius:9px}.option-info{flex:1;min-width:0}.option-name{font-size:12px;font-weight:950}.option-desc{font-size:10px;line-height:1.55;color:#91a39a;margin-top:4px}.option-bottom{display:flex;gap:6px;align-items:center;justify-content:space-between;margin-top:9px}.price{font-size:11px;font-weight:950;color:#b17b30}.price-food{color:#539b5b}.small-button{border:0;background:#318f80;color:white;padding:7px 10px;border-radius:7px;font-weight:900;font-size:11px}.small-button.secondary{background:#e5ede4;color:#5c8374}.small-button:disabled{background:#e8e8e1;color:#a7afa6}.locked{opacity:.63}.locked .small-button{background:#f0eee5;color:#8e948a}.section-label{display:flex;justify-content:space-between;align-items:center;color:#617f73;font-weight:950;font-size:11px;margin:12px 1px 9px}.entity-row{padding:10px;display:flex;gap:10px;align-items:center}.monster-avatar{width:43px;height:43px;image-rendering:pixelated;background:#e5f4e9;border:1px solid #d1e8db;border-radius:9px;flex:none}.entity-info{flex:1;min-width:0}.entity-name{display:flex;align-items:center;justify-content:space-between;font-weight:950;font-size:12px;gap:4px}.entity-sub{color:#869b8f;font-weight:800;font-size:10px;margin-top:4px}.tiny-track{height:5px;border-radius:5px;background:#e6ebde;margin-top:7px;overflow:hidden}.tiny-track div{height:100%;background:#7fc8a6;border-radius:5px}.entity-row.highlighted{border-color:#46aa92;background:#effaf0}.pill{display:inline-block;font-weight:900;color:#6d887b;background:#eff2e9;padding:4px 6px;border-radius:5px;font-size:10px}.info-card{border-radius:11px;background:#eaf5ed;border:1px solid #d4e9db;padding:12px;margin-bottom:10px;line-height:1.6;font-size:11px;color:#58786b}.info-card strong{color:#287e70}.wide-button{width:100%;border:none;border-radius:10px;background:#309487;color:#fff;font-weight:950;padding:12px 9px;margin:5px 0 10px;box-shadow:0 3px 0 #1c7369}.wide-button:disabled{box-shadow:none;background:#d7e1d8;color:#9faea6}.big-count{font-size:22px;font-weight:950;color:#2e796e}.staff-select{appearance:auto;background:#edf5e9;border:1px solid #d6e4d7;border-radius:6px;padding:5px;font-size:10px;font-weight:900;color:#477c6b;max-width:118px}.research-option{margin-bottom:9px}.research-header{display:flex;align-items:center;justify-content:space-between;gap:5px;font-weight:950}.research-level{font-size:10px;color:#80a091}.research-desc{font-size:10px;color:#7f978b;line-height:1.65;margin:7px 0}.research-bottom{display:flex;justify-content:space-between;align-items:center;gap:7px}.empty{text-align:center;padding:28px 8px;font-size:11px;color:#98a8a0;line-height:1.75}.footer{font-size:10px;color:#91a59a;text-align:center;margin-top:17px}.toast-area{position:fixed;right:25px;bottom:20px;display:flex;flex-direction:column;gap:8px;z-index:999;pointer-events:none}.toast{background:#2d5752;color:white;border:2px solid #c9ebd0;border-radius:10px;padding:11px 15px;box-shadow:0 7px 22px #132b2355;font-weight:900;max-width:330px;animation:slidein .2s ease-out;line-height:1.5}.toast.error{background:#9f6453;border-color:#ffdfcc}.toast.success{background:#2d826d}.toast.fade{opacity:0;transform:translateY(9px);transition:all .3s}@keyframes slidein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.modal-wrap{display:none;position:fixed;inset:0;background:#112b2a91;z-index:1000;padding:20px;align-items:center;justify-content:center}.modal-wrap.show{display:flex}.modal{width:min(540px,100%);background:#fffef7;border-radius:18px;border:4px solid #e7eedf;padding:22px;box-shadow:0 15px 70px #09211b66;max-height:90vh;overflow:auto}.modal h2{margin:0 0 12px;font-size:20px}.modal p{color:#6f8880;line-height:1.85;font-size:13px}.modal .cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}.modal .cols div{padding:11px;border-radius:9px;background:#f1f6ec;font-size:11px;line-height:1.65}.modal .close-row{display:flex;justify-content:flex-end;gap:8px;margin-top:17px}.chip{font-size:10px;font-weight:900;padding:4px 7px;background:#edf6e6;border-radius:5px;color:#5a9169}.pixel-icon{font-family:monospace}@media(max-width:1240px){.layout{grid-template-columns:210px minmax(400px,1fr) 273px;gap:11px}.app{padding:12px}.panel-heading{padding:13px 12px 9px}}@media(max-width:1040px){.layout{grid-template-columns:minmax(0,1fr) 295px}.side-left{grid-column:1 / -1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.side-left .panel:last-child{grid-column:auto}}@media(max-width:710px){.app{padding:9px}.layout{display:flex;flex-direction:column}.layout>*{width:100%}.side-left{display:grid;grid-template-columns:1fr}.top{align-items:flex-start}.top-right{gap:5px}.clock{padding:10px}.brand h1{font-size:19px}.tabs .tab{font-size:12px}.tab-body{max-height:none;min-height:250px}}
+/* v1.2 new map navigation and encyclopedia */
+.tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.tab{font-size:11px;padding:11px 1px}.map-nav{display:flex;gap:5px;align-items:center;justify-content:center;flex-wrap:wrap;padding:10px 3px 0}.map-nav button{border:1px solid #cadfcb;border-radius:8px;padding:7px 12px;background:#e9f3e5;color:#466a60;font-weight:900}.map-nav button:hover{background:#d5ecdb}.map-nav span{font-size:10px;font-weight:900;color:#648479;min-width:105px;text-align:center}.extra-card{margin:0 12px 11px;background:#e7f6eb;border:1px solid #c9e3d0;border-radius:11px;padding:10px}.extra-card .vlevel{font-weight:950;color:#317b68;font-size:13px;margin-bottom:6px}.extra-card .progress-track{margin-top:7px}.adventure-stage{background:#f8f6ec;border:1px solid #e4e4d2;border-radius:12px;padding:12px;margin:10px 0}.fight-banner{font-size:23px;margin:8px 0}.fight-row{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:900}.bestiary-toolbar{display:flex;gap:5px;margin-bottom:11px}.bestiary-toolbar button{flex:1;padding:9px 3px;border:0;border-radius:7px;color:#678579;background:#edf4eb;font-weight:900;font-size:11px}.bestiary-toolbar button.on{background:#328e81;color:white}.bestiary-entry{display:flex;gap:9px;padding:9px 7px;border-bottom:1px dashed #e1e9dd;align-items:center;min-height:57px}.bestiary-entry .portrait{width:43px;height:43px;background:#e3f2e4;border-radius:9px;display:grid;place-items:center;font-size:24px;flex:none}.bestiary-entry .portrait canvas{width:38px;height:38px}.bestiary-entry .hint{color:#92a29b;font-size:10px;margin-top:3px}.shiny-mark{color:#c99422;font-weight:900}.map-legend{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-top:7px;color:#789187;font-size:10px}.map-notice{color:#9b793a;background:#fff4db;border-radius:7px;padding:5px 8px}.battle-track{height:10px;border-radius:8px;background:#e7ded2;overflow:hidden;margin:7px 0}.battle-track>div{height:100%;background:#e48273;transition:width .2s}.level-flash{animation:shine .5s}@keyframes shine{50%{filter:brightness(1.5)}}
+
+/* v1.4 – richer panels and higher-density original pixel artwork */
+:root{--shadow:0 5px 0 #bacfc0,0 13px 34px #23483e16;--bg:#e8f0e6}
+.brand-badge{border-radius:9px;background:linear-gradient(145deg,#4d776e,#2d5055)}
+.panel{border-color:#cddfd1;background:linear-gradient(180deg,#fffefa,#fcfff8)}
+.tab-body{min-height:525px;max-height:760px}
+.tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
+.tab{font-size:10px;white-space:nowrap;padding:10px 1px}
+.econ-snapshot{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.econ-metric{background:#f0f6e9;border:1px solid #dcebd7;border-radius:9px;padding:10px 9px;min-width:0}
+.econ-metric small{display:block;color:#6f8d7d;font-size:10px;font-weight:800}
+.econ-metric strong{display:block;margin-top:4px;font-size:16px;font-weight:950;font-variant-numeric:tabular-nums}
+.econ-metric strong.negative{color:#c16b58}.econ-metric strong.positive{color:#218574}
+.management-card{background:#f9fbf2;border:1px solid #dfebda;padding:12px;border-radius:11px;margin-bottom:10px}
+.management-card h3{font-size:12px;margin:0 0 8px}.management-card p{font-size:11px;line-height:1.65;margin:4px 0 9px;color:#698075}
+.stat-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px dashed #e0eade;font-size:11px}
+.stat-row:last-child{border:0}.stat-row strong{font-weight:950}
+.mini-bar{background:#e3eddf;border-radius:5px;height:7px;overflow:hidden}.mini-bar i{display:block;background:#69bea0;height:100%}
+.crew-badge{font-size:10px;color:#598a7c;background:#e7f4e8;border-radius:5px;padding:3px 5px;display:inline-block}
+.party-unit{display:flex;align-items:center;gap:8px;border:1px solid #e1e8dc;padding:8px;border-radius:9px;margin:6px 0;background:white}
+.party-unit.active{border-color:#44a590;background:#eaf9ee}.party-unit button{margin-left:auto}
+.econ-chart{display:flex;align-items:end;gap:5px;height:85px;background:linear-gradient(#f8faf4,#edf5e9);padding:7px 8px;border:1px solid #e5eee0;border-radius:9px}
+.econ-chart span{min-width:10px;flex:1;background:#70bda1;position:relative;border-radius:3px 3px 0 0}
+.econ-chart span.loss{background:#df9f87}
+.econ-chart span:before{content:attr(data-value);position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);font-size:8px;color:#486d5c;font-weight:900;white-space:nowrap}
+@media(max-width:900px){.econ-snapshot{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.treasure-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}.treasure-card{background:#f2f5eb;border:1px solid #e0e9d7;border-radius:9px;min-width:0;text-align:center;padding:8px 4px}.treasure-card.found{background:#fffaf0;border-color:#ebdcaf}.treasure-pixel{display:block;margin:0 auto 6px;width:48px;height:48px;image-rendering:pixelated}.treasure-pixel.unknown{filter:grayscale(1) brightness(.42)}.treasure-name{font-size:10px;font-weight:900;overflow-wrap:anywhere}.treasure-rarity{font-size:9px;font-weight:800;color:#749385;margin-top:4px}.treasure-rarity.r-sr{color:#547ca6}.treasure-rarity.r-ssr{color:#bd7b31}.treasure-rarity.r-r{color:#7d8f8b}
+@media(max-width:520px){.treasure-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+<div class="brand"><div class="brand-badge" aria-hidden="true">🐾</div><div><small>PIXEL MONSTER LIFE</small><h1>もんすたー日和 <span style="font-size:12px;color:#91a59a">～ちいさな牧場物語～</span></h1></div></div>
+<div class="top-right"><div class="clock" id="clock">☀️ 1日目　08:00</div><div class="speed-group" role="group" aria-label="ゲーム速度"><button data-speed="0" title="一時停止">Ⅱ</button><button data-speed="1" class="on">▶ 1x</button><button data-speed="2">▶▶ 2x</button><button data-speed="4">▶▶▶ 4x</button></div><button class="button" id="helpBtn">❔ あそびかた</button><button class="button primary" id="saveBtn">💾 セーブ</button></div>
+</header>
+<main class="layout">
+<div class="side-left">
+<section class="panel"><div class="panel-heading"><h2>🧺 牧場のようす</h2><span class="subtext" id="autoLabel">● 自動運営中</span></div><div class="resources" id="resources"></div><div class="extra-card"><div class="vlevel" id="villageName">🏘️ 村レベル 1</div><div class="subtext" id="villageNext">次の施設まで</div><div class="progress-track"><div class="progress-bar" id="villageBar"></div></div></div><div class="progress-section"><div class="progress-top"><span>🌟 牧場ランク <strong id="rankName">みならい</strong></span><span id="rankProgress">0 / 20</span></div><div class="progress-track"><div class="progress-bar" id="rankBar" style="width:10%"></div></div><div class="progress-top" style="margin-top:10px"><span>🐾 モンスター</span><span id="countInfo">4 / 6</span></div><div class="progress-top" style="margin-top:5px"><span>🧑‍🌾 スタッフ</span><span id="staffCount">2 / 4</span></div></div></section>
+<section class="panel"><div class="panel-heading"><h2>📜 おまかせミッション</h2><span class="chip">報酬も自動</span></div><div class="quests" id="quests"></div><div class="tip-box"><strong>💡 ほうっておいても成長！</strong><br>仲間たちは食べて・遊んで・働いて、自分で行動するよ。施設の配置と育成方針だけ決めよう。</div></section>
+</div>
+<div class="center">
+<section class="panel world-shell"><div class="world-header"><div class="world-title">🌿 こもれび牧場 <small>MONSTER MEADOW / フィールド</small></div><div class="world-badges"><span class="world-tag gold" id="statusTag">🌤️ のんびり</span><span class="world-tag" id="weatherTag">🌱 春 · 晴れ</span><span class="world-tag" id="tileTag">クリックして施設を選択</span></div></div><div class="camera-toolbar"><span>🖐️ ドラッグで移動 · ホイールで拡大縮小</span><div class="camera-buttons"><button data-action="toggleClear" id="clearButton" title="木35G、石20Gで撤去">🪓 整地</button><button type="button" data-action="zoomOut" title="縮小" aria-label="縮小">−</button><span id="zoomLabel">100%</span><button type="button" data-action="zoomIn" title="拡大" aria-label="拡大">＋</button><button type="button" data-action="zoomReset" title="標準倍率に戻す">等倍</button></div></div><div class="canvas-frame"><canvas id="game" width="2112" height="1440" aria-label="拡張可能な牧場のドット絵マップ"></canvas></div><div class="map-nav"><button data-action="pan" data-id="left">◀</button><button data-action="pan" data-id="up">▲</button><span id="mapRegion">最初の牧場</span><button data-action="pan" data-id="down">▼</button><button data-action="pan" data-id="right">▶</button><button data-action="centerMap" title="初期エリアに戻る">⌂</button></div><div class="map-legend"><span>🌱 緑：解放済み</span><span class="map-notice">🔒 暗い区画をクリックして購入</span></div><div id="buildMode" class="building-mode"></div><div class="canvas-footer"><span>🖱️ モンスターや建物をクリックすると詳細が見られるよ</span><span id="autosaveLabel">💾 自動セーブ ON</span></div></section>
+<section class="panel finance-strip" id="financePanel" style="margin-top:16px;padding:14px 16px"><div class="panel-heading" style="padding:0 0 10px"><h2>🏦 牧場経営レポート</h2><button class="small-button secondary" data-action="showManagement">くわしく見る</button></div><div class="econ-snapshot" id="econSnapshot">収支を計算中…</div></section>
+<section class="panel" id="battlePanel" style="margin-top:16px;padding:12px 14px 12px"><div class="battle-caption"><strong>⚔️ 冒険・リアルタイムバトル</strong><span id="battleStageBadge">1-1 · はらっぱ</span><button class="small-button secondary" data-action="showAdventure">冒険メニュー</button></div><div class="battle-scene"><canvas id="battleCanvas" width="1200" height="420" aria-label="自動戦闘の専用シーン"></canvas><div class="battle-stats" id="battleStats">冒険に出発すると、ここで仲間が自動戦闘するよ。</div></div></section>
+
+<section class="panel" style="margin-top:16px"><div class="panel-heading"><h2>📮 牧場だより</h2><span class="subtext">ほのぼのニュース</span></div><div class="game-log" id="log"></div></section>
+</div>
+<div class="side-right"><section class="panel"><div class="tabs" role="tablist"><button class="tab" data-tab="management">📊 経営</button><button class="tab on" data-tab="build">🏠 施設</button><button class="tab" data-tab="monster">🐾 仲間</button><button class="tab" data-tab="staff">🧑‍🌾 職員</button><button class="tab" data-tab="research">✨ 研究</button><button class="tab" data-tab="adventure">⚔️ 冒険</button><button class="tab" data-tab="bestiary">📚 図鑑</button></div><div class="tab-body" id="tabBody"></div></section><section class="panel"><div class="panel-heading"><h2>🌱 今日のひとこと</h2></div><div class="tip-box" style="background:transparent;border:0" id="dailyTip">新しい施設を建てると、できることが増えるよ。</div></section></div>
+</main>
+<footer class="footer">© もんすたー日和 Ver.1.6.1 — 建物サイズ / 道と池 / 大型モンスター / 宝箱コレクション / 昇格条件</footer>
+</div>
+<div class="toast-area" id="toasts" aria-live="polite"></div>
+<div class="modal-wrap" id="modal" role="dialog" aria-modal="true"><div class="modal" id="modalContent"></div></div>
+<script>
+(()=>{'use strict';
+const GAME_APP_VERSION='1.6.1';
+const W=44,H=30,T=32,VW=22,VH=15,ZONE_W=11,ZONE_H=10,SAVE_KEY='monster_biyori_save_v1';
+const $=id=>document.getElementById(id);
+const canvas=$('game'),ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=false;
+const SPECIES=[
+ {id:'mofu',name:'モフリン',emoji:'☁',color:'#ffe5c6',dark:'#dba68a',light:'#fff9e8',accent:'#f59aab',earn:1,rarity:'ふつう'},
+ {id:'piyo',name:'ピカピヨ',emoji:'⚡',color:'#ffe36d',dark:'#dcaa46',light:'#fff6a3',accent:'#f8a047',earn:1,rarity:'ふつう'},
+ {id:'pomu',name:'ミズポン',emoji:'💧',color:'#88d8ef',dark:'#4a9bb8',light:'#c9f3fa',accent:'#f59ab1',earn:2,rarity:'ふつう'},
+ {id:'koke',name:'コケリス',emoji:'🌱',color:'#9cda8b',dark:'#4f9868',light:'#d9f2b1',accent:'#e3bc66',earn:2,rarity:'めずらしい'},
+ {id:'hino',name:'ヒノコ',emoji:'🔥',color:'#ff9b65',dark:'#d66d52',light:'#ffd77d',accent:'#ffdf66',earn:3,rarity:'めずらしい'},
+ {id:'hoshi',name:'ホシネコ',emoji:'✦',color:'#b4a9ed',dark:'#7b71b5',light:'#ddd6ff',accent:'#fff0a3',earn:3,rarity:'レア'},
+ {id:'yuki',name:'ユキモチ',emoji:'❄',color:'#e1f3ff',dark:'#8db8ce',light:'#ffffff',accent:'#85c8ff',earn:4,rarity:'レア'},
+ {id:'ishi',name:'イワコロ',emoji:'◆',color:'#b3b5b7',dark:'#757f88',light:'#e1dcd4',accent:'#8dcbb0',earn:4,rarity:'レア'},
+ {id:'kumo',name:'クモマル',emoji:'☁️',color:'#bbc2e3',dark:'#7179ac',light:'#e9edff',accent:'#e4abf1',earn:3,rarity:'ふつう'},
+ {id:'tane',name:'タネポコ',emoji:'🌰',color:'#d8ae7e',dark:'#91694a',light:'#f4d5a6',accent:'#7fc878',earn:2,rarity:'ふつう'},
+ {id:'riri',name:'ルリツバメ',emoji:'🪽',color:'#6baae5',dark:'#426ba7',light:'#c2efff',accent:'#f5d572',earn:4,rarity:'めずらしい'},
+ {id:'kinoko',name:'キノコロ',emoji:'🍄',color:'#ed8c91',dark:'#ac526e',light:'#ffe0d1',accent:'#fff0a9',earn:3,rarity:'めずらしい'},
+ {id:'denki',name:'ビリリュウ',emoji:'⚡',color:'#f3d957',dark:'#b99940',light:'#fff7a2',accent:'#5eced6',earn:5,rarity:'レア'},
+ {id:'kurage',name:'ユラリクラゲ',emoji:'🫧',color:'#ad9ef0',dark:'#7560bd',light:'#f0e6ff',accent:'#86f1e9',earn:4,rarity:'めずらしい'},
+ {id:'sora',name:'ソラコロ',emoji:'🌤',color:'#f7bb7e',dark:'#ca8064',light:'#fff5ce',accent:'#d180ab',earn:4,rarity:'レア'},
+ {id:'tsuki',name:'ツキウサ',emoji:'🌙',color:'#c2d4e9',dark:'#7487a8',light:'#f0f3ff',accent:'#ffe1aa',earn:6,rarity:'とてもレア'},
+ 
+ {id:'komet',name:'コメティ',emoji:'🌠',color:'#e1b8f5',dark:'#9471c8',light:'#f7e8ff',accent:'#ffe999',earn:5,rarity:'レア'},
+ {id:'sabo',name:'サボまる',emoji:'🌵',color:'#a8d97b',dark:'#568957',light:'#d9f5a4',accent:'#f7b06f',earn:3,rarity:'ふつう'},
+ {id:'puku',name:'プクルン',emoji:'🫧',color:'#94d8d2',dark:'#5a9ca4',light:'#cffff7',accent:'#b4a8ee',earn:2,rarity:'ふつう'},
+ {id:'garu',name:'ガルゴン',emoji:'🐉',color:'#b3b7d9',dark:'#6b7195',light:'#eaecff',accent:'#f3bd75',earn:6,rarity:'とてもレア'},
+ {id:'meiro',name:'メイロコ',emoji:'🦋',color:'#ffbbba',dark:'#c26d98',light:'#ffe0ed',accent:'#fae57b',earn:4,rarity:'めずらしい'},
+ {id:'suika',name:'スイカモ',emoji:'🍉',color:'#b6d981',dark:'#4a916b',light:'#e7f4a8',accent:'#f2a0a1',earn:3,rarity:'ふつう'},
+ {id:'kiri',name:'キリシカ',emoji:'🦌',color:'#c8e2d6',dark:'#82a7a0',light:'#f4fff4',accent:'#eecc9c',earn:5,rarity:'レア'},
+ {id:'mono',name:'モノクロ',emoji:'♟️',color:'#dadfe4',dark:'#747d91',light:'#ffffff',accent:'#bdabd7',earn:6,rarity:'とてもレア'}
+];
+const B={
+ farm:{name:'おやつ畑',icon:'🥕',cost:175,unlock:1,desc:'自動でごはんが育つ。牧場の生命線。',hint:'ごはん +',effect:'🍎 ごはんが毎時間増える'},
+ home:{name:'こもれびハウス',icon:'🏡',cost:300,unlock:1,desc:'仲間とスタッフが暮らせる。定員が増加。',effect:'🐾 定員 +2 / 🧑‍🌾 定員 +2'},
+ school:{name:'とっくん広場',icon:'⚔️',cost:390,unlock:2,desc:'仲間が自動で特訓し、レベルアップ。',effect:'📚 みんなの経験値アップ'},
+ shop:{name:'まほう商店',icon:'🛍️',cost:490,unlock:3,desc:'仲間が集めた素材を売ってお金にする。',effect:'🪙 素材を売って売上アップ'},
+ park:{name:'おもちゃパーク',icon:'🎠',cost:550,unlock:4,desc:'遊び場で仲間がごきげんに。',effect:'💕 ごきげん度アップ'},
+ lab:{name:'ふしぎ研究所',icon:'🔮',cost:840,unlock:5,desc:'キラキラを生み、研究を可能にする。',effect:'✨ 研究で効率アップ'},
+ spring:{name:'たまごの泉',icon:'🥚',cost:1150,unlock:6,desc:'ときどき自動で不思議なたまごが生まれる。',effect:'🥚 新しい仲間を自動発見'},
+ tower:{name:'ほしぞら展望台',icon:'🌠',cost:1900,unlock:7,desc:'来客が増え、収益と評判がぐんと上がる。',effect:'🌟 来客・評判アップ'}
+};
+
+Object.assign(B,{
+ cafe:{name:'まものカフェ',icon:'🍰',cost:730,unlock:4,desc:'観光客が来店。おやつを消費して売上と評判を増やす。',effect:'☕ 来客収入・評判 +'},
+ inn:{name:'旅人の宿',icon:'🛏️',cost:1160,unlock:6,desc:'旅人が長く滞在してお金を落とす。',effect:'🏨 観光客が増える'},
+ workshop:{name:'クラフト工房',icon:'⚒️',cost:1530,unlock:7,desc:'素材とキラキラから「おまもり」を自動生産。',effect:'🧿 装備用おまもりを作る'},
+ clinic:{name:'いやしの診療所',icon:'💚',cost:2450,unlock:8,desc:'疲れた職員と仲間の体力を自動回復する。',effect:'🌿 元気回復・幸福度アップ'}
+});
+const SEASONS=[{name:'春',icon:'🌸',food:1.17,guest:1.12},{name:'夏',icon:'🌞',food:1.24,guest:1.19},{name:'秋',icon:'🍁',food:1.09,guest:1.28},{name:'冬',icon:'❄️',food:.77,guest:.89}];
+const WEATHER=[{name:'晴れ',icon:'☀️',food:1,guest:1.15},{name:'くもり',icon:'☁️',food:1,guest:.98},{name:'雨',icon:'🌧️',food:1.18,guest:.65},{name:'雪',icon:'🌨️',food:.66,guest:.64}];
+const ELEMENTS=['草','火','水','雷','光','土'];
+const ELEM_ICON={'草':'🌿','火':'🔥','水':'💧','雷':'⚡','光':'🌟','土':'🪨'};
+const KIND_ELEMENTS=['草','雷','水','草','火','光','水','土','雷','草','水','土','雷','水','光','光','光','草','水','火','光','草','土','土'];
+const TRAITS=[{name:'がんばりや',attack:1.11,work:1.0,energy:1},{name:'おっとり',attack:.95,work:1.13,energy:1.05},{name:'きらめき',attack:1.03,work:1.09,energy:1.02},{name:'まけずぎらい',attack:1.17,work:.93,energy:.96},{name:'のんびり',attack:1.00,work:1.07,energy:1.10}];
+const MARKET_ORDERS=[{name:'森の朝市',stock:35,food:0,reward:440,fame:5},{name:'王都の料理人',stock:22,food:52,reward:690,fame:8},{name:'旅人の商隊',stock:64,food:25,reward:1050,fame:12},{name:'年に一度の品評会',stock:95,food:75,reward:1600,fame:17}];
+/* INSERT_RESEARCH_LATER */
+/* Object.assign(RESEARCH,{
+ battle:{name:'戦術の研究',icon:'🛡️',desc:'冒険で与えるダメージ +12% / Lv',cost:48,coin:330},
+ guest:{name:'おもてなし術',icon:'🎪',desc:'来客収入 +18% / Lv',cost:34,coin:230}
+}); */
+
+const JOBS={keeper:{label:'お世話',icon:'💕',hint:'なかよし・ごきげん回復'},gather:{label:'採集',icon:'🥬',hint:'ごはん集め'},sell:{label:'商売',icon:'💰',hint:'お店の売上増加'},study:{label:'研究',icon:'🔮',hint:'キラキラ採集'},explore:{label:'探検',icon:'🧭',hint:'宝物やたまごを探す'}};
+const RESEARCH={farm:{name:'まんぷく農法',icon:'🥬',desc:'畑と採集から得られるごはん +25% / Lv',cost:22,coin:160},train:{name:'たのしい特訓',icon:'⚔️',desc:'モンスターの経験値獲得 +25% / Lv',cost:26,coin:170},market:{name:'おみせ名人',icon:'🪙',desc:'素材の販売価格 +25% / Lv',cost:30,coin:190},quest:{name:'わくわく探検',icon:'🧭',desc:'探検隊の発見速度 +25% / Lv',cost:33,coin:210}};
+Object.assign(RESEARCH,{battle:{name:'戦術の研究',icon:'🛡️',desc:'冒険で与えるダメージ +12% / Lv',cost:48,coin:330},guest:{name:'おもてなし術',icon:'🎪',desc:'来客収入 +18% / Lv',cost:34,coin:230}});
+const QUESTS=[{id:'food',title:'みんなのおやつを集めよう',unit:'個',factor:45,coin:95,fame:4,magic:0},{id:'coins',title:'牧場のお金を稼ごう',unit:'G',factor:170,coin:45,fame:3,magic:0},{id:'level',title:'仲間をレベルアップさせよう',unit:'回',factor:2,coin:145,fame:8,magic:4},{id:'sell',title:'お店で素材を販売しよう',unit:'個',factor:12,coin:110,fame:5,magic:5},{id:'days',title:'のんびり牧場を続けよう',unit:'日',factor:3,coin:160,fame:6,magic:2},{id:'build',title:'施設を増やそう',unit:'軒',factor:1,coin:155,fame:10,magic:5},{id:'explore',title:'探検でお宝を見つけよう',unit:'回',factor:1,coin:170,fame:8,magic:9},{id:'hatch',title:'たまごをふ化させよう',unit:'匹',factor:1,coin:175,fame:11,magic:5}];
+const TREES=[[1,1],[20,1],[2,11],[3,13],[19,9],[1,8],[18,1],[20,4],[5,1],[14,12]];
+const STONES=[[5,11],[17,2],[6,13]];
+const names=['ポポ','ルル','ミミ','プク','ニコ','モコ','ララ','コロン','ムギ','ピピ','トト','チロ','ピノ','クルミ','モナ','ベル','ペロ','ノノ'];
+const staffNames=['あおい','ハル','ココ','ソラ','ナギ','ミオ','リク','ユウ','ひなた','スズ','アキ','エマ'];
+const MALE_NAMES=['ハル','ソラ','リク','ユウ','アキ','トウマ','カイ','レン','ナオ','タケル'];
+const FEMALE_NAMES=['あおい','ココ','ナギ','ミオ','ひなた','スズ','エマ','ユイ','モモ','カナ'];
+const CLEAR_COST={tree:35,stone:20};
+const ZONES=[{x:0,y:0},{x:1,y:0},{x:2,y:0},{x:3,y:0},{x:0,y:1},{x:1,y:1},{x:2,y:1},{x:3,y:1},{x:0,y:2},{x:1,y:2},{x:2,y:2},{x:3,y:2}];
+const ZONE_COST=[0,0,2100,3400,0,0,1900,4200,2600,3200,4500,6500];
+const ENEMIES=[
+ {name:'はねバチ',icon:'🐝',biome:'はらっぱ',hp:35,atk:3},
+ {name:'ドロリン',icon:'🟤',biome:'はらっぱ',hp:42,atk:4},
+ {name:'草むらキノコ',icon:'🍄',biome:'はらっぱ',hp:48,atk:5},
+ {name:'トゲまる',icon:'🌵',biome:'はらっぱ',hp:55,atk:6},
+ {name:'森の大ヌシ',icon:'🦌',biome:'はらっぱ',hp:125,atk:9,boss:true},
+ {name:'ぬまカエル',icon:'🐸',biome:'しめった森',hp:58,atk:6},
+ {name:'モヤモヤ',icon:'👻',biome:'しめった森',hp:65,atk:7},
+ {name:'いばらムシ',icon:'🪲',biome:'しめった森',hp:72,atk:8},
+ {name:'ミズヘビ',icon:'🐍',biome:'しめった森',hp:80,atk:9},
+ {name:'沼の女王',icon:'🐉',biome:'しめった森',hp:170,atk:12,boss:true},
+ {name:'溶岩コウモリ',icon:'🦇',biome:'火山のふもと',hp:95,atk:10},
+ {name:'赤いゴーレム',icon:'🗿',biome:'火山のふもと',hp:115,atk:12},
+ {name:'炎の主',icon:'🔥',biome:'火山のふもと',hp:250,atk:17,boss:true},
+ {name:'星の番人',icon:'🌠',biome:'未知の遺跡',hp:290,atk:21,boss:true}
+];
+ENEMIES.push(
+ {name:'ふぶきのヒツジ',icon:'🐑',biome:'雪の峠',hp:115,atk:11},
+ {name:'氷のキツネ',icon:'🦊',biome:'雪の峠',hp:120,atk:12},
+ {name:'スノードロップ',icon:'🌨️',biome:'雪の峠',hp:139,atk:14},
+ {name:'つららコウモリ',icon:'🦇',biome:'雪の峠',hp:155,atk:14},
+ {name:'雪原の巨人',icon:'🧊',biome:'雪の峠',hp:310,atk:20,boss:true},
+ {name:'深海クラゲ',icon:'🪼',biome:'青の海底',hp:150,atk:14},
+ {name:'サンゴマジン',icon:'🪸',biome:'青の海底',hp:170,atk:16},
+ {name:'あわスライム',icon:'🫧',biome:'青の海底',hp:178,atk:17},
+ {name:'海流ウツボ',icon:'🐉',biome:'青の海底',hp:190,atk:19},
+ {name:'海の王竜',icon:'🐲',biome:'青の海底',hp:410,atk:26,boss:true},
+ {name:'時計ムシ',icon:'🪲',biome:'忘れられた城',hp:208,atk:20},
+ {name:'宝箱の精',icon:'🎁',biome:'忘れられた城',hp:221,atk:22},
+ {name:'シロガネの騎士',icon:'🛡️',biome:'忘れられた城',hp:250,atk:24},
+ {name:'夜光の番人',icon:'🕯️',biome:'忘れられた城',hp:280,atk:27},
+ {name:'時の大魔王',icon:'👑',biome:'忘れられた城',hp:600,atk:35,boss:true}
+);
+const VISITORS=['旅人アン','行商人ルノ','旅人ミナ','旅の料理人','見習い探検家','草原の歌い手','森の配達員'];
+function zoneId(x,y){return Math.floor(y/ZONE_H)*4+Math.floor(x/ZONE_W)}
+function unlocked(x,y){return state.zones.includes(zoneId(x,y))}
+function zoneOpenable(id){if(state.zones.includes(id))return false;let x=id%4,y=Math.floor(id/4);return state.zones.some(j=>Math.abs(j%4-x)+Math.abs(Math.floor(j/4)-y)===1)}
+function zonePrice(id){return ZONE_COST[id]||7500}
+function villageThreshold(level){return Math.round(90*Math.pow(level,1.55))}
+function villageAdd(x){state.villageXp+=(x||0);let guard=0;while(state.villageXp>=villageThreshold(state.villageLv)&&guard++<30){state.villageXp-=villageThreshold(state.villageLv);state.villageLv++;let newUnlock=Object.values(B).filter(b=>b.unlock===state.villageLv).map(b=>b.name).join('、');message('🏘️ 村レベル '+state.villageLv+' にアップ！'+(newUnlock?' 「'+newUnlock+'」が建築可能！':''),'success')}}
+function unlockZone(id){if(!zoneOpenable(id))return toast('隣の区画から順番に解放してね','error');const cost=zonePrice(id);if(state.coins<cost)return toast('区画解放には '+num(cost)+'G 必要だよ','error');state.coins-=cost;bookExpense(cost);state.zones.push(id);villageAdd(40);message('🗺️ 新しい土地を '+num(cost)+'G で解放！','success');save(true);renderUI(true)}
+function limitCamera(){cameraX=clamp(cameraX,0,Math.max(0,W-VW/zoom));cameraY=clamp(cameraY,0,Math.max(0,H-VH/zoom))}
+function cameraMove(dx,dy){cameraX+=dx;cameraY+=dy;limitCamera();hover=null;renderUI(false)}
+function setZoom(z,pointX=VW/2,pointY=VH/2){let next=clamp(Math.round(z*100)/100,.6,2.8);let worldX=cameraX+pointX/zoom,worldY=cameraY+pointY/zoom;zoom=next;cameraX=worldX-pointX/zoom;cameraY=worldY-pointY/zoom;limitCamera();hover=null;renderUI(false)}
+function addCatalogMonster(m){if(!state.catalog.friends.includes(m.kind))state.catalog.friends.push(m.kind);if(m.shiny&&!state.catalog.shinies.includes(m.kind))state.catalog.shinies.push(m.kind)}
+function addCitizen(s){
+ if(!s||!s.name)return;
+ if(!state.catalog.citizens.includes(s.name))state.catalog.citizens.push(s.name);
+ if(!state.catalog.citizenProfiles)state.catalog.citizenProfiles={};
+ if(!state.catalog.citizenProfiles[s.name])state.catalog.citizenProfiles[s.name]=s.gender||genderForName(s.name);
+}
+function genderForName(name){let v=0;for(const ch of String(name))v=(v*33+ch.charCodeAt(0))>>>0;return v%2?'女':'男'}
+function genderLabel(g){return g==='女'?'♀ 女':'♂ 男'}
+function stageLabel(n){return (Math.floor((n-1)/5)+1)+'-'+((n-1)%5+1)}
+function enemyForStage(n){let world=Math.floor((n-1)/5),idx=(n-1)%5;if(world===0)return idx;if(world===1)return 5+idx;if(world===2)return idx===4?12:10+(idx%2);if(world>=3&&world<=5)return 14+(world-3)*5+idx;return idx===4?28:14+((world-3)*4+idx)%15}
+function stageMonsterInfo(n){let index=enemyForStage(n),world=Math.floor((n-1)/5),e=ENEMIES[index],scale=1+world*.42;return {index,enemy:e,hp:Math.round(e.hp*scale),atk:Math.round(e.atk*scale),boss:(n%5)===0}}
+function startAdventure(){if(state.battle)return toast('冒険中だよ！','error');if(!state.monsters.length)return toast('先に仲間を増やそう','error');const n=state.adventure.stage,info=stageMonsterInfo(n),party=crewParty();const hp=Math.floor(party.reduce((sum,m)=>sum+24+m.lv*9+(m.equip?15:0),0));state.battle={stage:n,enemyIndex:info.index,hp:info.hp,maxHp:info.hp,ourHp:hp,ourMax:hp,round:0,log:'パーティが出発！',skills:[],element:enemyElement(info.index),status:'',crit:false};if(!state.catalog.enemies.includes(info.index))state.catalog.enemies.push(info.index);message('⚔️ '+stageLabel(n)+' '+info.enemy.name+' に挑戦！');renderUI(true)}
+function adventureTick(silent){if(!state.battle){if(state.adventure.auto){if((state.adventure.cooldown||0)>0)state.adventure.cooldown--;else startAdventure()}return}
+ const b=state.battle,info=stageMonsterInfo(b.stage),enemy=info.enemy,party=crewParty();let damage=0,heal=0,crit=false,skill=[];
+ for(let m of party){let el=m.element||KIND_ELEMENTS[m.kind]||'草',effective=affinity(el,b.element||enemyElement(b.enemyIndex));let base=(3+Math.floor(m.lv*1.65)+Math.floor(SPECIES[m.kind].earn*.45))*(TRAITS[m.trait||0].attack||1)*(1+(state.research.battle||0)*.12)*(m.equip?1.22:1)*(m.shiny?1.15:1)*(m.happy<30?.7:1)*(.66+m.energy/260);
+ let bonus=1;if((b.round+1)%4===0&&m.energy>15){bonus=1.65;skill.push(m.name+'の必殺技');m.energy=Math.max(5,m.energy-3)}if(Math.random()<.075){bonus*=1.55;crit=true}damage+=Math.max(1,Math.floor(base*effective*bonus));if(['水','光'].includes(el)&&Math.random()<.32){heal+=Math.round(3+m.lv*.55);skill.push(m.name+'が回復')}m.xp+=.4}
+ b.hp=Math.max(0,b.hp-damage);b.lastHitAt=Date.now();b.round++;b.crit=crit;b.log=(skill.length?skill.slice(0,2).join('・')+'！ ':'')+'味方 '+damage+'ダメージ';
+ if(b.hp<=0){const stage=b.stage,boss=info.boss,reward=Math.floor((boss?225:72)*(1+Math.floor((stage-1)/5)*.42)+stage*12),xp=boss?40:15;gainCoins(reward);state.food+=boss?18:5;state.magic+=boss?8:2;state.fame+=boss?12:2;villageAdd(boss?95:24);for(const m of party){m.xp+=xp;m.happy=clamp(m.happy+2,1,100)}state.adventure.clears++;state.adventure.stage=Math.max(state.adventure.stage,stage+1);state.metrics.explore++;if(!state.catalog.defeated.includes(b.enemyIndex))state.catalog.defeated.push(b.enemyIndex);if(boss&&Math.random()<.3)newEgg(true);if(boss&&Math.random()<.16){state.charms++;message('🧿 ボスの宝箱から「おまもり」を見つけた！','success')}message('🏆 '+stageLabel(stage)+' '+(boss?'ボス':'ステージ')+'討伐！ +'+reward+'G'+(boss?' 👑 BOSS CLEAR!':''),'success');state.battle=null;state.adventure.cooldown=state.adventure.auto?3:0;save(true);return}
+ const bossStrike=info.boss&&b.round%3===0;let foe=Math.max(1,info.atk+Math.floor(Math.random()*5)-2)*(bossStrike?2.0:1);const protect=party.filter(m=>m.element==='土').length;foe=Math.max(1,Math.round(foe*(1-Math.min(.25,protect*.08))));b.ourHp=Math.min(b.ourMax,Math.max(0,b.ourHp-foe+heal));b.skills=skill;b.status=bossStrike?'ボスの強攻撃！':'';if(bossStrike)b.log='⚠️ ボスの強攻撃！ 味方HP -'+foe;
+ if(b.ourHp<=0){state.battle=null;state.adventure.cooldown=0;message('💔 '+stageLabel(b.stage)+' で敗北。属性・装備・特訓を見直そう！','error');return}if(!silent&&b.round%3===0)message('⚔️ '+stageLabel(b.stage)+' 敵HP '+b.hp+'/'+b.maxHp)}
+
+let state,tab='build',buildMode=null,moveMode=null,clearMode=false,selectedBuilding=null,selectedMonster=null,hover=null,cameraX=0,cameraY=0,zoom=1,atlasCategory='friend',frameAt=performance.now(),tickAccum=0,uiAt=0,savingAt=0,swirls=[],toasts=[],inputLock=false;
+function rnd(arr){return arr[Math.floor(Math.random()*arr.length)]}function clamp(v,a,b){return Math.max(a,Math.min(b,v))}function int(v){return Math.floor(v)}
+function num(v){if(v>=1000000)return (v/1000000).toFixed(2)+'M';if(v>=10000)return (v/1000).toFixed(1)+'k';return Math.floor(v).toLocaleString('ja-JP')}
+function esc(s){return String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
+function randWalk(){let x,y;for(let i=0;i<100;i++){x=2+Math.floor(Math.random()*(W-4));y=2+Math.floor(Math.random()*(H-4));if(isWalkable(x,y))return {x,y}}return {x:11,y:9}}
+function initial(){return {version:1,clearedScenery:[],coins:910,food:88,stock:5,magic:12,fame:9,day:1,hour:8,ticks:0,speed:1,buildings:[{id:1,type:'farm',x:3,y:3,level:1},{id:2,type:'home',x:8,y:3,level:1}],monsters:[makeMonster(1,0,7,9),makeMonster(2,1,12,9),makeMonster(3,2,15,10)],staff:[makeStaff(5,'keeper',10,9),makeStaff(6,'gather',11,7)],eggs:[],villageLv:1,villageXp:0,zones:[0,1,4,5],catalog:{friends:[0,1,2],shinies:[],enemies:[],defeated:[],citizens:[]},adventure:{stage:1,clears:0,auto:false,cooldown:0},battle:null,research:{farm:0,train:0,market:0,quest:0},metrics:{food:0,coins:0,level:0,sell:0,days:0,build:0,explore:0,hatch:0},quests:[],nextId:7,questSequence:0,exploreProgress:0,springProgress:0,log:[],createdAt:Date.now(),savedAt:Date.now()}}
+function makeMonster(id,kind,x,y){return {id,kind,name:rnd(names),shiny:false,lv:1,xp:0,happy:83+Math.random()*16,bond:10+Math.random()*12,energy:85,x,y,path:[],produce:Math.random()*6,bob:Math.random()*6,act:'あそぶ',trait:Math.floor(Math.random()*TRAITS.length),element:KIND_ELEMENTS[kind],equip:false,trainedDay:0}}
+function makeStaff(id,job,x,y){const gender=Math.random()<.5?'男':'女';return {id,name:rnd(gender==='男'?MALE_NAMES:FEMALE_NAMES),gender,job,x,y,path:[],bob:Math.random()*6,act:'仕事中',level:1,work:0,morale:85,fatigue:8,mastery:{keeper:0,gather:0,sell:0,study:0,explore:0}}}
+
+function ensureAdvanced(){
+ state.economy=Object.assign({day:state.day,income:0,expense:0,lastIncome:0,lastExpense:0,history:[],visitors:0,totalVisitors:0,ordersDone:0,eventDay:0,festival:false},state.economy||{});
+ state.party=Array.isArray(state.party)?state.party.filter(n=>state.monsters.some(m=>m.id===n)).slice(0,3):[];
+ state.charms=Math.max(0,Number(state.charms)||0);
+ state.craftProgress=Math.max(0,Number(state.craftProgress)||0);
+ state.research=Object.assign({battle:0,guest:0},state.research||{});
+ state.guests=Array.isArray(state.guests)?state.guests.filter(g=>Number.isFinite(g.x)&&Number.isFinite(g.y)).slice(0,12):[];for(const g of state.guests){g.gender=(g.gender==='男'||g.gender==='女')?g.gender:genderForName(g.name);addCitizen(g)}
+ for(const m of state.monsters){m.trait=Number.isInteger(m.trait)?clamp(m.trait,0,TRAITS.length-1):m.id%TRAITS.length;m.element=KIND_ELEMENTS[m.kind]||'草';m.equip=Boolean(m.equip);m.trainedDay=Number(m.trainedDay)||0;m.energy=clamp(Number(m.energy)||80,0,100)}
+ for(const w of state.staff){w.gender=(w.gender==='男'||w.gender==='女')?w.gender:genderForName(w.name);addCitizen(w);w.level=clamp(Number(w.level)||1,1,99);w.morale=clamp(Number(w.morale) || 80,1,100);w.fatigue=clamp(Number(w.fatigue)||12,0,100);w.mastery=Object.assign({keeper:0,gather:0,sell:0,study:0,explore:0},w.mastery||{});w.work=Number(w.work)||0}
+}
+function seasonInfo(){return SEASONS[Math.floor((state.day-1)/7)%4]}
+function weatherInfo(){let n=(state.day*571+317)%17;let snow=seasonInfo().name==='冬';return WEATHER[snow&&n<5?3:n<9?0:n<13?1:2]}
+function workEff(job){return state.staff.filter(s=>s.job===job).reduce((v,s)=>v+(1+(s.level-1)*.09+Math.floor((s.mastery?.[job]||0)/70)*.08)*(.5+(s.morale||80)/200)*(1-Math.max(0,(s.fatigue||0)-65)*.007),0)}
+function staffWages(){return state.staff.reduce((sum,s)=>sum+19+Math.floor(((s.level||1)-1)*3),0)}
+function bookExpense(n){ensureEconomy();state.economy.expense+=Math.max(0,n)}
+function ensureEconomy(){if(!state.economy)ensureAdvanced()}
+function crewParty(){const chosen=(state.party||[]).map(id=>state.monsters.find(m=>m.id===id)).filter(Boolean);return chosen.length?chosen.slice(0,3):[...state.monsters].sort((a,b)=>b.lv-a.lv).slice(0,3)}
+function affinity(att,def){const strong={草:'水',水:'火',火:'草',雷:'水',光:'土',土:'雷'};return strong[att]===def?1.42:strong[def]===att?.73:1}
+function enemyElement(index){return ['草','土','草','土','土','水','光','草','水','水','火','土','火','光','水','水','水','土','水','水','水','水','水','水','水','雷','光','土','光','光'][index]||'草'}
+function guestCountMax(){return Math.min(14,3+buildingLevel('inn')*2+buildingLevel('cafe'))}
+function visitTick(silent){const econ=state.economy,season=seasonInfo(),weather=weatherInfo(),inn=buildingLevel('inn'),cafe=buildingLevel('cafe'),tower=buildingLevel('tower');
+ let chanceVisit=Math.min(.89,(.08+state.fame*.00019+inn*.10+tower*.07+cafe*.05)*season.guest*weather.guest);
+ if(Math.random()<chanceVisit&&state.guests.length<guestCountMax()){
+ const target=state.buildings.filter(b=>['shop','cafe','inn','park','tower'].includes(b.type));const spot=target.length?rnd(target):{x:10,y:8};const pos=nearestPlace(12,9,spot.x,spot.y);
+ const spend=Math.round((7+inn*4+cafe*8+tower*3)*season.guest*weather.guest*(1+(state.research.guest||0)*.18));
+ const visitorName=rnd(VISITORS),gender=genderForName(visitorName);state.guests.push({name:visitorName,gender,x:11.7,y:8.3,tx:pos[0],ty:pos[1],life:15+Math.random()*18,bob:Math.random()*6,spent:spend});addCitizen({name:visitorName,gender});
+ gainCoins(spend);econ.visitors++;econ.totalVisitors++;if(cafe&&state.food>2){state.food-=Math.min(state.food,1.2*cafe);gainCoins(cafe*(5+(state.research.guest||0)*2));state.fame+=.15}
+ }
+ for(const g of state.guests)g.life-=1;state.guests=state.guests.filter(g=>g.life>0);
+}
+function advanceSystems(silent){ensureEconomy();const e=state.economy,season=seasonInfo(),weather=weatherInfo();
+ if(state.hour===23){e.history.push({day:state.day,income:Math.round(e.income),expense:Math.round(e.expense),visitors:e.visitors});e.history=e.history.slice(-14);e.lastIncome=Math.round(e.income);e.lastExpense=Math.round(e.expense);e.income=0;e.expense=0;e.visitors=0;e.day=state.day+1;
+ if(!silent&&state.day%7===0)message(`🌿 新しい季節は${SEASONS[Math.floor(state.day/7)%4].name}！ 気候で収穫と来客が変化するよ`,'success');}
+ for(const m of state.monsters){m.energy=clamp(m.energy+(state.hour>=21||state.hour<6?1.0:-.34)+buildingLevel('clinic')*.32,5,100);if(m.happy<20&&state.hour%6===0)m.energy=Math.max(5,m.energy-2)}
+ for(const w of state.staff){const rest=(state.hour>=19||state.hour<7);w.fatigue=clamp(w.fatigue+(rest?-2.4:1.1)-buildingLevel('clinic')*.35,0,100);w.morale=clamp(w.morale+(rest?.3:-.17)+buildingLevel('clinic')*.08+(state.food<6?-.5:0),5,100);if(!rest){w.mastery[w.job]=(w.mastery[w.job]||0)+1;w.work=(w.work||0)+.1;if(w.mastery[w.job]>=(w.level||1)*90&&w.level<99){w.level++;w.morale=Math.min(100,w.morale+10);if(!silent)message(`🧑‍🌾 ${w.name}がスタッフLv.${w.level}に成長！`,'success')}}}
+ visitTick(silent);
+ const workshop=buildingLevel('workshop');if(workshop&&state.stock>=6&&state.magic>=1.5){state.craftProgress+=workshop;if(state.craftProgress>=32){state.craftProgress=0;state.stock-=6;state.magic-=1.5;state.charms++;if(!silent)message('⚒️ 工房が「おまもり」を1個完成させたよ！')}}
+ if(state.economy.festival&&state.day>state.economy.eventDay)state.economy.festival=false;
+}
+function trainMonster(id){const m=state.monsters.find(m=>m.id===id);if(!m)return;const cost=18+Math.floor(m.lv*.9);if(m.trainedDay===state.day)return toast('今日はもう特訓済みだよ','error');if(state.food<cost||state.coins<35)return toast('特訓には ごはん'+cost+'と35Gが必要だよ','error');state.food-=cost;state.coins-=35;bookExpense(35);m.trainedDay=state.day;m.xp+=18+Math.round(m.lv*1.7);m.energy=clamp(m.energy-13,5,100);m.bond=clamp(m.bond+2,0,100);message(`💪 ${m.name}が特訓！ 経験値と絆がアップ`,'success');save(true);renderUI(true)}
+function equipCharm(id){const m=state.monsters.find(m=>m.id===id);if(!m)return;if(m.equip)return toast('すでにおまもりを装備しているよ');if(state.charms<1)return toast('工房でおまもりを作ってね','error');state.charms--;m.equip=true;message(`🧿 ${m.name}がおまもりを装備！ 冒険が強くなるよ`,'success');save(true);renderUI(true)}
+function toggleParty(id){const m=state.monsters.find(m=>m.id===id);if(!m)return;const p=state.party;const idx=p.indexOf(id);if(idx>=0)p.splice(idx,1);else if(p.length>=3)return toast('出撃メンバーは最大3匹だよ','error');else p.push(id);save(true);renderUI(true)}
+function completeOrder(){const order=MARKET_ORDERS[state.economy.ordersDone%MARKET_ORDERS.length],rewards=order.reward*(1+Math.floor(state.economy.ordersDone/4)*.35);if(state.stock<order.stock||state.food<order.food)return toast('注文に必要な素材とごはんが足りないよ','error');state.stock-=order.stock;state.food-=order.food;gainCoins(Math.round(rewards));state.fame+=order.fame;state.economy.ordersDone++;villageAdd(32);message(`📦 ${order.name}の注文達成！ +${Math.round(rewards)}G、評判+${order.fame}`,'success');save(true);renderUI(true)}
+function hostFestival(){const cost=420+Math.floor(state.villageLv*35),food=24;if(state.economy.eventDay===state.day)return toast('今日はお祭りを開催済みだよ','error');if(state.coins<cost||state.food<food)return toast(`開催には${cost}Gとごはん${food}が必要だよ`,'error');state.coins-=cost;bookExpense(cost);state.food-=food;state.economy.eventDay=state.day;state.economy.festival=true;const bonus=35+buildingLevel('park')*9+buildingLevel('tower')*15;state.fame+=bonus;villageAdd(65);for(const m of state.monsters)m.happy=clamp(m.happy+17,0,100);for(const w of state.staff)w.morale=clamp(w.morale+16,0,100);message('🎉 牧場まつり大盛況！ 評判+'+bonus+'・村の皆が幸せ！','success');save(true);renderUI(true)}
+function econHTML(){const e=state.economy;const chart=e.history.slice(-10);const max=Math.max(1,...chart.map(d=>Math.abs(d.income-d.expense)));const order=MARKET_ORDERS[e.ordersDone%MARKET_ORDERS.length],rewards=Math.round(order.reward*(1+Math.floor(e.ordersDone/4)*.35));
+ let html=`<div class="info-card"><strong>📊 経営ダッシュボード</strong><br>${seasonInfo().icon} ${seasonInfo().name} / ${weatherInfo().icon} ${weatherInfo().name}　来客・収穫に影響<br>今までの来客 ${e.totalVisitors}人　注文達成 ${e.ordersDone}回<br>職員の給料 ${staffWages()}G / 日</div>`;
+ html+=`<div class="management-card"><h3>💰 収支と履歴</h3><div class="stat-row"><span>本日の収入</span><strong>+${num(e.income)}G</strong></div><div class="stat-row"><span>本日の支出</span><strong>−${num(e.expense)}G</strong></div><div class="stat-row"><span>本日の収支</span><strong style="color:${e.income-e.expense>=0?'#298c75':'#c67c65'}">${e.income-e.expense>=0?'+':''}${num(e.income-e.expense)}G</strong></div><div class="stat-row"><span>前日の収支</span><strong>${num(e.lastIncome-e.lastExpense)}G</strong></div><p>直近${chart.length}日分の純利益（赤は赤字）</p><div class="econ-chart">${chart.length?chart.map(d=>{let v=d.income-d.expense;return `<span class="${v<0?'loss':''}" title="${d.day}日目：${Math.round(v)}G" data-value="${Math.round(v)}" style="height:${Math.max(7,Math.abs(v)/max*70)}px"></span>`}).join(''):'<small>ゲーム内で1日経つと履歴が増えるよ</small>'}</div></div>`;
+ html+=`<div class="management-card"><h3>📮 商隊からの注文</h3><p>注文に合わせて素材やごはんを貯めて、まとめて納品しよう。</p><strong>${order.name}</strong><div class="stat-row"><span>📦 素材</span><strong>${Math.floor(state.stock)} / ${order.stock}</strong></div><div class="stat-row"><span>🍎 ごはん</span><strong>${Math.floor(state.food)} / ${order.food}</strong></div><button class="wide-button" data-action="completeOrder" ${state.stock<order.stock||state.food<order.food?'disabled':''}>納品する　報酬 ${rewards}G</button></div>`;
+ const festcost=420+Math.floor(state.villageLv*35);html+=`<div class="management-card"><h3>🎊 牧場まつり</h3><p>1日1回。村の評判・仲間のごきげん・従業員のやる気を上げるよ。</p><button class="wide-button" data-action="festival" ${state.coins<festcost||state.food<24||e.eventDay===state.day?'disabled':''}>${e.eventDay===state.day?'本日は開催済み':'開催する（'+festcost+'G + 🍎24）'}</button></div>`;
+ html+=`<div class="management-card"><h3>🏪 地域経済</h3><div class="stat-row"><span>宿・カフェ・展望台</span><strong>${buildingLevel('inn')} / ${buildingLevel('cafe')} / ${buildingLevel('tower')}</strong></div><div class="stat-row"><span>工房のおまもり</span><strong>🧿 ${state.charms}個</strong></div><div class="stat-row"><span>現在の来客数</span><strong>${state.guests.length}人</strong></div></div>`;
+ return html;
+}
+function updateEconHUD(){const e=state.economy||{income:0,expense:0,totalVisitors:0};$('weatherTag').textContent=`${seasonInfo().icon} ${seasonInfo().name} · ${weatherInfo().icon} ${weatherInfo().name}`;let cards=[['本日の売上','+'+num(e.income)+'G','positive'],['本日の支出','−'+num(e.expense)+'G','negative'],['純利益',(e.income-e.expense>=0?'+':'')+num(e.income-e.expense)+'G',e.income>=e.expense?'positive':'negative'],['観光客',num(e.totalVisitors)+'人','']];$('econSnapshot').innerHTML=cards.map(a=>`<div class="econ-metric"><small>${a[0]}</small><strong class="${a[2]}">${a[1]}</strong></div>`).join('')}
+
+function isPond(x,y){return ((x-19)**2/9+(y-12)**2/4<=1.05)|| (x===17&&y===12)}
+function isPath(x,y){return ((y===7&&x>=1&&x<=20)||(x===10&&y>=1&&y<=13))}
+function sceneryAt(x,y){
+ if(x<0||y<0||x>=W||y>=H||!Number.isInteger(x)||!Number.isInteger(y))return null;
+ if(state?.clearedScenery?.includes(x+','+y))return null;
+ if(TREES.some(p=>p[0]===x&&p[1]===y))return 'tree';
+ if(STONES.some(p=>p[0]===x&&p[1]===y))return 'stone';
+ if(x>=22||y>=15){const n=hash(x+12,y+17);if(n>.980)return 'tree';if(n>.963)return 'stone'}
+ return null;
+}
+function blockedScenery(x,y){return isPond(x,y)||sceneryAt(x,y)!==null}
+function clearScenery(x,y){
+ if(!unlocked(x,y))return toast('先に区画を解放してね','error');
+ const type=sceneryAt(x,y);if(!type)return toast('この場所には撤去できる木や石がないよ','error');
+ const cost=CLEAR_COST[type];if(state.coins<cost)return toast('撤去には'+cost+'G必要だよ','error');
+ if(!confirm((type==='tree'?'🌲 木を伐採':'🪨 石を取り除く')+'：'+cost+'Gを支払う？'))return;
+ state.coins-=cost;bookExpense(cost);state.clearedScenery.push(x+','+y);villageAdd(3);
+ message((type==='tree'?'🌲 木':'🪨 石')+'を'+cost+'Gで撤去したよ！','success');save(true);renderUI(true);
+}
+function toggleClearMode(){clearMode=!clearMode;if(clearMode){buildMode=null;moveMode=null;selectedBuilding=null;toast('🪓 整地モード：撤去したい木や石をクリック（木35G / 石20G）')}renderUI(true)}
+function getBuildingAt(x,y){return state.buildings.find(b=>x>=b.x&&x<b.x+2&&y>=b.y&&y<b.y+2)}
+function isWalkable(x,y){return x>=0&&y>=0&&x<W&&y<H&&unlocked(x,y)&&!blockedScenery(x,y)&&!getBuildingAt(x,y)}
+function canBuild(x,y,ignoreId=null,ignoreActors=false){for(let dx=0;dx<2;dx++)for(let dy=0;dy<2;dy++){let a=x+dx,b=y+dy;if(a<1||b<1||a>=W-1||b>=H-1||!unlocked(a,b)||blockedScenery(a,b)||isPath(a,b)||(getBuildingAt(a,b)&&getBuildingAt(a,b).id!==ignoreId)||(!ignoreActors&&[...state.monsters,...state.staff].some(c=>Math.round(c.x)===a&&Math.round(c.y)===b)))return false;}return true}
+function neighbors(x,y){return [[x+1,y],[x-1,y],[x,y+1],[x,y-1]].filter(p=>isWalkable(p[0],p[1]))}
+function pathTo(sx,sy,ex,ey){sx=clamp(Math.round(sx),0,W-1);sy=clamp(Math.round(sy),0,H-1);if(!isWalkable(ex,ey))return [];let q=[[sx,sy]],seen=new Set([sx+','+sy]),prev=new Map();let found=false;for(let k=0;k<q.length;k++){let [x,y]=q[k];if(x===ex&&y===ey){found=true;break}for(let [nx,ny] of neighbors(x,y)){const key=nx+','+ny;if(!seen.has(key)){seen.add(key);prev.set(key,[x,y]);q.push([nx,ny])}}}if(!found)return [];let out=[],p=[ex,ey];while(p[0]!==sx||p[1]!==sy){out.unshift(p);p=prev.get(p[0]+','+p[1]);if(!p)return []}return out}
+function nearestPlace(x,y,tx,ty){let options=[];for(let a=tx-2;a<=tx+3;a++)for(let b=ty-2;b<=ty+3;b++)if(isWalkable(a,b))options.push([a,b]);options.sort((a,b)=>(a[0]-tx)**2+(a[1]-ty)**2-(b[0]-tx)**2-(b[1]-ty)**2);return options.length?rnd(options.slice(0,Math.min(5,options.length))):[x,y]}
+function seek(actor,job){if(Math.random()<.67){const type=job==='gather'?'farm':job==='sell'?'shop':job==='study'?'lab':job==='keeper'?'home':'tower';const options=state.buildings.filter(b=>b.type===type);if(options.length){const a=rnd(options),p=nearestPlace(Math.round(actor.x),Math.round(actor.y),a.x,a.y);actor.path=pathTo(actor.x,actor.y,p[0],p[1]);if(actor.path.length)return;}}let p=randWalk();actor.path=pathTo(actor.x,actor.y,p.x,p.y)}
+function monsterLimit(){return 4+state.buildings.filter(b=>b.type==='home').reduce((s,b)=>s+b.level*2,0)}
+function staffLimit(){return 2+state.buildings.filter(b=>b.type==='home').reduce((s,b)=>s+b.level*2,0)}
+function buildingLevel(type){return state.buildings.filter(b=>b.type===type).reduce((s,b)=>s+b.level,0)}
+function rank(){const a=[{v:0,n:'みならい'},{v:20,n:'あたらしい村'},{v:55,n:'にぎやか牧場'},{v:120,n:'人気の楽園'},{v:250,n:'まものの街'},{v:500,n:'きらめく王国'},{v:1000,n:'伝説の島'}];let i=a.findLastIndex(o=>state.fame>=o.v);if(i<0)i=0;let current=a[i],next=a[i+1]||{v:Math.floor(state.fame/500+1)*500,n:'未来の牧場'};return {name:current.n,current:current.v,next:next.v}};
+function message(msg,kind){if(!state)return;state.log.unshift({t:`${state.day}日目`,msg});if(state.log.length>35)state.log.length=35;if(kind)toast(msg,kind)}
+function toast(msg,kind=''){const e=document.createElement('div');e.className='toast '+kind;e.textContent=msg;$('toasts').appendChild(e);setTimeout(()=>{e.classList.add('fade');setTimeout(()=>e.remove(),330)},3200)}
+function gainCoins(n){state.coins+=n;if(n>0){state.metrics.coins+=n;if(state.economy)state.economy.income+=n}}function gainFood(n){state.food+=n;if(n>0)state.metrics.food+=n}
+function createQuest(index){const q=QUESTS[index%QUESTS.length];const factor=1+Math.floor(state.fame/120)*0.18;let amount=Math.max(1,Math.round(q.factor*factor));if(['level','build','explore','hatch','days'].includes(q.id))amount=Math.max(1,Math.round(q.factor*(1+Math.floor(state.fame/350)*.3)));return {id:q.id,title:q.title,base:state.metrics[q.id]||0,goal:amount,coin:Math.round(q.coin*(1+state.fame/180)),fame:q.fame,magic:q.magic,unit:q.unit}}
+function checkQuests(){let changed=false;for(let i=0;i<state.quests.length;i++){let q=state.quests[i],done=(state.metrics[q.id]||0)-q.base;if(done>=q.goal){gainCoins(q.coin);state.fame+=q.fame;state.magic+=q.magic;message(`📜 任務達成！「${q.title}」 +${q.coin}G / 評判+${q.fame}`);state.quests[i]=createQuest(state.questSequence++);changed=true}}return changed}
+function load(){try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return false;const parsed=JSON.parse(raw);if(!parsed||parsed.version!==1||!Array.isArray(parsed.monsters)||!Array.isArray(parsed.buildings)||!Array.isArray(parsed.staff))return false;state=parsed;state.villageLv=Math.max(1,Number(state.villageLv)||1,...state.buildings.map(b=>(B[b.type]||{unlock:1}).unlock));state.villageXp=Math.max(0,Number(state.villageXp)||0);state.zones=Array.isArray(state.zones)?[...new Set([...state.zones,0,1,4,5])]:[0,1,4,5];state.catalog=Object.assign({friends:[],shinies:[],enemies:[],defeated:[],citizens:[],citizenProfiles:{}},state.catalog||{});
+for(let k of ['friends','shinies','enemies','defeated','citizens'])if(!Array.isArray(state.catalog[k]))state.catalog[k]=[];
+if(!state.catalog.citizenProfiles||Array.isArray(state.catalog.citizenProfiles)||typeof state.catalog.citizenProfiles!=='object')state.catalog.citizenProfiles={};
+state.clearedScenery=Array.isArray(state.clearedScenery)?state.clearedScenery.filter(v=>/^\d+,\d+$/.test(v)).slice(0,W*H):[];state.adventure=Object.assign({stage:1,clears:0,auto:false,cooldown:0},state.adventure||{});state.battle=null;state.research=Object.assign({farm:0,train:0,market:0,quest:0},state.research);state.metrics=Object.assign({food:0,coins:0,level:0,sell:0,days:0,build:0,explore:0,hatch:0},state.metrics);state.quests=Array.isArray(state.quests)?state.quests:[];state.eggs=Array.isArray(state.eggs)?state.eggs:[];state.log=Array.isArray(state.log)?state.log:[];state.nextId=state.nextId||100;state.questSequence=state.questSequence||0;state.exploreProgress=state.exploreProgress||0;state.springProgress=state.springProgress||0;for(let a of [...state.monsters,...state.staff]){a.path=[];a.x=clamp(Number(a.x)||10,0,W-1);a.y=clamp(Number(a.y)||9,0,H-1);if(a.kind!==undefined){a.kind=clamp(Math.floor(Number(a.kind)||0),0,SPECIES.length-1);a.shiny=Boolean(a.shiny);a.happy=clamp(Number(a.happy)||70,0,100);a.xp=Number(a.xp)||0;a.bond=Number(a.bond)||0;a.produce=Number(a.produce)||0;addCatalogMonster(a)}else addCitizen(a)}for(let e of state.eggs){e.shiny=Boolean(e.shiny);e.kind=clamp(Math.floor(Number(e.kind)||0),0,SPECIES.length-1)}if(!state.quests.length){state.quests=[createQuest(0),createQuest(1),createQuest(2)];state.questSequence=3}ensureAdvanced();return true}catch(e){console.warn('save load',e);return false}}
+function save(silent=false){try{state.savedAt=Date.now();localStorage.setItem(SAVE_KEY,JSON.stringify(state));$('autosaveLabel').textContent='💾 最終セーブ '+new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});if(!silent)toast('💾 牧場をセーブしたよ！','success');}catch(e){toast('セーブできませんでした。ブラウザの保存設定を確認してね。','error')}}
+function chance(n){return Math.random()<n}
+function newEgg(auto=false){const p=Math.random();let kind=p<.37?Math.floor(Math.random()*4):p<.80?Math.floor(Math.random()*11):Math.floor(Math.random()*SPECIES.length);let shiny=Math.floor(Math.random()*4096)===0;const hatch=auto?15:22;state.eggs.push({id:state.nextId++,kind,shiny,time:0,need:hatch});if(state.eggs.length<=5)message('🥚 '+(auto?'牧場でふしぎな':'新しい')+'たまごを発見！');}
+function hatchEggs(){for(let i=state.eggs.length-1;i>=0;i--){let egg=state.eggs[i];egg.time+=1+(buildingLevel('spring')?0.08*buildingLevel('spring'):0);if(egg.time>=egg.need&&state.monsters.length<monsterLimit()){let p=randWalk(),m=makeMonster(state.nextId++,egg.kind,p.x,p.y);m.shiny=!!egg.shiny;state.monsters.push(m);addCatalogMonster(m);villageAdd(m.shiny?95:12);state.metrics.hatch++;state.fame+=3+Math.floor(m.kind/3);message(`🐣 ${m.shiny?'✨色違いの ':''}${SPECIES[m.kind].name}の「${m.name}」が仲間に！評判アップ！`,'success');swirls.push({x:p.x*T+16,y:p.y*T+15,life:1.6,text:'♥'});state.eggs.splice(i,1)}}}
+function tick(silent=false){state.ticks++;advanceSystems(silent);state.hour++;villageAdd(.58+state.monsters.length*.06);if(state.hour>=24){state.hour=0;state.day++;state.metrics.days++;const wages=staffWages();bookExpense(wages);state.coins=Math.max(0,state.coins-wages);if(!silent&&state.day%3===0)message(`🌄 ${state.day}日目。スタッフにお給料 ${wages}G を支払ったよ。`);if(state.day%4===0){let bonus=40+state.monsters.length*7+buildingLevel('tower')*35;gainCoins(bonus);state.fame+=2+buildingLevel('tower');if(!silent)message(`🎪 旅人が遊びに来た！ +${bonus}G、評判アップ`)}if(state.day%7===0){state.magic+=5+buildingLevel('lab');if(!silent)message('🌠 流れ星の夜！ キラキラを手に入れたよ。')}}
+const farm=buildingLevel('farm'),school=buildingLevel('school'),shop=buildingLevel('shop'),park=buildingLevel('park'),lab=buildingLevel('lab'),spring=buildingLevel('spring'),tower=buildingLevel('tower');
+const gather=workEff('gather'),keeper=workEff('keeper'),sell=workEff('sell'),study=workEff('study'),explore=workEff('explore');
+const food= farm*(.62+Math.sqrt(farm)*.26)*(1+state.research.farm*.25)+gather*.53*(1+state.research.farm*.25);
+gainFood(food*seasonInfo().food*weatherInfo().food);
+let demand=state.monsters.length*.46;
+if(state.food>=demand)state.food-=demand;else{demand=state.food;state.food=0}
+const fed=(state.food>0||demand>=state.monsters.length*.46*.99);
+const xpBoost=1+state.research.train*.25;
+for(let m of state.monsters){m.happy=clamp(m.happy+(fed?.08:-.65)+keeper*.10+park*.14,4,100);m.bond=clamp(m.bond+.03+keeper*.055+park*.02,0,100);m.xp+=(.22+school*.31)*(m.happy/110+.35)*xpBoost*(.72+m.energy/280);m.produce+=m.happy>30?1:.55;if(m.produce>=Math.max(4,10-(m.lv>=7?1:0))){m.produce=0;state.stock+=(SPECIES[m.kind].earn+Math.floor(m.lv/8))*TRAITS[m.trait||0].work;if(!silent&&chance(.015))swirls.push({x:m.x*T+16,y:m.y*T,life:1.15,text:'✦'})}let need=12+m.lv*5.5;if(m.xp>=need){m.xp-=need;m.lv++;state.metrics.level++;state.fame+=2+Math.floor(m.lv/5);m.happy=clamp(m.happy+5,0,100);if(!silent)message(`⬆️ ${m.name}が Lv.${m.lv} に！ 牧場の評判アップ！`)}if(!silent&&(!m.path||!m.path.length)&&chance(.40)){seek(m,'');m.act=rnd(['おさんぽ','ごきげん','あそぶ','ごはん'])}}
+for(let s of state.staff){if(!silent&&(!s.path||!s.path.length)&&chance(.5)){seek(s,s.job);s.act=JOBS[s.job].label+'中'}}
+const sold=Math.min(state.stock,Math.max(0,(shop*1.3+sell*.8)));state.stock-=sold;state.metrics.sell+=sold;gainCoins(sold*(7+state.fame*.027)*(1+state.research.market*.25));gainCoins(.45+state.fame*.009+tower*1.9+sell*.42);
+state.magic+=lab*.28+study*.2+(state.monsters.length>0?.025:0);
+state.fame+=tower*.055+(state.monsters.length>0?.015:0);
+state.exploreProgress+=explore*(.74+state.research.quest*.24)+tower*.07;if(state.exploreProgress>=25){state.exploreProgress-=25;state.metrics.explore++;const bonus=55+Math.ceil(Math.random()*100);gainCoins(bonus);state.magic+=3+Math.ceil(Math.random()*6);if(chance(.48))newEgg(true);if(!silent)message(`🧭 探検隊がお宝を持ち帰った！ +${bonus}G、キラキラ+`)}
+state.springProgress+=spring*(.45+state.monsters.length*.025);if(state.springProgress>=85){state.springProgress-=85;if(state.eggs.length<9)newEgg(true)}
+hatchEggs();
+checkQuests();adventureTick(silent);
+if(state.food<6&&!silent&&state.ticks%24===0)message('🍎 おやつが少ないみたい。おやつ畑を増やそう！');
+}
+function costUpgrade(b){return Math.round(B[b.type].cost*(.58+b.level*.9))}
+function place(type,x,y){const spec=B[type];if(!spec)return;if(state.villageLv<spec.unlock){toast(`村レベル ${spec.unlock} で解放されるよ`,'error');return}if(state.coins<spec.cost){toast('お金が足りないよ！','error');return}if(!canBuild(x,y)){toast('ここには建てられないよ。空いた草地を選んでね。','error');return}state.coins-=spec.cost;bookExpense(spec.cost);const b={id:state.nextId++,type,x,y,level:1};state.buildings.push(b);state.metrics.build++;state.fame+=3;villageAdd(25);selectedBuilding=b.id;buildMode=null;message(`🔨 ${spec.name}が完成したよ！`,'success');save(true);renderUI(true)}
+function investedIn(b){let n=B[b.type].cost;for(let lv=1;lv<b.level;lv++)n+=costUpgrade({type:b.type,level:lv});return n}
+function startMoving(id){const b=state.buildings.find(v=>v.id===id);if(!b)return;moveMode=b.id;buildMode=null;selectedBuilding=id;toast('🏗️ 移動先の2×2の空き地をクリック。長押しドラッグは地図の移動！');renderUI(true)}
+function cancelMoving(){moveMode=null;renderUI(true)}
+function moveBuilding(x,y){const b=state.buildings.find(v=>v.id===moveMode);if(!b){cancelMoving();return}if(!canBuild(x,y,b.id,true)){toast('そこには移動できないよ。2×2の空き地を選んでね','error');return}if(b.x===x&&b.y===y){cancelMoving();return}b.x=x;b.y=y;for(const a of [...state.monsters,...state.staff]){a.path=[];if(a.x>=x-.7&&a.x<x+2&&a.y>=y-.7&&a.y<y+2){const p=randWalk();a.x=p.x;a.y=p.y}}selectedBuilding=b.id;moveMode=null;message(`🚚 ${B[b.type].name}を移設したよ！ Lv.${b.level}はそのまま。`,'success');save(true);renderUI(true)}
+function recoverBuilding(id){const index=state.buildings.findIndex(b=>b.id===id);if(index<0)return;const b=state.buildings[index];if(b.type==='home'&&(state.monsters.length>monsterLimit()-b.level*2||state.staff.length>staffLimit()-b.level*2)){toast('住民やモンスターの定員が足りなくなるので、このハウスは回収できないよ','error');return}const refund=Math.floor(investedIn(b)*.65);if(!confirm(`${B[b.type].name} Lv.${b.level}を回収する？\n建設・強化費の65%（${num(refund)}G）を返却するよ。\n回収した施設の効果はなくなるよ。`))return;state.buildings.splice(index,1);gainCoins(refund);selectedBuilding=null;moveMode=null;message(`📦 ${B[b.type].name}を回収！ +${num(refund)}G`,'success');for(const a of [...state.monsters,...state.staff])a.path=[];save(true);renderUI(true)}
+function upgrade(id){let b=state.buildings.find(b=>b.id===id);if(!b)return;let cost=costUpgrade(b);if(state.coins<cost)return toast('アップグレードのお金が足りないよ','error');state.coins-=cost;bookExpense(cost);b.level++;villageAdd(20);state.fame+=3+Math.floor(b.level/3);message(`✨ ${B[b.type].name}が Lv.${b.level} に！`,'success');save(true);renderUI(true)}
+function buyEgg(){if(state.monsters.length+state.eggs.length>=monsterLimit()){toast('定員がいっぱい！ こもれびハウスを増やしてね。','error');return}let cost=180+Math.floor(state.monsters.length/3)*45;if(state.coins<cost||state.food<18){toast(`たまごには ${cost}G と ごはん18 が必要だよ`,'error');return}state.coins-=cost;bookExpense(cost);state.food-=18;newEgg(false);message('🥚 たまごのふ化準備を始めたよ！','success');save(true);renderUI(true)}
+function hire(){let max=staffLimit();if(state.staff.length>=max)return toast('スタッフの定員がいっぱいだよ！','error');let cost=210+state.staff.length*105;if(state.coins<cost)return toast('お金が足りないよ！','error');state.coins-=cost;bookExpense(cost);let p=randWalk(),job=Object.keys(JOBS)[state.staff.length%5];let s=makeStaff(state.nextId++,job,p.x,p.y);state.staff.push(s);addCitizen(s);villageAdd(10);message(`🧑‍🌾 ${s.name}がスタッフになった！ 自動でお仕事を始めるよ。`,'success');save(true);renderUI(true)}
+function doResearch(type){if(!buildingLevel('lab'))return toast('研究するには「ふしぎ研究所」が必要だよ','error');let spec=RESEARCH[type],level=state.research[type],magic=Math.round(spec.cost*Math.pow(1.47,level)),coins=Math.round(spec.coin*Math.pow(1.55,level));if(state.magic<magic||state.coins<coins)return toast('研究に必要な資源が足りないよ','error');state.magic-=magic;state.coins-=coins;bookExpense(coins);state.research[type]++;state.fame+=4;message(`🔮 ${spec.name}の研究が Lv.${level+1} に！`,'success');save(true);renderUI(true)}
+function reset(){if(!confirm('牧場データをすべて消して、最初からはじめますか？ この操作は取り消せません。'))return;localStorage.removeItem(SAVE_KEY);state=initial();ensureAdvanced();state.staff.forEach(addCitizen);state.quests=[createQuest(0),createQuest(1),createQuest(2)];state.questSequence=3;tab='build';buildMode=null;moveMode=null;selectedBuilding=null;selectedMonster=null;message('🌿 新しい牧場が始まったよ！');save(true);hideModal();renderUI(true);toast('新しい牧場を開いたよ','success')}
+function exportSave(){save(true);const json=JSON.stringify(state,null,2);const blob=new Blob([json],{type:'application/json'}),url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='monster_biyori_save_'+state.day+'days.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),8000);toast('セーブデータを書き出したよ','success')}
+function importSave(file){if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(reader.result);if(parsed.version!==1||!Array.isArray(parsed.monsters)||!Array.isArray(parsed.buildings))throw Error('形式が違います');if(!confirm('今の牧場に読み込んだデータを上書きしますか？'))return;localStorage.setItem(SAVE_KEY,JSON.stringify({...parsed,savedAt:Date.now()}));if(!load())throw Error('読み込みに失敗しました');buildMode=null;moveMode=null;selectedMonster=null;selectedBuilding=null;hideModal();renderUI(true);toast('セーブデータを読み込んだよ！','success')}catch(e){toast('このファイルは読み込めません: '+e.message,'error')}};reader.readAsText(file)}
+function timeIcon(){return state.hour>=6&&state.hour<17?'☀️':state.hour>=17&&state.hour<20?'🌇':'🌙'}
+function renderUI(full=false){if(!state)return;const resources=[['ri-money','🪙','おかね',state.coins,'G'],['ri-food','🍎','ごはん',state.food,'個'],['ri-stock','📦','おみせの素材',state.stock,'個'],['ri-magic','✨','キラキラ',state.magic,'個'],['ri-fame','🌟','ひょうばん',state.fame,'pt']];$('resources').innerHTML=resources.map(v=>`<div class="resource"><div class="resource-label"><span class="resource-icon ${v[0]}">${v[1]}</span>${v[2]}</div><div><span class="resource-value">${num(v[3])}</span><small> ${v[4]}</small></div></div>`).join('');const r=rank();$('villageName').textContent=`🏘️ 村レベル ${state.villageLv}`;$('villageNext').textContent=`成長 ${Math.floor(state.villageXp)} / ${villageThreshold(state.villageLv)} XP · 次の施設 ${Object.values(B).filter(b=>b.unlock===state.villageLv+1).map(b=>b.name).join('、')||'開拓が進む'}`;$('villageBar').style.width=clamp(state.villageXp/villageThreshold(state.villageLv)*100,0,100)+'%';$('mapRegion').textContent=`区画 ${Math.floor(cameraX/ZONE_W)+1}-${Math.floor(cameraY/ZONE_H)+1} / 解放 ${state.zones.length}/12`;$('rankName').textContent=r.name;$('rankProgress').textContent=`${num(state.fame)} / ${num(r.next)}`;$('rankBar').style.width=clamp((state.fame-r.current)/(r.next-r.current)*100,0,100)+'%';$('countInfo').textContent=state.monsters.length+' / '+monsterLimit();$('staffCount').textContent=state.staff.length+' / '+staffLimit();$('clock').textContent=`${timeIcon()} ${num(state.day)}日目　${String(state.hour).padStart(2,'0')}:00`;$('autoLabel').textContent=state.speed===0?'● 一時停止中':'● 自動運営中';$('autoLabel').style.color=state.speed?'#459b80':'#c49a73';$('statusTag').textContent=(state.hour>=6&&state.hour<18?'🌤️ のんびり':'🌙 しずかな夜');
+$('quests').innerHTML=state.quests.map(q=>{const p=clamp((state.metrics[q.id]-q.base),0,q.goal);return `<div class="quest"><div class="quest-title"><span>✅ ${esc(q.title)}</span><span>🌟+${q.fame}</span></div><div class="progress-track"><div class="progress-bar" style="width:${p/q.goal*100}%"></div></div><div class="quest-bottom"><span>${num(p)} / ${num(q.goal)} ${esc(q.unit)}</span><span>報酬 ${num(q.coin)}G</span></div></div>`}).join('');
+$('log').innerHTML=state.log.slice(0,6).map(m=>`<div class="log-entry"><span class="log-time">${esc(m.t)}</span><span>${esc(m.msg)}</span></div>`).join('');
+if(full||!inputLock)renderTab();updateEconHUD();
+$('buildMode').classList.toggle('active',!!(buildMode||moveMode||clearMode));if(buildMode)$('buildMode').innerHTML=`<span>🔨 「${B[buildMode].name}」を建設中！ 草地をクリックしてね。</span><button class="small-button secondary" data-action="cancelBuild">キャンセル ✕</button>`;
+if(clearMode)$('buildMode').innerHTML=`<span>🪓 整地モード：木35G・石20G。撤去したい地形をクリック</span><button class="small-button secondary" data-action="toggleClear">終了 ✕</button>`;
+if(moveMode){const m=state.buildings.find(b=>b.id===moveMode);$('buildMode').innerHTML=`<span>🚚 ${m?B[m.type].name:'施設'}の移動先を選択中。2×2の空き地をクリックしてね。</span><button class="small-button secondary" data-action="cancelMove">キャンセル ✕</button>`}
+$('tileTag').textContent=clearMode?'🪓 整地モード：木35G ／ 石20G：クリックで撤去':moveMode?'🚚 移設先の2×2の空き地を選択中':buildMode?'🔨 2×2 の空き地を選択中':selectedBuilding?'施設を選択中':'ドラッグで地図移動 ／ 🪓整地で木や石を撤去';$('zoomLabel').textContent=Math.round(zoom*100)+'%';
+$('dailyTip').textContent=state.food<25?'ごはんが少ないよ！ おやつ畑を増やすと安心。':state.coins<200?'商店を建てたり、スタッフを商売に配属すると収入アップ！':state.eggs.length?'たまごは自動でふ化するよ。満員のときはおうちを増やそう。':state.villageLv<5?'時間経過や育成・冒険で村レベルが上がり、新しい施設が解放されるよ。':'研究所を建てると、農業や特訓の効率をさらに上げられるよ。';
+}
+function renderTab(){const body=$('tabBody');document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));if(tab==='management'){body.innerHTML=econHTML();
+}else if(tab==='build'){
+let html=`<p class="help">施設を配置・移動・回収できるよ。🌲木と🪨石は「🪓整地」から少額で撤去可能。</p>`;
+for(const [id,b] of Object.entries(B)){let locked=state.villageLv<b.unlock;html+=`<div class="build-option ${locked?'locked':''} ${buildMode===id?'selected':''}"><div class="option-header"><div class="building-icon">${b.icon}</div><div class="option-info"><div class="option-name">${b.name}</div><div class="option-desc">${b.desc}</div></div></div><div class="option-bottom"><span class="price">${locked?'🔒 村 Lv.'+b.unlock+' で解放':num(b.cost)+' G'}</span><button class="small-button" ${locked||state.coins<b.cost?'disabled':''} data-action="build" data-id="${id}">${buildMode===id?'選択中 ✓':'建てる'}</button></div></div>`}
+let b=state.buildings.find(o=>o.id===selectedBuilding);if(b){let cost=costUpgrade(b);html=`<div class="info-card"><strong>🏗️ 選択中: ${B[b.type].name} Lv.${b.level}</strong><br>${B[b.type].effect}<br><br><button class="small-button" data-action="upgrade" data-id="${b.id}" ${state.coins<cost?'disabled':''}>⬆️ 強化する（${num(cost)} G）</button><div class="facility-actions"><button class="small-button secondary" data-action="moveBuilding" data-id="${b.id}">🚚 施設を移動（無料）</button><button class="small-button secondary" data-action="recoverBuilding" data-id="${b.id}">📦 回収（${num(Math.floor(investedIn(b)*.65))}G）</button></div></div>`+html}body.innerHTML=html;
+}else if(tab==='monster'){
+const cost=180+Math.floor(state.monsters.length/3)*45;let html=`<div class="info-card"><strong>🥚 たまご孵化所</strong><br>たまごは時間が経つと自動でふ化するよ。仲間が増えると素材もいっぱい！<br><span class="big-count">${state.monsters.length}</span> / ${monsterLimit()} 匹、たまご ${state.eggs.length} 個</div><button class="wide-button" data-action="egg" ${state.coins<cost||state.food<18||state.monsters.length+state.eggs.length>=monsterLimit()?'disabled':''}>🥚 たまごを仕入れる（${num(cost)}G + 🍎18）</button>`;
+if(state.eggs.length){html+=`<div class="section-label">ふ化を待っているたまご</div>`;html+=state.eggs.map(e=>`<div class="quest"><div class="quest-title">🥚 ${e.time>=e.need?'満員で待機中':'たまごをあたため中'}</div><div class="progress-track"><div class="progress-bar" style="width:${Math.min(100,e.time/e.need*100)}%"></div></div><div class="quest-bottom"><span>${Math.min(100,Math.floor(e.time/e.need*100))}%</span><span>自動ふ化／色違い1/4096</span></div></div>`).join('')}
+html+=`<div class="section-label">仲間たち <span>${state.monsters.length}匹</span></div>`;
+if(selectedMonster!==null){const chosen=state.monsters.find(m=>m.id===selectedMonster);if(chosen){const trait=TRAITS[chosen.trait]||TRAITS[0];const stage=chosen.lv>=25?'III':chosen.lv>=12?'II':'I';let cost=18+Math.floor(chosen.lv*.9);html+=`<div class="management-card"><h3>🐾 ${esc(chosen.name)}の育成カルテ</h3><div class="stat-row"><span>属性 / 成長段階</span><strong>${ELEM_ICON[chosen.element]} ${chosen.element} / ${stage}</strong></div><div class="stat-row"><span>性格</span><strong>${trait.name}</strong></div><div class="stat-row"><span>体力・元気</span><strong>${Math.round(chosen.energy)} / 100</strong></div><div class="stat-row"><span>装備</span><strong>${chosen.equip?'🧿 おまもり':'なし'}</strong></div><div class="facility-actions"><button class="small-button" data-action="trainMonster" data-id="${chosen.id}" ${chosen.trainedDay===state.day||state.food<cost||state.coins<35?'disabled':''}>💪 特訓（🍎${cost}+35G）</button><button class="small-button secondary" data-action="equipCharm" data-id="${chosen.id}" ${chosen.equip||state.charms<1?'disabled':''}>🧿 装備</button></div><p>Lv.12と25で成長段階が変化。装備すると戦闘力がアップ！</p></div>`}}
+html+=state.monsters.map(m=>{let kind=SPECIES[m.kind]||SPECIES[0];return `<div class="entity-row ${selectedMonster===m.id?'highlighted':''}" data-action="selectMonster" data-id="${m.id}" style="cursor:pointer"><canvas class="monster-avatar" width="48" height="48" data-avatar="${m.kind}" data-mid="${m.id}"></canvas><div class="entity-info"><div class="entity-name"><span>${esc(m.name)}</span><span class="pill">Lv.${m.lv}</span></div><div class="entity-sub">${kind.emoji} ${m.shiny?'<span class="shiny-mark">🌈 ★ 色違い ★</span> ':''}${kind.name} ・ なかよし ${Math.floor(m.bond)}%</div><div class="tiny-track" title="ごきげん ${Math.round(m.happy)}%"><div style="width:${m.happy}%;background:${m.happy<40?'#e6a172':'#7ccfa8'}"></div></div></div></div>`}).join('');body.innerHTML=html;for(let el of body.querySelectorAll('[data-avatar]')){let c=el.getContext('2d');c.imageSmoothingEnabled=false;let m=state.monsters.find(mm=>mm.id===+el.dataset.mid);let s=spriteMonsterHD(+el.dataset.avatar,Boolean(m&&m.shiny));c.drawImage(s,4,4,40,40)}
+}else if(tab==='staff'){
+let cost=210+state.staff.length*105;let html=`<div class="info-card"><strong>🧑‍🌾 スタッフは完全自動！</strong><br>仕事を選ぶだけで勝手に移動して働くよ。探検にすると、ときどき宝物やたまごを発見。<br><span class="big-count">${state.staff.length}</span> / ${staffLimit()} 人</div><button class="wide-button" data-action="hire" ${state.staff.length>=staffLimit()||state.coins<cost?'disabled':''}>🧑‍🌾 新しく雇う（${num(cost)}G）</button>`;
+for(let s of state.staff)html+=`<div class="entity-row"><canvas class="monster-avatar" width="32" height="32" data-staff-sprite="${s.id}" style="width:43px;height:43px"></canvas><div class="entity-info"><div class="entity-name"><span>${esc(s.name)} <span class="citizen-sex">${genderLabel(s.gender)}</span></span><span class="pill">Lv.${s.level||1}</span></div><div class="entity-sub">${JOBS[s.job]?.hint||''}<br>熟練 ${Math.round((s.mastery||{})[s.job]||0)} / 疲労 ${Math.round(s.fatigue||0)}% / やる気 ${Math.round(s.morale||80)}%</div></div><select aria-label="${esc(s.name)}の担当" class="staff-select" data-staff="${s.id}">${Object.entries(JOBS).map(([key,j])=>`<option value="${key}" ${s.job===key?'selected':''}>${j.icon} ${j.label}</option>`).join('')}</select></div>`;
+html+=`<div class="info-card">💰 毎日の人件費：${staffWages()}G<br>🎯 おすすめ：採集1人・商売1人・探検1人から始めてみよう！</div>`;body.innerHTML=html;for(let el of body.querySelectorAll('[data-staff-sprite]')){const w=state.staff.find(s=>s.id===+el.dataset.staffSprite);if(w)el.getContext('2d').drawImage(spriteCitizen(w.gender,Object.keys(JOBS).indexOf(w.job)),0,0,32,32)};
+}else if(tab==='research'){
+let hasLab=buildingLevel('lab');let html=`<div class="info-card"><strong>🔮 研究ツリー</strong><br>${hasLab?'研究所のキラキラを使って全体の効率をアップ！':'研究を始めるには「ふしぎ研究所」を建てよう。村Lv.5で解放！'}<br>現在のキラキラ： <strong>${num(state.magic)} ✨</strong></div>`;
+for(let [id,r] of Object.entries(RESEARCH)){let level=state.research[id],magic=Math.round(r.cost*Math.pow(1.47,level)),coins=Math.round(r.coin*Math.pow(1.55,level));html+=`<div class="research-option"><div class="research-header"><span>${r.icon} ${r.name}</span><span class="research-level">Lv.${level}</span></div><div class="research-desc">${r.desc}</div><div class="research-bottom"><span class="price">${num(coins)}G ＋ ✨${num(magic)}</span><button class="small-button" data-action="research" data-id="${id}" ${!hasLab||state.coins<coins||state.magic<magic?'disabled':''}>研究する</button></div></div>`}body.innerHTML=html;
+}else if(tab==='adventure'){
+let a=state.adventure,n=a.stage,e=stageMonsterInfo(n),battle=state.battle;const world=Math.floor((n-1)/5)+1,stage=((n-1)%5)+1;
+let html=`<div class="info-card"><strong>⚔️ 冒険の旅</strong><br>仲間のうちレベルの高い3匹が自動で戦うよ。各エリアは5ステージ、最後はボス戦！<br>攻略済み ${a.clears} ステージ ／ 現在 ${stageLabel(n)}</div>`;
+html+=`<div class="adventure-stage"><div class="fight-row"><span>🌍 エリア ${world} · ${stageLabel(n)}</span><span>${e.boss?'👑 ボス':'通常戦'}</span></div><div class="fight-banner">${e.enemy.icon} ${e.enemy.name}</div>`;
+if(battle){html+=`<div class="fight-row"><span>敵 HP</span><span>${num(battle.hp)} / ${num(battle.maxHp)}</span></div><div class="battle-track"><div style="width:${clamp(battle.hp/battle.maxHp*100,0,100)}%"></div></div><div class="fight-row"><span>🐾 味方 HP</span><span>${num(battle.ourHp)} / ${num(battle.ourMax)}</span></div><div class="battle-track"><div style="width:${clamp(battle.ourHp/battle.ourMax*100,0,100)}%;background:#59ac8c"></div></div><p class="help">${esc(battle.log)}<br>1ゲーム時間ごとに自動戦闘が進むよ。</p>`;}else html+=`<p class="help">敵HP ${num(e.hp)} / 攻撃 ${e.atk}　${e.boss?'撃破で大きな報酬！':'勝つと次のステージが開放！'}</p>`;
+html+=`<button class="wide-button" data-action="adventureStart" ${battle?'disabled':''}>${battle?'⚔️ 自動戦闘中…':'🚩 '+stageLabel(n)+' に出発する'}</button><button class="wide-button" style="background:${a.auto?'#c78555':'#5e8c99'}" data-action="adventureAuto">${a.auto?'⏹️ 自動周回を止める':'🔁 クリア後も次へ自動で出発'}</button></div>`;
+html+=`<div class="section-label">出撃編成（3匹まで）</div><p class="help">選択が0匹ならレベル順に3匹を自動編成。属性の相性と装備で戦闘が有利になるよ。敵属性：${ELEM_ICON[enemyElement(e.index)]} ${enemyElement(e.index)}</p>`;html+=state.monsters.map(m=>`<div class="party-unit ${state.party.includes(m.id)?'active':''}"><span style="font-size:23px">${SPECIES[m.kind].emoji}</span><div><strong>${esc(m.name)} Lv.${m.lv}</strong><div class="entity-sub">${ELEM_ICON[m.element]||'🌿'} ${m.element} / ${TRAITS[m.trait||0].name} ${m.equip?'🧿':''}</div></div><button class="small-button ${state.party.includes(m.id)?'secondary':''}" data-action="toggleParty" data-id="${m.id}">${state.party.includes(m.id)?'外す':'編成'}</button></div>`).join('');
+body.innerHTML=html;
+}else if(tab==='bestiary'){
+const c=state.catalog;let html=`<div class="info-card"><strong>📚 こもれび図鑑</strong><br>仲間 ${c.friends.length}/${SPECIES.length} 種・色違い ${c.shinies.length} 種<br>敵 ${c.enemies.length}/${ENEMIES.length} 種（討伐 ${c.defeated.length} 種）・市民 ${c.citizens.length} 人</div><div class="bestiary-toolbar"><button class="${atlasCategory==='friend'?'on':''}" data-action="atlas" data-id="friend">🐾 味方</button><button class="${atlasCategory==='enemy'?'on':''}" data-action="atlas" data-id="enemy">⚔️ 敵</button><button class="${atlasCategory==='citizen'?'on':''}" data-action="atlas" data-id="citizen">🧑‍🌾 市民</button></div>`;
+if(atlasCategory==='friend')html+=SPECIES.map((s,i)=>{const seen=c.friends.includes(i),shiny=c.shinies.includes(i);return `<div class="bestiary-entry"><div class="portrait">${seen?`<canvas width="38" height="38" data-atlas="${i}" data-atlas-shiny="${shiny?'1':'0'}"></canvas>`:'❔'}</div><div><strong>${seen?esc(s.name):'？？？？'}</strong><div class="hint">No.${String(i+1).padStart(3,'0')}　${seen?s.rarity:'未発見'} ${shiny?'<span class="shiny-mark">✨ 色違い発見済み</span>':''}</div></div></div>`}).join('');
+else if(atlasCategory==='enemy')html+=ENEMIES.map((e,i)=>{const seen=c.enemies.includes(i),won=c.defeated.includes(i);return `<div class="bestiary-entry"><div class="portrait">${seen?e.icon:'❔'}</div><div><strong>${seen?esc(e.name):'？？？？'}</strong><div class="hint">No.${String(i+1).padStart(3,'0')}　${seen?esc(e.biome):'未遭遇'} ${e.boss&&seen?'👑ボス':''} ${won?'✅討伐済み':''}</div></div></div>`}).join('');
+else html+=[...new Set([...staffNames,...MALE_NAMES,...FEMALE_NAMES,...VISITORS,...state.catalog.citizens])].map((name,i)=>{
+ const seen=c.citizens.includes(name),staff=state.staff.find(w=>w.name===name),gender=staff?.gender||c.citizenProfiles?.[name]||genderForName(name);
+ return `<div class="bestiary-entry"><div class="portrait">${seen?`<canvas width="32" height="32" data-citizen-atlas="${i}" data-citizen-name="${esc(name)}"></canvas>`:'❔'}</div><div><strong>${seen?esc(name):'？？？'}</strong><div class="hint">No.${String(i+1).padStart(3,'0')}　${seen?genderLabel(gender)+' ・ '+(staff?'現在の担当：'+JOBS[staff.job].label:'来訪者・以前の住民'):'未登録'}</div></div></div>`;
+}).join('');
+
+body.innerHTML=html;for(let el of body.querySelectorAll('[data-atlas]')){const c2=el.getContext('2d');c2.imageSmoothingEnabled=false;c2.drawImage(spriteMonsterHD(+el.dataset.atlas,el.dataset.atlasShiny==='1'),1,1,36,36)}for(let el of body.querySelectorAll('[data-citizen-atlas]')){const n=el.dataset.citizenName,gender=state.catalog.citizenProfiles?.[n]||genderForName(n);el.getContext('2d').drawImage(spriteCitizen(gender,Number(el.dataset.citizenAtlas)%4,!state.staff.some(w=>w.name===n)),0,0,32,32)}
+}}
+// ---- Tiny original pixel-art drawing engine (no images or libraries needed). ----
+const monsterSprites=new Map(),buildingSprites=new Map();
+function pixelSprite(w,h,draw){let c=document.createElement('canvas');c.width=w;c.height=h;let g=c.getContext('2d');g.imageSmoothingEnabled=false;draw(g);return c}
+function spriteMonster(kind,shiny=false){let key=kind+':'+(shiny?'s':'n');if(monsterSprites.has(key))return monsterSprites.get(key);let sp={...(SPECIES[kind]||SPECIES[0])};if(shiny){let hue=(kind*47+205)%360;sp.color=`hsl(${hue} 95% 54%)`;sp.dark=`hsl(${hue} 90% 29%)`;sp.light=`hsl(${(hue+28)%360} 100% 82%)`;sp.accent='#fff86a'}let c=pixelSprite(16,16,g=>{
+const p=(col,x,y,w=1,h=1)=>{g.fillStyle=col;g.fillRect(x,y,w,h)};const sh=sp.dark,base=sp.color,li=sp.light,ac=sp.accent;
+if(kind===0){p(sh,3,3,3,4);p(sh,10,3,3,4);p(li,4,2,3,3);p(li,9,2,3,3);p(sh,2,6,12,8);p(sh,3,4,10,11);p(base,3,4,10,10);p(li,4,3,8,9);p(li,2,7,12,4);p(base,4,12,8,3);p(sh,4,14,3,1);p(sh,9,14,3,1)}
+else if(kind===1){p(sh,4,3,8,11);p(base,3,6,10,8);p(base,5,3,6,3);p(li,6,1,2,4);p(sh,8,0,2,4);p(li,10,2,1,3);p(sh,2,9,3,3);p(sh,11,9,3,3);p(base,3,8,10,5);p(li,5,6,6,7);p(sh,5,13,2,2);p(sh,9,13,2,2)}
+else if(kind===2){p(sh,6,1,4,4);p(base,7,0,2,4);p(sh,4,4,8,11);p(sh,2,8,12,5);p(base,5,3,6,10);p(base,3,8,10,5);p(li,5,5,6,8);p(li,6,2,2,4);p(sh,4,13,3,2);p(sh,9,13,3,2)}
+else if(kind===3){p(sh,2,7,12,7);p(base,3,5,10,9);p(li,4,5,8,7);p(sh,7,2,2,5);p('#4f9868',3,3,5,3);p('#77b86a',4,2,5,3);p('#64b575',8,1,4,5);p('#b7e98f',9,2,2,3);p(sh,3,13,3,2);p(sh,10,13,3,2);p(sh,12,8,3,2)}
+else if(kind===4){p(sh,4,5,8,10);p(base,3,7,10,7);p(li,4,5,8,8);p('#de5d49',5,3,3,4);p('#ffdb61',7,0,3,7);p('#f67b46',9,2,3,5);p('#ffef84',7,2,2,3);p(sh,3,14,4,1);p(sh,9,14,4,1);p(ac,3,9,2,3);p(ac,11,9,2,3)}
+else if(kind===5){p(sh,2,2,4,8);p(sh,10,2,4,8);p(base,3,3,3,6);p(base,10,3,3,6);p(sh,3,6,10,8);p(base,2,8,12,5);p(li,4,6,8,7);p(sh,4,13,3,2);p(sh,9,13,3,2);p(ac,7,1,2,1);p(ac,6,2,4,1);p(ac,7,3,2,2)}
+else if(kind===6){p(sh,4,5,8,9);p(sh,2,8,12,5);p(base,3,7,10,7);p(li,4,6,8,7);p('#c9ebff',4,2,3,5);p('#e8fbff',7,1,3,5);p('#a9d9ee',10,3,2,5);p(sh,4,13,3,2);p(sh,9,13,3,2);p('#ffffff',4,7,2,2)}
+else if(kind===7){p(sh,4,3,8,11);p(sh,2,7,12,6);p(base,3,6,10,7);p(li,4,4,7,7);p('#818e93',5,3,3,2);p('#d8e1dc',9,5,3,3);p(sh,4,13,3,2);p(sh,9,13,3,2);p('#829990',3,10,2,2)}
+else{let shape=(kind-8)%5;p(sh,3,6,10,8);p(base,2,6,12,7);p(li,4,7,8,6);p(sh,3,13,3,2);p(sh,10,13,3,2);if(shape===0){p(sh,2,3,4,5);p(sh,10,3,4,5);p(base,3,2,3,5);p(base,10,2,3,5);p(ac,6,0,4,3)}if(shape===1){p(sh,4,2,8,4);p(ac,5,0,6,6);p(base,4,4,8,4);p(ac,2,6,2,3);p(ac,12,6,2,3)}if(shape===2){p(sh,3,5,10,4);p(base,1,7,14,4);p(li,0,7,3,4);p(li,13,7,3,4);p(ac,7,2,2,5)}if(shape===3){p(sh,1,5,14,6);p(ac,1,3,14,5);p(li,5,3,3,2);p(li,10,3,3,2);p(base,5,8,6,6)}if(shape===4){p(ac,6,0,4,5);p(sh,4,2,8,5);p(base,5,2,6,4);p(li,3,7,10,5);p(ac,3,11,2,3);p(ac,11,11,2,3)}}
+// face, tiny cheeks and mouth: expressions vary by species
+if(kind===1){p('#2a4650',5,8,2,2);p('#2a4650',10,8,2,2);p('#ffffff',5,8,1,1);p('#ffffff',10,8,1,1);p('#e58a47',7,10,3,2)}
+else{p('#283e4a',5,8,2,2);p('#283e4a',10,8,2,2);p('#ffffff',5,8,1,1);p('#ffffff',10,8,1,1);p(ac,4,10,2,1);p(ac,11,10,2,1);p('#574b54',7,11,2,1)}
+});monsterSprites.set(key,c);return c}
+function spriteMonsterHD(kind,shiny=false){
+ const key='hd32:'+kind+':'+Number(shiny);if(monsterSprites.has(key))return monsterSprites.get(key);
+ const sp=SPECIES[kind]||SPECIES[0];const hue=(kind*47+205)%360;
+ const dark=shiny?`hsl(${hue} 89% 26%)`:sp.dark,base=shiny?`hsl(${hue} 96% 55%)`:sp.color,
+   light=shiny?`hsl(${(hue+27)%360} 100% 83%)`:sp.light,
+   accent=shiny?'#fff446':sp.accent,edge=shiny?'#443c83':'#48655d';
+ const c=pixelSprite(32,32,g=>{
+ const p=(co,x,y,w=1,h=1)=>{g.fillStyle=co;g.fillRect(x,y,w,h)};
+ const specialty=kind%8;
+ // Hand-positioned 32×32 silhouette, independent of the older 16×16 sprites.
+ // Tail and ears protrude outside the rounded body; every pixel is hard edged.
+ if([0,5,8,15,22].includes(kind)){p(dark,5,4,6,12);p(dark,21,4,6,12);p(base,6,3,4,12);p(base,22,3,4,12);p(light,7,5,2,6);p(light,23,5,2,6)}
+ else if([1,4,10,12,16,19].includes(kind)){p(dark,14,1,5,11);p(accent,15,0,3,10);p(light,16,3,2,7);p(dark,8,6,5,7);p(dark,21,7,4,7)}
+ else if([3,9,11,17,21].includes(kind)){p(dark,8,4,16,7);p(accent,11,2,11,6);p(base,12,1,8,5);p(light,13,2,6,2)}
+ else if([6,13,18].includes(kind)){p(light,10,0,6,10);p(dark,17,3,5,8);p(base,11,2,10,7)}
+ else{p(dark,4,8,7,8);p(dark,21,8,7,8);p(base,5,7,6,8);p(base,22,7,5,8)}
+ // Four paws / feet, silhouette and lit belly.
+ p(edge,7,21,18,8);p(dark,5,12,22,14);p(dark,7,8,18,20);p(base,6,11,20,14);p(base,8,8,16,18);
+ p(light,9,10,14,13);p(light,7,14,18,8);p(base,11,22,10,5);
+ p(dark,7,26,6,3);p(dark,20,26,6,3);p(base,8,25,4,3);p(base,21,25,4,3);
+ p(dark,3,16,5,7);p(base,4,15,5,6);p(dark,24,17,5,7);p(base,24,16,4,6);
+ // Species-specific markings (32px native detail and natural pixel dithering).
+ if(specialty===0){p(accent,8,17,3,3);p(accent,22,18,3,3);p(light,12,8,8,2);p(dark,4,20,2,4)}
+ if(specialty===1){p(accent,14,7,5,3);p(dark,10,23,3,2);p(dark,20,23,3,2);p(light,6,11,4,2)}
+ if(specialty===2){p(light,3,15,5,3);p(light,25,15,4,3);p(accent,15,5,3,3);p(light,12,9,8,3)}
+ if(specialty===3){p(accent,7,11,4,2);p(accent,21,11,4,2);p(dark,15,3,3,4);p(light,10,23,11,2)}
+ if(specialty===4){p(accent,9,6,4,5);p(accent,20,7,3,4);p(light,14,2,3,6);p(dark,6,22,3,2)}
+ if(specialty===5){p(accent,14,3,4,3);p(light,6,11,3,4);p(light,24,11,3,4);p(accent,14,23,5,2)}
+ if(specialty===6){p(light,15,1,3,5);p(accent,6,19,3,3);p(accent,24,18,3,3);p(dark,13,26,6,2)}
+ if(specialty===7){p(dark,7,7,5,3);p(light,9,6,4,2);p(accent,23,7,3,4);p(light,12,22,10,2)}
+ // Eyes and cheeks rendered in individual native pixels.
+ p('#263a42',11,15,4,4);p('#263a42',21,15,4,4);p('#ffffff',11,15,2,2);p('#ffffff',21,15,2,2);p('#ffffff',14,17,1,1);p('#ffffff',24,17,1,1);
+ p(accent,7,20,4,2);p(accent,25,20,3,2);p('#675059',16,21,3,1);p('#ffffffaa',10,10,5,1);
+ // Alternate-colored rare pattern is intentionally bold even at small sizes.
+ if(shiny){p('#fff743',13,10,7,2);p('#fff743',14,12,5,2);p('#3ef0fa',10,23,4,2);p('#3ef0fa',21,23,4,2);p('#ffffff',1,6,3,3);p('#ffe35f',27,4,3,4);p('#fff8c9',3,25,3,2);p('#fff8c9',26,27,3,2)}
+ });monsterSprites.set(key,c);return c;
+}
+function spriteCitizen(gender='男',variation=0,isGuest=false){
+ const key='citizen32:'+gender+':'+variation+':'+Number(isGuest);if(monsterSprites.has(key))return monsterSprites.get(key);
+ const c=pixelSprite(32,32,g=>{
+ const p=(co,x,y,w=1,h=1)=>{g.fillStyle=co;g.fillRect(x,y,w,h)};
+ const clothes=(isGuest?['#bb9fda','#e2a37c','#81b8ae']:['#78bba0','#bca1dd','#edba75','#83a9d1'])[variation% (isGuest?3:4)];
+ const shade=gender==='女'?'#694e5e':'#574c43',hair=gender==='女'?'#9d6a66':'#80624b';
+ p('#39534e',9,27,5,4);p('#39534e',19,27,5,4);p('#e4ba97',11,24,3,4);p('#e4ba97',19,24,3,4);
+ p('#475b65',7,17,18,11);p(clothes,8,15,16,13);p('#ffffff88',10,16,4,2);
+ p('#e3ae91',6,18,3,8);p('#e3ae91',24,18,3,8);p('#f4d3b4',10,7,13,11);p('#e9b995',11,16,11,3);
+ // Two distinct silhouettes: longer side strands and bun vs short shaped cut.
+ if(gender==='女'){p(shade,8,6,16,5);p(hair,9,4,15,6);p(hair,6,8,5,13);p(hair,23,8,4,13);p(hair,20,2,6,5);p('#b28c74',21,3,3,2);p('#f5bcce',24,13,3,3);}
+ else{p(shade,8,5,16,6);p(hair,9,3,15,7);p(hair,7,7,5,6);p(hair,21,7,5,6);p('#b18a6f',14,4,7,2);p('#f5d5ac',10,11,2,2)}
+ p('#344b4e',12,13,2,2);p('#344b4e',20,13,2,2);p('#fff',12,13,1,1);p('#fff',20,13,1,1);
+ p('#dc9c94',10,16,3,1);p('#dc9c94',21,16,3,1);p('#95575b',16,17,2,1);
+ if(!isGuest){p('#f6efce',12,21,9,2);p('#417d82',15,18,3,3)}else{p('#f3e3b4',16,21,3,5);p('#fff7dd',17,21,1,3)}
+ });monsterSprites.set(key,c);return c;
+}
+function spriteEnemy(kind,large=false){const key='enemy'+kind+(large?'big':'');if(monsterSprites.has(key))return monsterSprites.get(key);const e=ENEMIES[kind]||ENEMIES[0],hue=(kind*43+25)%360;const base=`hsl(${hue} 52% 53%)`,shadow=`hsl(${hue} 52% 30%)`,shine=`hsl(${hue} 64% 73%)`;let c=pixelSprite(48,48,g=>{let p=(col,x,y,w=1,h=1)=>{g.fillStyle=col;g.fillRect(x,y,w,h)};p('#344d5644',5,41,37,4);p(shadow,9,16,30,27);p(base,8,12,32,27);p(shine,12,10,23,23);p(shadow,7,19,3,16);p(shadow,38,19,3,16);p(base,4,31,8,9);p(base,36,31,8,9);p(shadow,14,38,8,5);p(shadow,27,38,8,5);p('#fff6db',14,22,8,10);p('#fff6db',27,22,8,10);p('#33465a',17,26,3,6);p('#33465a',30,26,3,6);p('#ffffff',17,26,2,2);p('#ffffff',30,26,2,2);p('#ba5972',21,35,7,3);if(kind%4===0){p(shadow,7,5,8,14);p(shadow,33,5,8,14);p(shine,9,5,4,10);p(shine,35,5,4,10)}else if(kind%4===1){p(shadow,4,10,12,10);p(shadow,35,9,11,10);p(shine,5,9,9,5);p(shine,37,8,8,6)}else if(kind%4===2){for(let i=0;i<4;i++){p(shadow,12+i*7,5-i%2*3,4,12);p(shine,13+i*7,7,2,6)}}else{p('#d9e9e9',20,3,8,12);p(shine,22,4,4,9)}if(e.boss){p('#eac85c',12,2,24,10);p('#fff4ac',13,3,5,5);p('#fff4ac',29,3,5,5);p('#f9e79a',22,0,4,8);p('#7b5685',21,5,6,4);p(shadow,3,24,6,13);p(shadow,40,24,6,13)} });monsterSprites.set(key,c);return c}
+function spriteBuilding(type,level=1){const key=type+':'+Math.min(level,4);if(buildingSprites.has(key))return buildingSprites.get(key);let c=pixelSprite(64,64,g=>{const p=(color,x,y,w,h)=>{g.fillStyle=color;g.fillRect(x,y,w,h)};
+ p('#527e4e',2,52,60,7);p('#80ab70',1,49,62,6);
+ if(type==='farm'){
+  // True raised soil beds with parallel furrows, vegetables, stone edging, watering can.
+  p('#c4a76e',2,18,60,40);p('#725137',5,20,54,36);p('#9d6a44',8,23,48,30);
+  for(let row=0;row<3;row++){let y=25+row*10;p('#593e2e',8,y,48,7);p('#a97850',9,y+1,46,4);p('#c18a58',9,y+1,46,1);for(let col=0;col<5;col++){let x=12+col*9+(row%2?3:0);p('#317a47',x,y-4,3,5);p('#58ad62',x+2,y-6,3,5);p('#99d56c',x,y-6,2,4);if((row+col)%3===0){p('#eb9247',x+1,y-1,3,4);p('#fbbe65',x+1,y-1,1,2)}}}
+  for(let x=3;x<61;x+=12){p('#ad8751',x,13,3,12);p('#dfc48b',x+1,13,1,9)}p('#be9a68',3,17,58,4);p('#e6d3a4',3,17,57,2);
+  if(level>=2){p('#9cd1ed',47,42,11,8);p('#e8faff',49,42,5,2);p('#7c9b9d',57,44,4,3)}
+ }else if(type==='home'){
+  p('#a58066',8,25,49,27);p('#ffe6b5',11,25,43,24);p('#b35d54',5,21,54,10);p('#df8978',10,14,45,17);p('#f5b09a',15,12,35,10);p('#fff5db',18,12,29,3);p('#865b4f',28,35,10,17);p('#bc876c',30,37,6,15);p('#f0cf8e',31,40,4,5);p('#80b4c9',15,34,9,8);p('#80b4c9',42,34,9,8);p('#fff8e7',16,34,2,3);p('#fff8e7',43,34,2,3);if(level>=2){p('#b6d8bb',14,9,8,7);p('#fff6cc',15,9,6,5)}
+ }else if(type==='school'){
+  p('#bc985e',3,35,58,18);p('#e9ce91',5,36,54,14);for(let x=8;x<60;x+=9){p('#8e765b',x,37,4,12);p('#fff0b9',x+1,38,2,8)}p('#9a7250',27,18,10,33);p('#d3ad73',28,18,8,28);p('#72a6a8',20,7,24,18);p('#bcecef',23,9,18,14);p('#ffdf77',28,12,8,6);p('#a96754',6,28,13,8);p('#e9aa7d',7,27,9,6);p('#a96754',46,28,13,8);p('#e9aa7d',47,27,9,6)
+ }else if(type==='shop'){
+  p('#806a8e',6,19,52,34);p('#ffddbd',9,22,46,29);p('#654d87',5,18,54,12);p('#bf9ee2',9,11,46,13);for(let i=0;i<5;i++)p(i%2?'#fbe2bb':'#e08bb6',11+i*9,23,9,11);p('#4d806e',18,36,28,16);p('#f6d981',21,39,22,5);p('#705078',24,9,16,8);p('#f3e3a3',27,11,10,3);
+ }else if(type==='park'){
+  p('#82b97d',5,32,54,23);p('#e9d299',7,37,50,15);p('#d69a62',13,18,6,28);p('#ed9b75',44,18,6,28);p('#c7828c',10,16,44,5);p('#fff1ad',26,8,12,18);p('#e7bd67',28,10,8,13);p('#79c5dc',12,40,13,7);p('#a6e8ea',15,38,8,3);p('#f2a6b0',42,35,13,12);p('#f9ccd3',45,36,7,4)
+ }else if(type==='lab'){
+  p('#6b779d',6,28,52,26);p('#d6d1ed',10,28,44,22);p('#6a8fa3',8,20,48,12);p('#9ed1e6',12,16,40,13);p('#fff9e1',17,23,8,6);p('#6e80ba',26,7,13,19);p('#d4e4ff',29,4,7,20);p('#a5e9ed',30,1,5,15);p('#80669d',23,37,18,16);p('#e4bcf5',27,36,9,12);p('#fff8e9',29,38,5,4)
+ }else if(type==='spring'){
+  p('#8ec6ab',4,35,56,20);p('#4caaa9',7,35,50,16);p('#9ce8ed',10,39,44,8);p('#d8ffff',18,41,17,3);p('#7496bb',26,25,15,14);p('#f2e0ac',28,20,10,18);p('#fff7d8',31,21,5,8);p('#fff',33,20,3,3);p('#b1d5d6',3,33,11,4);p('#b1d5d6',49,33,11,4)
+ }else if(type==='tower'){
+  p('#8a7790',14,37,36,18);p('#b9b3cb',16,35,32,17);p('#596b91',22,17,20,31);p('#7c8db6',24,15,16,33);p('#cbd9f1',26,16,12,5);p('#b7cbea',27,25,10,10);p('#f9e6a4',28,27,7,6);p('#607ca0',18,16,28,7);p('#91adc9',21,12,22,6);p('#f6de9c',30,4,4,10);p('#fff7c6',27,7,10,4)
+ }
+ else if(type==='cafe'){
+  p('#ab8973',6,22,52,30);p('#ffe5c1',9,23,46,27);p('#b96d5e',5,18,54,10);p('#f2a97e',9,13,46,14);p('#fff3cc',14,29,12,11);p('#88ccd2',15,30,10,8);p('#8b6859',34,34,13,17);p('#f4debc',35,35,11,15);p('#e8bc75',17,7,30,10);p('#7b5b5a',18,9,28,6);p('#fff',22,10,20,2);p('#c89963',3,45,11,8);p('#f5c697',4,44,8,3);
+ }else if(type==='inn'){
+  p('#817c8d',4,26,56,28);p('#e1d7bd',8,24,48,29);p('#7c6790',3,20,58,13);p('#af97ac',7,13,50,12);p('#d9b8bb',15,8,34,10);for(let x of [13,43]){p('#739daf',x,33,9,10);p('#e7f4de',x+1,34,3,4)}p('#92715c',27,39,12,14);p('#f7dea2',29,41,7,4);p('#f7e7c1',23,11,20,7);p('#a66d67',27,13,12,2);
+ }else if(type==='workshop'){
+  p('#756c72',3,26,58,27);p('#c2ab8e',7,26,50,25);p('#855861',5,22,54,10);p('#b77c68',13,13,38,17);p('#e0b597',19,10,26,9);p('#435d65',15,34,15,15);p('#bcd3d0',17,35,11,12);p('#745f5c',38,30,9,20);p('#e1b867',35,31,15,7);p('#f8e5ae',37,31,11,3);p('#b0a8a0',49,6,8,23);p('#e7d7b4',51,3,3,8);
+ }else if(type==='clinic'){
+  p('#86a7a1',6,25,52,30);p('#f4eee0',9,24,46,27);p('#78acb1',7,20,50,10);p('#b9e2de',11,14,42,11);p('#daeee0',15,11,34,9);p('#a7d6d1',29,35,10,16);p('#fff8e9',16,32,9,10);p('#fff8e9',42,32,9,10);p('#e27e82',30,16,5,16);p('#e27e82',24,21,17,6);p('#b7d4aa',30,12,5,4);
+ }
+ if(level>=3){p('#6a9271',48,4,3,18);p('#fff5ae',50,4,12,8);p('#e2b870',51,4,9,3)}
+ if(level>=4){p('#fff2a5',6,6,5,5);p('#ffcc6e',10,2,3,4);p('#fff3b5',3,12,3,3)}
+});buildingSprites.set(key,c);return c}
+function hash(x,y){let n=Math.sin((x+1)*127.1+(y+3)*311.7)*43758.5453;return n-Math.floor(n)}
+function tileArt(x,y){const px=x*T,py=y*T,n=hash(x,y);ctx.fillStyle=(x+y)%2?(y>=20?'#81b77a':x>=22?'#c1cf8e':'#91c984'):(y>=20?'#8cc080':x>=22?'#c9d79a':'#95ce86');ctx.fillRect(px,py,T,T);if(n>.86){ctx.fillStyle=(x>=22||y>=20)?'#9ebd78':'#7ebd76';ctx.fillRect(px+9,py+6,3,6);ctx.fillRect(px+15,py+8,2,4);ctx.fillRect(px+10,py+23,2,4)}else if(n<.14){ctx.fillStyle='#b5db93';ctx.fillRect(px+5,py+15,3,3);ctx.fillRect(px+21,py+8,3,3)}else if(n>.52&&n<.61){ctx.fillStyle='#ffffff';ctx.fillRect(px+11,py+13,4,4);ctx.fillStyle='#f4c774';ctx.fillRect(px+12,py+14,2,2);ctx.fillStyle='#79b76b';ctx.fillRect(px+12,py+18,2,4)}
+if(seasonInfo().name==='冬'&&!isPond(x,y)&&!isPath(x,y)){ctx.fillStyle='#e4efe49e';ctx.fillRect(px+2,py+3,25,19);ctx.fillStyle='#ffffff8a';ctx.fillRect(px+8,py+22,15,3)}else if(seasonInfo().name==='秋'&&!isPond(x,y)&&!isPath(x,y)){ctx.fillStyle='#d9b97533';ctx.fillRect(px,py,T,T);if(n>.67){ctx.fillStyle='#e4b56c';ctx.fillRect(px+11,py+13,6,3)}}
+if(isPath(x,y)){ctx.fillStyle=(x+y)%2?'#dfcb9b':'#e9d5ac';ctx.fillRect(px,py,T,T);ctx.fillStyle='#cbbd8c';ctx.fillRect(px+4,py+3,11,1);ctx.fillRect(px+18,py+18,10,1);ctx.fillStyle='#f6e4ba';ctx.fillRect(px+5,py+6,7,2);ctx.fillRect(px+18,py+20,9,2)}
+if(isPond(x,y)){ctx.fillStyle='#8cbd7c';ctx.fillRect(px,py,T,T);ctx.fillStyle=(x+y)%2?'#77bace':'#6fb3ca';ctx.fillRect(px+2,py+2,28,28);ctx.fillStyle='#9dd7dc';ctx.fillRect(px+5,py+5,11,2);if(n>.4)ctx.fillRect(px+19,py+21,7,2);if(n>.65){ctx.fillStyle='#7ebd80';ctx.fillRect(px+18,py+7,8,5)}}}
+function tileDetails(x,y){const px=x*T,py=y*T,n=hash(x+41,y-19);if(isPond(x,y)){ctx.fillStyle='#c5eff0';ctx.fillRect(px+11,py+9,7,1);ctx.fillRect(px+7,py+21,3,1);ctx.fillStyle='#327d99';ctx.fillRect(px+24,py+17,3,1);return}if(isPath(x,y)){ctx.fillStyle='#f7e8c2';ctx.fillRect(px+3,py+11,7,1);ctx.fillRect(px+24,py+25,3,2);ctx.fillStyle='#bca67d';ctx.fillRect(px+17,py+2,4,1);ctx.fillRect(px+5,py+27,3,1);return}if(n>.18){ctx.fillStyle=n>.55?'#d0e7a1':'#76b66f';ctx.fillRect(px+4+Math.floor(n*19),py+9,1,3);ctx.fillRect(px+10,py+23,1,2);ctx.fillRect(px+20,py+27,2,1)}if(n>.6){ctx.fillStyle='#609f65';ctx.fillRect(px+27,py+4,1,3);ctx.fillRect(px+25,py+6,4,1)}if(n<.10){ctx.fillStyle='#e1ebae';ctx.fillRect(px+14,py+12,2,2);ctx.fillStyle='#e6ad93';ctx.fillRect(px+15,py+13,1,1)}}
+function drawTree(x,y){const p=(c,a,b,w,h)=>{ctx.fillStyle=c;ctx.fillRect(a,b,w,h)};const px=x*T,py=y*T;p('#5a8f64',px+7,py+25,26,7);p('#866e51',px+13,py+19,8,13);p('#4d9b69',px+1,py+8,30,18);p('#5aac71',px+4,py+4,26,20);p('#6ac17b',px+8,py+1,18,17);p('#88cf89',px+11,py+3,13,4);p('#419366',px+3,py+17,25,7)}
+function drawStone(x,y){let px=x*T,py=y*T;ctx.fillStyle='#6a9a83';ctx.fillRect(px+7,py+24,21,4);ctx.fillStyle='#969fa1';ctx.fillRect(px+8,py+16,21,11);ctx.fillStyle='#c8c8b9';ctx.fillRect(px+11,py+13,14,6);ctx.fillStyle='#e2e1cb';ctx.fillRect(px+13,py+14,7,2)}
+function drawWorld(now){ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.setTransform(3,0,0,3,0,0);ctx.save();ctx.scale(zoom,zoom);ctx.translate(-cameraX*T,-cameraY*T);for(let y=Math.max(0,Math.floor(cameraY));y<Math.min(H,Math.ceil(cameraY+VH/zoom)+1);y++)for(let x=Math.max(0,Math.floor(cameraX));x<Math.min(W,Math.ceil(cameraX+VW/zoom)+1);x++){tileArt(x,y);tileDetails(x,y)}
+// pixel-art borders
+for(let x=0;x<W;x++){let px=x*T;ctx.fillStyle='#8b694b';ctx.fillRect(px+5,5,6,11);ctx.fillRect(px+5,H*T-12,6,11);ctx.fillStyle='#e9bd85';ctx.fillRect(px+6,5,3,8);ctx.fillRect(px+6,H*T-12,3,8)}
+for(let y=0;y<H;y++){ctx.fillStyle='#8b694b';ctx.fillRect(2,y*T+8,8,8);ctx.fillRect(W*T-10,y*T+8,8,8);ctx.fillStyle='#e6b77c';ctx.fillRect(3,y*T+8,4,5);ctx.fillRect(W*T-9,y*T+8,4,5)}
+for(let p of TREES)if(sceneryAt(p[0],p[1])==='tree')drawTree(p[0],p[1]);for(let p of STONES)if(sceneryAt(p[0],p[1])==='stone')drawStone(p[0],p[1]);for(let x=Math.max(0,Math.floor(cameraX));x<Math.min(W,Math.ceil(cameraX+VW/zoom)+1);x++)for(let y=Math.max(0,Math.floor(cameraY));y<Math.min(H,Math.ceil(cameraY+VH/zoom)+1);y++){if(x>=22||y>=15){let n=hash(x+12,y+17);if(sceneryAt(x,y)==='tree')drawTree(x,y);else if(sceneryAt(x,y)==='stone')drawStone(x,y)}}
+// locked parcels: visible, purchasable adjacent land
+for(let id=0;id<ZONES.length;id++){if(state.zones.includes(id))continue;const z=ZONES[id],xx=z.x*ZONE_W*T,yy=z.y*ZONE_H*T;ctx.fillStyle='#40555ac7';ctx.fillRect(xx,yy,ZONE_W*T,ZONE_H*T);ctx.strokeStyle='#dce2cb';ctx.lineWidth=2;ctx.setLineDash([8,6]);ctx.strokeRect(xx+3,yy+3,ZONE_W*T-6,ZONE_H*T-6);ctx.setLineDash([]);ctx.fillStyle='#fff2c5';ctx.font='bold 24px sans-serif';ctx.textAlign='center';ctx.fillText('🔒',xx+ZONE_W*T/2,yy+ZONE_H*T/2-15);ctx.font='bold 15px sans-serif';ctx.fillText(zoneOpenable(id)?num(zonePrice(id))+' G':'未開拓',xx+ZONE_W*T/2,yy+ZONE_H*T/2+13);ctx.textAlign='start'}
+// scenery doodles
+for(let x=Math.max(0,Math.floor(cameraX));x<Math.min(W,Math.ceil(cameraX+VW/zoom)+1);x++)for(let y=Math.max(0,Math.floor(cameraY));y<Math.min(H,Math.ceil(cameraY+VH/zoom)+1);y++){let n=hash(x*9,y*7);if(n>.979&&unlocked(x,y)&&!blockedScenery(x,y)&&!isPath(x,y)&&!getBuildingAt(x,y)){ctx.fillStyle='#e9f4c8';ctx.fillRect(x*T+17,y*T+7,4,4);ctx.fillStyle='#edaaa8';ctx.fillRect(x*T+18,y*T+8,2,2)}}
+for(let b of state.buildings){const x=b.x*T,y=b.y*T;ctx.drawImage(spriteBuilding(b.type,b.level),x,y,64,64);if(selectedBuilding===b.id){ctx.strokeStyle=moveMode?'#92e3ff':'#fff3a0';ctx.lineWidth=2;ctx.strokeRect(x-1,y-1,66,66)}if(b.level>1){ctx.fillStyle='#304e4ac9';ctx.fillRect(x+38,y+52,24,10);ctx.font='bold 9px monospace';ctx.fillStyle='#fff8de';ctx.fillText('L'+b.level,x+40,y+60)}}
+let actors=[...state.monsters.map(m=>({o:m,monster:true})),...state.staff.map(s=>({o:s,monster:false}))];actors.sort((a,b)=>a.o.y-b.o.y);
+for(let {o,monster} of actors){let x=(o.x+.5)*T,y=(o.y+.5)*T;let phase=now/350+(o.bob||0),hop=Math.sin(phase)*1.5;ctx.fillStyle='#294f4b3a';ctx.fillRect(Math.round(x-10),Math.round(y+11),20,4);if(monster){let size=o.lv>=15?39:o.lv>=7?35:32;ctx.drawImage(spriteMonsterHD(o.kind,!!o.shiny),Math.round(x-size/2),Math.round(y-size/2+hop-3),size,size);if(o.lv>=12){ctx.fillStyle='#e7d3a3';ctx.fillRect(x-10,y-20+hop,4,5);ctx.fillRect(x+6,y-20+hop,4,5);ctx.fillStyle='#fff0bc';ctx.fillRect(x-8,y-22+hop,3,4);ctx.fillRect(x+6,y-22+hop,3,4)}if(o.lv>=25){ctx.fillStyle='#fff5bd';ctx.fillRect(x-12,y-26+hop,4,3);ctx.fillRect(x+8,y-27+hop,4,3);ctx.fillRect(x-1,y-28+hop,5,3)}if(o.shiny){ctx.fillStyle='#503977';ctx.fillRect(x-17,y-29+hop,36,9);ctx.fillStyle='#fff173';ctx.font='bold 8px monospace';ctx.fillText('★ RARE',x-15,y-22+hop);ctx.font='bold 16px sans-serif';ctx.fillText('✦',x+12,y-14+hop)}if(o.lv>=10){ctx.font='bold 12px sans-serif';ctx.fillText('✦',x+9,y-16+hop)}if(selectedMonster===o.id){ctx.strokeStyle='#fff6d6';ctx.lineWidth=2;ctx.strokeRect(Math.round(x-17),Math.round(y-19+hop),34,34)}if(Math.sin(now/1300+o.id*3)>.985){ctx.fillStyle='#fff8ec';ctx.fillRect(x+10,y-21,13,11);ctx.fillStyle='#ed9c9c';ctx.font='bold 11px sans-serif';ctx.fillText('♥',x+12,y-12)}}
+else{const v=({keeper:0,gather:1,sell:2,study:3,explore:1})[o.job]??0;ctx.drawImage(spriteCitizen(o.gender||genderForName(o.name),v),Math.round(x-16),Math.round(y-20+hop),32,32);if(o.gender==='女'){ctx.fillStyle='#f4a6c7';ctx.fillRect(Math.round(x+9),Math.round(y-19+hop),4,3)}}
+
+}
+
+// independent animated scenery layer: season flowers, cafe signboards, weather particles
+for(const b of state.buildings){const x=b.x*T,y=b.y*T;if(['cafe','inn','shop'].includes(b.type)){ctx.fillStyle='#fff8d8';ctx.fillRect(x+2,y+6,12,9);ctx.fillStyle=b.type==='cafe'?'#d77d70':'#517e96';ctx.fillRect(x+4,y+8,8,5)}if(b.type==='workshop'&&Math.sin(now/400+b.id)>.45){ctx.fillStyle='#fff1ac';ctx.fillRect(x+45,y+8,4,4);ctx.fillRect(x+51,y+12,2,2)} }
+const ss=seasonInfo();if(ss.name==='春'||ss.name==='秋'){for(let i=0;i<45;i++){const xx=(i*971+11)%W,yy=(i*409+7)%H;if(!unlocked(xx,yy)||getBuildingAt(xx,yy)||blockedScenery(xx,yy))continue;ctx.fillStyle=ss.name==='春'?'#f5b4bc':'#e8b372';ctx.fillRect(xx*T+Math.floor(hash(i,14)*20),yy*T+Math.floor(hash(i,31)*18),3,2)}}
+for(const g of state.guests){const x=Math.round((g.x+.5)*T),y=Math.round((g.y+.5)*T);ctx.drawImage(spriteCitizen(g.gender||genderForName(g.name),Math.floor(g.bob)%3,true),x-16,y-20,32,32)}
+for(let i=swirls.length-1;i>=0;i--){let s=swirls[i];ctx.globalAlpha=clamp(s.life,0,1);ctx.font='bold 15px sans-serif';ctx.fillStyle='#fff1b2';ctx.fillText(s.text,s.x,s.y-14*(1-s.life));ctx.globalAlpha=1;}
+if(state.hour>=19||state.hour<6){ctx.fillStyle='rgba(28,49,99,.15)';ctx.fillRect(cameraX*T,cameraY*T,704/zoom,480/zoom);for(let i=0;i<7;i++){let x=cameraX*T+(i*137+59)%690,y=cameraY*T+(i*67+35)%425;ctx.fillStyle='rgba(255,255,209,.53)';ctx.fillRect(x,y,2,2)}}
+
+if(state.economy?.festival){for(let i=0;i<35;i++){let x=cameraX*T+((i*179+now/22)%(VW*T/zoom)),y=cameraY*T+((i*107+now/35)%(VH*T/zoom));ctx.fillStyle=['#f4b2ac','#fff1a6','#a2e0de'][i%3];ctx.fillRect(x,y,3,3)}}const weather=weatherInfo();if(weather.name==='雨'||weather.name==='雪'){ctx.globalAlpha=weather.name==='雨'?.6:.75;ctx.fillStyle=weather.name==='雨'?'#cce6ed':'#fffefa';for(let i=0;i<80;i++){const px=cameraX*T+((i*179+now/(weather.name==='雨'?9:27))%(VW*T/zoom)),py=cameraY*T+((i*107+now/(weather.name==='雨'?11:42))%(VH*T/zoom));ctx.fillRect(px,py,weather.name==='雨'?1:3,weather.name==='雨'?8:3)}ctx.globalAlpha=1}
+if(hover){let x=hover.x,y=hover.y;if(clearMode){let sc=sceneryAt(x,y);ctx.strokeStyle=sc?'#ffed85':'#d9d8c2';ctx.lineWidth=2;ctx.strokeRect(x*T,y*T,32,32);if(sc){ctx.fillStyle='#204440dc';ctx.fillRect(x*T+1,y*T+17,30,14);ctx.fillStyle='#fff2a7';ctx.font='bold 10px monospace';ctx.fillText(CLEAR_COST[sc]+'G',x*T+5,y*T+27)}}else if(moveMode||buildMode){let valid=moveMode?canBuild(x,y,moveMode,true):canBuild(x,y);ctx.fillStyle=valid?'rgba(246,253,184,.28)':'rgba(247,110,88,.34)';ctx.fillRect(x*T,y*T,64,64);ctx.strokeStyle=valid?'#fff6cb':'#e8715c';ctx.lineWidth=3;ctx.strokeRect(x*T+1,y*T+1,62,62)}else{ctx.strokeStyle='#f8f0ccaa';ctx.lineWidth=2;ctx.strokeRect(x*T+1,y*T+1,30,30)}}ctx.restore()}
+const battleCanvas=$('battleCanvas'),battleCtx=battleCanvas.getContext('2d');battleCtx.imageSmoothingEnabled=false;
+function drawBattle(now){const g=battleCtx;g.setTransform(3,0,0,3,0,0);g.clearRect(0,0,400,140);const p=(c,x,y,w,h)=>{g.fillStyle=c;g.fillRect(x,y,w,h)};let n=state.battle?state.battle.stage:state.adventure.stage,info=stageMonsterInfo(n),b=state.battle;
+// layered hand-authored pixel background
+p('#b7dddc',0,0,400,140);p('#d4ecde',0,0,400,30);p('#91c7ce',0,36,400,22);for(let i=0;i<9;i++){let x=(i*73+18)%400;p('#edf5dc',x,11+i%3*8,22,4);p('#f9f7dc',x+5,8+i%3*8,13,3)}
+for(let i=0;i<11;i++){let x=i*43-21,y=53+(i%3)*5;p('#70ac9a',x,y,60,36);p('#8ac0a1',x+7,y-10,25,14)}
+p('#90bc7a',0,75,400,65);p('#a5d48a',0,88,400,52);for(let i=0;i<32;i++){let x=(i*71+3)%400,y=94+(i*31)%42;p(i%3===0?'#f6edba':'#72b76b',x,y,3,2)}
+p('#53765f',28,116,128,7);p('#6f9c7e',27,111,133,6);p('#4c7a67',244,113,132,8);p('#79aa8a',241,107,138,8);
+const party=crewParty();
+for(let i=0;i<party.length;i++){const m=party[i],cx=39+i*44,cy=92-(i===1?18:0),hop=b?Math.sin(now/225+i*1.7)*2:Math.sin(now/650+i*2)*1.2;g.drawImage(spriteMonsterHD(m.kind,!!m.shiny),cx,cy+hop,38,38);if(m.shiny){g.fillStyle='#392f70';g.fillRect(cx-1,cy+hop-12,42,11);g.fillStyle='#fff47c';g.font='bold 9px monospace';g.fillText('★ SHINY',cx+1,cy+hop-4)}p('#e7f7d9',cx+4,cy+38,29,2);g.fillStyle='#294e4b';g.font='bold 11px sans-serif';g.fillText(ELEM_ICON[m.element]||'🌿',cx+21,cy-3);if(m.lv>=12){p('#f4deae',cx+10,cy+hop-5,5,7);p('#f4deae',cx+24,cy+hop-6,5,8)}if(m.lv>=25){p('#ffe6a8',cx+17,cy+hop-9,7,5)}if(m.shiny){g.fillStyle='#ffffaa';g.font='bold 13px monospace';g.fillText('✦',cx+30,cy+5)} }
+g.font='bold 12px sans-serif';g.fillStyle='#fff8c7';g.fillText(ELEM_ICON[enemyElement(info.index)],355,17);const boss=info.boss;const enemySize=boss?77:67,enemyX=290,enemyY=47+(boss?-10:0)+(b?Math.sin(now/240)*1.5:Math.sin(now/850)*2.5);g.drawImage(spriteEnemy(info.index,boss),enemyX,enemyY,enemySize,enemySize);
+// title bars, localized status, and HP meters.
+p('#274f51dc',8,6,205,23);g.font='bold 10px sans-serif';g.fillStyle='#fff7df';g.fillText(`STAGE ${stageLabel(n)}  ${info.enemy.name}${boss?'  ★BOSS':''}`,15,21);
+function hpBar(x,y,w,v,max,col){p('#32515c',x,y,w,8);p('#192f39',x+1,y+1,w-2,6);p(col,x+2,y+2,Math.max(0,(w-4)*clamp(v/max,0,1)),4)}
+hpBar(15,32,126,b?b.ourHp:1,b?b.ourMax:1,'#73e1a8');hpBar(267,17,122,b?b.hp:info.hp,b?b.maxHp:info.hp,'#ffa274');g.font='bold 9px monospace';g.fillStyle='#fffdeb';g.fillText('ALLY HP',18,49);g.fillText('ENEMY HP',269,36);
+if(b){const flash=Math.max(0,1-(Date.now()-(b.lastHitAt||0))/650);if(flash>0){g.globalAlpha=flash;g.fillStyle='#fff2b7';const shift=Math.sin(now/90)*6;g.fillRect(285+shift,54,63,63);g.globalAlpha=1}g.font='bold 10px sans-serif';g.fillStyle='#ffffff';g.fillText(`ROUND ${b.round+1}`,9,134);g.fillText((b.log||'自動戦闘中').slice(0,34),139,134)}else{p('#2f685dbb',117,116,167,20);g.fillStyle='#fffbd9';g.font='bold 10px sans-serif';g.fillText('▶ 冒険タブから出発！',143,129)}}
+let lastBattleText='';function updateBattleStats(){let b=state.battle,n=b?b.stage:state.adventure.stage,info=stageMonsterInfo(n);const s=b?`⚔️ Round ${b.round}　味方 ${Math.ceil(b.ourHp)} / ${b.ourMax} HP ・ 敵 ${Math.ceil(b.hp)} / ${b.maxHp} HP　${b.log||''}`:'🌿 次の相手：'+info.enemy.name+'　｜　冒険タブから出発すると自動で戦うよ';if(s!==lastBattleText){$('battleStats').textContent=s;$('battleStageBadge').textContent=stageLabel(n)+(info.boss?' 👑ボス戦':' 🌿冒険中');lastBattleText=s}}
+
+function stepActors(dt){for(let a of [...state.monsters,...state.staff]){if(!Array.isArray(a.path)||!a.path.length)continue;let p=a.path[0],dx=p[0]-a.x,dy=p[1]-a.y,d=Math.hypot(dx,dy);if(d<.05){a.x=p[0];a.y=p[1];a.path.shift();continue}let speed=(a.kind!==undefined?1.3:1.55)*dt;if(speed>=d){a.x=p[0];a.y=p[1];a.path.shift()}else{a.x+=dx/d*speed;a.y+=dy/d*speed}}for(const g of state.guests){const d=Math.hypot(g.tx-g.x,g.ty-g.y);if(d>.08){const v=Math.min(d,dt*.55);g.x+=(g.tx-g.x)/d*v;g.y+=(g.ty-g.y)/d*v}else if(Math.random()<dt*.22){const p=randWalk();g.tx=p.x;g.ty=p.y}}for(let i=swirls.length-1;i>=0;i--){swirls[i].life-=dt*.8;if(swirls[i].life<=0)swirls.splice(i,1)}}
+function canvasCell(e){const r=canvas.getBoundingClientRect();const fx=(e.clientX-r.left)/r.width,fy=(e.clientY-r.top)/r.height;const worldX=cameraX+fx*VW/zoom,worldY=cameraY+fy*VH/zoom;return {x:Math.floor(worldX),y:Math.floor(worldY),worldX,worldY,px:fx*VW/zoom,py:fy*VH/zoom}}
+function onMapClick(e){const p=canvasCell(e);if(p.x<0||p.y<0||p.x>=W||p.y>=H)return;if(clearMode){clearScenery(p.x,p.y);return}if(!unlocked(p.x,p.y)){if(moveMode){toast('施設は解放済みの土地にしか置けないよ','error');return}const zid=zoneId(p.x,p.y);if(zoneOpenable(zid)&&confirm('この区画を '+num(zonePrice(zid))+'G で解放する？'))unlockZone(zid);else if(!zoneOpenable(zid))toast('まず隣の区画を解放してね','error');return}if(moveMode){moveBuilding(p.x,p.y);return}if(buildMode){place(buildMode,p.x,p.y);return}let m=state.monsters.findLast(m=>Math.hypot(m.x-p.x,m.y-p.y)<.9);if(m){selectedMonster=m.id;selectedBuilding=null;tab='monster';renderUI(true);toast(`🐾 ${m.name} (${SPECIES[m.kind].name}) / Lv.${m.lv}`);return}let b=getBuildingAt(p.x,p.y);if(b){selectedBuilding=b.id;selectedMonster=null;tab='build';renderUI(true);toast(`${B[b.type].icon} ${B[b.type].name} Lv.${b.level}`);return}selectedBuilding=null;selectedMonster=null;renderUI(true)}
+let mapPointer=null;
+canvas.addEventListener('pointerdown',e=>{if(e.button!==0&&e.pointerType==='mouse')return;mapPointer={id:e.pointerId,startX:e.clientX,startY:e.clientY,lastX:e.clientX,lastY:e.clientY,dragged:false};canvas.setPointerCapture(e.pointerId)});
+canvas.addEventListener('pointermove',e=>{const p=canvasCell(e);hover=p.x>=0&&p.y>=0&&p.x<W&&p.y<H?p:null;if(mapPointer&&mapPointer.id===e.pointerId){const d=mapPointer;const rect=canvas.getBoundingClientRect();if(Math.hypot(e.clientX-d.startX,e.clientY-d.startY)>5)d.dragged=true;if(d.dragged){cameraX-=(e.clientX-d.lastX)/rect.width*VW/zoom;cameraY-=(e.clientY-d.lastY)/rect.height*VH/zoom;limitCamera();hover=null}d.lastX=e.clientX;d.lastY=e.clientY}});
+canvas.addEventListener('pointerup',e=>{if(!mapPointer||mapPointer.id!==e.pointerId)return;const dragged=mapPointer.dragged;mapPointer=null;if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);if(!dragged)onMapClick(e)});
+canvas.addEventListener('pointercancel',()=>{mapPointer=null});canvas.addEventListener('mouseleave',()=>{if(!mapPointer)hover=null});
+canvas.addEventListener('wheel',e=>{e.preventDefault();const r=canvas.getBoundingClientRect(),fx=clamp((e.clientX-r.left)/r.width,0,1),fy=clamp((e.clientY-r.top)/r.height,0,1);setZoom(zoom*(e.deltaY<0?1.12:1/1.12),fx*VW,fy*VH)},{passive:false});
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.tab;renderUI(true)}));
+document.querySelectorAll('[data-speed]').forEach(b=>b.addEventListener('click',()=>{state.speed=+b.dataset.speed;document.querySelectorAll('[data-speed]').forEach(el=>el.classList.toggle('on',el===b));renderUI(true)}));
+document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const action=b.dataset.action,id=b.dataset.id;if(action==='build'){terrainMode=null;if(buildMode===id)buildMode=null;else{moveMode=null;clearMode=false;buildMode=id;selectedBuilding=null;selectedMonster=null;toast(`🔨 ${B[id].name}を建てる位置を選ぼう`)}renderUI(true)}else if(action==='cancelBuild'){buildMode=null;renderUI(true)}else if(action==='moveBuilding')startMoving(+id);else if(action==='cancelMove')cancelMoving();else if(action==='toggleClear'){terrainMode=null;toggleClearMode()}else if(action==='recoverBuilding')recoverBuilding(+id);else if(action==='zoomIn')setZoom(zoom*1.2);else if(action==='zoomOut')setZoom(zoom/1.2);else if(action==='zoomReset')setZoom(1);else if(action==='showAdventure'){tab='adventure';renderUI(true);$('tabBody').scrollTop=0}else if(action==='upgrade')upgrade(+id);else if(action==='egg')buyEgg();else if(action==='hire')hire();else if(action==='research')doResearch(id);else if(action==='selectMonster'){selectedMonster=+id;let m=state.monsters.find(m=>m.id===selectedMonster);if(m)toast(`${SPECIES[m.kind].emoji} ${m.shiny?'✨':''}${m.name} / Lv.${m.lv} / ごきげん${Math.round(m.happy)}%`);renderUI(true)}else if(action==='export')exportSave();else if(action==='reset')reset();else if(action==='import')$('importInput').click();else if(action==='pan'){const d={left:[-11,0],right:[11,0],up:[0,-10],down:[0,10]}[id];if(d)cameraMove(...d)}else if(action==='centerMap'){cameraX=0;cameraY=0;limitCamera();renderUI(false)}else if(action==='adventureStart')startAdventure();else if(action==='adventureAuto'){state.adventure.auto=!state.adventure.auto;state.adventure.cooldown=0;message(state.adventure.auto?'🔁 自動冒険を始めるよ！':'⏹️ 自動冒険を停止したよ。');renderUI(true);save(true)}else if(action==='atlas'){atlasCategory=id;renderUI(true)}else if(action==='showManagement'){tab='management';renderUI(true)}else if(action==='completeOrder')completeOrder();else if(action==='festival')hostFestival();else if(action==='trainMonster')trainMonster(+id);else if(action==='equipCharm')equipCharm(+id);else if(action==='toggleParty')toggleParty(+id)});
+document.addEventListener('pointerdown',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('change',e=>{if(e.target.matches('.staff-select')){let s=state.staff.find(o=>o.id===+e.target.dataset.staff);if(s&&JOBS[e.target.value]){s.job=e.target.value;s.path=[];message(`🧑‍🌾 ${s.name}の担当が「${JOBS[s.job].label}」になったよ。`,'success');save(true)}inputLock=false;renderUI(true)}if(e.target.id==='importInput')importSave(e.target.files[0])});document.addEventListener('focusout',e=>{if(e.target.matches('.staff-select'))inputLock=false});
+function showModal(){const el=$('modal');$('modalContent').innerHTML=`<h2>🐾 もんすたー日和 Ver.1.6.1</h2><p>街づくり・スタッフの仕事・育成・属性バトルを<strong>自動で進めていく</strong>本格モンスター牧場ゲーム！</p><div class="cols"><div><strong>🕰️ 1日はリアル約3分12秒</strong><br>1倍速でゲーム1時間が8秒。2倍・4倍にも切り替えできるよ。</div><div><strong>🏘️ 村レベルで施設解放</strong><br>Lv.1は畑とハウスだけ。Lv.2以降、特訓場や商店が増えるよ。</div><div><strong>🗺️ 区画を解放</strong><br>左クリック長押し＋マウス移動でスクロール。ホイールで拡大縮小。未開放区画はクリックで購入。</div><div><strong>✨ 色違いは1/4096</strong><br>たまごができるたびに抽選。生まれた色違いは図鑑に記録！</div><div><strong>⚔️ 冒険ステージ</strong><br>1-1から順に自動戦闘。1-5など5の倍数がボス戦！</div><div><strong>📚 図鑑とセーブ</strong><br>味方・敵・住民を登録。施設は選択して移動や回収が可能。10秒ごとに自動保存。</div></div><p class="help">アップデート前のセーブも引き継ぐよ。更新直後は下の書き出しボタンでバックアップを保存しておいてね。<br>※Ver.1.4以前のセーブを引き継ぐよ。今回は建物サイズ・地形ツール・大型モンスター・冒険の多体戦・宝箱コレクション・昇格条件を追加したよ。新機能は「施設」「冒険」「経営」タブから使えるよ。</p><div class="close-row" style="justify-content:space-between;flex-wrap:wrap"><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="button" data-action="export">⬇ データを書き出す</button><button class="button" data-action="import">⬆ 読み込む</button><button class="button warn" data-action="reset">初期化</button></div><button class="button primary" id="modalClose">牧場にもどる</button></div><input type="file" id="importInput" accept=".json,application/json" style="display:none">`;el.classList.add('show');$('modalClose').addEventListener('click',hideModal)}
+function hideModal(){$('modal').classList.remove('show')} $('helpBtn').addEventListener('click',showModal);$('saveBtn').addEventListener('click',()=>save(false));$('modal').addEventListener('click',e=>{if(e.target===$('modal'))hideModal()});window.addEventListener('keydown',e=>{if(e.key==='Escape'){hideModal();if(buildMode||moveMode||clearMode){buildMode=null;moveMode=null;clearMode=false;renderUI(true)}}});
+const didLoad=load();if(!didLoad){state=initial();ensureAdvanced();state.staff.forEach(addCitizen);state.quests=[createQuest(0),createQuest(1),createQuest(2)];state.questSequence=3;message('🌿 ようこそ、こもれび牧場へ！ 仲間たちの暮らしが始まったよ。');message('💡 村レベル1は畑とハウスだけ！育てて新施設を解放しよう。');save(true)}else{const sec=Math.min(7200,Math.max(0,Math.floor((Date.now()-(state.savedAt||Date.now()))/1000)));if(sec>=5&&state.speed!==0){for(let i=0;i<Math.floor(sec/8);i++)tick(true);message(`⌛ おかえり！ 留守中の ${Math.floor(sec/60)}分${sec%60}秒分、牧場が成長したよ。`);save(true);toast(`おかえり！ 留守中の収益や成長を反映したよ。`,'success')}}
+document.querySelectorAll('[data-speed]').forEach(el=>el.classList.toggle('on',+el.dataset.speed===state.speed));renderUI(true);
+function animate(now){let dt=Math.min(.1,Math.max(0,(now-frameAt)/1000));frameAt=now;if(state.speed>0){tickAccum+=dt*state.speed/8;let guard=0;while(tickAccum>=1&&guard++<8){tick(false);tickAccum-=1}}stepActors(dt);drawWorld(now);drawBattle(now);uiAt+=dt;savingAt+=dt;if(uiAt>.5){renderUI(false);updateBattleStats();uiAt=0}if(savingAt>10){save(true);savingAt=0}requestAnimationFrame(animate)}requestAnimationFrame(animate);
+window.addEventListener('pagehide',()=>save(true));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')save(true);else{const delta=Math.min(7200,Math.max(0,Math.floor((Date.now()-state.savedAt)/1000)));if(delta>=5&&state.speed!==0){for(let i=0;i<Math.floor(delta/8);i++)tick(true);message(`⏳ ${Math.floor(delta/60)}分${delta%60}秒間、自動運営したよ！`);save(true);renderUI(true)}}});
+
+// ===== Ver.1.6.1 patch: building sizes, terrain tools, big monsters, multi-enemy adventure, treasure collection, village requirements =====
+const DEFAULT_PATH_KEYS=new Set(Array.from({length:20},(_,i)=>(i+1)+',7').concat(Array.from({length:13},(_,i)=>'10,'+(i+1))));
+const DEFAULT_POND_KEYS=new Set((()=>{let a=[];for(let x=0;x<W;x++)for(let y=0;y<H;y++)if(((x-19)**2/9+(y-12)**2/4<=1.05)||(x===17&&y===12))a.push(x+','+y);return a})());
+const TREASURE_ITEMS=[
+ {name:'ふしぎなどんぐり',icon:'🌰',rarity:'N'},{name:'にじいろの羽',icon:'🪶',rarity:'N'},{name:'こもれびの枝',icon:'🌿',rarity:'N'},{name:'まるい化石',icon:'🪨',rarity:'N'},{name:'まほうの糸',icon:'🧵',rarity:'N'},
+ {name:'ひかるきのみ',icon:'🍓',rarity:'N'},{name:'風のすず',icon:'🔔',rarity:'N'},{name:'やさしい鈴玉',icon:'🟣',rarity:'N'},{name:'星砂の小びん',icon:'🫙',rarity:'N'},{name:'森のメダル',icon:'🎖️',rarity:'N'},
+ {name:'琥珀のかけら',icon:'🟠',rarity:'R'},{name:'旅人のコンパス',icon:'🧭',rarity:'R'},{name:'銀のスプーン',icon:'🥄',rarity:'R'},{name:'ふしぎな歯車',icon:'⚙️',rarity:'R'},{name:'月のしずく',icon:'💧',rarity:'R'},
+ {name:'王家のボタン',icon:'🔘',rarity:'R'},{name:'竜のうろこ',icon:'🐉',rarity:'R'},{name:'潮騒の貝殻',icon:'🐚',rarity:'R'},{name:'きらめく鉱石',icon:'💎',rarity:'R'},{name:'森の王冠',icon:'👑',rarity:'R'},
+ {name:'古代のランタン',icon:'🏮',rarity:'SR'},{name:'精霊のオーブ',icon:'🔮',rarity:'SR'},{name:'星くずの首飾り',icon:'📿',rarity:'SR'},{name:'大地のしるし',icon:'🗿',rarity:'SR'},{name:'聖なる角笛',icon:'📯',rarity:'SR'},
+ {name:'天空の結晶',icon:'💠',rarity:'SSR'},{name:'時の懐中時計',icon:'⌚',rarity:'SSR'},{name:'王国の宝珠',icon:'🔵',rarity:'SSR'},{name:'虹のティアラ',icon:'👑',rarity:'SSR'},{name:'まぼろしの秘宝',icon:'✨',rarity:'SSR'}
+];
+const VILLAGE_REQUIREMENTS={
+ 2:[{type:'farm',count:3,label:'おやつ畑 3軒'},{type:'home',count:2,label:'こもれびハウス 2軒'}],
+ 3:[{type:'school',count:1,label:'とっくん広場 1軒'},{type:'shop',count:1,label:'まほう商店 1軒'}],
+ 4:[{type:'park',count:1,label:'おもちゃパーク 1軒'},{type:'farm',count:4,label:'おやつ畑 4軒'}],
+ 5:[{type:'lab',count:1,label:'ふしぎ研究所 1軒'},{type:'home',count:4,label:'こもれびハウス 4軒'}],
+ 6:[{type:'spring',count:1,label:'たまごの泉 1軒'},{type:'cafe',count:1,label:'まものカフェ 1軒'}],
+ 7:[{type:'inn',count:1,label:'旅人の宿 1軒'},{type:'workshop',count:1,label:'クラフト工房 1軒'}],
+ 8:[{type:'clinic',count:1,label:'いやしの診療所 1軒'},{total:12,label:'施設合計 12軒'}],
+ 9:[{type:'tower',count:1,minLevel:2,label:'ほしぞら展望台 Lv.2'},{type:'school',count:2,label:'とっくん広場 2軒'}],
+ 10:[{type:'palace',count:1,label:'まものの宮殿 1軒'}]
+};
+let terrainMode=null,terrainDragging=false,lastTerrainKey='';
+
+function buildingMeta(type){const spec=B[type]||{};return {w:spec.w||2,h:spec.h||2,pixel:spec.pixel||64}}
+function buildingOf(b){return buildingMeta(b?.type)}
+function areaContains(b,x,y){const m=buildingOf(b);return x>=b.x&&x<b.x+m.w&&y>=b.y&&y<b.y+m.h}
+function keyXY(x,y){return x+','+y}
+function uniq(arr){return [...new Set(arr)]}
+function countBuildings(type,minLevel=1){return state.buildings.filter(b=>b.type===type&&b.level>=minLevel).length}
+function requirementStatus(level){const reqs=VILLAGE_REQUIREMENTS[level]||[];return reqs.map(r=>{let value=0,need=r.count||r.total||1,ok=false;
+ if(r.total){value=state.buildings.length;ok=value>=need}
+ else if(r.type){value=countBuildings(r.type,r.minLevel||1);ok=value>=need}
+ return Object.assign({},r,{value,need,ok})})}
+function requirementMet(level){return requirementStatus(level).every(r=>r.ok)}
+function requirementText(level){const rows=requirementStatus(level);if(!rows.length)return '条件なし';return rows.map(r=>`${r.ok?'✅':'▫️'} ${r.label} (${r.value}/${r.need})`).join(' / ')}
+function ensureV16Data(s=state){if(!s)return;s.paths=uniq(Array.isArray(s.paths)?s.paths.filter(v=>/^\d+,\d+$/.test(v)):[]);s.ponds=uniq(Array.isArray(s.ponds)?s.ponds.filter(v=>/^\d+,\d+$/.test(v)):[]);s.clearedPonds=uniq(Array.isArray(s.clearedPonds)?s.clearedPonds.filter(v=>/^\d+,\d+$/.test(v)):[]);s.treasures=uniq(Array.isArray(s.treasures)?s.treasures.filter(v=>Number.isInteger(v)&&v>=0&&v<TREASURE_ITEMS.length):[]);s.bestiary=Object.assign({treasures:s.treasures},s.bestiary||{});for(const b of s.buildings||[]){const m=buildingMeta(b.type);b.w=m.w;b.h=m.h;}return s}
+
+Object.assign(B.farm,{w:2,h:2,pixel:64});
+Object.assign(B.home,{w:2,h:2,pixel:64});
+Object.assign(B.school,{w:3,h:3,pixel:96,desc:'仲間が自動で特訓する中型施設。戦力の要。'});
+Object.assign(B.shop,{w:2,h:2,pixel:64});
+Object.assign(B.park,{w:3,h:3,pixel:96});
+Object.assign(B.lab,{w:3,h:3,pixel:96});
+Object.assign(B.spring,{w:3,h:3,pixel:96});
+Object.assign(B.tower,{w:4,h:4,pixel:128,desc:'大きな展望施設。観光と評判を大きく伸ばす。'});
+if(B.cafe)Object.assign(B.cafe,{w:2,h:2,pixel:64});
+if(B.inn)Object.assign(B.inn,{w:3,h:3,pixel:96});
+if(B.workshop)Object.assign(B.workshop,{w:3,h:3,pixel:96});
+if(B.clinic)Object.assign(B.clinic,{w:3,h:3,pixel:96});
+if(!B.palace)B.palace={name:'まものの宮殿',icon:'🏰',cost:6800,unlock:10,desc:'巨大施設。旅人と大型モンスターをひきつける。',effect:'🏰 来客・評判・お宝発見率が大きく上昇',w:6,h:6,pixel:192};
+
+const LARGE_START=SPECIES.length;
+SPECIES.push(
+ {id:'golem',name:'ガイアゴーレム',emoji:'🪨',color:'#c5b89d',dark:'#7d6b54',light:'#efe3cb',accent:'#8dc0ad',earn:7,rarity:'とてもレア',large:true},
+ {id:'draco',name:'スカイドラコ',emoji:'🐉',color:'#99c9f0',dark:'#4b7cb0',light:'#eef8ff',accent:'#ffd674',earn:8,rarity:'とてもレア',large:true},
+ {id:'whale',name:'ミスティホエル',emoji:'🐋',color:'#9fdad7',dark:'#4e9094',light:'#dfffff',accent:'#b69aef',earn:8,rarity:'とてもレア',large:true},
+ {id:'fenix',name:'ヒカリフェニ',emoji:'🕊️',color:'#ffd28d',dark:'#d88b59',light:'#fff4cc',accent:'#ff9eb2',earn:9,rarity:'とてもレア',large:true}
+);
+KIND_ELEMENTS.push('土','風','水','火');
+ELEM_ICON['風']='🍃';
+
+const __initial=initial; initial=function(){const s=__initial();ensureV16Data(s);s.paths=[];s.ponds=[];s.clearedPonds=[];s.treasures=[];for(const b of s.buildings){const m=buildingMeta(b.type);b.w=m.w;b.h=m.h;}return s}
+const __load=load; load=function(){const ok=__load();if(ok)ensureV16Data(state);return ok}
+const __ensureAdvanced=ensureAdvanced; ensureAdvanced=function(){const out=__ensureAdvanced();ensureV16Data(state);return out}
+
+isPath=function(x,y){return DEFAULT_PATH_KEYS.has(keyXY(x,y))||(state.paths||[]).includes(keyXY(x,y))}
+isPond=function(x,y){const k=keyXY(x,y);return (DEFAULT_POND_KEYS.has(k)&&!(state.clearedPonds||[]).includes(k))||(state.ponds||[]).includes(k)}
+blockedScenery=function(x,y){return isPond(x,y)||sceneryAt(x,y)!==null}
+getBuildingAt=function(x,y){return state.buildings.find(b=>areaContains(b,x,y))}
+isWalkable=function(x,y){return x>=0&&y>=0&&x<W&&y<H&&unlocked(x,y)&&!blockedScenery(x,y)&&!getBuildingAt(x,y)}
+canBuild=function(x,y,ignoreId=null,ignoreActors=false,type=null){const meta=type?buildingMeta(type):(ignoreId?buildingOf(state.buildings.find(v=>v.id===ignoreId)):{w:2,h:2});for(let dx=0;dx<meta.w;dx++)for(let dy=0;dy<meta.h;dy++){let a=x+dx,b=y+dy;if(a<1||b<1||a>=W-1||b>=H-1||!unlocked(a,b)||blockedScenery(a,b)||isPath(a,b)||(getBuildingAt(a,b)&&getBuildingAt(a,b).id!==ignoreId)||(!ignoreActors&&[...state.monsters,...state.staff].some(c=>Math.round(c.x)===a&&Math.round(c.y)===b)))return false;}return true}
+
+function putTerrain(mode,x,y){ensureV16Data();if(x<1||y<1||x>=W-1||y>=H-1||!unlocked(x,y))return;const k=keyXY(x,y);if(getBuildingAt(x,y)||sceneryAt(x,y))return; if(mode==='road'){state.ponds=state.ponds.filter(v=>v!==k);if(DEFAULT_POND_KEYS.has(k)&&!state.clearedPonds.includes(k))state.clearedPonds.push(k);if(!DEFAULT_PATH_KEYS.has(k)&&!state.paths.includes(k))state.paths.push(k);}else if(mode==='roadErase'){state.paths=state.paths.filter(v=>v!==k);}else if(mode==='pond'){state.paths=state.paths.filter(v=>v!==k);if(DEFAULT_POND_KEYS.has(k))state.clearedPonds=state.clearedPonds.filter(v=>v!==k);if(!state.ponds.includes(k))state.ponds.push(k);}else if(mode==='pondErase'){state.ponds=state.ponds.filter(v=>v!==k);if(DEFAULT_POND_KEYS.has(k)&&!state.clearedPonds.includes(k))state.clearedPonds.push(k);}}
+function handleTerrainAt(x,y){const k=keyXY(x,y);if(lastTerrainKey===k)return;lastTerrainKey=k;putTerrain(terrainMode,x,y);renderUI(false)}
+canvas.addEventListener('pointerdown',e=>{if(!terrainMode)return;if(e.button!==0&&e.pointerType==='mouse')return;e.preventDefault();e.stopImmediatePropagation();terrainDragging=true;const p=canvasCell(e);handleTerrainAt(p.x,p.y)},true)
+canvas.addEventListener('pointermove',e=>{if(!terrainMode||!terrainDragging)return;e.preventDefault();e.stopImmediatePropagation();const p=canvasCell(e);handleTerrainAt(p.x,p.y)},true)
+window.addEventListener('pointerup',e=>{if(!terrainMode)return;terrainDragging=false;lastTerrainKey='';save(true)},true)
+
+place=function(type,x,y){const spec=B[type];if(!spec)return;if(state.villageLv<spec.unlock){toast(`村レベル ${spec.unlock} で解放されるよ`,'error');return}if(state.coins<spec.cost){toast('お金が足りないよ！','error');return}if(!canBuild(x,y,null,false,type)){toast(`ここには建てられないよ。${buildingMeta(type).w}×${buildingMeta(type).h} の空き地を選んでね。`,'error');return}state.coins-=spec.cost;bookExpense(spec.cost);const m=buildingMeta(type);const b={id:state.nextId++,type,x,y,level:1,w:m.w,h:m.h};state.buildings.push(b);state.metrics.build++;state.fame+=4+Math.max(0,m.w-2);villageAdd(25+m.w*4);selectedBuilding=b.id;buildMode=null;message(`🔨 ${spec.name} (${m.w}×${m.h}) が完成したよ！`,'success');save(true);renderUI(true)}
+startMoving=function(id){const b=state.buildings.find(v=>v.id===id);if(!b)return;moveMode=b.id;buildMode=null;terrainMode=null;selectedBuilding=id;const m=buildingOf(b);toast(`🏗️ 移動先の ${m.w}×${m.h} の空き地をクリックしてね。`);renderUI(true)}
+moveBuilding=function(x,y){const b=state.buildings.find(v=>v.id===moveMode);if(!b){cancelMoving();return}const m=buildingOf(b);if(!canBuild(x,y,b.id,true,b.type)){toast(`そこには移動できないよ。${m.w}×${m.h} の空き地を選んでね。`,'error');return}if(b.x===x&&b.y===y){cancelMoving();return}b.x=x;b.y=y;for(const a of [...state.monsters,...state.staff]){a.path=[];if(a.x>=x-.7&&a.x<x+m.w&&a.y>=y-.7&&a.y<y+m.h){const p=randWalk();a.x=p.x;a.y=p.y}}selectedBuilding=b.id;moveMode=null;message(`🚚 ${B[b.type].name}を移設したよ！`,'success');save(true);renderUI(true)}
+clearScenery=function(x,y){if(terrainMode==='pondErase'){putTerrain('pondErase',x,y);toast('池を1マス埋めたよ');save(true);renderUI(true);return}if(!unlocked(x,y))return toast('先に区画を解放してね','error');const type=sceneryAt(x,y);if(!type)return toast('この場所には撤去できる木や石がないよ','error');const cost=CLEAR_COST[type];if(state.coins<cost)return toast('撤去には'+cost+'G必要だよ','error');if(!confirm((type==='tree'?'🌲 木を伐採':'🪨 石を取り除く')+'：'+cost+'Gを支払う？'))return;state.coins-=cost;bookExpense(cost);state.clearedScenery.push(x+','+y);villageAdd(3);message((type==='tree'?'🌲 木':'🪨 石')+'を'+cost+'Gで撤去したよ！','success');save(true);renderUI(true)}
+
+document.addEventListener('click',e=>{const b=e.target.closest('[data-v16-action]');if(!b)return;const a=b.dataset.v16Action,id=b.dataset.id;if(a==='terrain'){terrainMode=id;buildMode=null;moveMode=null;clearMode=false;selectedBuilding=null;selectedMonster=null;toast(({'road':'🛣️ 道','roadErase':'🧽 道けし','pond':'💧 池','pondErase':'🪣 池うめ'})[id]+' モード。クリックやドラッグで配置できるよ。');renderUI(true)}else if(a==='terrainOff'){terrainMode=null;renderUI(true)}},false)
+
+const _newEgg=newEgg; newEgg=function(auto=false){const p=Math.random();let kind;if(Math.random()<0.055)kind=LARGE_START+Math.floor(Math.random()*4);else kind=p<.34?Math.floor(Math.random()*4):p<.78?Math.floor(Math.random()*14):Math.floor(Math.random()*SPECIES.length);let shiny=Math.floor(Math.random()*4096)===0;const hatch=auto?15:22;state.eggs.push({id:state.nextId++,kind,shiny,time:0,need:hatch});if(state.eggs.length<=5)message('🥚 '+(auto?'牧場でふしぎな':'新しい')+'たまごを発見！')}
+
+const _spriteCitizen=spriteCitizen; spriteCitizen=function(gender='男',variation=0,isGuest=false){
+ const jobStyle=['keeper','gather','sell','study','explore'][variation]||'';
+ const key='citizenv16:'+gender+':'+variation+':'+Number(isGuest);if(monsterSprites.has(key))return monsterSprites.get(key);
+ const c=pixelSprite(32,32,g=>{const p=(co,x,y,w=1,h=1)=>{g.fillStyle=co;g.fillRect(x,y,w,h)};const skin='#f3cfad',skin2='#dfb08c';const hair=gender==='女'?'#8d5a5f':'#5f4d43';const apron=jobStyle==='keeper'?'#f4a6c7':jobStyle==='gather'?'#9ccf7f':jobStyle==='sell'?'#e0b56d':jobStyle==='study'?'#9fb6f0':'#88c3c5';p('#334a45',10,27,4,4);p('#334a45',18,27,4,4);p(hair,9,5,14,8);if(gender==='女'){p(hair,7,9,4,8);p(hair,21,9,4,8)}else{p(hair,8,7,16,5)}p(skin,10,9,12,10);p(skin2,11,16,10,3);p('#ffffff',11,14,2,2);p('#ffffff',19,14,2,2);p('#2d3740',12,14,1,1);p('#2d3740',20,14,1,1);p('#d47f8b',15,18,2,1);p(skin2,6,18,3,7);p(skin2,23,18,3,7);p('#55706d',8,18,16,10);p(apron,9,17,14,11);if(jobStyle==='keeper'){p('#ffffff',10,17,12,5);p('#f5c3d8',12,19,8,4);p('#ffffff',13,21,6,5)}if(jobStyle==='gather'){p('#8d6b42',9,20,14,3);p('#b58a55',20,19,4,7)}if(jobStyle==='sell'){p('#6c4d8e',10,17,12,3);p('#fff1b2',11,20,10,3)}if(jobStyle==='study'){p('#b8d6ff',10,18,12,8);p('#ffffff',11,19,10,5);p('#5e7fb5',21,13,4,6)}if(jobStyle==='explore'){p('#6c8b57',9,17,14,9);p('#d7c27b',14,19,4,6);p('#835c3d',21,18,4,7)}if(isGuest){p('#e5dca8',9,17,14,9);p('#ffffff',11,18,10,3)} }); monsterSprites.set(key,c); return c}
+
+function spriteMonster64(kind,shiny=false){const key='monster64:'+kind+':'+Number(shiny);if(monsterSprites.has(key))return monsterSprites.get(key);const c=pixelSprite(64,64,g=>{g.drawImage(spriteMonsterHD(kind,shiny),0,0,64,64);const p=(co,x,y,w,h)=>{g.fillStyle=co;g.fillRect(x,y,w,h)};p('#ffffff33',12,10,10,4);p('#ffffff22',38,14,8,3);if(SPECIES[kind]?.large){p('#00000022',10,48,44,7);p('#ffe59a',26,4,10,4);p('#fff5c2',28,1,6,5)}});monsterSprites.set(key,c);return c}
+
+function stageEncounter(n){const boss=(n%5)===0;const world=Math.floor((n-1)/5);const base=world*5;const live=[];if(boss){const idx=Math.min(ENEMIES.length-1,base+4);const e=ENEMIES[idx];live.push({name:e.name,icon:e.icon,index:idx,maxHp:Math.round(e.hp*(1+world*.48)*1.35),hp:Math.round(e.hp*(1+world*.48)*1.35),atk:Math.round(e.atk*(1+world*.35)*1.2),boss:true});return {boss:true,foes:live,chestChance:.8}}
+ const count=3+Math.floor(Math.random()*3);for(let i=0;i<count;i++){let idx=Math.min(ENEMIES.length-1,base+Math.floor(Math.random()*4));let e=ENEMIES[idx],scale=1+world*.24+i*.05;live.push({name:e.name,icon:e.icon,index:idx,maxHp:Math.round(e.hp*.56*scale),hp:Math.round(e.hp*.56*scale),atk:Math.round(e.atk*.72*scale),boss:false})}return {boss:false,foes:live,chestChance:.28+.03*world}}
+function totalEnemyHp(foes){return foes.reduce((s,f)=>s+Math.max(0,f.hp),0)}
+function rewardTreasure(stage,boss){ensureV16Data();if(Math.random()>(boss?.95:.5))return null;const roll=Math.random();let pool=TREASURE_ITEMS.map((_,i)=>i).filter(i=>roll<.08?['SR','SSR'].includes(TREASURE_ITEMS[i].rarity):roll<.28?['R','SR','SSR'].includes(TREASURE_ITEMS[i].rarity):true);const id=rnd(pool.length?pool:[0]);if(!state.treasures.includes(id))state.treasures.push(id);state.bestiary.treasures=state.treasures;return id}
+stageMonsterInfo=function(n){const enc=stageEncounter(n);const foe=enc.foes[0];return {index:foe.index,enemy:ENEMIES[foe.index],hp:Math.round(totalEnemyHp(enc.foes)),atk:foe.atk,boss:enc.boss,count:enc.foes.length,encounter:enc}}
+startAdventure=function(){if(state.battle)return toast('冒険中だよ！','error');if(!state.monsters.length)return toast('先に仲間を増やそう','error');const n=state.adventure.stage,enc=stageEncounter(n),party=crewParty();const hp=Math.floor(party.reduce((sum,m)=>sum+26+m.lv*10+(m.equip?15:0)+(SPECIES[m.kind]?.large?16:0),0));state.battle={stage:n,foes:enc.foes,ourHp:hp,ourMax:hp,round:0,log:'パーティが出発！',skills:[],status:'',boss:enc.boss,chestChance:enc.chestChance};for(const f of enc.foes)if(!state.catalog.enemies.includes(f.index))state.catalog.enemies.push(f.index);message('⚔️ '+stageLabel(n)+' '+(enc.boss?'ボス':'敵'+enc.foes.length+'体')+' に挑戦！');renderUI(true)}
+updateBattleStats=function(){let b=state.battle,n=b?b.stage:state.adventure.stage;const info=stageMonsterInfo(n);const enemyHp=b?Math.ceil(totalEnemyHp(b.foes))+'/'+b.foes.reduce((s,f)=>s+f.maxHp,0):Math.ceil(info.hp)+' / '+Math.ceil(info.hp);const live=b?b.foes.filter(f=>f.hp>0).length:info.count||1;const s=b?`⚔️ Round ${b.round}　味方 ${Math.ceil(b.ourHp)} / ${b.ourMax} HP ・ 敵 ${enemyHp}（残り${live}体）　${b.log||''}`:'🌿 次の相手：'+(info.boss?'ボス ':'')+(info.count?info.count+'体':'1体')+'　｜　冒険タブから出発すると自動で戦うよ';if(s!==lastBattleText){$('battleStats').textContent=s;$('battleStageBadge').textContent=stageLabel(n)+(info.boss?' 👑ボス戦':' 🌿冒険中');lastBattleText=s}}
+adventureTick=function(silent){if(!state.battle){if(state.adventure.auto){if((state.adventure.cooldown||0)>0)state.adventure.cooldown--;else startAdventure()}return}
+ const b=state.battle,party=crewParty();b.round++;let heal=0,skill=[];for(let m of party){let target=b.foes.find(f=>f.hp>0);if(!target)break;let el=m.element||KIND_ELEMENTS[m.kind]||'草',effective=affinity(el,enemyElement(target.index));let largeBonus=SPECIES[m.kind]?.large?1.24:1;let base=(3+Math.floor(m.lv*1.68)+Math.floor(SPECIES[m.kind].earn*.45))*(TRAITS[m.trait||0].attack||1)*(1+(state.research.battle||0)*.12)*(m.equip?1.22:1)*effective*largeBonus;if(Math.random()<.16){heal+=2+Math.floor(m.lv*.18);skill.push(m.name+'が応援！')}let dmg=Math.max(1,Math.round(base*(.82+Math.random()*.45)));target.hp=Math.max(0,target.hp-dmg);if(!silent&&Math.random()<.08)skill.push(m.name+' → '+target.name+' -'+dmg);if(target.hp<=0&&!state.catalog.defeated.includes(target.index))state.catalog.defeated.push(target.index)}
+ if(b.foes.every(f=>f.hp<=0)){const stage=b.stage,boss=b.boss,reward=Math.floor((boss?260:86)*(1+Math.floor((stage-1)/5)*.48)+stage*14),xp=boss?46:18;gainCoins(reward);state.food+=boss?20:6;state.magic+=boss?10:3;state.fame+=boss?14:3;villageAdd(boss?95:28);for(const m of party){m.xp+=xp;m.happy=clamp(m.happy+2,1,100)}state.adventure.clears++;state.adventure.stage=Math.max(state.adventure.stage,stage+1);state.metrics.explore++;const count=b.foes.length;let chest=(boss||Math.random()<b.chestChance);let treasureId=chest?rewardTreasure(stage,boss):null;if(boss&&Math.random()<.34)newEgg(true);if(boss&&Math.random()<.18){state.charms++;message('🧿 ボスの宝箱から「おまもり」を見つけた！','success')}if(treasureId!==null){const t=TREASURE_ITEMS[treasureId];message(`🎁 宝箱から「${t.icon} ${t.name}」を手に入れた！`, 'success')}message('🏆 '+stageLabel(stage)+' '+(boss?'ボス':'ステージ')+'クリア！ 敵'+count+'体を突破して +'+reward+'G','success');state.battle=null;state.adventure.cooldown=state.adventure.auto?4:0;save(true);return}
+ let foe=0;const liveFoes=b.foes.filter(f=>f.hp>0);const protect=party.filter(m=>m.element==='土').length;for(const f of liveFoes){const bossStrike=f.boss&&b.round%3===0;let dmg=Math.max(1,Math.round((f.atk+Math.floor(Math.random()*5)-2)*(bossStrike?1.75:1)*(1-Math.min(.28,protect*.08))));foe+=dmg}b.ourHp=Math.min(b.ourMax,Math.max(0,b.ourHp-foe+heal));b.skills=skill;b.status=b.boss&&b.round%3===0?'ボスの強攻撃！':'';b.log=(heal?`回復 +${heal} `:'')+'敵の攻撃 '+foe+'ダメージ'; if(b.ourHp<=0){state.battle=null;state.adventure.cooldown=0;message('💔 '+stageLabel(b.stage)+' で敗北。施設強化や大型モンスター育成で再挑戦しよう！','error');return}}
+
+drawBattle=function(now){const g=battleCtx;g.setTransform(3,0,0,3,0,0);g.clearRect(0,0,400,140);const p=(c,x,y,w,h)=>{g.fillStyle=c;g.fillRect(x,y,w,h)};let n=state.battle?state.battle.stage:state.adventure.stage,info=state.battle?{boss:state.battle.boss,foes:state.battle.foes}:stageEncounter(n),b=state.battle;
+ p('#bddfe0',0,0,400,140);p('#dff1e7',0,0,400,32);for(let i=0;i<12;i++){let x=(i*41)%400;p('#f0f7df',x,9+i%2*6,18,3)}p('#8ec487',0,78,400,62);p('#9ed18f',0,92,400,48);for(let i=0;i<28;i++){let x=(i*71+3)%400,y=96+(i*31)%36;p(i%3===0?'#f6edba':'#72b76b',x,y,3,2)}
+ const party=crewParty(); for(let i=0;i<party.length;i++){const m=party[i],cx=34+i*46,cy=90-(i===1?14:0),hop=b?Math.sin(now/225+i*1.7)*2:Math.sin(now/650+i*2)*1.2;const large=SPECIES[m.kind]?.large;const size=large?54:40;g.drawImage(large?spriteMonster64(m.kind,!!m.shiny):spriteMonsterHD(m.kind,!!m.shiny),cx,cy+hop,size,size); if(m.shiny){g.fillStyle='#392f70';g.fillRect(cx-1,cy+hop-12,42,11);g.fillStyle='#fff47c';g.font='bold 9px monospace';g.fillText('★ SHINY',cx+1,cy+hop-4)}}
+ const foes=(b?b.foes:info.foes)||[]; const live=foes.filter(f=>f.hp>0); const count=Math.max(1,foes.length); live.forEach((f,i)=>{const boss=f.boss;const big=boss||['🐲','🐉','🧊'].includes(f.icon);const cols=Math.min(3,count),rows=Math.ceil(count/3);const baseX=boss?278:238+(i%cols)*46,baseY=boss?34:40+Math.floor(i/cols)*34;const hop=b?Math.sin(now/280+i)*1.3:Math.sin(now/800+i)*1.6;const sz=boss?74:(big?42:34);g.drawImage(big?spriteMonster64(f.index,false):spriteEnemy(f.index,boss),baseX,baseY+hop,sz,sz);p('#fff1c5',baseX+2,baseY+sz+1,Math.max(18,sz-6),4);p('#d45a63',baseX+2,baseY+sz+1,Math.max(2,(Math.max(0,f.hp)/f.maxHp)*(Math.max(18,sz-6))),4);g.fillStyle='#274f51';g.font='bold 8px sans-serif';g.fillText(f.name,baseX,baseY-3)})
+ p('#274f51dc',8,6,220,23);g.font='bold 10px sans-serif';g.fillStyle='#fff7df';g.fillText(`STAGE ${stageLabel(n)}  ${info.boss?'★BOSS':'ENCOUNTER'}`,15,21);p('#2a4f65dd',230,6,160,23);g.fillStyle='#eefaf8';g.fillText(`ENEMY ${live.length}/${foes.length}`,239,21);g.fillStyle='#fff8c7';g.font='bold 11px sans-serif';g.fillText('味方HP',16,132);p('#3a6465',58,125,118,8);p('#1f3739',59,126,116,6);p('#80d6a2',60,127,Math.max(0,114*((b?b.ourHp:1)/(b?b.ourMax:1))),4);g.fillStyle='#20383f';g.fillText('敵HP',238,132);p('#69474c',276,125,108,8);p('#311f22',277,126,106,6);const total=b?totalEnemyHp(b.foes):foes.reduce((s,f)=>s+f.hp,0),totalMax=foes.reduce((s,f)=>s+f.maxHp,0)||1;p('#df7a7e',278,127,Math.max(0,104*(total/totalMax)),4);}
+
+const __drawWorld=drawWorld; drawWorld=function(now){__drawWorld(now);ctx.setTransform(3,0,0,3,0,0);ctx.save();ctx.scale(zoom,zoom);ctx.translate(-cameraX*T,-cameraY*T);
+ for(let b of state.buildings){const m=buildingOf(b);const x=b.x*T,y=b.y*T;const pixel=m.pixel||64;ctx.drawImage(spriteBuildingV161(b.type,b.level),x,y,pixel,pixel);if(selectedBuilding===b.id){ctx.strokeStyle=moveMode?'#92e3ff':'#fff3a0';ctx.lineWidth=2;ctx.strokeRect(x-1,y-1,m.w*T+2,m.h*T+2)}if(b.level>1){ctx.fillStyle='#304e4ac9';ctx.fillRect(x+m.w*T-24,y+m.h*T-12,24,10);ctx.font='bold 9px monospace';ctx.fillStyle='#fff8de';ctx.fillText('L'+b.level,x+m.w*T-22,y+m.h*T-4)}}
+ const actors=[...state.monsters.map(m=>({o:m,monster:true})),...state.staff.map(s=>({o:s,monster:false}))];actors.sort((a,b)=>a.o.y-b.o.y);for(let {o,monster} of actors){let x=(o.x+.5)*T,y=(o.y+.5)*T;let phase=now/350+(o.bob||0),hop=Math.sin(phase)*1.5;ctx.fillStyle='#294f4b3a';ctx.fillRect(Math.round(x-12),Math.round(y+13),24,4);if(monster){let large=SPECIES[o.kind]?.large,size=large?56:(o.lv>=15?39:o.lv>=7?35:32);ctx.drawImage(large?spriteMonster64(o.kind,!!o.shiny):spriteMonsterHD(o.kind,!!o.shiny),Math.round(x-size/2),Math.round(y-size/2+hop-4),size,size);if(selectedMonster===o.id){ctx.strokeStyle='#fff6d6';ctx.lineWidth=2;ctx.strokeRect(Math.round(x-size/2),Math.round(y-size/2+hop-3),size,size)}}else{const v=({keeper:0,gather:1,sell:2,study:3,explore:4})[o.job]??0;ctx.drawImage(spriteCitizen(o.gender||genderForName(o.name),v),Math.round(x-16),Math.round(y-20+hop),32,32)}}
+ if(terrainMode&&hover){ctx.strokeStyle=terrainMode.includes('Erase')?'#ffb6a0':'#9de0ff';ctx.lineWidth=2;ctx.strokeRect(hover.x*T+1,hover.y*T+1,T-2,T-2)} ctx.restore() }
+
+const _renderUI=renderUI; renderUI=function(full=false){ensureV16Data(); _renderUI(full); try{$('villageName').textContent=`🏘️ 村レベル ${state.villageLv}`;const req=state.villageLv<10?requirementText(state.villageLv+1):'最大レベル到達';$('villageNext').textContent=`成長 ${Math.floor(state.villageXp)} / ${villageThreshold(state.villageLv)} XP · 昇格条件 ${req}`;if(terrainMode){$('worldHint').textContent=`${({'road':'🛣️ 道を配置中','roadErase':'🧽 道を削除中','pond':'💧 池を配置中','pondErase':'🪣 池を埋め立て中'})[terrainMode]} ｜ ドラッグで連続配置`;}}
+ catch(err){}}
+const _renderTab=renderTab; renderTab=function(){_renderTab();const body=$('tabBody');if(tab==='build'){const tools=`<div class="info-card"><strong>🧱 施設サイズと地形ツール</strong><br>建物は大小つき。道と池は1マスずつ、ドラッグ配置にも対応。<div class="facility-actions" style="margin-top:8px;flex-wrap:wrap"><button class="small-button ${terrainMode==='road'?'primary':''}" data-v16-action="terrain" data-id="road">🛣️ 道を置く</button><button class="small-button secondary" data-v16-action="terrain" data-id="roadErase">🧽 道けし</button><button class="small-button ${terrainMode==='pond'?'primary':''}" data-v16-action="terrain" data-id="pond">💧 池を置く</button><button class="small-button secondary" data-v16-action="terrain" data-id="pondErase">🪣 池うめ</button><button class="small-button secondary" data-v16-action="terrainOff">✖ 解除</button></div></div>`;body.insertAdjacentHTML('afterbegin',tools); const ids=Object.keys(B);[...body.querySelectorAll('.build-option')].forEach((el,i)=>{const id=ids[i],spec=B[id];if(!spec)return;const info=el.querySelector('.option-info');if(info){let meta=document.createElement('div');meta.className='option-desc';meta.textContent=`サイズ ${spec.w||2}×${spec.h||2} ・ 建物画像 ${spec.pixel||64}px`;info.appendChild(meta)}})}
+ else if(tab==='management'){body.insertAdjacentHTML('afterbegin',`<div class="info-card"><strong>📜 次の昇格条件</strong><br>${state.villageLv<10?requirementText(state.villageLv+1):'最大レベルに到達したよ！'}<br><span style="color:#789487">村レベルはXPだけでなく、必要施設の建設条件も満たすと上がるよ。</span></div>`)}
+ else if(tab==='adventure'){const list=(state.treasures||[]).slice(0,8).map(i=>`${TREASURE_ITEMS[i].icon} ${TREASURE_ITEMS[i].name}`).join('、')||'まだなし';body.insertAdjacentHTML('afterbegin',`<div class="info-card"><strong>🎁 お宝コレクション</strong><br><span class="big-count">${(state.treasures||[]).length}</span> / 30 種<br>最近のお宝：${list}<br><span style="color:#789487">通常ステージでは3〜5体の敵が出現、ボスステージは1体だけ出現するよ。</span></div>`)}}
+
+const _villageAdd=villageAdd; villageAdd=function(x){state.villageXp+=(x||0);let guard=0;while(state.villageXp>=villageThreshold(state.villageLv)&&guard++<30){if(state.villageLv>=10)break; if(!requirementMet(state.villageLv+1)){if(guard===1&&Math.random()<.3)toast('昇格条件を満たすと村レベルが上がるよ');break}state.villageXp-=villageThreshold(state.villageLv);state.villageLv++;let newUnlock=Object.values(B).filter(b=>b.unlock===state.villageLv).map(b=>b.name).join('、');message('🏘️ 村レベル '+state.villageLv+' にアップ！'+(newUnlock?' 「'+newUnlock+'」が建築可能！':''),'success')}}
+
+// Apply to current state immediately after original boot.
+setTimeout(()=>{try{ensureV16Data(state);renderUI(true)}catch(e){}},0)
+
+// ===== Ver 1.6.1 =====
+// Small facilities: one native 32px tile. Town level 1 still has only farm and home.
+B.hut={name:'木の小屋',icon:'🛖',cost:210,unlock:3,desc:'森の片隅で働くスタッフの休憩場所。',effect:'🌱 のんびり休める小屋',w:1,h:1,pixel:32};
+B.stall={name:'おやつ屋台',icon:'🍡',cost:380,unlock:4,desc:'旅人におやつを売る、小さな1マスのお店。',effect:'🍡 小さなお店',w:1,h:1,pixel:32};
+// Four new 64px monsters. They use distinct geometric details, not just resized 32px sprites.
+const EXTRA_GIANTS=[
+ {id:'orchid',name:'ハナノオウ',emoji:'🌺',color:'#ee9cc6',dark:'#a96598',light:'#ffe2f4',accent:'#ffe47e',earn:8,rarity:'とてもレア',large:true},
+ {id:'granite',name:'クロガネムシ',emoji:'🪲',color:'#90abbc',dark:'#4d627a',light:'#d9eff6',accent:'#bde57e',earn:9,rarity:'とてもレア',large:true},
+ {id:'lunar',name:'ルナフェンリ',emoji:'🌙',color:'#bfc4f6',dark:'#707ab5',light:'#f1efff',accent:'#e1c3ff',earn:9,rarity:'とてもレア',large:true},
+ {id:'solar',name:'サンライオン',emoji:'🦁',color:'#ffd18e',dark:'#bb7953',light:'#fff3cf',accent:'#ee9175',earn:10,rarity:'とてもレア',large:true}
+];
+SPECIES.push(...EXTRA_GIANTS);KIND_ELEMENTS.push('草','土','光','火');
+// True native-sized building art with distinct roofs, facades, windows and level upgrades.
+const building161Cache=new Map();
+function spriteBuildingV161(type,lv=1){const meta=buildingMeta(type),n=meta.pixel,key=type+':'+Math.min(lv,6)+':'+n;
+ if(building161Cache.has(key))return building161Cache.get(key);
+ const sp=pixelSprite(n,n,g=>{
+  const p=(c,x,y,w=1,h=1)=>{g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))};
+  const seed=Object.keys(B).indexOf(type)+3;
+  const palette=[['#a2cc9a','#dce6b9','#b18d65','#6b5549'],['#aec6db','#f6e9c1','#c4886e','#63495d'],['#b8c5e9','#e6e4f4','#9475ae','#57516f'],['#d0bc99','#efe3c2','#9d776a','#645052']][seed%4];
+  // ground and crisp footpaths
+  p('#557a56',0,n-11,n,10);p('#89b67f',1,n-10,n-2,5);p('#dfc39a',n*.3,n-8,n*.4,8);p('#b99e78',n*.38,n-5,n*.22,5);
+  if(type==='farm'){
+   p('#745238',2,n*.18,n-4,n*.72);p('#aa7444',4,n*.22,n-8,n*.62);
+   for(let row=0;row<4;row++){let y=15+row*12;p('#65472f',6,y,n-12,5);p('#bb8557',6,y+5,n-12,5);for(let j=0;j<6;j++){let x=8+j*8+(row%2)*2;p('#39794e',x,y-2,2,8);p('#71ba62',x-2,y-4,6,4);p(row%2?'#f5ac63':'#df736c',x,y+1,4,4)}}
+   p('#e2c79c',1,15,4,n-19);p('#e2c79c',n-5,15,4,n-19);
+  }else if(n===32){
+   p('#715c52',4,12,24,15);p('#f2d5aa',6,15,20,12);p('#a46d62',2,11,28,5);
+   if(type==='stall'){p('#bf6082',3,4,26,10);for(let i=0;i<5;i++)p(i%2?'#fbe5b7':'#ef97a7',4+i*5,10,5,6);p('#77516c',13,20,7,7);p('#ffedb1',15,22,3,4)}
+   else{p('#957153',4,8,24,7);p('#d9ac7d',7,6,18,7);p('#674f46',12,18,8,9);p('#f6db9b',8,16,3,5)}
+  }else{
+   const pad=Math.max(5,Math.floor(n*.07)),wallY=Math.floor(n*.37), wallH=Math.floor(n*.48),roofY=Math.floor(n*.1);
+   // Individual silhouettes: tiers and turrets for castles, glass roofs for labs, flagpole for school.
+   p('#473e4f',pad+2,wallY+1,n-2*pad,wallH);p(palette[1],pad,wallY,n-2*pad,wallH-2);p(palette[2],pad,wallY,n-2*pad,4);
+   const roof=type==='lab'?'#6b87b9':type==='clinic'?'#b86890':type==='spring'?'#72aebb':type==='tower'?'#547886':type==='palace'?'#8e709f':type==='school'?'#ad7b61':palette[2];
+   p('#4b4453',pad-3,wallY-10,n-2*pad+6,12);p(roof,pad-1,roofY+Math.floor(n*.12),n-2*pad+2,wallY-roofY-Math.floor(n*.12));
+   p('#ead6a4',pad+6,roofY+Math.floor(n*.12)+5,n-2*pad-12,4);
+   for(let j=0;j<Math.floor(n/11);j++){let x=pad+j*11;p('#ffffff24',x+2,roofY+Math.floor(n*.12)+11,5,2);p('#634b66aa',x+5,wallY-10,3,7)}
+   const count=Math.max(2,Math.floor((n-pad*2)/22));for(let i=0;i<count;i++){const x=pad+6+i*Math.floor((n-2*pad-11)/count);p('#4d5b6d',x,wallY+8,9,14);p('#92d5d7',x+2,wallY+10,5,10);p('#f6edbf',x+2,wallY+10,2,5);p('#6f6572',x,wallY+13,9,2)}
+   p('#74554f',n/2-9,wallY+wallH-24,18,22);p('#ddbb8e',n/2-7,wallY+wallH-22,14,20);p('#806054',n/2-4,wallY+wallH-19,9,17);p('#f9e9ae',n/2+3,wallY+wallH-12,2,3);
+   if(type==='school'){p('#dca974',n/2-12,3,24,10);p('#d0e9e9',n/2-10,5,20,6);p('#d6c36d',n/2-2,6,5,7);p('#f2e3a1',n/2+17,6,4,17)}
+   else if(type==='lab'){p('#667bc0',n/2-11,4,22,22);p('#bdcbed',n/2-7,7,14,14);p('#ffebb3',n/2-2,9,4,8)}
+   else if(type==='spring'){p('#65a8c2',n/2-16,4,32,21);p('#b7e8de',n/2-12,8,24,13);p('#d1ffed',n/2-2,2,4,9)}
+   else if(type==='park'){p('#c68485',n/2-12,6,24,18);p('#f5dc9c',n/2-8,5,16,9);p('#a8c7e0',n/2-1,2,4,8)}
+   else if(type==='clinic'){p('#f4fff8',n/2-10,4,20,20);p('#5ca68d',n/2-3,8,6,14);p('#5ca68d',n/2-7,12,14,6)}
+   else if(type==='tower'||type==='palace'){let nT=type==='palace'?4:2;for(let i=0;i<nT;i++){let x=Math.floor((i+0.5)*n/nT)-10;p('#594d71',x,8,20,wallY-2);p('#b7a0ba',x+2,13,16,wallY-11);p('#b7a0ba',x,5,5,8);p('#b7a0ba',x+8,3,5,8);p('#b7a0ba',x+16,5,5,8);p('#f9d5ac',x+8,24,4,8)}p('#eddf93',n/2-5,0,10,10)}
+   else if(type==='shop'||type==='cafe'||type==='inn'){p(type==='cafe'?'#cf7782':'#7d91aa',pad+3,wallY+1,n-2*pad-6,9);for(let i=0;i<5;i++)p(i%2?'#fff7c9':'#f8b6c2',pad+4+i*(n-2*pad-7)/5,wallY+1,(n-2*pad-7)/5,7)}
+   if(lv>=2){for(let i=0;i<Math.floor(n/30);i++){let x=pad+6+i*29;p('#f5d176',x,n-13,5,5);p('#ffeab4',x+1,n-14,3,3)}}
+   if(lv>=4){p('#e5ca76',n/2-5,0,10,8);p('#f9f1b3',n/2-2,0,4,5)}
+  }
+ });building161Cache.set(key,sp);return sp;
+}
+// A 64×64 detailed beast has distinct ears, scales, chest fur and a glowing core.
+const large161Cache=new Map();
+function spriteLargeV161(kind,shiny=false){const key=kind+':'+Number(shiny);if(large161Cache.has(key))return large161Cache.get(key);
+ const sp=SPECIES[kind]||SPECIES[0],n=64,hue=(kind*41+210)%360;
+ const base=shiny?`hsl(${hue} 88% 59%)`:sp.color,shadow=shiny?`hsl(${hue} 65% 34%)`:sp.dark,light=shiny?'#fbf1a3':sp.light,accent=shiny?'#faff57':sp.accent;
+ const c=pixelSprite(n,n,g=>{const p=(color,x,y,w=1,h=1)=>{g.fillStyle=color;g.fillRect(x,y,w,h)};
+ p('#44505c55',6,53,52,6);p(shadow,13,22,38,32);p(base,11,19,42,30);p(light,16,24,32,20);p(shadow,6,33,12,13);p(shadow,46,34,12,13);p(base,7,32,12,14);p(base,46,32,12,14);
+ p(shadow,14,45,13,11);p(shadow,39,45,13,11);p(base,16,45,10,8);p(base,40,45,10,8);
+ p(shadow,13,9,13,21);p(shadow,39,8,13,22);p(base,15,10,10,17);p(base,41,10,10,17);p(light,16,12,4,11);p(light,43,10,4,11);
+ for(let i=0;i<4;i++){p(accent,16+i*8,12+(i%2)*3,5,4);p(shadow,18+i*7,35+(i%2)*3,5,3)}
+ p('#344753',20,30,7,7);p('#344753',40,30,7,7);p('#ffffff',21,30,3,3);p('#ffffff',41,30,3,3);p('#ffffff',24,34,1,1);p('#ffffff',44,34,1,1);
+ p(accent,30,37,8,6);p(light,33,39,3,2);p(shadow,29,43,9,2);
+ const style=(kind-LARGE_START)%8;
+ if(style===0||style===4){for(let i=0;i<3;i++){p(shadow,10+i*15,5+i%2*5,14,11);p(light,13+i*15,7+i%2*5,8,5)}}
+ if(style===1||style===5){p(base,2,17,13,25);p(base,50,16,13,25);for(let i=0;i<5;i++){p(light,4,19+i*4,8,2);p(light,53,19+i*4,8,2)}}
+ if(style===2||style===6){p(accent,7,23,10,12);p(accent,48,23,9,12);p(light,29,5,9,15)}
+ if(style===3||style===7){p(shadow,6,3,18,14);p(shadow,39,3,18,14);p(accent,9,6,13,7);p(accent,42,6,13,7)}
+ if(shiny){p('#fff17a',28,1,9,6);p('#31f5ef',10,46,6,4);p('#31f5ef',47,46,6,4);p('#fffef8',27,14,11,4)}
+ });large161Cache.set(key,c);return c}
+// Override the v1.6 64px helper to provide actual native-resolution art.
+spriteMonster64=function(kind,shiny=false){return spriteLargeV161(kind,shiny)};
+
+const TREASURE_ART=[ '#b8d89b','#9acbe4','#e1b586','#a2b9b1','#e6cadb','#e9b668','#a7a0d3','#b3dee7','#e8c593','#bbd5a7', '#dc9e82','#cbd4b0','#dcddc9','#b6c3ce','#98c4db','#c0abc8','#b6d7d0','#e5c5ab','#8db9cb','#e4b56b','#d69d72','#b99de2','#b2cbe4','#9bacad','#e0bc79','#a7ddf7','#b7aecb','#b3c2f4','#e9bee0','#efd495' ];
+const treasure161Cache=new Map();
+function spriteTreasureV161(index){if(treasure161Cache.has(index))return treasure161Cache.get(index);const rarity=TREASURE_ITEMS[index]?.rarity||'N';let base=TREASURE_ART[index]||'#c5caca';let outline=rarity==='SSR'?'#8862b9':rarity==='SR'?'#587cae':'#556767';const c=pixelSprite(32,32,g=>{const p=(col,x,y,w=1,h=1)=>{g.fillStyle=col;g.fillRect(x,y,w,h)};
+ p('#51615888',6,26,20,3);p(outline,8,8,17,18);p(base,9,6,15,20);p('#ffffff80',11,8,5,3);p('#ffe9bd',13,10,7,12);
+ let v=index%6;if(v===0){p(outline,13,3,7,5);p(base,14,2,5,7);p('#fff5db',14,13,5,5)}
+ if(v===1){p('#e7eaff',9,13,16,7);p('#ffffff',10,12,14,3);p('#7394b5',12,16,11,2)}
+ if(v===2){p('#d68d69',10,8,15,17);p('#f2dfa9',14,10,8,11);p('#ffffff',15,11,4,4)}
+ if(v===3){p('#f8e0a6',13,3,7,20);p('#fff9d5',14,2,5,15);p('#9ddfe7',10,18,15,4)}
+ if(v===4){p('#5b88a6',9,9,16,14);p('#bbecf5',10,11,13,9);p('#fdfcff',15,5,5,9)}
+ if(v===5){p('#dfb86c',8,10,18,14);p('#fbeebc',11,13,12,8);p('#e5c779',12,7,8,5)}
+ if(rarity==='SSR'){p('#ffffff',2,2,5,6);p('#ffffff',27,5,4,4);p('#fffc83',3,0,3,9);p('#fffc83',0,3,9,3)}
+ if(rarity==='SR'){p('#ffffff',3,3,3,6);p('#ffe5a7',2,5,6,2)}
+ });treasure161Cache.set(index,c);return c}
+function treasureGalleryHTML(){ensureV16Data();const owned=new Set(state.treasures||[]);let html=`<div class="info-card"><strong>🏆 お宝図鑑</strong><br><span class="big-count">${owned.size}</span> / ${TREASURE_ITEMS.length} 種<br>冒険で宝箱を開けるとお宝を発見できるよ。ボスには専用宝箱があるよ。</div><div class="treasure-grid">`;
+ TREASURE_ITEMS.forEach((t,i)=>{const found=owned.has(i);html+=`<div class="treasure-card ${found?'found':''}"><canvas class="treasure-pixel ${found?'':'unknown'}" width="32" height="32" data-treasure-index="${i}"></canvas><div class="treasure-name">${found?t.name:'？？？？'}</div><div class="treasure-rarity r-${t.rarity.toLowerCase()}">${found?t.rarity:'未発見'} · No.${String(i+1).padStart(2,'0')}</div></div>`});return html+'</div>'}
+function paintTreasureCanvases(){document.querySelectorAll('[data-treasure-index]').forEach(el=>{const c=el.getContext('2d');c.imageSmoothingEnabled=false;c.drawImage(spriteTreasureV161(Number(el.dataset.treasureIndex)),0,0,32,32)})}
+const treasureTab=document.createElement('button');treasureTab.className='tab';treasureTab.dataset.tab='treasure';treasureTab.textContent='🎁 お宝';const tabsEl=document.querySelector('.tabs');if(tabsEl)tabsEl.appendChild(treasureTab);treasureTab.addEventListener('click',()=>{tab='treasure';renderUI(true)});
+const previousRenderTab161=renderTab;renderTab=function(){if(tab==='treasure'){$('tabBody').innerHTML=treasureGalleryHTML();document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('on',el.dataset.tab===tab));paintTreasureCanvases();return}previousRenderTab161();if(tab==='adventure'){$('tabBody').insertAdjacentHTML('afterbegin',`<div class="info-card"><button class="small-button" data-v161-action="treasureTab">🎁 お宝30種の図鑑を見る</button>　<span style="font-size:11px;color:#789187">宝箱を開けてコレクションしよう</span></div>`);}}
+document.addEventListener('click',e=>{let b=e.target.closest('[data-v161-action]');if(!b)return;if(b.dataset.v161Action==='treasureTab'){tab='treasure';renderUI(true)}})
+
+function previewEncounterV161(n){const boss=n%5===0,world=Math.floor((n-1)/5),base=world*5,foes=[];const count=boss?1:3+(n%3);
+ for(let i=0;i<count;i++){const id=Math.min(ENEMIES.length-1,base+(boss?4:((n*7+i*3)%4))),e=ENEMIES[id],scale=1+world*.24+i*.05;const hp=Math.round(e.hp*(boss?1.35*(1+world*.48):.56*scale));foes.push({name:e.name,icon:e.icon,index:id,maxHp:hp,hp,atk:Math.round(e.atk*.72*scale),boss})}return {boss,foes,chestChance:boss?.8:.28}}
+let bossScene161={active:false,start:0,attack:0,win:0,treasure:-1,flash:0};
+const beforeStart161=startAdventure;startAdventure=function(){beforeStart161();if(state.battle&&state.battle.boss){bossScene161.active=true;bossScene161.start=performance.now();bossScene161.flash=performance.now()+1400}}
+const beforeAdventureTick161=adventureTick;adventureTick=function(silent){const before=state.battle,round=before?.round||0,wasBoss=!!before?.boss;beforeAdventureTick161(silent);const now=performance.now();if(wasBoss&&before&&state.battle&&state.battle.round>round&&state.battle.round%3===0){bossScene161.attack=now+500}if(before&&!state.battle){bossScene161.win=now+1800;bossScene161.active=false}}
+const beforeReward161=rewardTreasure;rewardTreasure=function(stage,boss){const val=beforeReward161(stage,boss);if(val!==null){bossScene161.treasure=val;bossScene161.win=performance.now()+2100}return val}
+const beforeDrawBattle161=drawBattle;drawBattle=function(now){beforeDrawBattle161(now);const g=battleCtx;g.setTransform(3,0,0,3,0,0);const b=state.battle;
+ if(b?.boss){let age=now-bossScene161.start,glow=(Math.sin(now/210)+1)/2;g.strokeStyle=glow>.4?'#f6b95b':'#d0798d';g.lineWidth=3;g.strokeRect(4,3,392,134);if(age<1250){g.fillStyle='#43253ccc';g.fillRect(80,45,240,48);g.fillStyle='#ffedaf';g.font='bold 27px monospace';g.fillText('⚔ BOSS BATTLE',88,77)}else if(now<bossScene161.attack){g.fillStyle='#ffe2a4';g.font='bold 14px monospace';g.fillText('⚠  POWER ATTACK!',124,42)}}
+ if(now<bossScene161.win&&!b){g.fillStyle='#254b4ddc';g.fillRect(78,36,250,71);g.fillStyle='#ffe5a4';g.font='bold 23px monospace';g.fillText('✨ CLEAR! ✨',108,62);if(bossScene161.treasure>=0){const i=bossScene161.treasure;g.drawImage(spriteTreasureV161(i),91,64,35,35);g.fillStyle='#fffbea';g.font='bold 12px sans-serif';g.fillText(TREASURE_ITEMS[i].name,136,87)}}
+};
+// Keep a compact 1.6.1 release splash in the existing help window.
+const originalHelp161=showModal;showModal=function(){originalHelp161();const title=document.querySelector('#modalContent h2');if(title)title.textContent='🐾 もんすたー日和 Ver.1.6.1';}
+// ===== end 1.6.1 =====
+
+// ===== end Ver.1.6.1 patch =====
+
+})();
+</script>
+</body>
+</html>
