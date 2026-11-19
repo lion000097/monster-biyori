@@ -1390,7 +1390,7 @@ function boss192(area){
   return {area,stage,name:foe?.name||'未知のボス',biome:BIOMES192[(area-1)%6],label:stageLabel(stage)};
 }
 function registerRelics192(count){
-  const total=Math.min(500,Math.max(6,Math.floor(count)||6));
+  const total=Math.max(6,Math.floor(count)||6);
   for(let a=Math.floor((TREASURE_ITEMS.length-RELIC_START192)/2)+1;a<=total;a++){
     const boss=boss192(a);
     TREASURE_ITEMS.push({name:boss.name+'の黄金印',icon:'🏅',rarity:'SSR',bossStage:boss.stage,source:boss.label+' '+boss.name+'撃破：0.1%（金色）'});
