@@ -4068,6 +4068,7 @@ advanceExpedition=function(points,silent=false){
  if(after>before){
   state.expeditionLast137={index:index,day:state.day,count:after,
    text:state.log?.[0]?.msg||'探検から無事に帰還したよ'};
+  save(true);
  }
 };
 const updateExpeditionBefore137=updateExpeditionPanel;
@@ -4102,8 +4103,10 @@ let atlasFilter137='all';
 function addSort137(kind){
  const root=$('tabBody'),people=kind==='monster'?state.monsters:state.staff;
  const rows=Array.from(root.querySelectorAll(kind==='monster'?
-  '.entity-row[data-action="selectMonster"]':'.entity-row:has([data-staff-sprite])'));
+  '.entity-row[data-action="selectMonster"]':'.entity-row')).filter(row=>
+  kind==='monster'||!!row.querySelector('[data-staff-sprite]'));
  if(!rows.length)return;
+ const firstRow=rows[0];
  const personById=new Map(people.map(p=>[p.id,p]));
  const idOf=row=>kind==='monster'?Number(row.dataset.id):
   Number(row.querySelector('[data-staff-sprite]')?.dataset.staffSprite);
@@ -4133,7 +4136,7 @@ function addSort137(kind){
   return (b.lv||b.level||0)-(a.lv||a.level||0);
  });
  const anchor=document.createComment('list-order-anchor137');
- root.insertBefore(anchor,rows[0]);
+ root.insertBefore(anchor,firstRow);
  for(const row of ordered)root.insertBefore(row,anchor);
  root.insertBefore(toolbar,ordered[0]);anchor.remove();
 }
@@ -4199,7 +4202,7 @@ function addAtlasTools137(){
    (atlasFilter137==='new'&&fresh)||
    (category==='friend'&&atlasFilter137.startsWith('rarity:')&&
     SPECIES[i].rarity===atlasFilter137.slice(7));
-  card.hidden=!match;
+  card.style.display=match?'flex':'none';
   if(match)shown++;
  });
  const count=document.createElement('span');count.className='tiny-note';
