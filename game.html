@@ -274,6 +274,10 @@ html.monster-detail-open{overflow:hidden}
 .frontier-replays{margin-top:10px;border-top:1px solid #d5e2d6;padding-top:8px}
 .frontier-replays label{display:block;font-size:11px;font-weight:800;margin-bottom:4px}
 .frontier-replays>div{display:flex;gap:6px}.frontier-replays select{min-width:0;flex:1;max-width:100%;min-height:32px}
+.postcard-album{list-style:none;padding:0;margin:6px 0 0}
+.postcard-album li{display:flex;align-items:center;gap:9px;padding:6px 0;border-top:1px solid #d7e2d8}
+.postcard-album canvas{width:80px;height:auto;flex:none;image-rendering:pixelated}
+.postcard-album small{display:block;color:#52685d;overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -322,7 +326,7 @@ const facilityRoles = {
   trade: {name:'商売・宿泊', types:['shop','cafe','stall','inn']},
   care: {name:'育成・休養', types:['home','school','spring','hut','clinic','park','bench211','sanctuary212']},
   research: {name:'研究・冒険', types:['lab','guild212','worldtree']},
-  tourism: {name:'観光・装飾', types:['palace','tower','gallery212','treasureMuseum213','relicStand','flowerbed211','bench211','lamp211','fountain211','park']}
+  tourism: {name:'観光・装飾', types:['palace','tower','gallery212','treasureMuseum213','relicStand','postOffice','flowerbed211','bench211','lamp211','fountain211','park']}
 };
 let facilityRole = 'all';
 function roleIncludes(type) {
@@ -606,10 +610,10 @@ function guestCountMax(){return Math.min(14,3+buildingLevel('inn')*2+buildingLev
 function visitTick(silent){const econ=state.economy,season=seasonInfo(),weather=weatherInfo(),inn=buildingLevel('inn'),cafe=buildingLevel('cafe'),tower=buildingLevel('tower');
  let chanceVisit=Math.min(.86,(.08+state.fame*.00019+inn*.10+tower*.07+cafe*.05)*season.guest*weather.guest*(1+townPopularity211()*.018+museumAppeal213()*.012));
  if(Math.random()<chanceVisit&&state.guests.length<guestCountMax()){
-  const destinations=state.buildings.filter(b=>(['shop','cafe','inn','park','tower','treasureMuseum213'].includes(b.type)||displayedRelic(b)!==null)&&entranceRoads(b).length);
+  const destinations=state.buildings.filter(b=>(['shop','cafe','inn','park','tower','treasureMuseum213','postOffice'].includes(b.type)||displayedRelic(b)!==null)&&entranceRoads(b).length);
   const shops=destinations.filter(b=>b.type==='shop'),sights=destinations.filter(b=>b.type!=='shop');
-  const museumOpen=sights.some(b=>b.type==='treasureMuseum213'||b.type==='relicStand');
-  const store=shops.length&&(!museumOpen||Math.random()>.22)?rnd(shops):null;
+  const hasTouristStop=sights.some(b=>['treasureMuseum213','relicStand','postOffice'].includes(b.type));
+  const store=shops.length&&(!hasTouristStop||Math.random()>.22)?rnd(shops):null;
   const spot=store||(sights.length?rnd(sights):null);
   const pos=spot?nearestPlace(12,9,spot.x,spot.y):nearestPlace(12,9,10,8);
   const entry=visitorEntry101(pos);
@@ -1208,7 +1212,11 @@ function drawMapActor(o,monster,now) {
     const work=o.jobTask212,site=state.buildings.find(b=>b.id===work.id),pct=clamp(1-work.remaining/work.duration,0,1);
     drawMapBubble(x,top-1,facilityActivities[site?.type]?.[0]||JOBS[work.job]?.icon||'⚒️',now,o.id);
     ctx.fillStyle='#315151';ctx.fillRect(x-13,top+1,26,3);ctx.fillStyle='#a6e0b0';ctx.fillRect(x-13,top+1,26*pct,3);
-  }else if(o.phase212==='sightseeing'&&plotWalks.get(o)?.phase==='use'&&o.act==='🏺 お宝を見学中')drawMapBubble(x,top,'🏺',now,0);
+  }else if(o.phase212==='sightseeing'&&plotWalks.get(o)?.phase==='use'){
+    const site=plotWalks.get(o).site;
+    if(site.type==='postOffice')drawMapBubble(x,top,'✉️',now,0);
+    else if(o.act==='🏺 お宝を見学中')drawMapBubble(x,top,'🏺',now,0);
+  }
   else if(o.phase212==='queue')drawMapBubble(x,top,'🛍️',now,0);
   else if(o.job&&JOBS[o.job]){ctx.font='8px sans-serif';ctx.fillText(JOBS[o.job].icon,left+size-6,foot)}
 }
@@ -3987,6 +3995,7 @@ function arriveTourist211(g){
  if(site&&g.phase212==='sightseeing'&&displayedRelic(site)!==null){
   site.sightseers=(Number(site.sightseers)||0)+1;g.act='🏺 お宝を見学中';
  }
+ if(site?.type==='postOffice'&&g.phase212==='sightseeing')g.act='✉️ 絵はがきを書いている';
  offerVIP211(g);
 }
 function vipOrderHTML211(){
@@ -4331,7 +4340,8 @@ function animateGuest212(g,dt){
  if(g.phase212==='sightseeing'){
   const site=state.buildings.find(b=>b.id===g.visitBuildingId);
   if(site&&g.visitGoal){
-   const phase=stepPlotWalk(g,site,g.visitGoal,dt,2.5,()=>arriveTourist211(g));
+   const phase=stepPlotWalk(g,site,g.visitGoal,dt,2.5,()=>arriveTourist211(g),
+    site.type==='postOffice'?()=>mailPostcard(g):undefined);
    if(phase==='done'||phase==='cancelled')beginReturn212(g);
   }else if((g.wait212-=dt)<=0)beginReturn212(g);
   return;
@@ -4515,6 +4525,10 @@ load=function(){
   state.guests=state.guests.filter(g=>Number.isFinite(g.x)&&Number.isFinite(g.y));
   for(const g of state.guests){
    const oldPhase=g.phase212;
+   if(oldPhase==='sightseeing'&&!g.postedCard&&Array.isArray(g.visitGoal)){
+    const office=state.buildings.find(b=>b.id===g.visitBuildingId&&b.type==='postOffice');
+    if(office&&entranceRoads(office).some(([x,y])=>x===g.visitGoal[0]&&y===g.visitGoal[1]&&Math.hypot(g.x-x,g.y-y)<.31))continue;
+   }
    if(g.arrived211||oldPhase==='leave'){
     g.phase212='leave';beginReturn212(g);
    }else if(oldPhase==='queue'){
@@ -4723,6 +4737,39 @@ function expeditionPanel213() {
 B.treasureMuseum213={name:'お宝展示館',icon:'🏛️',cost:1100,unlock:5,w:2,h:2,pixel:64,desc:'発見したお宝を展示して観光客を集める',effect:'🎁 レアなお宝ほど街の人気度が上昇'};
 B.relicStand={name:'ボスのお宝展示台',icon:'🏺',cost:680,unlock:3,w:2,h:2,pixel:64,
  desc:'道沿いの石の台に、ボスのお宝をひとつ飾れる。旅人が足を止めて眺めるよ。',effect:'🏺 展示中は観光客が見学し、街の人気度が上がる'};
+B.postOffice={name:'旅の郵便局',icon:'📮',cost:420,unlock:2,w:2,h:2,pixel:64,
+ desc:'道に面した赤いポストから、旅人が季節の絵はがきを送るよ。',effect:'✉️ 郵便局を選ぶと牧場の投函記録が読める'};
+const POSTCARD_SCENES=[
+ {title:'桜咲く世界樹',sky:'#b9dfdf',land:'#83af73',leaves:'#e898ac',light:'#ffcfca'},
+ {title:'青空の世界樹',sky:'#88cde3',land:'#77b58a',leaves:'#3a8b69',light:'#84c878'},
+ {title:'錦色の世界樹',sky:'#f2cca9',land:'#b29d65',leaves:'#bc6246',light:'#efad59'},
+ {title:'雪明かりの世界樹',sky:'#a8bfd1',land:'#e6eee5',leaves:'#7798a4',light:'#f4faf2'}
+];
+function readPostcards(cards){
+ return POSTCARD_SCENES.map((_,i)=>{
+  const card=cards?.[i];
+  return Number.isSafeInteger(card?.count)&&card.count>0&&Number.isSafeInteger(card.day)&&card.day>0&&typeof card.sender==='string'?
+   {count:card.count,day:card.day,sender:card.sender}:null;
+ });
+}
+function mailPostcard(guest){
+ if(guest.postedCard)return;
+ const season=SEASONS.indexOf(seasonInfo()),previous=state.postcards[season];
+ state.postcards[season]={count:(previous?.count||0)+1,day:state.day,sender:guest.name};
+ guest.postedCard=true;guest.act='📮 絵はがきを投函した';
+ if(!previous)message('📮 '+guest.name+'が「'+POSTCARD_SCENES[season].title+'」の絵はがきを送ったよ。');
+}
+function postOfficePanel(){
+ const cards=state.postcards;
+ const rows=POSTCARD_SCENES.map(({title},i)=>{
+  const card=cards[i];
+  return card?'<li><canvas width="64" height="38" aria-hidden="true" data-postcard-season="'+i+'"></canvas><div><strong>'+title+'</strong>　'+num(card.count)+'通'+
+   '<small>最後の差出人　'+esc(card.sender)+'（'+num(card.day)+'日目）</small></div></li>':'';
+ }).join('');
+ return '<section class="management-card" id="postOfficeAlbum"><h3>📮 牧場の絵はがき帳</h3>'+
+  '<p>投函 '+num(cards.reduce((sum,card)=>sum+(card?.count||0),0))+'通 · 季節の絵柄 '+cards.filter(Boolean).length+' / 4種</p>'+
+  (rows?'<ul class="postcard-album">'+rows+'</ul>':'<p>旅人がここから送った絵はがきに、差出人の名前と日付が残るよ。</p>')+'</section>';
+}
 function displayedRelic(b) {
  const id=b.relic;
  return b.type==='relicStand'&&Number.isInteger(id)&&TREASURE_ITEMS[id]?.bossStage&&state.treasures.includes(id)?id:null;
@@ -5065,7 +5112,7 @@ const facilityActivities={
  lamp211:['🏮','街灯を見上げている'],fountain211:['💧','噴水で水遊び中'],
  guild212:['🗺️','冒険の地図を読んでいる'],greenhouse212:['🌱','苗を観察中'],
  gallery212:['🔎','素材を見比べている'],sanctuary212:['🍃','精霊の声を聞いている'],
- relicStand:['🏺','ボスのお宝を見学中'],treasureMuseum213:['💎','お宝を鑑賞中']
+ relicStand:['🏺','ボスのお宝を見学中'],postOffice:['✉️','絵はがきを眺めている'],treasureMuseum213:['💎','お宝を鑑賞中']
 };
 function startFacilityVisit(m,site,spot){
  const timer=monsterWalkTimer139(m);
@@ -5198,10 +5245,10 @@ renderTab=function(){
  if(tab==='management')$('tabBody').insertAdjacentHTML('beforeend',backupPanel213());
  if(tab==='adventure')$('tabBody').prepend(expeditionPanel213());
  if(tab==='build'){
-  const b=state.buildings.find(b=>b.id===selectedBuilding&&b.type==='treasureMuseum213');
-  if(b)$('tabBody').insertAdjacentHTML('afterbegin',museumPanel213(b));
-  const stand=state.buildings.find(b=>b.id===selectedBuilding&&b.type==='relicStand');
-  if(stand)$('tabBody').insertAdjacentHTML('afterbegin',standPanel(stand));
+  const selected=state.buildings.find(b=>b.id===selectedBuilding);
+  if(selected?.type==='treasureMuseum213')$('tabBody').insertAdjacentHTML('afterbegin',museumPanel213(selected));
+  if(selected?.type==='relicStand')$('tabBody').insertAdjacentHTML('afterbegin',standPanel(selected));
+  if(selected?.type==='postOffice')$('tabBody').insertAdjacentHTML('afterbegin',postOfficePanel());
  }
  if(tab==='build'||tab==='adventure'||tab==='treasure')paintVillageCanvases();
 };
@@ -5224,6 +5271,7 @@ load=function(){
  const ok=oldLoad213();
  if(ok){
   ensureExpedition213();state.backupDay213=state.day;
+  state.postcards=readPostcards(state.postcards);
   for(const b of state.buildings)if(b.type==='treasureMuseum213')b.exhibits213=museumItems213(b);
   for(const m of state.monsters){m.phase213=phase213(state.hour);m.prevPos213=null;m.stall213=0}
   for(const g of state.guests){g.prevPos213=null;g.stall213=0;g.retries213=0}
@@ -5232,7 +5280,7 @@ load=function(){
 };
 const oldInitial213=initial;
 initial=function(){
- const s=oldInitial213();ensureExpedition213(s);s.backupDay213=null;
+ const s=oldInitial213();ensureExpedition213(s);s.backupDay213=null;s.postcards=[];
  for(const m of s.monsters)m.phase213=phase213(s.hour);
  return s;
 };
@@ -5513,9 +5561,88 @@ function tourismBlocks(g, facing) {
     }
     polygon(top,colors[0]);
   }
-  return {block,point};
+  return {block,point,polygon};
 }
 const tourismArtCache=new Map();
+function postOfficeArt(level,facing){
+  const tier=level>=4?2:level>=2?1:0,key='post/'+facing+'/'+tier;
+  if(tourismArtCache.has(key))return tourismArtCache.get(key);
+  const art=pixelSprite(128,128,g=>{
+    const {block,point,polygon}=tourismBlocks(g,facing);
+    const stone=['#e5d6b3','#b7a98a','#968979'],wood=['#a9784f','#805739','#604a3e'];
+    const cream=['#ffe8bd','#e7c991','#c8af82'],red=['#ed8367','#bd5449','#91414a'];
+    const teal=['#91c1b1','#508b86','#396c71'],dark=['#5c6667','#465954','#364a4f'];
+    const face=(corners,color)=>polygon(corners.map(p=>point(...p)),color);
+    const depth=(x,y)=>point(x,y,0)[1];
+    block(-29,-29,29,29,0,3,['#aac18a','#809b79','#67836b']);
+    block(-24,-24,24,20,3,5,stone);
+    block(-7,8,7,27,3,5,cream);
+    function office(){
+      block(-20,-21,20,9,5,9,wood);block(-19,-20,19,8,9,33,cream);
+      block(-20,-21,20,9,31,35,wood);
+      // Paint details on the two walls facing the camera.
+      const side=depth(20,0)>depth(-20,0)?19:-19;
+      for(const y of [-15,-4]){
+        face([[side,y,15],[side,y+7,15],[side,y+7,25],[side,y,25]],wood[2]);
+        face([[side,y+1,17],[side,y+6,17],[side,y+6,23],[side,y+1,23]],teal[0]);
+      }
+      if(depth(0,8)>depth(0,-20)){
+        block(-16,8,-7,9,16,25,teal);block(8,8,16,9,16,25,teal);
+        block(-5,8,5,10,9,24,wood);block(-3,10,3,11,12,21,teal);
+        face([[-7,9,26],[7,9,26],[7,9,32],[-7,9,32]],'#fff3d2');
+        face([[-7,9,32],[0,9,27],[7,9,32],[0,9,29]],red[1]);
+      }else{
+        block(-13,-21,-5,-20,15,25,teal);block(5,-21,13,-20,15,25,teal);
+      }
+      const ridge=-6;
+      const faces=[
+        {x:0,y:-23,draw(){roofSlope(-23);}},
+        {x:0,y:11,draw(){roofSlope(11);}},
+        ...[-23,23].map(x=>({x,y:ridge,draw(){face([[x,-23,34],[x,11,34],[x,ridge,49]],red[2]);}}))
+      ];
+      function roofSlope(eave){
+        const slopeColor=depth(0,eave)>depth(0,ridge)?red[1]:red[0];
+        face([[-23,eave,34],[23,eave,34],[23,ridge,49],[-23,ridge,49]],slopeColor);
+        for(const t of [.32,.65,.95]){
+          const y=ridge+(eave-ridge)*t,z=49-15*t;
+          face([[-23,y,z],[23,y,z],[23,y,z-.8],[-23,y,z-.8]],red[2]);
+        }
+      }
+      faces.sort((a,b)=>depth(a.x,a.y)-depth(b.x,b.y)).forEach(part=>part.draw());
+      block(-24,-7,24,-5,48,50,red);
+      if(tier)block(-15,-7,-10,-3,48,53,stone);
+      if(tier===2)block(-16,-8,-9,-2,53,55,wood);
+    }
+    function mailbox(){
+      block(11,15,19,23,5,7,stone);block(13,17,17,21,7,14,wood);
+      block(11,15,19,23,14,25,red);block(10,14,20,24,24,26,red);
+      if(depth(0,1)>depth(0,0)){
+        face([[12,23,20],[18,23,20],[18,23,22],[12,23,22]],dark[2]);
+        face([[13,23,16],[17,23,16],[17,23,18],[13,23,18]],cream[0]);
+      }
+    }
+    if(depth(15,19)>depth(0,-6)){office();mailbox();}else{mailbox();office();}
+  });
+  tourismArtCache.set(key,art);return art;
+}
+function postcardArt(season){
+  const key='card/'+season;
+  if(tourismArtCache.has(key))return tourismArtCache.get(key);
+  const {sky,land,leaves,light}=POSTCARD_SCENES[season];
+  const art=pixelSprite(64,38,g=>{
+    const rect=(x,y,w,h,color)=>{g.fillStyle=color;g.fillRect(x,y,w,h);};
+    rect(1,2,62,35,'#a99171');rect(0,0,62,35,'#fff4d7');rect(3,3,56,29,sky);
+    rect(7,7,11,2,'#fff5e2');rect(10,5,5,2,'#fff5e2');
+    rect(3,24,56,8,land);rect(3,21,16,3,land);rect(13,23,17,2,land);rect(42,22,17,3,land);
+    rect(26,17,5,11,'#855e48');rect(22,25,13,3,'#855e48');rect(24,14,10,6,'#855e48');
+    rect(16,12,25,6,leaves);rect(19,8,20,9,leaves);rect(24,6,11,5,leaves);rect(20,17,17,4,leaves);
+    rect(19,11,7,3,light);rect(25,8,8,3,light);rect(31,14,5,2,light);
+    for(const [x,y] of [[8,27],[13,25],[36,29],[47,26]])rect(x,y,2,1,light);
+    rect(48,4,9,9,'#fff9df');rect(49,5,7,7,leaves);rect(51,7,3,3,light);
+    for(let x=43;x<59;x+=3)rect(x,12+Math.floor((x-43)/3)%2,3,1,'#897c6a');
+  });
+  tourismArtCache.set(key,art);return art;
+}
 function standArt(level,facing,relic=null) {
   const tier=level>=4?2:level>=2?1:0,key='stand/'+facing+'/'+tier+'/'+relic;
   if(tourismArtCache.has(key))return tourismArtCache.get(key);
@@ -5543,6 +5670,7 @@ const previousFacilityArt = spriteBuildingV161;
 spriteBuildingV161 = function(type, level = 1, facing = 0) {
   const direction = validFacing(facing);
   if(type==='relicStand')return standArt(level,direction);
+  if(type==='postOffice')return postOfficeArt(level,direction);
   if (type === 'worldtree') {
     const frame = worldTreeFrames[level >= 8 ? 2 : level >= 5 ? 1 : 0];
     const tree = villageSprite(frame, 0, facilitySheet, direction);
@@ -5610,6 +5738,9 @@ function treasureThumbnail(index) {
 }
 function paintVillageCanvases() {
   const panel = $('tabBody');
+  for(const el of panel.querySelectorAll('[data-postcard-season]')){
+    el.getContext('2d').drawImage(postcardArt(Number(el.dataset.postcardSeason)),0,0);
+  }
   for (const el of panel.querySelectorAll('[data-facility-art], [data-treasure-index]')) {
     const art = el.hasAttribute('data-facility-art')
       ? spriteBuildingV161(el.dataset.facilityArt, Number(el.dataset.artLevel), Number(el.dataset.artFacing))
