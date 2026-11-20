@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>もんすたー日和 Ver.1.24.3 | まもの牧場シミュレーション</title>
+<title>もんすたー日和 Ver.1.24.4 | まもの牧場シミュレーション</title>
 <style>
 :root{--ink:#263d42;--muted:#74878a;--mint:#2d978a;--mint-dark:#20796f;--cream:#fffdf6;--bg:#e9f0e5;--line:#dae5db;--yellow:#f4ba54;--red:#e77969;--shadow:0 5px 0 #cddbd2,0 12px 28px #18372d15}
 *{box-sizing:border-box}body{margin:0;color:var(--ink);background:radial-gradient(ellipse at 50% -100px,#f8faed 0%,#e6eee5 85%);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;font-size:13px;-webkit-font-smoothing:antialiased}button,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.43}.app{max-width:1650px;margin:auto;padding:18px 18px 22px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}.brand{display:flex;align-items:center;gap:12px}.brand-badge{height:51px;width:51px;background:#344c53;box-shadow:inset 0 -5px #1d343a,0 5px #bacbc0;border:3px solid #fff5df;border-radius:12px;display:grid;place-items:center;font-size:27px;transform:rotate(-3deg)}.brand small{font-size:10px;letter-spacing:.24em;font-weight:900;color:#729187;display:block}.brand h1{font-size:23px;letter-spacing:.02em;line-height:1.1;margin:3px 0 0;font-weight:950}.top-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.clock{font-size:13px;color:#54736a;font-weight:900;background:#d8e9dc;border:1px solid #c3dccb;border-radius:10px;padding:12px 14px}.button{border:1px solid #cfddd1;background:var(--cream);padding:10px 12px;border-radius:10px;color:#365c57;font-weight:900;box-shadow:0 3px 0 #d2dfd6;transition:transform .1s,background .1s}.button:hover:not(:disabled){background:#f3faf2;transform:translateY(-1px)}.button:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #d2dfd6}.button.primary{background:#26988b;border-color:#1b8077;color:white;box-shadow:0 3px 0 #176b63}.button.primary:hover:not(:disabled){background:#178879}.button.warn{color:#c36455}.speed-group{display:flex;background:#dde9de;border-radius:10px;padding:4px;gap:3px}.speed-group button{background:transparent;border:0;border-radius:7px;color:#648178;font-size:12px;font-weight:900;padding:7px 10px}.speed-group button.on{color:white;background:#365c57;box-shadow:0 2px 0 #25443f}.layout{display:grid;grid-template-columns:238px minmax(480px,1fr) 300px;gap:16px;align-items:start}.panel{border:1px solid #dfebe0;background:#fffef8;border-radius:15px;box-shadow:var(--shadow);overflow:hidden}.panel-heading{padding:15px 16px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px}.panel-heading h2{font-size:13px;margin:0;font-weight:950}.subtext{color:#8aa097;font-size:11px;font-weight:700}.side-left,.side-right{display:flex;flex-direction:column;gap:16px}.resources{padding:0 14px 12px}.resource{display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-bottom:1px dashed #e4eee5}.resource:last-child{border-bottom:0}.resource-label{display:flex;align-items:center;gap:9px;color:#5f7874;font-weight:800}.resource-icon{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:16px}.ri-money{background:#fff0c4}.ri-food{background:#e6f5d8}.ri-stock{background:#f9e9d9}.ri-magic{background:#e9e8ff}.ri-fame{background:#ffe9dc}.resource-value{font-size:17px;font-weight:950;letter-spacing:-.03em;font-variant-numeric:tabular-nums}.resource small{font-size:10px;color:#95aaa0}.progress-section{padding:0 15px 16px}.progress-top{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#67827b;font-weight:800;margin:8px 0}.progress-track{height:9px;background:#e7ede5;border-radius:10px;overflow:hidden;border:1px solid #d8e6dc}.progress-bar{height:100%;background:linear-gradient(90deg,#81cbaa,#35a28d);border-radius:10px;transition:width .3s}.quests{padding:0 12px 13px}.quest{background:#f6f9f0;border:1px solid #e6eddd;border-radius:10px;padding:11px 11px 9px;margin:6px 0}.quest-title{display:flex;align-items:center;justify-content:space-between;gap:7px;font-size:11px;font-weight:900}.quest-title span:last-child{color:#3f9783;font-size:10px;white-space:nowrap}.quest .progress-track{margin:8px 0 4px;height:6px}.quest-bottom{color:#8da397;display:flex;justify-content:space-between;font-size:10px;font-weight:700}.tip-box{padding:14px 15px;background:#fef9ec;color:#806f4e;font-size:11px;line-height:1.75;border-top:1px solid #f0ebd8}.tip-box strong{color:#a6793b}.world-shell{padding:12px}.world-header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 5px 12px}.world-title{font-size:15px;font-weight:950}.world-title small{display:block;color:#9caf9c;font-size:10px;letter-spacing:.08em;margin-top:3px}.world-badges{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.world-tag{background:#e8f3e9;color:#568475;font-size:10px;font-weight:900;padding:6px 9px;border-radius:7px}.world-tag.gold{background:#fff1d5;color:#a98445}.canvas-frame{position:relative;border-radius:9px;overflow:hidden;border:4px solid #f3f4dc;outline:1px solid #d9e1c5;background:#8ecb78;box-shadow:inset 0 0 0 4px #fff;line-height:0}#game{width:100%;height:auto;display:block;image-rendering:pixelated;cursor:grab;touch-action:none;user-select:none}#game:active{cursor:grabbing}#battleCanvas{display:block;width:100%;height:auto;image-rendering:pixelated;aspect-ratio:1200/318}.battle-scene{background:#e7f3eb;border:3px solid #fbf5d6;border-radius:11px;overflow:hidden;box-shadow:inset 0 0 0 2px #a7cdb1}.battle-caption{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:9px 0 8px;color:#537d6d;font-weight:900;font-size:11px}.battle-caption strong{font-size:12px;color:#2f6c5d}.camera-toolbar{display:flex;align-items:center;justify-content:space-between;gap:5px;background:#f5f8ed;border:1px solid #e3ead8;border-radius:9px;padding:6px 7px;margin:0 3px 9px;flex-wrap:wrap;font-weight:900;font-size:11px;color:#6d8e7d}.camera-toolbar .camera-buttons{display:flex;align-items:center;gap:5px}.camera-toolbar button{border:1px solid #c9ded0;border-radius:7px;background:#fffefa;color:#38675b;padding:5px 11px;font-size:13px;font-weight:950;cursor:pointer}.camera-toolbar button:hover{background:#def2df}.battle-stats{font-size:10px;padding:6px 10px;color:#678e7b;line-height:1.5;background:#f6f8ec}.relocate-hint{background:#f0f1ff;border:1px solid #d0d6fa;color:#6566a1}.facility-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.facility-actions button{font-size:11px}.mini-instruction{font-size:10px;color:#859b8e}.canvas-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 4px 0;gap:8px;flex-wrap:wrap;font-size:11px;color:#8b9f97;font-weight:700}.building-mode{display:none;background:#fff2c6;border:1px solid #f0d78b;color:#9b7826;border-radius:9px;padding:9px 11px;line-height:1.5;margin-top:10px;font-weight:900;font-size:12px}.building-mode.active{display:flex;align-items:center;justify-content:space-between;gap:10px}.game-log{padding:0 14px 14px;max-height:200px;overflow:auto}.log-entry{display:flex;gap:9px;padding:9px 1px;border-bottom:1px dashed #e6ebe3;font-size:11px;line-height:1.45;color:#617971}.log-entry:last-child{border-bottom:0}.log-time{white-space:nowrap;font-size:10px;color:#a1b2a7;font-weight:800}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:10px 10px 0}.tab{background:#eff3ec;color:#78938a;border:0;padding:10px 0;border-radius:8px 8px 6px 6px;font-size:11px;font-weight:950}.tab.on{background:#2c8f82;color:white}.tab-body{padding:12px;min-height:445px;max-height:690px;overflow:auto}.help{font-size:11px;color:#8ca095;line-height:1.6;margin:3px 2px 10px}.build-option,.entity-row,.research-option{border:1px solid #e2e9de;background:#fcfdf7;border-radius:11px;padding:10px;margin-bottom:8px;transition:background .15s,border-color .15s}.build-option:hover{border-color:#b3d7c1}.build-option.selected{border-color:#4ba98f;background:#e9f7e9}.option-header{display:flex;align-items:center;gap:10px}.building-icon{width:45px;height:45px;flex:none;background:#eaf2dd;border:1px solid #e0ead5;display:grid;place-items:center;font-size:24px;border-radius:9px}.option-info{flex:1;min-width:0}.option-name{font-size:12px;font-weight:950}.option-desc{font-size:10px;line-height:1.55;color:#91a39a;margin-top:4px}.option-bottom{display:flex;gap:6px;align-items:center;justify-content:space-between;margin-top:9px}.price{font-size:11px;font-weight:950;color:#b17b30}.price-food{color:#539b5b}.small-button{border:0;background:#318f80;color:white;padding:7px 10px;border-radius:7px;font-weight:900;font-size:11px}.small-button.secondary{background:#e5ede4;color:#5c8374}.small-button:disabled{background:#e8e8e1;color:#a7afa6}.locked{opacity:.63}.locked .small-button{background:#f0eee5;color:#8e948a}.section-label{display:flex;justify-content:space-between;align-items:center;color:#617f73;font-weight:950;font-size:11px;margin:12px 1px 9px}.entity-row{padding:10px;display:flex;gap:10px;align-items:center}.monster-avatar{width:48px;height:48px;image-rendering:pixelated;background:#e5f4e9;border:1px solid #d1e8db;border-radius:9px;flex:none}.entity-info{flex:1;min-width:0}.entity-name{display:flex;align-items:center;justify-content:space-between;font-weight:950;font-size:12px;gap:4px}.entity-sub{color:#869b8f;font-weight:800;font-size:10px;margin-top:4px}.tiny-track{height:5px;border-radius:5px;background:#e6ebde;margin-top:7px;overflow:hidden}.tiny-track div{height:100%;background:#7fc8a6;border-radius:5px}.entity-row.highlighted{border-color:#46aa92;background:#effaf0}.pill{display:inline-block;font-weight:900;color:#6d887b;background:#eff2e9;padding:4px 6px;border-radius:5px;font-size:10px}.info-card{border-radius:11px;background:#eaf5ed;border:1px solid #d4e9db;padding:12px;margin-bottom:10px;line-height:1.6;font-size:11px;color:#58786b}.info-card strong{color:#287e70}.wide-button{width:100%;border:none;border-radius:10px;background:#309487;color:#fff;font-weight:950;padding:12px 9px;margin:5px 0 10px;box-shadow:0 3px 0 #1c7369}.wide-button:disabled{box-shadow:none;background:#d7e1d8;color:#9faea6}.big-count{font-size:22px;font-weight:950;color:#2e796e}.staff-select{appearance:auto;background:#edf5e9;border:1px solid #d6e4d7;border-radius:6px;padding:5px;font-size:10px;font-weight:900;color:#477c6b;max-width:118px}.research-option{margin-bottom:9px}.research-header{display:flex;align-items:center;justify-content:space-between;gap:5px;font-weight:950}.research-level{font-size:10px;color:#80a091}.research-desc{font-size:10px;color:#7f978b;line-height:1.65;margin:7px 0}.research-bottom{display:flex;justify-content:space-between;align-items:center;gap:7px}.empty{text-align:center;padding:28px 8px;font-size:11px;color:#98a8a0;line-height:1.75}.footer{font-size:10px;color:#91a59a;text-align:center;margin-top:17px}.toast-area{position:fixed;right:25px;bottom:20px;display:flex;flex-direction:column;gap:8px;z-index:999;pointer-events:none}.toast{background:#2d5752;color:white;border:2px solid #c9ebd0;border-radius:10px;padding:11px 15px;box-shadow:0 7px 22px #132b2355;font-weight:900;max-width:330px;animation:slidein .2s ease-out;line-height:1.5}.toast.error{background:#9f6453;border-color:#ffdfcc}.toast.success{background:#2d826d}.toast.fade{opacity:0;transform:translateY(9px);transition:all .3s}@keyframes slidein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.modal-wrap{display:none;position:fixed;inset:0;background:#112b2a91;z-index:1000;padding:20px;align-items:center;justify-content:center}.modal-wrap.show{display:flex}.modal{width:min(540px,100%);background:#fffef7;border-radius:18px;border:4px solid #e7eedf;padding:22px;box-shadow:0 15px 70px #09211b66;max-height:90vh;overflow:auto}.modal h2{margin:0 0 12px;font-size:20px}.modal p{color:#6f8880;line-height:1.85;font-size:13px}.modal .cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}.modal .cols div{padding:11px;border-radius:9px;background:#f1f6ec;font-size:11px;line-height:1.65}.modal .close-row{display:flex;justify-content:flex-end;gap:8px;margin-top:17px}.chip{font-size:10px;font-weight:900;padding:4px 7px;background:#edf6e6;border-radius:5px;color:#5a9169}.pixel-icon{font-family:monospace}@media(max-width:1240px){.layout{grid-template-columns:210px minmax(400px,1fr) 273px;gap:11px}.app{padding:12px}.panel-heading{padding:13px 12px 9px}}@media(max-width:1040px){.layout{grid-template-columns:minmax(0,1fr) 295px}.side-left{grid-column:1 / -1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.side-left .panel:last-child{grid-column:auto}}@media(max-width:710px){.app{padding:9px}.layout{display:flex;flex-direction:column}.layout>*{width:100%}.side-left{display:grid;grid-template-columns:1fr}.top{align-items:flex-start}.top-right{gap:5px}.clock{padding:10px}.brand h1{font-size:19px}.tabs .tab{font-size:12px}.tab-body{max-height:none;min-height:250px}}
@@ -296,7 +296,7 @@ html.monster-detail-open{overflow:hidden}
 </div>
 <div class="side-right"><section class="panel"><div class="tabs" role="tablist"><button class="tab" data-tab="management">📊 経営</button><button class="tab on" data-tab="build">🏠 施設</button><button class="tab" data-tab="monster">🐾 仲間</button><button class="tab" data-tab="staff">🧑‍🌾 職員</button><button class="tab" data-tab="research">✨ 研究</button><button class="tab" data-tab="adventure">⚔️ 冒険</button><button class="tab" data-tab="bestiary">📚 図鑑</button></div><div class="tab-body" id="tabBody"></div></section><section class="panel"><div class="panel-heading"><h2>🌱 今日のひとこと</h2></div><div class="tip-box" style="background:transparent;border:0" id="dailyTip">新しい施設を建てると、できることが増えるよ。</div></section></div>
 </main>
-<footer class="footer">© もんすたー日和 Ver.1.24.3 — バグ修正と安定性の改善</footer>
+<footer class="footer">© もんすたー日和 Ver.1.24.4 — 旅の絵はがきとボスのお宝</footer>
 </div>
 <div class="toast-area" id="toasts" aria-live="polite"></div>
 <div class="modal-wrap" id="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal" id="modalContent"></div></div>
@@ -380,7 +380,7 @@ function toggleBossLoop(stage) {
   if(!state.battle){selectedBattleStage=stage;startAdventure();}
   else{save(true);renderUI(true);}
 }
-const GAME_APP_VERSION='1.24.3';
+const GAME_APP_VERSION='1.24.4';
 const MIN_MAP_ZOOM=.15, MAX_MAP_ZOOM=2.8;
 const W=44,H=30,T=32,VW=22,VH=15,ZONE_W=11,ZONE_H=10,MIN_X=-22,MIN_Y=-20,SAVE_KEY='monster_biyori_save_v1';
 const $=id=>document.getElementById(id);
@@ -2138,7 +2138,7 @@ KIND_ELEMENTS.push('光');
 const firstFrontierArea = 7;
 const firstFrontierKind = SPECIES.length;
 const frontierBossEggRate = .34, frontierWildEggRate = .08;
-function registerFrontierArea(biome, icon, relicOwner, normal, boss) {
+function registerFrontierArea(biome, icon, normal, boss) {
   function register(row, isBoss) {
     const [name, glyph, element, hp, atk, friend] = row;
     const enemy = {name, icon:glyph, biome, element, hp, atk, boss:isBoss};
@@ -2154,28 +2154,28 @@ function registerFrontierArea(biome, icon, relicOwner, normal, boss) {
     ENEMIES.push(enemy);
     return index;
   }
-  return {biome, icon, relicOwner, normal:normal.map(row => register(row, false)), boss:register(boss, true)};
+  return {biome, icon, normal:normal.map(row => register(row, false)), boss:register(boss, true)};
 }
 const frontierAreas = [
-  registerFrontierArea('琥珀の樹海', '🌲', '森の大ヌシ', [
+  registerFrontierArea('琥珀の樹海', '🌲', [
     ['こはくリス','🐿️','光',163,18, ['amber_squirrel','#cc824d','#713e39','#ffe4a3']],
     ['木の葉アゲハ','🦋','草',167,18],
     ['松ぼっくりセンザンコウ','🌰','土',181,17],
     ['琥珀クワガタ','🪲','土',177,19]
   ], ['琥珀角のキリン','🦌','草',226,21, ['amber_qilin','#65926f','#374c4d','#ffe199']]),
-  registerFrontierArea('雷鳴の断崖', '⚡', '沼の大蛇', [
+  registerFrontierArea('雷鳴の断崖', '⚡', [
     ['太鼓ガエル','🐸','雷',175,19, ['drum_frog','#6caca4','#334e57','#fbe4b7']],
     ['風切りツバメ','🐦','風',177,20],
     ['いなずまヤマネコ','🐈','雷',183,21],
     ['避雷針ヤマアラシ','🦔','土',194,19]
   ], ['嵐冠のグリフォン','🦅','雷',244,23, ['storm_griffin','#6874a7','#3e365c','#ffdf8e']]),
-  registerFrontierArea('月鏡の湿原', '🌙', '炎の主', [
+  registerFrontierArea('月鏡の湿原', '🌙', [
     ['月舟ガメ','🐢','水',193,19, ['moon_turtle','#639b96','#3a476c','#f6e2a6']],
     ['かがみサギ','🪶','光',184,21],
     ['月灯ホタル','✨','光',188,22],
     ['睡蓮ナマズ','🪷','水',204,21]
   ], ['月環の九尾','🦊','光',262,25, ['moon_kitsune','#cec1e0','#655180','#fff0dd']]),
-  registerFrontierArea('星紡ぎの天文台', '🔭', '星の番人', [
+  registerFrontierArea('星紡ぎの天文台', '🔭', [
     ['砂時計ヤドカリ','🐚','土',202,22, ['hourglass_crab','#cf836b','#61414d','#ffda95']],
     ['天球ミミズク','🦉','光',201,23],
     ['彗星イタチ','☄️','風',207,24],
@@ -2493,7 +2493,7 @@ function registerRelics192(count){
   const total=Math.max(6,Math.floor(count)||6);
   for(let a=Math.floor((TREASURE_ITEMS.length-RELIC_START192)/2)+1;a<=total;a++){
     const boss=boss192(a);
-    const owner=frontierAreaForStage(boss.stage)?.relicOwner ?? boss.name;
+    const owner=boss.name;
     TREASURE_ITEMS.push({name:owner+'の黄金印',icon:'🏅',rarity:'SSR',bossStage:boss.stage,bossName:owner,source:boss.label+' '+boss.name+'撃破でまれに入手'});
     TREASURE_ITEMS.push({name:owner+'の虹彩秘宝',icon:'🌈',rarity:'UR',bossStage:boss.stage,bossName:owner,source:boss.label+' '+boss.name+'撃破でごくまれに入手'});
   }
@@ -5416,11 +5416,49 @@ spriteBuildingV161 = function(type, level = 1, facing = 0) {
 };
 spriteBuilding = spriteBuildingV161;
 
+const frontierRelicCache = new Map();
+function frontierRelicArt(area, iridescent) {
+  const key = area.boss + '/' + iridescent;
+  if (frontierRelicCache.has(key)) return frontierRelicCache.get(key);
+  // Mint the boss silhouette in relief. Keep its horn, wing, tails or flukes readable at map size.
+  const warm = ['#493147','#74454b','#9c623e','#bc813e','#dcaa50','#f0c678','#ffdf98','#fff1c3'];
+  const jewel = ['#35365d','#594e83','#796398','#877fbe','#64afc2','#92d9d1','#d8ead5','#fff4db'];
+  const colors = (iridescent ? jewel : warm).map(hex => [1,3,5].map(i => parseInt(hex.slice(i,i+2),16)));
+  const figure = pixelSprite(48,48,g => g.drawImage(enemy17(area.boss),0,0,48,48));
+  const fg = figure.getContext('2d'), pixels = fg.getImageData(0,0,48,48);
+  for (let i=0; i<pixels.data.length; i+=4) {
+    if (!pixels.data[i+3]) continue;
+    const lum = pixels.data[i]*.30 + pixels.data[i+1]*.54 + pixels.data[i+2]*.16;
+    const tone = colors[Math.min(7,Math.floor(lum/32))];
+    pixels.data.set(tone,i);
+  }
+  fg.putImageData(pixels,0,0);
+  const art = pixelSprite(64,64,g => {
+    const rect=(color,x,y,w,h)=>{g.fillStyle=color;g.fillRect(x,y,w,h)};
+    const star=(x,y,color)=>{rect(color,x-2,y,5,1);rect(color,x,y-2,1,5)};
+    if (iridescent) {
+      // An enamel crest floats over a cut moonstone with three stepped facets.
+      rect('#544879',18,48,28,6);rect('#63558b',22,54,20,3);rect('#70689f',26,57,12,2);
+      rect('#799ac5',19,48,26,3);rect('#a6e0d6',23,47,18,3);rect('#c9bbdf',25,52,7,3);rect('#7392b3',33,52,6,4);
+      g.drawImage(figure,8,3);star(8,15,'#e2c8f5');star(55,26,'#9bdae0');star(48,6,'#e7bf76');
+    } else {
+      // The broad bronze foot and gilt lip read as a stamping seal even in the miniature.
+      rect('#553b48',17,46,30,7);rect('#755043',12,51,40,6);rect('#533d46',15,57,34,2);
+      rect('#a97443',15,51,34,4);rect('#eac477',14,51,36,2);rect('#f8dda5',20,47,23,2);
+      rect('#69464a',28,53,8,3);rect('#f3d478',30,53,4,2);g.drawImage(figure,8,2);
+    }
+  });
+  if (colorIndices) frontierRelicCache.set(key,art);
+  return art;
+}
+
 const previousTreasureArt = spriteTreasureV161;
 spriteTreasureV161 = function(index) {
   const item = TREASURE_ITEMS[index];
   let slot = index < RELIC_START192 ? index : undefined;
   if (item?.bossStage) {
+    const area = frontierAreaForStage(item.bossStage);
+    if (area) return frontierRelicArt(area,item.rarity === 'UR');
     const first = bossArtSlots.get(item.bossName);
     if (first !== undefined) slot = first + Number(item.rarity === 'UR');
   }

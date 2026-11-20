@@ -41,7 +41,7 @@ window.qa138={
 };
 `;
 async function open(version = '1.13.8', storage = {}, extraHook = '') {
-  let file = path.join(ROOT, 'releases', version, 'game.html');
+  let file = version === 'working' ? path.join(ROOT, 'game.html') : path.join(ROOT, 'releases', version, 'game.html');
   if (!fs.existsSync(file) && version === '1.13.7') file = path.join(ROOT, 'base', 'game137.html');
   const html = fs.readFileSync(file, 'utf8');
   const marker = '})();\n</script>';
