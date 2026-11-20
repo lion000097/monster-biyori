@@ -308,7 +308,7 @@ const facilityRoles = {
   trade: {name:'商売・宿泊', types:['shop','cafe','stall','inn']},
   care: {name:'育成・休養', types:['home','school','spring','hut','clinic','park','bench211','sanctuary212']},
   research: {name:'研究・冒険', types:['lab','guild212','worldtree']},
-  tourism: {name:'観光・装飾', types:['palace','tower','gallery212','treasureMuseum213','flowerbed211','bench211','lamp211','fountain211','park']}
+  tourism: {name:'観光・装飾', types:['palace','tower','gallery212','treasureMuseum213','relicStand','flowerbed211','bench211','lamp211','fountain211','park']}
 };
 let facilityRole = 'all';
 function roleIncludes(type) {
@@ -592,9 +592,9 @@ function guestCountMax(){return Math.min(14,3+buildingLevel('inn')*2+buildingLev
 function visitTick(silent){const econ=state.economy,season=seasonInfo(),weather=weatherInfo(),inn=buildingLevel('inn'),cafe=buildingLevel('cafe'),tower=buildingLevel('tower');
  let chanceVisit=Math.min(.86,(.08+state.fame*.00019+inn*.10+tower*.07+cafe*.05)*season.guest*weather.guest*(1+townPopularity211()*.018+museumAppeal213()*.012));
  if(Math.random()<chanceVisit&&state.guests.length<guestCountMax()){
-  const destinations=state.buildings.filter(b=>['shop','cafe','inn','park','tower','treasureMuseum213'].includes(b.type)&&entranceRoads(b).length);
+  const destinations=state.buildings.filter(b=>(['shop','cafe','inn','park','tower','treasureMuseum213'].includes(b.type)||displayedRelic(b)!==null)&&entranceRoads(b).length);
   const shops=destinations.filter(b=>b.type==='shop'),sights=destinations.filter(b=>b.type!=='shop');
-  const museumOpen=sights.some(b=>b.type==='treasureMuseum213');
+  const museumOpen=sights.some(b=>b.type==='treasureMuseum213'||b.type==='relicStand');
   const store=shops.length&&(!museumOpen||Math.random()>.22)?rnd(shops):null;
   const spot=store||(sights.length?rnd(sights):null);
   const pos=spot?nearestPlace(12,9,spot.x,spot.y):nearestPlace(12,9,10,8);
@@ -1117,7 +1117,8 @@ function plotImageRect(b,m=buildingOf(b)) {
 }
 function drawLot(b,facing,level,preview=false) {
   if(!facilitySheetReady)return;
-  const m=buildingOf(b),rect=plotImageRect(b,m),art=spriteBuildingV161(b.type,level,facing);
+  const m=buildingOf(b),rect=plotImageRect(b,m);
+  const art=b.type==='relicStand'&&!preview?standArt(level,validFacing(facing),displayedRelic(b)):spriteBuildingV161(b.type,level,facing);
   ctx.drawImage(art,rect.x,rect.y,rect.w,rect.h);
   if(!preview)mapPickItems.push({building:b,art,rect});
 }
@@ -1163,7 +1164,8 @@ function drawMapActor(o,monster,now) {
     const work=o.jobTask212,site=state.buildings.find(b=>b.id===work.id),pct=clamp(1-work.remaining/work.duration,0,1);
     drawMapBubble(x,top-1,facilityActivities[site?.type]?.[0]||JOBS[work.job]?.icon||'⚒️',now,o.id);
     ctx.fillStyle='#315151';ctx.fillRect(x-13,top+1,26,3);ctx.fillStyle='#a6e0b0';ctx.fillRect(x-13,top+1,26*pct,3);
-  }else if(o.phase212==='queue')drawMapBubble(x,top,'🛍️',now,0);
+  }else if(o.phase212==='sightseeing'&&plotWalks.get(o)?.phase==='use'&&o.act==='🏺 お宝を見学中')drawMapBubble(x,top,'🏺',now,0);
+  else if(o.phase212==='queue')drawMapBubble(x,top,'🛍️',now,0);
   else if(o.job&&JOBS[o.job]){ctx.font='8px sans-serif';ctx.fillText(JOBS[o.job].icon,left+size-6,foot)}
 }
 function drawMapBubble(x,y,icon,now,id){
@@ -3934,6 +3936,10 @@ function arriveTourist211(g){
  if(g.shopId200){const shop=state.buildings.find(b=>b.id===g.shopId200);if(shop){checkoutGuest211(g,shop);return}}
  g.arrived211=true;g.act='観光中';if(g.spent)gainCoins(g.spent);
  if(buildingLevel('cafe')&&state.food>=1){state.food-=1;gainCoins(buildingLevel('cafe')*4)}
+ const site=state.buildings.find(b=>b.id===g.visitBuildingId);
+ if(site&&g.phase212==='sightseeing'&&displayedRelic(site)!==null){
+  site.sightseers=(Number(site.sightseers)||0)+1;g.act='🏺 お宝を見学中';
+ }
  offerVIP211(g);
 }
 function vipOrderHTML211(){
@@ -4668,6 +4674,32 @@ function expeditionPanel213() {
 }
 
 B.treasureMuseum213={name:'お宝展示館',icon:'🏛️',cost:1100,unlock:5,w:2,h:2,pixel:64,desc:'発見したお宝を展示して観光客を集める',effect:'🎁 レアなお宝ほど街の人気度が上昇'};
+B.relicStand={name:'ボスのお宝展示台',icon:'🏺',cost:680,unlock:3,w:2,h:2,pixel:64,
+ desc:'道沿いの石の台に、ボスのお宝をひとつ飾れる。旅人が足を止めて眺めるよ。',effect:'🏺 展示中は観光客が見学し、街の人気度が上がる'};
+function displayedRelic(b) {
+ const id=b.relic;
+ return b.type==='relicStand'&&Number.isInteger(id)&&TREASURE_ITEMS[id]?.bossStage&&state.treasures.includes(id)?id:null;
+}
+function standPanel(b) {
+ const id=displayedRelic(b),owned=state.treasures.filter(i=>TREASURE_ITEMS[i]?.bossStage);
+ const busy=new Set(state.buildings.filter(other=>other!==b&&other.type==='relicStand').map(displayedRelic));
+ const choices=owned.map(i=>'<option value="'+i+'" '+(i===id?'selected':'')+' '+(busy.has(i)?'disabled':'')+'>'+
+  esc(TREASURE_ITEMS[i].name)+(busy.has(i)?'（別の台に展示中）':'')+'</option>').join('');
+ return '<section class="management-card"><h3>🏺 ボスのお宝展示台</h3>'+
+  '<p>'+(id===null?'お宝を飾ると旅人が見学に来るよ。':treasureThumbnail(id)+' '+esc(TREASURE_ITEMS[id].name)+'を展示中')+'</p>'+
+  (owned.length?'<label>展示するお宝 <select class="staff-select" data-stand="'+b.id+'"><option value="">展示を外す</option>'+choices+'</select></label>':
+   '<p>ボスの再戦で手に入れたお宝をここに飾れるよ。</p>')+
+  '<p>これまでの見学者　'+num(b.sightseers||0)+'人</p></section>';
+}
+document.addEventListener('change',event=>{
+ const el=event.target.closest('[data-stand]');if(!el)return;
+ const b=state.buildings.find(b=>b.id===Number(el.dataset.stand)&&b.type==='relicStand');
+ if(!b)return;
+ const id=el.value===''?null:Number(el.value);
+ if(id!==null&&(!TREASURE_ITEMS[id]?.bossStage||!state.treasures.includes(id)||
+  state.buildings.some(other=>other!==b&&displayedRelic(other)===id)))return;
+ b.relic=id;save(true);renderUI(true);
+});
 const APPEAL213={N:1,R:2,SR:4,SSR:7,UR:12};
 function museumSlots213(b){return 3+Math.floor(Math.max(0,b.level-1)/2)}
 function museumItems213(b){
@@ -4677,8 +4709,10 @@ function museumItems213(b){
 }
 function museumAppeal213(){
  if(!state?.buildings)return 0;
- return Math.min(100,state.buildings.filter(b=>b.type==='treasureMuseum213').reduce((n,b)=>
- n+museumItems213(b).reduce((sum,id)=>sum+(APPEAL213[TREASURE_ITEMS[id].rarity]||1),0),0));
+ return Math.min(100,state.buildings.reduce((n,b)=>{
+  if(b.type==='relicStand')return n+(displayedRelic(b)===null?0:b.level+1);
+  return b.type==='treasureMuseum213'?n+museumItems213(b).reduce((sum,id)=>sum+(APPEAL213[TREASURE_ITEMS[id].rarity]||1),0):n;
+ },0));
 }
 function museumPanel213(b){
  const shown=museumItems213(b),every=new Set(state.buildings.filter(x=>x.type==='treasureMuseum213').flatMap(x=>museumItems213(x)));
@@ -4984,7 +5018,7 @@ const facilityActivities={
  lamp211:['🏮','街灯を見上げている'],fountain211:['💧','噴水で水遊び中'],
  guild212:['🗺️','冒険の地図を読んでいる'],greenhouse212:['🌱','苗を観察中'],
  gallery212:['🔎','素材を見比べている'],sanctuary212:['🍃','精霊の声を聞いている'],
- treasureMuseum213:['💎','お宝を鑑賞中']
+ relicStand:['🏺','ボスのお宝を見学中'],treasureMuseum213:['💎','お宝を鑑賞中']
 };
 function startFacilityVisit(m,site,spot){
  const timer=monsterWalkTimer139(m);
@@ -5119,6 +5153,8 @@ renderTab=function(){
  if(tab==='build'){
   const b=state.buildings.find(b=>b.id===selectedBuilding&&b.type==='treasureMuseum213');
   if(b)$('tabBody').insertAdjacentHTML('afterbegin',museumPanel213(b));
+  const stand=state.buildings.find(b=>b.id===selectedBuilding&&b.type==='relicStand');
+  if(stand)$('tabBody').insertAdjacentHTML('afterbegin',standPanel(stand));
  }
  if(tab==='build'||tab==='adventure'||tab==='treasure')paintVillageCanvases();
 };
@@ -5403,9 +5439,63 @@ treeDecorationSheet.onload = () => {
 };
 treeDecorationSheet.src = 'data:image/png;base64,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';
 
+// Native pixel blocks share the map's 2:1 ground axes. Turning the plot rotates
+// its plinth, entrance and plaque together; the viewing direction stays fixed.
+function tourismBlocks(g, facing) {
+  function point(x,y,z) {
+    const a=[x,-y,-x,y][facing], b=[y,x,-y,-x][facing];
+    return [64+a-b,84+(a+b)/2-z];
+  }
+  function polygon(points,color) {
+    const ys=points.map(p=>p[1]);g.fillStyle=color;
+    for(let y=Math.ceil(Math.min(...ys)-.5); y<Math.max(...ys)-.5; y++){
+      const xs=[];
+      for(let i=0;i<points.length;i++){
+        const [x1,y1]=points[i],[x2,y2]=points[(i+1)%points.length],row=y+.5;
+        if((y1<=row&&row<y2)||(y2<=row&&row<y1))xs.push(x1+(row-y1)*(x2-x1)/(y2-y1));
+      }
+      if(xs.length>=2){const left=Math.ceil(Math.min(...xs)-.5);g.fillRect(left,y,Math.ceil(Math.max(...xs)-.5)-left,1);}
+    }
+  }
+  function block(x1,y1,x2,y2,base,height,colors) {
+    const corners=[[x1,y1],[x2,y1],[x2,y2],[x1,y2]];
+    const bottom=corners.map(([x,y])=>point(x,y,base)), top=corners.map(([x,y])=>point(x,y,height));
+    for(let i=0;i<4;i++){
+      const j=(i+1)%4,dx=top[j][0]-top[i][0];
+      if(dx<0)polygon([bottom[i],bottom[j],top[j],top[i]],top[j][1]>top[i][1]?colors[2]:colors[1]);
+    }
+    polygon(top,colors[0]);
+  }
+  return {block,point};
+}
+const tourismArtCache=new Map();
+function standArt(level,facing,relic=null) {
+  const tier=level>=4?2:level>=2?1:0,key='stand/'+facing+'/'+tier+'/'+relic;
+  if(tourismArtCache.has(key))return tourismArtCache.get(key);
+  const art=pixelSprite(128,128,g=>{
+    const {block,point}=tourismBlocks(g,facing);
+    const stone=['#e3d6b6','#ad9c92','#847c81'], trim=['#f9ebbd','#cba573','#a28271'];
+    const slate=['#817b91','#625f76','#49495f'], bronze=['#f4d388','#b18955','#8d6948'];
+    block(-29,-29,29,29,0,3,slate);block(-28,-28,28,28,3,5,stone);
+    block(-23,-23,23,23,5,6,trim);
+    block(-17,-18,17,14,6,11,slate);block(-15,-16,15,12,11,14,trim);
+    block(-12,-13,12,9,14,25,stone);block(-14,-15,14,11,25,29,bronze);
+    block(-16,-17,16,13,29,32,slate);block(-14,-15,14,11,32,34,['#ddd9f2','#beb2d0','#9c8fab']);
+    block(-6,18,6,22,6,9,slate);block(-8,17,8,22,9,12,bronze);
+    if(tier)block(-7,18,7,21,12,13,['#fff4c7','#d7bf81','#caa572']);
+    if(tier>1)block(-2,18,2,20,13,15,slate);
+    if(relic!==null){
+      const [cx,cy]=point(0,-2,34);
+      g.drawImage(spriteTreasureV161(relic),Math.round(cx)-27,Math.round(cy)-50,54,54);
+    }
+  });
+  if(relic===null||villageSheetReady)tourismArtCache.set(key,art);
+  return art;
+}
 const previousFacilityArt = spriteBuildingV161;
 spriteBuildingV161 = function(type, level = 1, facing = 0) {
   const direction = validFacing(facing);
+  if(type==='relicStand')return standArt(level,direction);
   if (type === 'worldtree') {
     const frame = worldTreeFrames[level >= 8 ? 2 : level >= 5 ? 1 : 0];
     const tree = villageSprite(frame, 0, facilitySheet, direction);
@@ -6417,6 +6507,9 @@ function buildingUpgradePreview(building) {
       break;
     case 'sanctuary212':
       ranch('仲間のごきげん回復'+time,n => n*.025);
+      break;
+    case 'relicStand':
+      local('展示中の観光人気度',n=>n+1,'pt');
       break;
     case 'treasureMuseum213':
       local('この展示館のお宝展示枠',n => museumSlots213({level:n}),'枠');
