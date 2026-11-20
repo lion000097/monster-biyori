@@ -4276,6 +4276,20 @@ animate=function(now){
 };
 // ===== end Ver.1.13.7 =====
 
+// Ver.1.13.7 QA fix: initialize NEW tracking when loading/starting, not on first atlas visit.
+const loadBeforeBook137=load;
+load=function(){const ok=loadBeforeBook137();if(ok)ensureAtlasSeen137();return ok;};
+const initialBeforeBook137=initial;
+initial=function(){
+ const next=initialBeforeBook137();
+ if(next?.catalog)next.catalogSeen137={
+  friend:[...(next.catalog.friends||[])],
+  enemy:[...(next.catalog.enemies||[])],
+  citizen:[...(next.catalog.citizens||[])]
+ };
+ return next;
+};
+
 // Load saved species only after the full roster has been registered.
 const didLoad=load();if(!didLoad){
  let preserved214=true;
@@ -4284,7 +4298,7 @@ const didLoad=load();if(!didLoad){
   if(original&&localStorage.getItem(key)!==original)localStorage.setItem(key,original);
  }catch(e){preserved214=false;console.warn('Unreadable-save backup failed',e)}
  state=initial();state.unreadableProtect214=!preserved214;ensureAdvanced();state.staff.forEach(addCitizen);state.quests=[createQuest(0),createQuest(1),createQuest(2)];state.questSequence=3;message('🌿 ようこそ、こもれび牧場へ！ 仲間たちの暮らしが始まったよ。');message('💡 世界樹Lv.1は畑とハウスだけ！育てて新施設を解放しよう。');if(preserved214)save(true);else message('⚠️ 前のセーブを保護するため保存を停止したよ。まずデータを書き出してね。')}else{message('🌿 おかえり！ ゲームはブラウザを開いている間だけ進むよ。')}
-document.querySelectorAll('[data-speed]').forEach(el=>el.classList.toggle('on',+el.dataset.speed===state.speed));renderUI(true);
+document.querySelectorAll('[data-speed]').forEach(el=>el.classList.toggle('on',+el.dataset.speed===state.speed));ensureAtlasSeen137();renderUI(true);
 })();
 </script>
 </body>
