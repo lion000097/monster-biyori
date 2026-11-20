@@ -2547,7 +2547,8 @@ function boss192(area){
   return {area,stage,name:foe?.name||'未知のボス',biome:frontierAreaForStage(stage)?.biome ?? earlyBiomes[(area-1)%earlyBiomes.length],label:stageLabel(stage)};
 }
 function registerRelics192(count){
-  const total=Math.max(6,Math.floor(count)||6);
+  // List every named area's relics from the start. Repeating areas still grow with progress.
+  const total=Math.max(namedEncounterAreas.length,Math.floor(count)||0);
   for(let a=Math.floor((TREASURE_ITEMS.length-RELIC_START192)/2)+1;a<=total;a++){
     const boss=boss192(a);
     const owner=boss.name;
@@ -2560,8 +2561,8 @@ load=function(){
   try{
     const raw=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
     const relicMax=(raw?.treasures||[]).filter(x=>Number.isInteger(x)&&x>=RELIC_START192).reduce((a,b)=>Math.max(a,b),RELIC_START192-1);
-    registerRelics192(Math.max(6,Math.ceil((raw?.adventure?.stage||1)/5),Math.ceil((relicMax-RELIC_START192+1)/2)));
-  }catch(e){registerRelics192(6)}
+    registerRelics192(Math.max(Math.ceil((raw?.adventure?.stage||1)/5),Math.ceil((relicMax-RELIC_START192+1)/2)));
+  }catch(e){registerRelics192()}
   const ok=loadBefore192();
   if(ok)registerRelics192(Math.ceil((state.adventure.stage||1)/5));
   return ok;
