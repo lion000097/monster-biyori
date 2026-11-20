@@ -1,11 +1,21 @@
 # もんすたー日和　更新の進捗
 
-- 対象バージョン　1.24.4（基準の公開版は1.24.3）
-- 保存先　GitHub `lion000097/monster-biyori` の `release/1.24.4`。実装は `game.html`、テストは `tests/`、配布物と検証記録は `releases/1.24.4/`、自動更新情報は `latest.json`、再開用の記録は `PROGRESS.md`。
-- 完了事項　エリア7〜10のボスのお宝8点、ボスのお宝展示台、おさんぽカメラ、味方図鑑の色の見比べ、道のつながり確認、旅の郵便局。旧セーブでの動作確認と配布物の作成・照合まで完了。
-- 確認結果　ChromeのPC幅・スマートフォン幅で1.24.3からの引き継ぎを確認済み。共通入口・版別・ZIP内のHTMLはその検証済みコードとバイト単位で一致し、配布用HTMLの起動も確認。
-- 残作業　GitHub Pagesへの反映と公開先の照合。
-- 次の操作　`main` をこの配布コミットへ進める。Pagesの処理完了後、共通入口・版別HTML・ZIP・自動更新情報を公開URLから取得して下記の配布物と照合し、結果をこのメモに追記する。
+- 対象バージョン　1.24.4（1.24.3からの更新）。2026年11月21日公開済み。
+- 保存先　GitHub `lion000097/monster-biyori` の `main/PROGRESS.md`（このメモ）。ゲームは `game.html`、自動更新情報は `latest.json`、配布物と検証記録は `releases/1.24.4/`、修正ごとのテストは `tests/`。
+- 完了事項　エリア7〜10のボスのお宝8点、ボスのお宝展示台、おさんぽカメラ、味方図鑑の色の見比べ、仕事場までの道の確認、旅の郵便局。旧セーブでの動作確認、配布物の作成、GitHub Pagesへの公開と公開先の照合まで完了。
+- 確認結果　1.24.3のセーブの読み込みと再保存をChromeのPC幅・スマートフォン幅で確認済み。公開URLのゲーム本体・版別HTML・ZIP・自動更新情報は検証済みの配布物と一致。
+- 残作業　なし。
+- 次の操作　1.24.4の作業は完了。次回の更新はこの公開版を基準にする。
+
+## 公開先の照合（2026年11月21日 01:58 日本時間）
+
+配布コミット [374bca1](https://github.com/lion000097/monster-biyori/commit/374bca1b12fd3d0ad81ea63817f4c6caaa2d794d) の [GitHub Pages デプロイ](https://github.com/lion000097/monster-biyori/actions/runs/44777983967) が成功。以下の4件を公開URLから取得し、すべてHTTP 200を確認した。
+
+| 公開物 | 確認結果 |
+| --- | --- |
+| [ゲーム本体](https://lion000097.github.io/monster-biyori/game.html)・[1.24.4のHTML](https://lion000097.github.io/monster-biyori/releases/1.24.4/game.html) | 2つのHTMLはバイト単位で一致。タイトルはVer.1.24.4で、サイズとSHA-256は下記のゲーム本体の記録と一致。 |
+| [配布ZIP](https://lion000097.github.io/monster-biyori/releases/1.24.4/monster-biyori-1.24.4.zip) | サイズとSHA-256が下記の配布ZIPの記録と一致。174ファイルのCRCは正常で、同梱ゲームは公開中のHTMLと同一。 |
+| [自動更新情報](https://lion000097.github.io/monster-biyori/latest.json) | 配布コミットの内容とバイト単位で一致。バージョンは1.24.4で、更新先URLとSHA-256は公開版のHTMLに一致。 |
 
 ## 修正ごとの成果と確認結果
 
