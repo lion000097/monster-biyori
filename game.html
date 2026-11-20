@@ -64,6 +64,12 @@
 .party-portrait{width:48px;height:48px;flex:none}.training-portrait{display:block;width:96px;height:96px;margin:4px auto 8px}
 .treasure-card .book-portrait{display:grid;place-items:center;width:min(68px,100%);height:auto;aspect-ratio:1;border-radius:9px}
 .treasure-card .book-portrait canvas{display:block;width:100%;height:100%}
+.road-check{margin:0 12px 8px;border-radius:9px;background:#f0f5eb;color:#294b3a}
+.road-check summary{padding:7px 10px;font-weight:750;cursor:pointer}
+.road-check .road-fields{display:flex;flex-wrap:wrap;gap:8px 12px;padding:2px 10px 8px}
+.road-fields label{flex:1 1 140px;min-width:0;font-size:13px;font-weight:700}
+.road-fields select{width:100%;min-height:34px;border:1px solid #98ac9b;border-radius:6px;background:#fff;color:inherit}
+.road-fields output{flex:1 0 100%;font-size:13px}
 .color-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:12px 0;text-align:center}
 .color-pair figure{margin:0;padding:12px 5px;border-radius:12px;background:#eff3e9}
 .color-pair figure+figure{background:#f1ecfa}
@@ -291,7 +297,9 @@ html.monster-detail-open{overflow:hidden}
 <section class="panel"><div class="panel-heading"><h2>📜 おまかせミッション</h2><span class="chip">報酬も自動</span></div><div class="quests" id="quests"></div><div class="tip-box"><strong>💡 ほうっておいても成長！</strong><br>仲間たちは食べて・遊んで・働いて、自分で行動するよ。施設の配置と育成方針だけ決めよう。</div></section>
 </div>
 <div class="center">
-<section class="panel world-shell"><div class="world-header"><div class="world-title">🌿 こもれび牧場 <small>MONSTER MEADOW / フィールド</small></div><div class="world-badges"><span class="world-tag gold" id="statusTag">🌤️ のんびり</span><span class="world-tag" id="weatherTag">🌱 春 · 晴れ</span><span class="world-tag" id="tileTag">クリックして施設を選択</span></div></div><div class="camera-toolbar"><span>🖐️ ドラッグで移動 · ホイールで拡大縮小</span><div class="camera-buttons"><button type="button" id="stopWalkCamera" hidden></button><button data-action="toggleClear" id="clearButton" title="木35G、石20Gで撤去">🪓 整地</button><button type="button" data-action="zoomOut" id="zoomOut" title="縮小" aria-label="縮小">−</button><span id="zoomLabel">100%</span><button type="button" data-action="zoomIn" id="zoomIn" title="拡大" aria-label="拡大">＋</button><button type="button" data-action="zoomReset" title="標準倍率に戻す">等倍</button></div></div><div class="canvas-frame"><canvas id="game" tabindex="-1" width="2112" height="1440" aria-label="クォータービューの牧場マップ"></canvas></div><div id="facilityFacing" class="facility-facing" hidden>
+<section class="panel world-shell"><div class="world-header"><div class="world-title">🌿 こもれび牧場 <small>MONSTER MEADOW / フィールド</small></div><div class="world-badges"><span class="world-tag gold" id="statusTag">🌤️ のんびり</span><span class="world-tag" id="weatherTag">🌱 春 · 晴れ</span><span class="world-tag" id="tileTag">クリックして施設を選択</span></div></div><div class="camera-toolbar"><span>🖐️ ドラッグで移動 · ホイールで拡大縮小</span><div class="camera-buttons"><button type="button" id="stopWalkCamera" hidden></button><button data-action="toggleClear" id="clearButton" title="木35G、石20Gで撤去">🪓 整地</button><button type="button" data-action="zoomOut" id="zoomOut" title="縮小" aria-label="縮小">−</button><span id="zoomLabel">100%</span><button type="button" data-action="zoomIn" id="zoomIn" title="拡大" aria-label="拡大">＋</button><button type="button" data-action="zoomReset" title="標準倍率に戻す">等倍</button></div></div><details class="road-check" id="roadCheck"><summary>🛣️ 道のつながり確認</summary>
+  <div class="road-fields"><label>職員<select id="roadWorker"></select></label><label>仕事場<select id="roadWorkplace"></select></label>
+  <output id="roadStatus" aria-live="polite"></output></div></details><div class="canvas-frame"><canvas id="game" tabindex="-1" width="2112" height="1440" aria-label="クォータービューの牧場マップ"></canvas></div><div id="facilityFacing" class="facility-facing" hidden>
   <div class="facing-caption"><strong>建物の向き</strong><span id="facingFacilityName" role="status"></span></div>
   <div class="facing-choices" role="group" aria-label="建物の向き"></div>
 </div><div class="map-nav"><button data-action="pan" data-id="left" aria-label="地図を左に移動">◀</button><button data-action="pan" data-id="up" aria-label="地図を上に移動">▲</button><span id="mapRegion">最初の牧場</span><button data-action="pan" data-id="down" aria-label="地図を下に移動">▼</button><button data-action="pan" data-id="right" aria-label="地図を右に移動">▶</button><button data-action="centerMap" title="初期エリアに戻る">⌂</button></div><div class="map-legend"><span>🌱 緑：解放済み</span><span class="map-notice">🔒 隣の区画は表示の世界樹Lv・おかねで開拓</span></div><div id="buildMode" class="building-mode"></div><div class="canvas-footer"><span>🖱️ モンスターや建物をクリックすると詳細が見られるよ</span><span id="autosaveLabel">💾 自動セーブ ON</span></div></section>
@@ -874,6 +882,7 @@ $('tileTag').textContent=clearMode?'🪓 整地モード：木35G ／ 石20G：�
 $('zoomOut').disabled=zoom<=MIN_MAP_ZOOM;
 $('zoomIn').disabled=zoom>=MAX_MAP_ZOOM;
 renderFacingPicker();
+if($('roadCheck').open)updateRoadCheck();
 $('dailyTip').textContent=state.food<25?'ごはんが少ないよ！ おやつ畑を増やすと安心。':state.coins<200?'素材牧場で生産して、旅人にお店で買ってもらおう！':state.eggs.length?hatchStatus138().tip:state.villageLv<5?'時間経過や育成・冒険で世界樹レベルが上がり、新しい施設が解放されるよ。':'研究所を建てると、農業や特訓の効率をさらに上げられるよ。';
 }
 function renderTab(){const body=$('tabBody');document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));if(tab==='management'){body.innerHTML=econHTML();
@@ -904,7 +913,7 @@ for(const el of body.querySelectorAll('[data-avatar]')){
 }
 }else if(tab==='staff'){
 let cost=210+state.staff.length*105;let html=`<div class="info-card"><strong>🧑‍🌾 スタッフは完全自動！</strong><br>仕事を選ぶだけで勝手に移動して働くよ。探検担当は自動遠征を早め、仕事を終えると${Math.round(STAFF_EGG_RATE139*100)}%でたまごを発見。見つけたうち${(STAFF_SPECIAL_RATE139*100).toFixed(1)}%は「色違いのたまご」だよ。<br><span class="big-count">${state.staff.length}</span> / ${staffLimit()} 人<br>世界樹Lv.${state.villageLv}の職員枠は${staffLimit()}人。次のレベルで${monsterTreeLimit135(state.villageLv+1)}人まで雇えるよ。${state.staff.length>staffLimit()?' 今いる職員は引き続き働けるよ。':''}<br><button type="button" class="help-topic-link" id="staffHelpLink" data-help-topic="staff" aria-haspopup="dialog">役職の説明を見る</button></div><button class="wide-button" data-action="hire" ${state.staff.length>=staffLimit()||state.coins<cost?'disabled':''}>🧑‍🌾 新しく雇う（${num(cost)}G）</button>`;
-for(let s of state.staff)html+=`<div class="entity-row"><canvas class="monster-avatar" width="64" height="64" data-staff-sprite="${s.id}"></canvas><div class="entity-info"><div class="entity-name"><span>${esc(s.name)} <span class="citizen-sex">${genderLabel(s.gender)}</span></span><span class="pill">Lv.${s.level||1}</span></div><div class="entity-sub">${JOBS[s.job]?.hint||''}<br>職員XP ${s.level>=99?'MAX':Math.floor(s.workXp||0)+' / '+staffLevelNeed(s.level||1)}<br>熟練 ${Math.round((s.mastery||{})[s.job]||0)} / 疲労 ${Math.round(s.fatigue||0)}% / やる気 ${Math.round(s.morale||80)}%</div></div><select aria-label="${esc(s.name)}の担当" class="staff-select" data-staff="${s.id}">${Object.entries(JOBS).map(([key,j])=>`<option value="${key}" ${s.job===key?'selected':''}>${j.icon} ${j.label}</option>`).join('')}</select></div>`;
+for(let s of state.staff)html+=`<div class="entity-row"><canvas class="monster-avatar" width="64" height="64" data-staff-sprite="${s.id}"></canvas><div class="entity-info"><div class="entity-name"><span>${esc(s.name)} <span class="citizen-sex">${genderLabel(s.gender)}</span></span><span class="pill">Lv.${s.level||1}</span></div><div class="entity-sub">${JOBS[s.job]?.hint||''}<br>職員XP ${s.level>=99?'MAX':Math.floor(s.workXp||0)+' / '+staffLevelNeed(s.level||1)}<br>熟練 ${Math.round((s.mastery||{})[s.job]||0)} / 疲労 ${Math.round(s.fatigue||0)}% / やる気 ${Math.round(s.morale||80)}%</div><button type="button" class="help-topic-link" data-road-worker="${s.id}">仕事場までの道を見る</button></div><select aria-label="${esc(s.name)}の担当" class="staff-select" data-staff="${s.id}">${Object.entries(JOBS).map(([key,j])=>`<option value="${key}" ${s.job===key?'selected':''}>${j.icon} ${j.label}</option>`).join('')}</select></div>`;
 html+=`<div class="info-card">💰 毎日の人件費：${staffWages()}G<br>🎯 おすすめ：必要な仕事に合わせて担当を変えられるよ。</div>`;body.innerHTML=html;for(let el of body.querySelectorAll('[data-staff-sprite]')){const w=state.staff.find(s=>s.id===+el.dataset.staffSprite);if(w)paintPortrait(el,citizenArt(w))};
 }else if(tab==='research'){
 let hasLab=buildingLevel('lab');let html=`<div class="info-card"><strong>🔮 研究ツリー</strong><br>${hasLab?'研究所のキラキラを使って全体の効率をアップ！':'研究を始めるには「ふしぎ研究所」を建てよう。村Lv.5で解放！'}<br>現在のキラキラ： <strong>${num(state.magic)} ✨</strong></div>`;
@@ -1289,6 +1298,7 @@ function drawWorld(now){
   }else{
     paintGround(ctx,season,{minX,minY,maxX,maxY,left,top,right,bottom},objects);
   }
+  if($('roadCheck').open)drawWorkRoad(now);
   for(const b of state.buildings){const m=buildingOf(b),r=plotImageRect(b,m);if(r.x+r.w<left||r.x>right||r.y+r.h<top||r.y>bottom)continue;
     objects.push({depth:b.x+b.y+(m.w+m.h)/2,draw(){
       drawLot(b,b.facing,b.level);
@@ -7087,6 +7097,93 @@ function commitMoveFacing(building, x, y) {
   building.facing = placementFacing;
   return true;
 }
+
+// The road inspector reads the same road tiles and front entrances as staff movement.
+let workRoad=null, workRoadKey='';
+function roadOptions(select, choices, empty) {
+  const signature=JSON.stringify(choices);
+  if(select.dataset.choices===signature)return;
+  const previous=select.value;
+  select.replaceChildren(...(choices.length?choices:[['',empty]]).map(([id,label])=>new Option(label,id)));
+  if(choices.some(([id])=>String(id)===previous))select.value=previous;
+  select.disabled=choices.length===0;
+  select.dataset.choices=signature;
+}
+function workRoadFrom(start, site) {
+  const doors=entranceRoads(site);
+  const result={start,doors,tiles:[],message:''};
+  if(!doors.length)result.message='仕事場の正面に道を敷いてね。';
+  else if(!residentRoad(...start))result.message='職員の足元に歩ける道がないよ。';
+  else {
+    for(const door of doors){
+      const here=start[0]===door[0]&&start[1]===door[1];
+      const path=here?[]:pathTo(...start,...door,true);
+      if((here||path.length)&&(!result.tiles.length||path.length+1<result.tiles.length))result.tiles=[start,...path];
+    }
+    result.message=result.tiles.length===1?'職員は仕事場の入口にいるよ。':
+      result.tiles.length?'入口まで道がつながっているよ（'+(result.tiles.length-1)+'マス）。':'道が途切れているよ。職員の足元から仕事場の正面まで道をつなげてね。';
+  }
+  return result;
+}
+function frameWorkRoad(site) {
+  const marks=workRoad.tiles.length?workRoad.tiles:[workRoad.start,...workRoad.doors];
+  const {w,h}=buildingOf(site);
+  const points=marks.map(([x,y])=>projectGround(x+.5,y+.5));
+  points.push(projectGround(site.x+w/2,site.y+h/2));
+  const xs=points.map(p=>p.x), ys=points.map(p=>p.y);
+  const left=Math.min(...xs)-T,right=Math.max(...xs)+T,top=Math.min(...ys)-2*T,bottom=Math.max(...ys)+T;
+  const center=unprojectGround((left+right)/2,(top+bottom)/2);
+  stopWalkCamera();
+  zoom=clamp(Math.min(zoom,VW*T/(right-left),VH*T/(bottom-top)),MIN_MAP_ZOOM,MAX_MAP_ZOOM);
+  cameraX=center.x-VW/(2*zoom);cameraY=center.y-VH/(2*zoom);limitCamera();
+}
+function updateRoadCheck(frame=false) {
+  const workerSelect=$('roadWorker'),siteSelect=$('roadWorkplace'),status=$('roadStatus');
+  roadOptions(workerSelect,state.staff.map(w=>[w.id,w.name+'（'+(JOBS[w.job]?.label||'担当なし')+'）']),'職員がいないよ');
+  const worker=state.staff.find(w=>String(w.id)===workerSelect.value);
+  const type=worker&&workplaceType211(worker.job),sites=state.buildings.filter(b=>b.type===type);
+  roadOptions(siteSelect,sites.map(b=>[b.id,B[b.type].name+' Lv.'+b.level+'（'+b.x+', '+b.y+'）']),'仕事場がないよ');
+  const site=sites.find(b=>String(b.id)===siteSelect.value);
+  if(!worker||!site){
+    workRoad=null;workRoadKey='';
+    status.textContent=worker&&B[type]?B[type].name+'を建てると道を確認できるよ。':'職員を雇うと道を確認できるよ。';
+    return;
+  }
+  const start=plotWalks.get(worker)?.door || [Math.round(worker.x),Math.round(worker.y)];
+  const key=JSON.stringify([worker.id,start,site.id,site.facing,state.paths,state.removedDefaultPaths,state.zones,
+    state.ponds,state.clearedPonds,state.clearedScenery,state.buildings.map(b=>[b.type,b.x,b.y])]);
+  if(key!==workRoadKey){workRoadKey=key;workRoad=workRoadFrom(start,site);status.textContent=workRoad.message;}
+  if(frame){frameWorkRoad(site);renderUI(false);}
+}
+function drawWorkRoad(now){
+  if(!workRoad)return;
+  const {tiles,start,doors}=workRoad;
+  const marks=tiles.length?tiles:[start,...doors];
+  ctx.save();ctx.lineWidth=1.6;
+  for(let i=0;i<marks.length;i++){
+    const [x,y]=marks[i];
+    drawGroundLoop({x:x+.09,y:y+.09},.82,.82);
+    ctx.fillStyle=tiles.length?(i===0?'#ffc44ecc':i===marks.length-1?'#41c8a4ee':'#71ead1ad'):(i===0?'#ffc44ecc':'#ed9c79cb');
+    ctx.fill();ctx.strokeStyle=tiles.length?'#19675b':'#8b492f';ctx.stroke();
+    const p=projectGround(x+.5,y+.5);
+    ctx.fillStyle=tiles.length?'#f3ffe8':'#fff1c7';
+    const size=tiles.length?2+Math.sin(now/350-i*.4):2;
+    ctx.fillRect(p.x-size,p.y-size,size*2,size*2);
+  }
+  ctx.restore();
+}
+$('roadCheck').addEventListener('toggle',()=>{
+  if($('roadCheck').open)updateRoadCheck(true);
+  else {workRoad=null;workRoadKey='';}
+});
+$('roadCheck').addEventListener('change',()=>updateRoadCheck(true));
+$('tabBody').addEventListener('click',event=>{
+  const button=event.target.closest('[data-road-worker]');
+  if(!button)return;
+  const panel=$('roadCheck');panel.open=true;updateRoadCheck();
+  $('roadWorker').value=button.dataset.roadWorker;updateRoadCheck(true);
+  $('roadWorkplace').focus({preventScroll:true});panel.scrollIntoView?.({block:'start'});
+});
 
 // Load saved species only after the full roster has been registered.
 const didLoad=load();if(!didLoad){
