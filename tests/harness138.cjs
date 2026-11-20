@@ -40,7 +40,7 @@ window.qa138={
  ready:()=>!!(colorIndices&&lionReady)
 };
 `;
-async function open(version = '1.13.8', storage = {}) {
+async function open(version = '1.13.8', storage = {}, extraHook = '') {
   let file = path.join(ROOT, 'releases', version, 'game.html');
   if (!fs.existsSync(file) && version === '1.13.7') file = path.join(ROOT, 'base', 'game137.html');
   const html = fs.readFileSync(file, 'utf8');
@@ -50,7 +50,7 @@ async function open(version = '1.13.8', storage = {}) {
   const console = new VirtualConsole();
   console.on('jsdomError', error => errors.push(String(error.stack || error)));
   console.on('error', (...items) => errors.push(items.join(' ')));
-  const dom = new JSDOM(html.replace(marker, HOOK + '\n' + marker), {
+  const dom = new JSDOM(html.replace(marker, HOOK + extraHook + '\n' + marker), {
     url: `https://monster-biyori-qa.invalid/releases/${version}/game.html`,
     runScripts: 'dangerously', pretendToBeVisual: true, virtualConsole: console,
     beforeParse(w) {
