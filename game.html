@@ -285,7 +285,7 @@ html.monster-detail-open{overflow:hidden}
 <section class="panel"><div class="panel-heading"><h2>📜 おまかせミッション</h2><span class="chip">報酬も自動</span></div><div class="quests" id="quests"></div><div class="tip-box"><strong>💡 ほうっておいても成長！</strong><br>仲間たちは食べて・遊んで・働いて、自分で行動するよ。施設の配置と育成方針だけ決めよう。</div></section>
 </div>
 <div class="center">
-<section class="panel world-shell"><div class="world-header"><div class="world-title">🌿 こもれび牧場 <small>MONSTER MEADOW / フィールド</small></div><div class="world-badges"><span class="world-tag gold" id="statusTag">🌤️ のんびり</span><span class="world-tag" id="weatherTag">🌱 春 · 晴れ</span><span class="world-tag" id="tileTag">クリックして施設を選択</span></div></div><div class="camera-toolbar"><span>🖐️ ドラッグで移動 · ホイールで拡大縮小</span><div class="camera-buttons"><button data-action="toggleClear" id="clearButton" title="木35G、石20Gで撤去">🪓 整地</button><button type="button" data-action="zoomOut" id="zoomOut" title="縮小" aria-label="縮小">−</button><span id="zoomLabel">100%</span><button type="button" data-action="zoomIn" id="zoomIn" title="拡大" aria-label="拡大">＋</button><button type="button" data-action="zoomReset" title="標準倍率に戻す">等倍</button></div></div><div class="canvas-frame"><canvas id="game" tabindex="-1" width="2112" height="1440" aria-label="クォータービューの牧場マップ"></canvas></div><div id="facilityFacing" class="facility-facing" hidden>
+<section class="panel world-shell"><div class="world-header"><div class="world-title">🌿 こもれび牧場 <small>MONSTER MEADOW / フィールド</small></div><div class="world-badges"><span class="world-tag gold" id="statusTag">🌤️ のんびり</span><span class="world-tag" id="weatherTag">🌱 春 · 晴れ</span><span class="world-tag" id="tileTag">クリックして施設を選択</span></div></div><div class="camera-toolbar"><span>🖐️ ドラッグで移動 · ホイールで拡大縮小</span><div class="camera-buttons"><button type="button" id="stopWalkCamera" hidden></button><button data-action="toggleClear" id="clearButton" title="木35G、石20Gで撤去">🪓 整地</button><button type="button" data-action="zoomOut" id="zoomOut" title="縮小" aria-label="縮小">−</button><span id="zoomLabel">100%</span><button type="button" data-action="zoomIn" id="zoomIn" title="拡大" aria-label="拡大">＋</button><button type="button" data-action="zoomReset" title="標準倍率に戻す">等倍</button></div></div><div class="canvas-frame"><canvas id="game" tabindex="-1" width="2112" height="1440" aria-label="クォータービューの牧場マップ"></canvas></div><div id="facilityFacing" class="facility-facing" hidden>
   <div class="facing-caption"><strong>建物の向き</strong><span id="facingFacilityName" role="status"></span></div>
   <div class="facing-choices" role="group" aria-label="建物の向き"></div>
 </div><div class="map-nav"><button data-action="pan" data-id="left" aria-label="地図を左に移動">◀</button><button data-action="pan" data-id="up" aria-label="地図を上に移動">▲</button><span id="mapRegion">最初の牧場</span><button data-action="pan" data-id="down" aria-label="地図を下に移動">▼</button><button data-action="pan" data-id="right" aria-label="地図を右に移動">▶</button><button data-action="centerMap" title="初期エリアに戻る">⌂</button></div><div class="map-legend"><span>🌱 緑：解放済み</span><span class="map-notice">🔒 隣の区画は表示の世界樹Lv・おかねで開拓</span></div><div id="buildMode" class="building-mode"></div><div class="canvas-footer"><span>🖱️ モンスターや建物をクリックすると詳細が見られるよ</span><span id="autosaveLabel">💾 自動セーブ ON</span></div></section>
@@ -1039,6 +1039,34 @@ function hash(x,y){let n=Math.sin((x+1)*127.1+(y+3)*311.7)*43758.5453;return n-M
 // The two ground axes advance (32,16) and (-32,16). Heights always extend upward.
 function projectGround(x, y) { return {x: (x-y)*T, y: (x+y)*T/2}; }
 function unprojectGround(px, py) { return {x: (py+px/2)/T, y: (py-px/2)/T}; }
+let followedMonster=null;
+function stopWalkCamera() {
+  followedMonster=null;
+  $('stopWalkCamera').hidden=true;
+}
+function updateWalkCamera() {
+  if(!followedMonster)return;
+  if(!state.monsters.includes(followedMonster)||buildMode||moveMode||clearMode||terrainMode){
+    stopWalkCamera();return;
+  }
+  cameraX=followedMonster.x+.5-VW/(2*zoom);
+  cameraY=followedMonster.y+.5-VH/(2*zoom);
+  limitCamera();
+  const label='📷 '+followedMonster.name+'を追跡中 · 解除';
+  if($('stopWalkCamera').textContent!==label)$('stopWalkCamera').textContent=label;
+}
+function startWalkCamera(id) {
+  const monster=state.monsters.find(m=>m.id===id);
+  if(!monster)return;
+  hideModal();
+  if(followedMonster===monster){stopWalkCamera();return;}
+  stopTerrainEditing();buildMode=null;moveMode=null;clearMode=false;hover=null;
+  followedMonster=monster;
+  $('stopWalkCamera').hidden=false;
+  updateWalkCamera();renderUI(true);
+  canvas.focus({preventScroll:true});canvas.scrollIntoView?.({block:'nearest'});
+}
+$('stopWalkCamera').addEventListener('click',stopWalkCamera);
 function cameraCenter() { return {x:cameraX+VW/(2*zoom), y:cameraY+VH/(2*zoom)}; }
 function mapScreenOrigin() {
   const c=cameraCenter(), projected=projectGround(c.x,c.y);
@@ -1056,6 +1084,7 @@ function limitCamera() {
   const c=cameraCenter();cameraX=clamp(c.x,MIN_X+.5,W-.5)-VW/(2*zoom);cameraY=clamp(c.y,MIN_Y+.5,H-.5)-VH/(2*zoom);
 }
 function cameraMove(dx,dy) {
+  stopWalkCamera();
   const offset=unprojectGround(dx*T,dy*T);cameraX+=offset.x;cameraY+=offset.y;limitCamera();hover=null;renderUI(false);
 }
 function setZoom(z,pointX=VW/2,pointY=VH/2) {
@@ -1239,6 +1268,7 @@ function overviewGround(season){
   return view;
 }
 function drawWorld(now){
+  updateWalkCamera();
   ctx.setTransform(3,0,0,3,0,0);ctx.imageSmoothingEnabled=false;ctx.fillStyle='#a7cad1';ctx.fillRect(0,0,VW*T,VH*T);
   const origin=mapScreenOrigin(),left=-origin.x/zoom,top=-origin.y/zoom,right=(VW*T-origin.x)/zoom,bottom=(VH*T-origin.y)/zoom;
   const corners=[[left,top],[right,top],[left,bottom],[right,bottom]].map(([x,y])=>unprojectGround(x,y));
@@ -1303,13 +1333,13 @@ if(picked){
 if(p.x<MIN_X||p.y<MIN_Y||p.x>=W||p.y>=H)return;if(clearMode){clearScenery(p.x,p.y);return}if(!unlocked(p.x,p.y)){if(moveMode){toast('施設は解放済みの土地にしか置けないよ','error');return}requestLandPurchase(zoneId(p.x,p.y));return}if(moveMode){moveBuilding(p.x,p.y);return}if(buildMode){place(buildMode,p.x,p.y);return}let m=state.monsters.findLast(m=>Math.hypot(m.x-p.x,m.y-p.y)<.9);if(m){openMonsterDetails(m.id,canvas);return}let b=getBuildingAt(p.x,p.y);if(b){selectedBuilding=b.id;selectedMonster=null;tab='build';renderUI(true);toast(`${B[b.type].icon} ${B[b.type].name} Lv.${b.level}`);return}selectedBuilding=null;selectedMonster=null;renderUI(true)}
 let mapPointer=null;
 canvas.addEventListener('pointerdown',e=>{if(e.button!==0&&e.pointerType==='mouse')return;mapPointer={id:e.pointerId,startX:e.clientX,startY:e.clientY,lastX:e.clientX,lastY:e.clientY,dragged:false};canvas.setPointerCapture(e.pointerId)});
-canvas.addEventListener('pointermove',e=>{const p=canvasCell(e);hover=p.x>=MIN_X&&p.y>=MIN_Y&&p.x<W&&p.y<H?p:null;if(mapPointer&&mapPointer.id===e.pointerId){const d=mapPointer;const rect=canvas.getBoundingClientRect();if(Math.hypot(e.clientX-d.startX,e.clientY-d.startY)>5)d.dragged=true;if(d.dragged){const drag=unprojectGround((e.clientX-d.lastX)*VW*T/(rect.width*zoom),(e.clientY-d.lastY)*VH*T/(rect.height*zoom));cameraX-=drag.x;cameraY-=drag.y;limitCamera();hover=null}d.lastX=e.clientX;d.lastY=e.clientY}});
+canvas.addEventListener('pointermove',e=>{const p=canvasCell(e);hover=p.x>=MIN_X&&p.y>=MIN_Y&&p.x<W&&p.y<H?p:null;if(mapPointer&&mapPointer.id===e.pointerId){const d=mapPointer;const rect=canvas.getBoundingClientRect();if(Math.hypot(e.clientX-d.startX,e.clientY-d.startY)>5)d.dragged=true;if(d.dragged){stopWalkCamera();const drag=unprojectGround((e.clientX-d.lastX)*VW*T/(rect.width*zoom),(e.clientY-d.lastY)*VH*T/(rect.height*zoom));cameraX-=drag.x;cameraY-=drag.y;limitCamera();hover=null}d.lastX=e.clientX;d.lastY=e.clientY}});
 canvas.addEventListener('pointerup',e=>{if(!mapPointer||mapPointer.id!==e.pointerId)return;const dragged=mapPointer.dragged;mapPointer=null;if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);if(!dragged)onMapClick(e)});
 canvas.addEventListener('pointercancel',()=>{mapPointer=null});canvas.addEventListener('mouseleave',()=>{if(!mapPointer)hover=null});
 canvas.addEventListener('wheel',e=>{e.preventDefault();const r=canvas.getBoundingClientRect(),fx=clamp((e.clientX-r.left)/r.width,0,1),fy=clamp((e.clientY-r.top)/r.height,0,1);setZoom(zoom*(e.deltaY<0?1.12:1/1.12),fx*VW,fy*VH)},{passive:false});
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.tab;renderUI(true)}));
 document.querySelectorAll('[data-speed]').forEach(b=>b.addEventListener('click',()=>{state.speed=+b.dataset.speed;document.querySelectorAll('[data-speed]').forEach(el=>el.classList.toggle('on',el===b));renderUI(true)}));
-document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const action=b.dataset.action,id=b.dataset.id;if(action==='build'){terrainMode=null;if(buildMode===id)buildMode=null;else{moveMode=null;clearMode=false;buildMode=id;placementFacing=0;selectedBuilding=null;selectedMonster=null;toast(`🔨 ${B[id].name}を建てる位置を選ぼう`)}renderUI(true)}else if(action==='cancelBuild'){buildMode=null;renderUI(true)}else if(action==='moveBuilding')startMoving(+id);else if(action==='cancelMove')cancelMoving();else if(action==='toggleClear'){terrainMode=null;toggleClearMode()}else if(action==='recoverBuilding')recoverBuilding(+id);else if(action==='zoomIn')setZoom(zoom*1.2);else if(action==='zoomOut')setZoom(zoom/1.2);else if(action==='zoomReset')setZoom(1);else if(action==='showAdventure'){tab='adventure';renderUI(true);$('tabBody').scrollTop=0}else if(action==='upgrade')upgrade(+id);else if(action==='egg')buyEgg();else if(action==='hire')hire();else if(action==='research')doResearch(id);else if(action==='selectMonster')openMonsterDetails(+id,b);else if(action==='export')exportSave();else if(action==='reset')reset();else if(action==='import')$('importInput').click();else if(action==='pan'){const d={left:[-11,0],right:[11,0],up:[0,-10],down:[0,10]}[id];if(d)cameraMove(...d)}else if(action==='centerMap'){cameraX=VW/2-VW/(2*zoom);cameraY=VH/2-VH/(2*zoom);limitCamera();renderUI(false)}else if(action==='adventureStart')startAdventure();else if(action==='adventureAuto'){state.adventure.auto=!state.adventure.auto;state.adventure.cooldown=0;message(state.adventure.auto?'🔁 自動冒険を始めるよ！':'⏹️ 自動冒険を停止したよ。');renderUI(true);save(true)}else if(action==='atlas'){atlasCategory=id;renderUI(true)}else if(action==='showManagement'){tab='management';renderUI(true)}else if(action==='completeOrder')completeOrder();else if(action==='festival')hostFestival();else if(action==='trainMonster')trainMonster(+id);else if(action==='equipCharm')equipCharm(+id);else if(action==='toggleParty')toggleParty(+id)});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const action=b.dataset.action,id=b.dataset.id;if(action==='build'){terrainMode=null;if(buildMode===id)buildMode=null;else{moveMode=null;clearMode=false;buildMode=id;placementFacing=0;selectedBuilding=null;selectedMonster=null;toast(`🔨 ${B[id].name}を建てる位置を選ぼう`)}renderUI(true)}else if(action==='cancelBuild'){buildMode=null;renderUI(true)}else if(action==='moveBuilding')startMoving(+id);else if(action==='cancelMove')cancelMoving();else if(action==='toggleClear'){terrainMode=null;toggleClearMode()}else if(action==='recoverBuilding')recoverBuilding(+id);else if(action==='zoomIn')setZoom(zoom*1.2);else if(action==='zoomOut')setZoom(zoom/1.2);else if(action==='zoomReset')setZoom(1);else if(action==='showAdventure'){tab='adventure';renderUI(true);$('tabBody').scrollTop=0}else if(action==='upgrade')upgrade(+id);else if(action==='egg')buyEgg();else if(action==='hire')hire();else if(action==='research')doResearch(id);else if(action==='selectMonster')openMonsterDetails(+id,b);else if(action==='export')exportSave();else if(action==='reset')reset();else if(action==='import')$('importInput').click();else if(action==='pan'){const d={left:[-11,0],right:[11,0],up:[0,-10],down:[0,10]}[id];if(d)cameraMove(...d)}else if(action==='walkCamera')startWalkCamera(+id);else if(action==='centerMap'){stopWalkCamera();cameraX=VW/2-VW/(2*zoom);cameraY=VH/2-VH/(2*zoom);limitCamera();renderUI(false)}else if(action==='adventureStart')startAdventure();else if(action==='adventureAuto'){state.adventure.auto=!state.adventure.auto;state.adventure.cooldown=0;message(state.adventure.auto?'🔁 自動冒険を始めるよ！':'⏹️ 自動冒険を停止したよ。');renderUI(true);save(true)}else if(action==='atlas'){atlasCategory=id;renderUI(true)}else if(action==='showManagement'){tab='management';renderUI(true)}else if(action==='completeOrder')completeOrder();else if(action==='festival')hostFestival();else if(action==='trainMonster')trainMonster(+id);else if(action==='equipCharm')equipCharm(+id);else if(action==='toggleParty')toggleParty(+id)});
 document.addEventListener('pointerdown',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('focusin',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('change',e=>{if(e.target.matches('.staff-select[data-staff]')){let s=state.staff.find(o=>o.id===+e.target.dataset.staff);if(s&&JOBS[e.target.value]){s.job=e.target.value;s.path=[];message(`🧑‍🌾 ${s.name}の担当が「${JOBS[s.job].label}」になったよ。`,'success');save(true)}inputLock=false;renderUI(true)}if(e.target.id==='importInput')importSave(e.target.files[0])});document.addEventListener('focusout',e=>{if(e.target.matches('.staff-select'))inputLock=false});
 const helpTopics = {staff:'職員の役職', tree:'世界樹の成長XP', basics:'基本とセーブ'};
 let helpOpener;
@@ -1322,6 +1352,7 @@ function monsterDetailContent(m) {
   const favorite=m.favorite138===true, protectedMonster=m.protected138===true;
   return `<div class="management-card">
     ${monsterExperience(m)}
+    <button type="button" class="small-button secondary" data-action="walkCamera" data-id="${m.id}">📷 ${followedMonster===m?'おさんぽカメラを解除':'この子を見守る（おさんぽカメラ）'}</button>
     <div class="stat-row"><span>属性 / 成長段階</span><strong>${ELEM_ICON[m.element]} ${esc(m.element)} / ${stage}</strong></div>
     <div class="stat-row"><span>性格</span><strong>${trait.name}</strong></div>
     <div class="stat-row"><span>体力・元気</span><strong>${Math.round(m.energy)} / 100</strong></div>
@@ -6349,6 +6380,7 @@ function treeTargetRow(req) {
 function followTreeTarget(type) {
   const req=treeRequirementStatus193(state.villageLv+1).find(r=>r.type===type);
   if (!req || req.ok) return;
+  stopWalkCamera();
   if (!roleIncludes(type)) facilityRole='all';
   const building=closestUpgradeForRequirement(req);
   tab='build'; moveMode=null; terrainMode=null; clearMode=false; buildMode=null; selectedMonster=null; hover=null;
