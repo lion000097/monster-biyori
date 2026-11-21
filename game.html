@@ -281,6 +281,17 @@ html.monster-detail-open{overflow:hidden}
 .postcard-album canvas{width:80px;height:auto;flex:none;image-rendering:pixelated}
 .postcard-album small{display:block;color:#52685d;overflow-wrap:anywhere}
 
+.world-header,.ranch-name-heading{flex-wrap:wrap}
+.world-title{max-width:100%;min-width:0}
+.ranch-name-heading{display:flex;align-items:center;gap:6px}
+#ranchName{overflow-wrap:anywhere}
+#renameRanch{font-size:12px}
+.ranch-name-form{display:grid;gap:10px}
+.ranch-name-form label{font-weight:800}
+.ranch-name-form input{width:100%;min-width:0;padding:9px;border:1px solid #91b6a5;border-radius:7px;font:inherit;font-size:16px}
+.ranch-name-form output{color:#913e36}
+.ranch-name-form output:empty{display:none}
+.ranch-name-actions{display:flex;justify-content:flex-end;gap:8px}
 .resource-field{position:relative;border-bottom:1px dashed #e4eee5}
 .resource-field:last-child{border-bottom:0}
 .resource-field>.resource{width:100%;border:0;background:transparent;color:inherit;text-align:start;cursor:help}
@@ -309,7 +320,7 @@ html.monster-detail-open{overflow:hidden}
 <section class="panel"><div class="panel-heading"><h2>📜 おまかせミッション</h2><span class="chip">報酬も自動</span></div><div class="quests" id="quests"></div><div class="tip-box"><strong>💡 ほうっておいても成長！</strong><br>仲間たちは食べて・遊んで・働いて、自分で行動するよ。施設の配置と育成方針だけ決めよう。</div></section>
 </div>
 <div class="center">
-<section class="panel world-shell"><div class="world-header"><div class="world-title">🌿 こもれび牧場 <small>MONSTER MEADOW / フィールド</small></div><div class="world-badges"><span class="world-tag gold" id="statusTag">🌤️ のんびり</span><span class="world-tag" id="weatherTag">🌱 春 · 晴れ</span><span class="world-tag" id="tileTag">クリックして施設を選択</span></div></div><div class="camera-toolbar"><span id="mapGestureHint">🖐️ ドラッグで移動 · ホイールで拡大縮小</span><div class="camera-buttons"><button type="button" id="stopWalkCamera" hidden></button><button data-action="toggleClear" id="clearButton" title="木35G、石20Gで撤去">🪓 整地</button><button type="button" data-action="zoomOut" id="zoomOut" title="縮小" aria-label="縮小">−</button><span id="zoomLabel">100%</span><button type="button" data-action="zoomIn" id="zoomIn" title="拡大" aria-label="拡大">＋</button><button type="button" data-action="zoomReset" title="標準倍率に戻す">等倍</button></div></div><details class="road-check" id="roadCheck"><summary>🛣️ 道のつながり確認</summary>
+<section class="panel world-shell"><div class="world-header"><div class="world-title"><div class="ranch-name-heading"><span aria-hidden="true">🌿</span><span id="ranchName">こもれび牧場</span><button type="button" class="small-button secondary" id="renameRanch" aria-label="牧場の名前を変更" aria-haspopup="dialog">名前を変更</button></div><small>MONSTER MEADOW / フィールド</small></div><div class="world-badges"><span class="world-tag gold" id="statusTag">🌤️ のんびり</span><span class="world-tag" id="weatherTag">🌱 春 · 晴れ</span><span class="world-tag" id="tileTag">クリックして施設を選択</span></div></div><div class="camera-toolbar"><span id="mapGestureHint">🖐️ ドラッグで移動 · ホイールで拡大縮小</span><div class="camera-buttons"><button type="button" id="stopWalkCamera" hidden></button><button data-action="toggleClear" id="clearButton" title="木35G、石20Gで撤去">🪓 整地</button><button type="button" data-action="zoomOut" id="zoomOut" title="縮小" aria-label="縮小">−</button><span id="zoomLabel">100%</span><button type="button" data-action="zoomIn" id="zoomIn" title="拡大" aria-label="拡大">＋</button><button type="button" data-action="zoomReset" title="標準倍率に戻す">等倍</button></div></div><details class="road-check" id="roadCheck"><summary>🛣️ 道のつながり確認</summary>
   <div class="road-fields"><label>職員<select id="roadWorker"></select></label><label>仕事場<select id="roadWorkplace"></select></label>
   <output id="roadStatus" aria-live="polite"></output></div></details><div class="canvas-frame"><canvas id="game" tabindex="-1" width="2112" height="1440" aria-label="クォータービューの牧場マップ"></canvas></div><div id="facilityFacing" class="facility-facing" hidden>
   <div class="facing-caption"><strong>建物の向き</strong><span id="facingFacilityName" role="status"></span></div>
@@ -592,7 +603,13 @@ function rnd(arr){return arr[Math.floor(Math.random()*arr.length)]}function clam
 function num(v){if(v>=1000000)return (v/1000000).toFixed(2)+'M';if(v>=10000)return (v/1000).toFixed(1)+'k';return Math.floor(v).toLocaleString('ja-JP')}
 function esc(s){return String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
 function randWalk(){let x,y;for(let i=0;i<100;i++){x=MIN_X+2+Math.floor(Math.random()*(W-MIN_X-4));y=MIN_Y+2+Math.floor(Math.random()*(H-MIN_Y-4));if(isWalkable(x,y))return {x,y}}return {x:11,y:9}}
-function initial(){return {version:1,stoneTiles:{},talentFruit:0,ranchPace1313:true,restingMonsters:[],pendingExploreEgg:null,reserveRareMaterials:false,clearedScenery:[],coins:910,food:88,stock:5,magic:12,fame:9,day:1,hour:8,ticks:0,speed:1,buildings:[{id:1,type:'farm',x:3,y:3,level:1},{id:2,type:'home',x:8,y:3,level:1}],monsters:[makeMonster(1,0,7,9),makeMonster(2,1,12,9),makeMonster(3,2,15,10)],staff:[makeStaff(5,'keeper',10,9),makeStaff(6,'gather',11,7)],eggs:[],villageLv:1,villageXp:0,zones:[0,1,4,5],catalog:{friends:[0,1,2],shinies:[],enemies:[],defeated:[],citizens:[]},adventure:{stage:1,clears:0,auto:false,cooldown:0},battle:null,research:{farm:0,train:0,market:0,quest:0},metrics:{food:0,coins:0,level:0,sell:0,days:0,build:0,explore:0,hatch:0},quests:[],nextId:7,questSequence:0,exploreProgress:0,springProgress:0,log:[],createdAt:Date.now(),savedAt:Date.now()}}
+const DEFAULT_RANCH_NAME = 'こもれび牧場';
+const RANCH_NAME_LIMIT = 20;
+function validRanchName(value) {
+  const name = typeof value === 'string' ? value.trim() : '';
+  return name && [...name].length <= RANCH_NAME_LIMIT ? name : '';
+}
+function initial(){return {version:1,ranchName:DEFAULT_RANCH_NAME,stoneTiles:{},talentFruit:0,ranchPace1313:true,restingMonsters:[],pendingExploreEgg:null,reserveRareMaterials:false,clearedScenery:[],coins:910,food:88,stock:5,magic:12,fame:9,day:1,hour:8,ticks:0,speed:1,buildings:[{id:1,type:'farm',x:3,y:3,level:1},{id:2,type:'home',x:8,y:3,level:1}],monsters:[makeMonster(1,0,7,9),makeMonster(2,1,12,9),makeMonster(3,2,15,10)],staff:[makeStaff(5,'keeper',10,9),makeStaff(6,'gather',11,7)],eggs:[],villageLv:1,villageXp:0,zones:[0,1,4,5],catalog:{friends:[0,1,2],shinies:[],enemies:[],defeated:[],citizens:[]},adventure:{stage:1,clears:0,auto:false,cooldown:0},battle:null,research:{farm:0,train:0,market:0,quest:0},metrics:{food:0,coins:0,level:0,sell:0,days:0,build:0,explore:0,hatch:0},quests:[],nextId:7,questSequence:0,exploreProgress:0,springProgress:0,log:[],createdAt:Date.now(),savedAt:Date.now()}}
 function makeMonster(id,kind,x,y){return {id,kind,iv:{hp:rollTalentIV(),attack:rollTalentIV(),defense:rollTalentIV()},name:rnd(names),shiny:false,lv:1,xp:0,happy:83+Math.random()*16,bond:10+Math.random()*12,energy:85,x,y,path:[],produce:Math.random()*6,bob:Math.random()*6,act:'あそぶ',trait:Math.floor(Math.random()*TRAITS.length),element:KIND_ELEMENTS[kind],equip:false,trainedDay:0}}
 function makeStaff(id,job,x,y){const gender=Math.random()<.5?'男':'女';return {id,name:rnd(gender==='男'?MALE_NAMES:FEMALE_NAMES),gender,job,x,y,path:[],bob:Math.random()*6,act:'仕事中',level:1,work:0,workXp:0,morale:85,fatigue:8,mastery:{keeper:0,gather:0,sell:0,study:0,explore:0}}}
 
@@ -743,7 +760,7 @@ const foodProduction = {
 function gainCoins(received){state.coins+=received;if(received>0){state.metrics.coins+=received;if(state.economy)state.economy.income+=received}return received}function gainFood(n){state.food+=n;if(n>0)state.metrics.food+=n}
 function createQuest(index){const q=QUESTS[index%QUESTS.length];const factor=1+Math.floor(state.fame/120)*0.18;let amount=Math.max(1,Math.round(q.factor*factor));if(['level','build','explore','hatch','days'].includes(q.id))amount=Math.max(1,Math.round(q.factor*(1+Math.floor(state.fame/350)*.3)));return {id:q.id,title:q.title,base:state.metrics[q.id]||0,goal:amount,coin:Math.round(q.coin*(1+.18*Math.sqrt(Math.max(0,state.fame)/100))),fame:Math.max(1,Math.round(q.fame*.55)),magic:q.magic,unit:q.unit}}
 function checkQuests(){let changed=false;for(let i=0;i<state.quests.length;i++){let q=state.quests[i],done=(state.metrics[q.id]||0)-q.base;if(done>=q.goal){const earned=gainCoins(q.coin);state.fame+=q.fame;state.magic+=q.magic;message(`📜 任務達成！「${q.title}」 +${earned}G / 評判+${q.fame}`);state.quests[i]=createQuest(state.questSequence++);changed=true}}return changed}
-function load(){try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return false;const parsed=JSON.parse(raw);if(!parsed||parsed.version!==1||!validSaveCore(parsed)||!Array.isArray(parsed.monsters)||!Array.isArray(parsed.buildings)||!Array.isArray(parsed.staff)||!validBarnRoster(parsed)||!validExploreEggOffer(parsed))return false;state=parsed;loadStoneTiles(state);restoreVisitDoors(state);migrateTalents(state);state.villageLv=Math.max(1,Number(state.villageLv)||1,...state.buildings.map(b=>(B[b.type]||{unlock:1}).unlock));state.villageXp=Math.max(0,Number(state.villageXp)||0);state.zones=Array.isArray(state.zones)?[...new Set([...state.zones,0,1,4,5])]:[0,1,4,5];state.catalog=Object.assign({friends:[],shinies:[],enemies:[],defeated:[],citizens:[],citizenProfiles:{}},state.catalog||{});
+function load(){try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return false;const parsed=JSON.parse(raw);if(!parsed||parsed.version!==1||!validSaveCore(parsed)||!Array.isArray(parsed.monsters)||!Array.isArray(parsed.buildings)||!Array.isArray(parsed.staff)||!validBarnRoster(parsed)||!validExploreEggOffer(parsed))return false;state=parsed;state.ranchName=validRanchName(state.ranchName)||DEFAULT_RANCH_NAME;loadStoneTiles(state);restoreVisitDoors(state);migrateTalents(state);state.villageLv=Math.max(1,Number(state.villageLv)||1,...state.buildings.map(b=>(B[b.type]||{unlock:1}).unlock));state.villageXp=Math.max(0,Number(state.villageXp)||0);state.zones=Array.isArray(state.zones)?[...new Set([...state.zones,0,1,4,5])]:[0,1,4,5];state.catalog=Object.assign({friends:[],shinies:[],enemies:[],defeated:[],citizens:[],citizenProfiles:{}},state.catalog||{});
 for(let k of ['friends','shinies','enemies','defeated','citizens'])if(!Array.isArray(state.catalog[k]))state.catalog[k]=[];
 if(!state.catalog.citizenProfiles||Array.isArray(state.catalog.citizenProfiles)||typeof state.catalog.citizenProfiles!=='object')state.catalog.citizenProfiles={};
 state.clearedScenery=Array.isArray(state.clearedScenery)?state.clearedScenery.filter(v=>/^-?\d+,-?\d+$/.test(v)).slice(0,(W-MIN_X)*(H-MIN_Y)):[];state.adventure=Object.assign({stage:1,clears:0,auto:false,cooldown:0},state.adventure||{});normalizeBossLoop(state);state.battle=null;state.research=Object.assign({farm:0,train:0,market:0,quest:0},state.research);state.metrics=Object.assign({food:0,coins:0,level:0,sell:0,days:0,build:0,explore:0,hatch:0},state.metrics);state.quests=Array.isArray(state.quests)?state.quests:[];state.eggs=Array.isArray(state.eggs)?state.eggs:[];state.log=Array.isArray(state.log)?state.log:[];state.nextId=state.nextId||100;state.questSequence=state.questSequence||0;state.exploreProgress=state.exploreProgress||0;state.springProgress=state.springProgress||0;for(let a of [...state.monsters,...state.staff]){a.path=[];a.x=Number.isFinite(Number(a.x))?clamp(Number(a.x),MIN_X,W-1):10;a.y=Number.isFinite(Number(a.y))?clamp(Number(a.y),MIN_Y,H-1):9;if(a.kind!==undefined){a.kind=clamp(Math.floor(Number(a.kind)||0),0,SPECIES.length-1);a.shiny=Boolean(a.shiny);a.happy=clamp(Number(a.happy)||70,0,100);a.xp=Number(a.xp)||0;a.bond=Number(a.bond)||0;a.produce=Number(a.produce)||0;addCatalogMonster(a)}else addCitizen(a)}for(let e of state.eggs){e.shiny=Boolean(e.shiny);e.kind=clamp(Math.floor(Number(e.kind)||0),0,SPECIES.length-1)}if(!state.quests.length){state.quests=[createQuest(0),createQuest(1),createQuest(2)];state.questSequence=3}ensureAdvanced();return true}catch(e){console.warn('save load',e);return false}}
@@ -925,6 +942,7 @@ const resourceRows = [
 });
 
 function renderUI(full=false){if(!state)return;
+if ($('ranchName').textContent !== state.ranchName) $('ranchName').textContent = state.ranchName;
 for (const {key,value} of resourceRows) {
   const amount = num(state[key]);
   if (value.textContent !== amount) value.textContent = amount;
@@ -1564,6 +1582,48 @@ function selectHelpTopic(topic) {
   $('helpPages').scrollTop = 0;
   $('help-tab-' + topic).focus({preventScroll:true});
 }
+
+$('renameRanch').addEventListener('click', event => {
+  helpOpener = event.currentTarget;
+  $('modalContent').innerHTML = `<h2 id="helpTitle">牧場の名前を変更</h2>
+    <form class="ranch-name-form" novalidate>
+      <label for="ranchNameInput">牧場名（${RANCH_NAME_LIMIT}文字まで）</label>
+      <input type="text" id="ranchNameInput" required aria-describedby="ranchNameStatus">
+      <output id="ranchNameStatus" role="status"></output>
+      <div class="ranch-name-actions"><button type="button" class="button" id="modalClose">キャンセル</button>
+      <button type="submit" class="button primary">保存する</button></div>
+    </form>`;
+  const input = $('ranchNameInput'), status = $('ranchNameStatus');
+  input.value = state.ranchName;
+  $('modal').classList.add('show');
+  document.querySelector('.app').inert = true;
+  input.focus();
+  input.select();
+  input.addEventListener('input', () => {
+    input.removeAttribute('aria-invalid');
+    status.textContent = '';
+  });
+  input.form.addEventListener('submit', event => {
+    event.preventDefault();
+    const name = validRanchName(input.value);
+    if (!name) {
+      status.textContent = '牧場名を1〜'+RANCH_NAME_LIMIT+'文字で入力してね。';
+      input.setAttribute('aria-invalid','true');
+      input.focus();
+      return;
+    }
+    const previous = state.ranchName;
+    state.ranchName = name;
+    if (!save(true)) {
+      state.ranchName = previous;
+      status.textContent = '名前を保存できなかったよ。ブラウザの保存設定を確認してね。';
+      return;
+    }
+    renderUI(false);
+    hideModal();
+    toast('牧場の名前を保存したよ。','success');
+  });
+});
 
 function showModal(topic, opener) {
   const pages = {staff:staffHelp, tree:treeHelp, basics:basicHelp};
