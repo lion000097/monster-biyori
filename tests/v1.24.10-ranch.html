@@ -55,6 +55,12 @@ function ranchFixture(){
       check(waterPixel(overview)==='224,238,234,255','puddle highlight on wet road');
       state.day=clear;check(waterPixel(overview)!=='224,238,234,255','clear road after weather change');state.day=wet;
     }
+    ctx.save();ctx.setTransform(1,0,0,1,0,0);
+    for(const [icon,x,y,rgb] of [['☂',29,23,'204,233,230'],['！',32,24,'155,81,46']]){
+      drawMapBubble(32,32,icon,0,0);
+      check([...ctx.getImageData(x,y,1,1).data].slice(0,3).join(',')===rgb,'pixel icon '+icon);
+    }
+    ctx.restore();
     function monster(id,trait,pos){
       const m=Object.assign(makeMonster(id,0,pos,8),{trait});monsterWalkTimer139(m).wait=0;return m;
     }
@@ -167,6 +173,7 @@ async function verify(width,previous,current){
   try{
     let qa=await open(previous);qa.seed();qa=await open(previous);const legacy=qa.snapshot();
     qa=await open(current);
+    if(!frame.contentDocument.title.includes('Ver.1.24.10'))throw Error('wrong game version');
     const currentSave=qa.snapshot(),before=JSON.parse(legacy),after=JSON.parse(currentSave);
     if(currentSave!==legacy){
       const i=before.findIndex((v,i)=>JSON.stringify(v)!==JSON.stringify(after[i]));
@@ -183,7 +190,7 @@ async function verify(width,previous,current){
 document.querySelector('#run').onclick=async({currentTarget})=>{
   currentTarget.disabled=true;const output=document.querySelector('#result');output.textContent='';
   try{
-    const pages=await Promise.all(['../releases/1.24.9/game.html','../game.html'].map(async url=>{
+    const pages=await Promise.all(['../releases/1.24.9/game.html','../releases/1.24.10/game.html'].map(async url=>{
       const response=await fetch(url);if(!response.ok)throw Error(url);return response.text();
     }));
     for(const width of [1366,390])await verify(width,...pages);
