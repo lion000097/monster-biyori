@@ -1403,7 +1403,12 @@ function drawWorld(now){
   }
   for(const [source,monster] of [[state.monsters,true],[state.staff,false],[state.guests,false]])for(const o of source){const p=projectGround(o.x+.5,o.y+.5);if(p.x<left-40||p.x>right+40||p.y<top-24||p.y>bottom+65)continue;
     const visit=plotWalks.get(o);
-    const depth=visit?Math.max(o.x+o.y+1,visit.depth+.01):o.x+o.y+1;
+    let depth=o.x+o.y+1;
+    if(visit){
+      // The left and upper gates are beyond the building in the isometric view.
+      const farGate=visit.facing===1||visit.facing===2;
+      depth=farGate?Math.min(depth,visit.depth-.01):Math.max(depth,visit.depth+.01);
+    }
     objects.push({depth,draw:()=>drawMapActor(o,monster,now)});
   }
   const selected=state.buildings.find(b=>b.id===selectedBuilding);
