@@ -63,7 +63,39 @@ function ranchFixture(){
       animateGuest212(another,.08);check(another.phase212==='leave','removed stop');
     }finally{Math.random=previous}
   }
-  window.ranchQA={ready:()=>villageSheetReady&&facilitySheetReady,seed,snapshot,guests};
+  function pastimes(){
+    roadLayout();state.staff=[];state.speed=1;state.hour=12;
+    const m=makeMonster(100,0,5,8),friend=makeMonster(101,1,7,8);
+    state.monsters=[m,friend];
+    const timer=monsterWalkTimer139(m),other=monsterWalkTimer139(friend);
+    other.wait=90;timer.wait=0;
+    const previous=Math.random;Math.random=()=>.05;
+    try{
+      stepActors(.08);
+      check(timer.pastime?.kind==='nap'&&m.act.includes('お昼寝'),'nap starts without input');
+      drawMapActor(m,true,500);
+      const rect=mapPickItems.at(-1).rect;
+      check(rect.h<rect.w,'resting pose and selection bounds');
+      const start=[m.x,m.y,m.xp,m.energy,m.bond];
+      for(let n=0;n<65;n++)stepActors(.08);
+      check(!timer.pastime&&JSON.stringify([m.x,m.y,m.xp,m.energy,m.bond])===JSON.stringify(start),'nap ends without stat changes');
+      Math.random=()=>.22;timer.wait=0;other.wait=90;
+      stepActors(.08);
+      check(timer.pastime?.partner===friend&&other.pastime?.partner===m,'paired chase starts');
+      let farthest=m.x;
+      for(let n=0;n<120&&timer.pastime;n++){
+        stepActors(.08);farthest=Math.max(farthest,m.x);
+        check(residentRoad(Math.round(m.x),Math.round(m.y))&&residentRoad(Math.round(friend.x),Math.round(friend.y)),'chase stays on road');
+      }
+      check(farthest>7&&friend.x>m.x&&!timer.pastime&&!other.pastime,'both run and stop');
+      m.x=5;friend.x=7;timer.wait=0;other.wait=90;
+      stepActors(.08);check(!!timer.pastime,'second chase');
+      state.monsters=[m];stepActors(.08);
+      check(!timer.pastime&&!other.pastime,'partner leaves mid-chase');
+      state.hour=22;timer.wait=0;stepActors(.08);check(!timer.pastime,'night routine');
+    }finally{Math.random=previous}
+  }
+  window.ranchQA={ready:()=>villageSheetReady&&facilitySheetReady,seed,snapshot,guests,pastimes};
 }
 async function verify(width,previous,current){
   const prefix='qa1249_'+crypto.randomUUID()+'_';let frame;
@@ -86,7 +118,7 @@ async function verify(width,previous,current){
       throw Error('old save field '+i+' / '+JSON.stringify(before[i])+' / '+JSON.stringify(after[i]));
     }
     if(frame.contentDocument.documentElement.scrollWidth>frame.contentWindow.innerWidth+1)throw Error('layout width');
-    qa.guests();
+    qa.guests();qa.pastimes();
     document.querySelector('#result').textContent+=width+'px 成功\n';
   }finally{
     frame?.remove();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);

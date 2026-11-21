@@ -1277,22 +1277,27 @@ function drawGateMarker(b,facing) {
 function drawMapActor(o,monster,now) {
   const pos=projectGround(o.x+.5,o.y+.5),x=Math.round(pos.x),foot=Math.round(pos.y+4);
   const phase=now/350+(o.bob||0),size=monster?(SPECIES[o.kind]?.large?56:o.lv>=15?42:o.lv>=7?38:35):36;
-  const timer=monster?monsterWalkTimer139(o):null,visit=timer?.visit;
+  const timer=monster?monsterWalkTimer139(o):null,visit=timer?.visit,pastime=timer?.pastime;
   let dx=0,dy=Math.round(Math.sin(phase)*1.5);
   if(visit&&visit.remaining!==null){const site=visit.site,pulse=Math.sin((3.2-visit.remaining)*7);
     if(site.type==='school'){const m=buildingOf(site),aim=projectGround(site.x+m.w/2,site.y+m.h/2);dx=Math.round(Math.sign(aim.x-x)*4*Math.max(0,pulse));dy=-Math.round(3*Math.max(0,pulse))}
     else if(['park','fountain211'].includes(site.type))dy=-Math.round(5*Math.abs(pulse));else if(['home','inn','bench211','hut'].includes(site.type))dy=1;
   }
-  const left=Math.round(x-size/2)+dx,top=foot-size+dy,art=monster?spriteMonsterHD(o.kind,!!o.shiny):citizenArt(o);
+  const napping=pastime?.kind==='nap';
+  const height=napping?Math.round(size*.74+Math.sin(now/850)*1.5):size;
+  if(napping)dy=0;
+  else if(pastime?.kind==='chase'&&o.path?.length)dy=-Math.round(Math.abs(Math.sin(now/105))*4);
+  const left=Math.round(x-size/2)+dx,top=foot-height+dy,art=monster?spriteMonsterHD(o.kind,!!o.shiny):citizenArt(o);
   ctx.fillStyle='#294f4b3a';ctx.fillRect(x-Math.round(size*.26),foot-2,Math.round(size*.52),3);
-  ctx.drawImage(art,left,top,size,size);
-  if(monster)mapPickItems.push({monster:o,art,rect:{x:left,y:top,w:size,h:size}});
+  ctx.drawImage(art,left,top,size,height);
+  if(monster)mapPickItems.push({monster:o,art,rect:{x:left,y:top,w:size,h:height}});
   if(monster){
     if(o.shiny){ctx.fillStyle='#503977';ctx.fillRect(x-16,top-9,33,9);ctx.fillStyle='#fff173';ctx.font='bold 8px monospace';ctx.fillText('★ RARE',x-14,top-2)}
     if(o.lv>=10){ctx.fillStyle='#fff1a5';ctx.font='bold 11px sans-serif';ctx.fillText(o.lv>=25?'✦✦':'✦',left+size-5,top+9)}
-    if(selectedMonster===o.id){ctx.strokeStyle='#fff6d6';ctx.lineWidth=2;ctx.strokeRect(left,top,size,size)}
+    if(selectedMonster===o.id){ctx.strokeStyle='#fff6d6';ctx.lineWidth=2;ctx.strokeRect(left,top,size,height)}
     if(Math.sin(now/1300+o.id*3)>.985){ctx.fillStyle='#fff8ec';ctx.fillRect(left+size-4,top-1,13,11);ctx.fillStyle='#ed9c9c';ctx.font='bold 11px sans-serif';ctx.fillText('♥',left+size-2,top+8)}
-    const icon=visit&&visit.remaining!==null?facilityActivities[visit.site.type][0]:timer.harvestBubble>0?'📦':null;
+    const playIcon=napping?'💤':pastime?.kind==='chase'?(pastime.leader?'♪':'🐾'):null;
+    const icon=playIcon||(visit&&visit.remaining!==null?facilityActivities[visit.site.type][0]:timer.harvestBubble>0?'📦':null);
     if(icon){drawMapBubble(x,top-(o.shiny?17:8),icon,now,o.id)}else{
       const activity=o.phase213||phase213(state.hour);if(activity!=='work'){ctx.font='13px sans-serif';ctx.fillText(activity==='sleep'?'💤':activity==='eat'?'🍎':'🎾',x-7,top-2+Math.sin(now/500+o.id)*1.6)}
     }
@@ -2676,7 +2681,9 @@ stepActors=function(dt){
     if(!tileIsFree191(nx,ny)){a.path=[];continue;}
     const dx=nx-a.x,dy=ny-a.y,d=Math.hypot(dx,dy);
     if(d<.05){a.x=nx;a.y=ny;a.path.shift();continue;}
-    const speed=(isVisitor?.68:a.kind!==undefined?1.06+(Math.abs(a.id)*7%13)*.04:1.55)*dt;
+    let pace=isVisitor?.68:a.kind!==undefined?1.06+(Math.abs(a.id)*7%13)*.04:1.55;
+    if(a.kind!==undefined&&monsterWalkTimer139(a).pastime?.kind==='chase')pace=1.8;
+    const speed=pace*dt;
     const vx=dx*Math.min(1,speed/d),vy=dy*Math.min(1,speed/d);
     // Only enter the next cell when its actual tile is passable.
     if(!tileIsFree191(Math.round(a.x+vx),Math.round(a.y+vy))){a.path=[];continue;}
@@ -4715,7 +4722,10 @@ load=function(){
   ensureMonsterGifts212();
   repairVIP212();
   for(const w of state.staff){w.jobTask212=null;w.jobTarget211=null;w.path=[]}
-  for(const m of state.monsters){m.ranchTarget200=null;m.ranchGoal200=null;m.path=[]}
+  for(const m of state.monsters){
+   m.ranchTarget200=null;m.ranchGoal200=null;m.path=[];
+   if(m.act==='💤 お昼寝中'||m.act==='🐾 追いかけっこ')m.act='🐾 おさんぽ';
+  }
   state.guests=state.guests.filter(g=>Number.isFinite(g.x)&&Number.isFinite(g.y));
   for(const g of state.guests){
    const oldPhase=g.phase212;
@@ -5393,6 +5403,57 @@ function advanceFacilityVisit(m,dt){
  v.remaining=phase==='use'?plotWalks.get(m).remaining:null;
  return true;
 }
+function freeForPlay(m){
+ const timer=monsterWalkTimer139(m);
+ return !timer.visit&&!timer.pastime&&!timer.needsRanch&&!m.ranchTarget200&&
+  !plotWalks.has(m)&&residentRoad(Math.round(m.x),Math.round(m.y));
+}
+function startMonsterPastime(m,timer){
+ if(state.hour<9||state.hour>=19||!freeForPlay(m))return false;
+ const roll=Math.random();
+ if(roll<.16&&state.hour>=11&&state.hour<16){
+  timer.pastime={kind:'nap',remaining:4+Math.random()*3};
+  m.act='💤 お昼寝中';return true;
+ }
+ if(roll>=.36)return false;
+ const nearby=state.monsters.filter(b=>b!==m&&Math.hypot(b.x-m.x,b.y-m.y)<=4&&freeForPlay(b));
+ if(!nearby.length)return false;
+ const leader=rnd(nearby),lx=Math.round(leader.x),ly=Math.round(leader.y);
+ const approach=pathTo(m.x,m.y,lx,ly,true);
+ if(!approach.length||approach.length>5)return false;
+ // The leader runs ahead on the same road. Leave the last tile to the leader.
+ const used=new Set(approach.map(([x,y])=>keyXY(x,y)));
+ used.add(keyXY(Math.round(m.x),Math.round(m.y)));
+ const trail=[];let x=lx,y=ly;
+ while(trail.length<4){
+  const choices=neighbors(x,y).filter(([nx,ny])=>residentRoad(nx,ny)&&!used.has(keyXY(nx,ny)));
+  if(!choices.length)break;
+  [x,y]=rnd(choices);trail.push([x,y]);used.add(keyXY(x,y));
+ }
+ if(trail.length<2)return false;
+ leader.path=trail;m.path=approach.concat(trail.slice(0,-1));
+ leader.act=m.act='🐾 追いかけっこ';
+ timer.pastime={kind:'chase',partner:leader,leader:false,remaining:9};
+ monsterWalkTimer139(leader).pastime={kind:'chase',partner:m,leader:true,remaining:9};
+ return true;
+}
+function advanceMonsterPastime(m,dt){
+ const timer=monsterWalkTimer139(m),play=timer.pastime;
+ if(!play)return false;
+ play.remaining-=dt;
+ const mate=play.partner;
+ const activeHours=play.kind==='nap'?state.hour>=11&&state.hour<16:state.hour>=9&&state.hour<19;
+ const playing=play.kind==='nap'||(state.monsters.includes(mate)&&
+  !monsterWalkTimer139(mate).needsRanch&&(m.path?.length||mate.path?.length));
+ if(activeHours&&playing&&play.remaining>0&&!timer.needsRanch&&!m.ranchTarget200)return true;
+ for(const actor of mate?[m,mate]:[m]){
+  const motion=monsterWalkTimer139(actor);
+  if(actor!==m&&motion.pastime?.partner!==m)continue;
+  motion.pastime=null;motion.wait=motion.needsRanch?0:2;
+  if(!actor.ranchTarget200){actor.path=[];actor.act='🐾 おさんぽ';}
+ }
+ return false;
+}
 function seekMonster139(m) {
   const phase = phase213(state.hour), timer = monsterWalkTimer139(m);
   if (timer.needsRanch && phase !== 'sleep') {
@@ -5404,6 +5465,7 @@ function seekMonster139(m) {
       m.act = '牧場へ素材を作りに'; return;
     }
   }
+  if (startMonsterPastime(m,timer)) return;
   if ((phase==='sleep'||Math.random()<.60) && chooseFacilityVisit(m,timer,phase)) return;
   const anchored = phase === 'sleep' || Math.random() < (phase === 'eat' ? .75 : .35);
   const types = { sleep: ['home'], eat: ['home','farm'], work: ['ranch','farm'], play: ['park','flowerbed211','bench211'] };
@@ -5419,7 +5481,7 @@ function updateMonsterWalks139(dt) {
   let searches = 0;
   for (const m of state.monsters) {
     const motion=monsterWalkTimer139(m);if(motion.harvestBubble>0)motion.harvestBubble-=dt;
-    if (advanceFacilityVisit(m,dt)||m.ranchTarget200 || m.path?.length) continue;
+    if (advanceMonsterPastime(m,dt)||advanceFacilityVisit(m,dt)||m.ranchTarget200||m.path?.length) continue;
     const timer = monsterWalkTimer139(m);
     timer.wait -= dt;
     if (timer.wait > 0 || searches >= 2) continue;
