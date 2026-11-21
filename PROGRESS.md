@@ -1,11 +1,11 @@
 # もんすたー日和　1.24.8 更新の進捗
 
-- 対象バージョン　1.24.8（1.24.7からの更新）。
-- 保存先　作業ブランチ `release/1.24.8`。公開予定先は GitHub `lion000097/monster-biyori` の `main`。ゲーム本体は `game.html`、進捗メモは `PROGRESS.md`、配布物は `releases/1.24.8/`。
-- 完了事項　依頼5件を実装・検証し、1.24.8の配布物を準備。公開先の確認済み。
-- 確認結果　1366px・390pxの検証に成功。配布用HTML・ZIP・自動更新情報のSHA-256を照合済み。進捗メモと配布物を含む状態を再構成し、元のファイル一式と照合した。
-- 残作業　作業ブランチとmainへの反映、GitHub Pagesの公開結果・配布ファイル4点の照合。
-- 次の操作　確認済みのlion000097/monster-biyoriへ反映し、GitHub Pagesの公開を確認する。
+- 対象バージョン　1.24.8（1.24.7からの更新）。2026年11月21日に公開済み。
+- 保存先　GitHub `lion000097/monster-biyori` の `main` と `release/1.24.8`。ゲーム本体は `game.html`、版別の配布物と検証記録は `releases/1.24.8/`、進捗メモは `PROGRESS.md`。
+- 完了事項　依頼5件の実装、旧セーブ互換性の動作確認、配布物の作成、GitHub Pagesへの公開と配信ファイルの照合。
+- 確認結果　1.24.7のセーブを読み込み、1366×900と390×844で動作確認済み。公開先のゲーム本体2点、配布ZIP、更新情報がすべてHTTP 200で、検証済みのファイルとバイト単位で一致。
+- 残作業　なし。
+- 次の操作　次回の更新は公開済みの1.24.8を基準にする。
 
 [前回の1.24.7公開記録](https://github.com/lion000097/monster-biyori/blob/46b62b7fea2cb879fc361d4cb4b02c2d933e87ac/PROGRESS.md)
 
@@ -29,3 +29,7 @@
 8. releases/1.24.8/ にゲーム本体、ZIP、CHANGELOG.md、TESTING.mdを保存し、latest.jsonを更新。HTMLは2,406,753バイト・SHA-256 6f41b301b61d11ae4f82ad1fd73b2f752c0820b90f87057a74e0427ae7b72f4c、ZIPは3,863,817バイト・SHA-256 b0532a82d125005b092822d900c28b6405222c08ad83979ada0b154f0a33beca。
 
 9. ユーザーが従来のGitHubリポジトリへの送信・Pages公開を確認。公開前の基準はmainの46b62b7（1.24.7）。
+
+10. リモートに既にあった修正3件の内容を照合して、続きの修正履歴・検証記録・配布物を同じブランチに反映。ユーザーが `lion000097/monster-biyori` の `main` への反映と従来のGitHub Pagesへの公開を明示承認。公開用コミット [6e4e4f4](https://github.com/lion000097/monster-biyori/commit/6e4e4f462c8257db7cedc8bbffc9549765a214e4)。
+
+11. 配信中の [ゲーム本体](https://lion000097.github.io/monster-biyori/game.html)、[版別HTML](https://lion000097.github.io/monster-biyori/releases/1.24.8/game.html)、[配布ZIP](https://lion000097.github.io/monster-biyori/releases/1.24.8/monster-biyori-1.24.8.zip)、[更新情報](https://lion000097.github.io/monster-biyori/latest.json) で配布版との完全一致を確認。更新情報は1.24.8を指し、記載のSHA-256もゲーム本体と一致。 [公開処理の記録](https://github.com/lion000097/monster-biyori/actions/runs/44865343924)。
