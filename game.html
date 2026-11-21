@@ -299,7 +299,7 @@ html.monster-detail-open{overflow:hidden}
   <div class="tree-cost"><span>成長費用</span><strong><span aria-label="おかね">🪙</span> <span id="treeCostCoins"></span></strong><strong><span aria-label="キラキラ">✨</span> <span id="treeCostMagic"></span></strong></div>
   <details class="tree-benefits" id="treeBenefits"><summary>次のレベルで増えるもの</summary><div id="treeBenefitsBody"></div></details>
   <button id="treeGrow" class="small-button" data-v193="grow" hidden>世界樹を成長させる</button>
-</section><div class="progress-section"><div class="progress-top"><span>🌟 牧場ランク <strong id="rankName">みならい</strong></span><span id="rankProgress">0 / 20</span></div><div class="progress-track"><div class="progress-bar" id="rankBar" style="width:10%"></div></div><div class="progress-top" style="margin-top:10px"><span>🐾 モンスター</span><span id="countInfo">4 / 6</span></div><div class="progress-top" style="margin-top:5px"><span>🧑‍🌾 スタッフ</span><span id="staffCount">2 / 4</span></div></div></section>
+</section><div class="progress-section"><div class="progress-top"><span>🌟 牧場ランク <strong id="rankName">みならい</strong></span><span id="rankProgress">0 / 20</span></div><div class="progress-track"><div class="progress-bar" id="rankBar" style="width:10%"></div></div><div class="progress-top" style="margin-top:10px"><span>🐾 モンスター</span><span id="countInfo">4 / 6</span></div><div class="progress-top" style="margin-top:5px"><span>🧑‍🌾 市民</span><span id="staffCount">2 / 4</span></div></div></section>
 <section class="panel"><div class="panel-heading"><h2>📜 おまかせミッション</h2><span class="chip">報酬も自動</span></div><div class="quests" id="quests"></div><div class="tip-box"><strong>💡 ほうっておいても成長！</strong><br>仲間たちは食べて・遊んで・働いて、自分で行動するよ。施設の配置と育成方針だけ決めよう。</div></section>
 </div>
 <div class="center">
@@ -315,7 +315,7 @@ html.monster-detail-open{overflow:hidden}
 
 <section class="panel" style="margin-top:16px"><div class="panel-heading"><h2>📮 牧場だより</h2><span class="subtext">ほのぼのニュース</span></div><div class="game-log" id="log"></div></section>
 </div>
-<div class="side-right"><section class="panel"><div class="tabs" role="tablist"><button class="tab" data-tab="management">📊 経営</button><button class="tab on" data-tab="build">🏠 施設</button><button class="tab" data-tab="monster">🐾 仲間</button><button class="tab" data-tab="staff">🧑‍🌾 職員</button><button class="tab" data-tab="research">✨ 研究</button><button class="tab" data-tab="adventure">⚔️ 冒険</button><button class="tab" data-tab="bestiary">📚 図鑑</button></div><div class="tab-body" id="tabBody"></div></section><section class="panel"><div class="panel-heading"><h2>🌱 今日のひとこと</h2></div><div class="tip-box" style="background:transparent;border:0" id="dailyTip">新しい施設を建てると、できることが増えるよ。</div></section></div>
+<div class="side-right"><section class="panel"><div class="tabs" role="tablist"><button class="tab" data-tab="management">📊 経営</button><button class="tab on" data-tab="build">🏠 施設</button><button class="tab" data-tab="monster">🐾 仲間</button><button class="tab" data-tab="staff">🧑‍🌾 市民</button><button class="tab" data-tab="research">✨ 研究</button><button class="tab" data-tab="adventure">⚔️ 冒険</button><button class="tab" data-tab="bestiary">📚 図鑑</button></div><div class="tab-body" id="tabBody"></div></section><section class="panel"><div class="panel-heading"><h2>🌱 今日のひとこと</h2></div><div class="tip-box" style="background:transparent;border:0" id="dailyTip">新しい施設を建てると、できることが増えるよ。</div></section></div>
 </main>
 <footer class="footer">© もんすたー日和 Ver.1.24.6 — 素材図鑑とボスのお宝展示台</footer>
 </div>
@@ -927,8 +927,8 @@ for(const el of body.querySelectorAll('[data-avatar]')){
   const m=state.monsters.find(m=>m.id===Number(el.dataset.mid));paintPortrait(el,spriteMonsterHD(m.kind,!!m.shiny));
 }
 }else if(tab==='staff'){
-let cost=210+state.staff.length*105;let html=`<div class="info-card"><strong>🧑‍🌾 スタッフは完全自動！</strong><br>仕事を選ぶだけで勝手に移動して働くよ。探検担当は自動遠征を早め、仕事を終えると${Math.round(STAFF_EGG_RATE139*100)}%でたまごを発見。見つけたうち${(STAFF_SPECIAL_RATE139*100).toFixed(1)}%は「色違いのたまご」だよ。<br><span class="big-count">${state.staff.length}</span> / ${staffLimit()} 人<br>世界樹Lv.${state.villageLv}の職員枠は${staffLimit()}人。次のレベルで${monsterTreeLimit135(state.villageLv+1)}人まで雇えるよ。${state.staff.length>staffLimit()?' 今いる職員は引き続き働けるよ。':''}<br><button type="button" class="help-topic-link" id="staffHelpLink" data-help-topic="staff" aria-haspopup="dialog">役職の説明を見る</button></div><button class="wide-button" data-action="hire" ${state.staff.length>=staffLimit()||state.coins<cost?'disabled':''}>🧑‍🌾 新しく雇う（${num(cost)}G）</button>`;
-for(let s of state.staff)html+=`<div class="entity-row"><canvas class="monster-avatar" width="64" height="64" data-staff-sprite="${s.id}"></canvas><div class="entity-info"><div class="entity-name"><span>${esc(s.name)} <span class="citizen-sex">${genderLabel(s.gender)}</span></span><span class="pill">Lv.${s.level||1}</span></div><div class="entity-sub">${JOBS[s.job]?.hint||''}<br>職員XP ${s.level>=99?'MAX':Math.floor(s.workXp||0)+' / '+staffLevelNeed(s.level||1)}<br>熟練 ${Math.round((s.mastery||{})[s.job]||0)} / 疲労 ${Math.round(s.fatigue||0)}% / やる気 ${Math.round(s.morale||80)}%</div><button type="button" class="help-topic-link" data-road-worker="${s.id}">仕事場までの道を見る</button></div><select aria-label="${esc(s.name)}の担当" class="staff-select" data-staff="${s.id}">${Object.entries(JOBS).map(([key,j])=>`<option value="${key}" ${s.job===key?'selected':''}>${j.icon} ${j.label}</option>`).join('')}</select></div>`;
+let cost=210+state.staff.length*105;let html=`<div class="info-card"><strong>🧑‍🌾 市民のお仕事</strong><br>仕事を選ぶだけで勝手に移動して働くよ。探検担当は自動遠征を早め、仕事を終えると${Math.round(STAFF_EGG_RATE139*100)}%でたまごを発見。見つけたうち${(STAFF_SPECIAL_RATE139*100).toFixed(1)}%は「色違いのたまご」だよ。<br><span class="big-count">${state.staff.length}</span> / ${staffLimit()} 人<br>世界樹Lv.${state.villageLv}の市民枠は${staffLimit()}人。次のレベルで${monsterTreeLimit135(state.villageLv+1)}人まで雇えるよ。${state.staff.length>staffLimit()?' 今いる市民は引き続き働けるよ。':''}<br><button type="button" class="help-topic-link" id="staffHelpLink" data-help-topic="staff" aria-haspopup="dialog">役職の説明を見る</button></div><button class="wide-button" data-action="hire" ${state.staff.length>=staffLimit()||state.coins<cost?'disabled':''}>🧑‍🌾 新しく雇う（${num(cost)}G）</button>`;
+for(let s of state.staff)html+=`<div class="entity-row"><canvas class="monster-avatar" width="64" height="64" data-staff-sprite="${s.id}"></canvas><div class="entity-info"><div class="entity-name"><span>${esc(s.name)} <span class="citizen-sex">${genderLabel(s.gender)}</span></span><span class="pill">Lv.${s.level||1}</span></div><div class="entity-sub">${JOBS[s.job]?.hint||''}<br>仕事XP ${s.level>=99?'MAX':Math.floor(s.workXp||0)+' / '+staffLevelNeed(s.level||1)}<br>熟練 ${Math.round((s.mastery||{})[s.job]||0)} / 疲労 ${Math.round(s.fatigue||0)}% / やる気 ${Math.round(s.morale||80)}%</div><button type="button" class="help-topic-link" data-road-worker="${s.id}">仕事場までの道を見る</button></div><select aria-label="${esc(s.name)}の担当" class="staff-select" data-staff="${s.id}">${Object.entries(JOBS).map(([key,j])=>`<option value="${key}" ${s.job===key?'selected':''}>${j.icon} ${j.label}</option>`).join('')}</select></div>`;
 html+=`<div class="info-card">💰 毎日の人件費：${staffWages()}G<br>🎯 おすすめ：必要な仕事に合わせて担当を変えられるよ。</div>`;body.innerHTML=html;for(let el of body.querySelectorAll('[data-staff-sprite]')){const w=state.staff.find(s=>s.id===+el.dataset.staffSprite);if(w)paintPortrait(el,citizenArt(w))};
 }else if(tab==='research'){
 let hasLab=buildingLevel('lab');let html=`<div class="info-card"><strong>🔮 研究ツリー</strong><br>${hasLab?'研究所のキラキラを使って全体の効率をアップ！':'研究を始めるには「ふしぎ研究所」を建てよう。村Lv.5で解放！'}<br>現在のキラキラ： <strong>${num(state.magic)} ✨</strong></div>`;
@@ -1389,7 +1389,7 @@ document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{tab
 document.querySelectorAll('[data-speed]').forEach(b=>b.addEventListener('click',()=>{state.speed=+b.dataset.speed;document.querySelectorAll('[data-speed]').forEach(el=>el.classList.toggle('on',el===b));renderUI(true)}));
 document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const action=b.dataset.action,id=b.dataset.id;if(action==='build'){terrainMode=null;if(buildMode===id)buildMode=null;else{moveMode=null;clearMode=false;buildMode=id;placementFacing=0;selectedBuilding=null;selectedMonster=null;toast(`🔨 ${B[id].name}を建てる位置を選ぼう`)}renderUI(true)}else if(action==='cancelBuild'){buildMode=null;renderUI(true)}else if(action==='moveBuilding')startMoving(+id);else if(action==='cancelMove')cancelMoving();else if(action==='toggleClear'){terrainMode=null;toggleClearMode()}else if(action==='recoverBuilding')recoverBuilding(+id);else if(action==='zoomIn')setZoom(zoom*1.2);else if(action==='zoomOut')setZoom(zoom/1.2);else if(action==='zoomReset')setZoom(1);else if(action==='showAdventure'){tab='adventure';renderUI(true);$('tabBody').scrollTop=0}else if(action==='upgrade')upgrade(+id);else if(action==='egg')buyEgg();else if(action==='hire')hire();else if(action==='research')doResearch(id);else if(action==='selectMonster')openMonsterDetails(+id,b);else if(action==='export')exportSave();else if(action==='reset')reset();else if(action==='import')$('importInput').click();else if(action==='pan'){const d={left:[-11,0],right:[11,0],up:[0,-10],down:[0,10]}[id];if(d)cameraMove(...d)}else if(action==='walkCamera')startWalkCamera(+id);else if(action==='centerMap'){stopWalkCamera();cameraX=VW/2-VW/(2*zoom);cameraY=VH/2-VH/(2*zoom);limitCamera();renderUI(false)}else if(action==='adventureStart')startAdventure();else if(action==='adventureAuto'){state.adventure.auto=!state.adventure.auto;state.adventure.cooldown=0;message(state.adventure.auto?'🔁 自動冒険を始めるよ！':'⏹️ 自動冒険を停止したよ。');renderUI(true);save(true)}else if(action==='atlas'){atlasCategory=id;renderUI(true)}else if(action==='showManagement'){tab='management';renderUI(true)}else if(action==='completeOrder')completeOrder();else if(action==='festival')hostFestival();else if(action==='trainMonster')trainMonster(+id);else if(action==='equipCharm')equipCharm(+id);else if(action==='toggleParty')toggleParty(+id)});
 document.addEventListener('pointerdown',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('focusin',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('change',e=>{if(e.target.matches('.staff-select[data-staff]')){let s=state.staff.find(o=>o.id===+e.target.dataset.staff);if(s&&JOBS[e.target.value]){s.job=e.target.value;s.path=[];message(`🧑‍🌾 ${s.name}の担当が「${JOBS[s.job].label}」になったよ。`,'success');save(true)}inputLock=false;renderUI(true)}if(e.target.id==='importInput')importSave(e.target.files[0])});document.addEventListener('focusout',e=>{if(e.target.matches('.staff-select'))inputLock=false});
-const helpTopics = {staff:'職員の役職', tree:'世界樹の成長XP', basics:'基本とセーブ'};
+const helpTopics = {staff:'市民の役職', tree:'世界樹の成長XP', basics:'基本とセーブ'};
 let helpOpener;
 let monsterDetails=null;
 
@@ -1465,7 +1465,7 @@ function staffHelp() {
       <dt><span aria-hidden="true">${JOBS[job].icon}</span> ${JOBS[job].label}</dt>
       <dd><strong>${site}</strong><p>${description}</p></dd>
     </div>`).join('');
-  return `<p class="guide-intro">「職員」で一人ずつ担当を選べるよ。職員は対応する施設の入口まで歩いて作業するので、仕事場までの道を空けてね。作業を終えるたびに職員の経験値がたまり、担当を替えてもレベル上げを続けられるよ。</p>
+  return `<p class="guide-intro">「市民」で一人ずつ担当を選べるよ。職員は対応する施設の入口まで歩いて作業するので、仕事場までの道を空けてね。作業を終えるたびに職員の経験値がたまり、担当を替えてもレベル上げを続けられるよ。</p>
     <dl class="guide-jobs">${rows}</dl>
     <aside class="guide-note"><h3>探検で見つかるたまご</h3>
       <p>孵化待ちが9個未満なら、探検の作業1回につき${Math.round(STAFF_EGG_RATE139*100)}%でたまごを発見するよ。そのうち${(STAFF_SPECIAL_RATE139*100).toFixed(1)}%は、必ず色違いが生まれる「${SPECIAL_EGG_NAME139}」。自動遠征を止めていても、職員はたまごを探せるよ。</p></aside>`;
@@ -5875,7 +5875,7 @@ function addSort137(kind){
  toolbar.className='info-card v137-list-toolbar';
  toolbar.style.cssText='display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
  const label=document.createElement('label');
- label.textContent='🔎 '+(kind==='monster'?'仲間':'職員')+'の並べ替え';
+ label.textContent='🔎 '+(kind==='monster'?'仲間':'市民')+'の並べ替え';
  const sel=document.createElement('select');
  sel.className='staff-select';sel.dataset.v137Sort=kind;
  for(const [value,title] of modes){
@@ -6683,7 +6683,7 @@ function buildingUpgradePreview(building) {
 
 function treeGrowthBenefits(level) {
   const next=level+1, now=monsterTreeLimit135(level), after=monsterTreeLimit135(next);
-  const lines=['放牧枠　'+now+' → '+after+'匹','職員枠　'+now+' → '+after+'人'];
+  const lines=['放牧枠　'+now+' → '+after+'匹','市民枠　'+now+' → '+after+'人'];
   if (restingLimit(next)>restingLimit(level)) lines.push('おやすみ牧舎　'+restingLimit(level)+' → '+restingLimit(next)+'匹');
   if (facilityLevelCap193(next)>facilityLevelCap193(level)) lines.push('施設の強化上限　Lv.'+facilityLevelCap193(level)+' → Lv.'+facilityLevelCap193(next));
   const parcels=ZONES.filter((z,id)=>zoneRequiredLevel(id)===next && !state.zones.includes(id)).length;
