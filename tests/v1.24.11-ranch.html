@@ -82,7 +82,89 @@ function ranchFixture(){
     state.adventure.stage=36;selectedBattleStage=31;startAdventure();finish(31,Math.floor(86*(1+6*.48)+31*14));
     state.adventure.stage=40;startAdventure();finish(40,Math.floor(260*(1+7*.48)+40*14));
   }
-  window.ranchQA={ready:()=>villageSheetReady&&facilitySheetReady,seed,snapshot,research,boss};
+  function sleep(){
+    state.hour=23;state.speed=1;state.day=1;state.battle=null;state.adventure.bossLoop=null;
+    state.buildings=[];state.monsters=[];state.staff=[];state.guests=[];state.ponds=[];state.zones=[0,1,4,5];
+    state.paths=[];state.clearedScenery=[];state.clearedPonds=[];state.removedDefaultPaths=[...DEFAULT_PATH_KEYS];
+    for(let x=0;x<22;x++)for(let y=0;y<15;y++){
+      const k=keyXY(x,y);state.paths.push(k);state.clearedScenery.push(k);state.clearedPonds.push(k);
+    }
+    const addSite=(type,x,y)=>{const b={type,x,y,id:state.nextId++,level:1,facing:0};state.buildings.push(b);return b;};
+    let home=addSite('home',7,6),inn=addSite('inn',12,6);
+    const nearDoor=b=>{const doors=entranceRoads(b);check(doors.length,'usable door '+b.type);return doors[0];};
+    function arrive(m,b){
+      const door=nearDoor(b);[m.x,m.y]=door;startFacilityVisit(m,b,{pt:door,path:[]});
+      advanceFacilityVisit(m,.01);check(!m.indoorRest,'visible before entering');
+      for(let i=0;i<80&&!m.indoorRest;i++)advanceFacilityVisit(m,.05);
+      check(m.indoorRest?.buildingId===b.id&&m.act.includes('就寝'),'sleeping inside '+b.type);
+    }
+    function wake(m){
+      for(let i=0;i<150&&monsterWalkTimer139(m).visit;i++)advanceFacilityVisit(m,.05);
+      check(!m.indoorRest&&!plotWalks.has(m)&&residentRoad(Math.round(m.x),Math.round(m.y)),'returns to road');
+    }
+    function scene(scale){
+      zoom=scale;cameraX=10-VW/(2*zoom);cameraY=7-VH/(2*zoom);
+      const actors=[],roofs=[],drawActor=drawMapActor,drawBubble=drawMapBubble;
+      drawMapActor=(o,...args)=>{actors.push(o);drawActor(o,...args);};
+      drawMapBubble=(x,y,icon,now,id)=>{if(icon==='Zz')roofs.push({x,y,id});drawBubble(x,y,icon,now,id);};
+      try{drawWorld(740);}finally{drawMapActor=drawActor;drawMapBubble=drawBubble;}
+      return {actors,roofs,picked:mapPickItems.filter(item=>item.monster).map(item=>item.monster)};
+    }
+    let a=makeMonster(state.nextId++,0,8,8),b=makeMonster(state.nextId++,1,8,8);
+    state.monsters=[a,b];state.party=[a.id];a.shiny=true;selectedMonster=a.id;
+    for(const site of [home,inn])for(const side of [0,1,2,3]){
+      site.facing=side;arrive(a,site);
+      const view=scene(1);
+      check(!view.actors.includes(a)&&!view.picked.includes(a)&&view.roofs.length===1&&view.roofs[0].id===site.id,'four facings '+site.type);
+      wake(a);check(scene(1).actors.includes(a),'visible after waking');
+    }
+    home.facing=0;inn.facing=0;
+    arrive(a,home);arrive(b,home);
+    const door=nearDoor(inn);
+    let traveler={name:'就寝の旅人',x:door[0],y:door[1],phase212:'sightseeing',visitBuildingId:inn.id,
+      visitGoal:door,entered211:true,spent:17,life:90,bob:0,tx:door[0],ty:door[1],route212:[]};
+    state.guests=[traveler];const coins=state.coins;
+    for(let n=0;n<80&&!traveler.indoorRest;n++)animateGuest212(traveler,.05);
+    check(traveler.indoorRest?.buildingId===inn.id&&state.coins===coins+17,'inn guest checks in once');
+    for(const scale of [1,.42]){
+      const v=scene(scale);
+      check(v.roofs.length===2&&v.actors.length===0&&v.picked.length===0,'only two occupied roofs at '+scale);
+      for(const site of [home,inn]){
+        const rect=plotImageRect(site),roof=v.roofs.find(r=>r.id===site.id);
+        check(roof&&roof.x===Math.round(rect.x+rect.w/2)&&roof.y<rect.y+rect.h/2,'roof location '+site.type);
+      }
+    }
+    // The fallback map hit test also ignores a sleeping companion at the doorway.
+    const cell=canvasCell,opened=openMonsterDetails;let hits=0;
+    canvasCell=()=>({x:Math.round(a.x),y:Math.round(a.y),px:-9999,py:-9999});openMonsterDetails=()=>{hits++;};
+    try{onMapClick({});}finally{canvasCell=cell;openMonsterDetails=opened;}
+    check(hits===0,'no invisible map target');
+    advanceFacilityVisit(a,.6);const left=a.indoorRest.remaining,guestLeft=traveler.indoorRest.remaining,paid=state.coins;
+    state.speed=0;moveActorsOutOfWalls191();
+    check(a.indoorRest&&b.indoorRest&&traveler.indoorRest,'unrelated construction leaves sleepers inside');
+    check(save(true)&&load(),'sleep save reload');
+    [a,b]=state.monsters;traveler=state.guests.find(g=>g.name==='就寝の旅人');
+    home=state.buildings.find(x=>x.type==='home');inn=state.buildings.find(x=>x.type==='inn');
+    check(a.indoorRest?.remaining===left&&traveler?.indoorRest?.remaining===guestLeft&&paid===state.coins,'sleep resumes without repeat payment');
+    check(scene(1).roofs.length===2,'restored roofs');
+    wake(a);check(scene(1).roofs.some(r=>r.id===home.id),'room still occupied by second sleeper');
+    wake(b);check(!scene(1).roofs.some(r=>r.id===home.id),'last resident leaves');
+    for(let n=0;n<150&&traveler.indoorRest;n++)animateGuest212(traveler,.05);
+    check(!traveler.indoorRest&&scene(1).actors.includes(traveler)&&!scene(1).roofs.length&&state.coins===paid,'traveler wakes');
+    const workDoor=nearDoor(home),worker=makeStaff(state.nextId++,'keeper',...workDoor);state.staff=[worker];
+    stepPlotWalk(worker,home,workDoor,10,2);
+    check(plotWalks.get(worker).phase==='use'&&!worker.indoorRest&&scene(1).actors.includes(worker),'keeper stays visible at work');
+    cancelPlotWalk(worker);
+    state.hour=12;arrive(a,home);home.facing=2;repairMovePaths212(home.id);advanceFacilityVisit(a,.05);
+    check(!a.indoorRest&&residentRoad(Math.round(a.x),Math.round(a.y))&&scene(1).actors.includes(a),'rotating the occupied house');
+    arrive(b,inn);state.buildings=state.buildings.filter(x=>x!==inn);repairMovePaths212(inn.id);advanceFacilityVisit(b,.05);
+    check(!b.indoorRest&&scene(1).actors.includes(b)&&!scene(1).roofs.length,'removing the occupied inn');
+    monsterWalkTimer139(a).pastime={kind:'nap',remaining:3};a.act='💤 お昼寝中';
+    check(scene(1).actors.includes(a)&&!a.indoorRest,'outdoor nap remains visible');
+    ctx.save();ctx.setTransform(1,0,0,1,0,0);drawMapBubble(32,32,'Zz',0,0);
+    check([...ctx.getImageData(33,21,1,1).data].slice(0,3).join(',')==='65,77,118','pixel sleep icon');ctx.restore();
+  }
+  window.ranchQA={ready:()=>villageSheetReady&&facilitySheetReady,seed,snapshot,research,boss,sleep};
 }
 async function verify(width,previous,current){
   const prefix='qa12411_'+crypto.randomUUID()+'_',errors=[];let frame;
@@ -107,7 +189,7 @@ async function verify(width,previous,current){
       throw Error('old save field '+i+' / '+JSON.stringify(before[i])+' / '+JSON.stringify(after[i]));
     }
     if(frame.contentDocument.documentElement.scrollWidth>frame.contentWindow.innerWidth+1)throw Error('layout width');
-    qa.research();qa.boss();
+    qa.research();qa.boss();qa.sleep();
     if(errors.length)throw Error(errors.join(' / '));
     document.querySelector('#result').textContent+=width+'px 成功\n';
   }finally{

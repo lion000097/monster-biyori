@@ -1350,7 +1350,7 @@ function drawMapActor(o,monster,now) {
     if(chase)playIcon=pastime.leader?'♪':chase.phase==='headStart'?'！':chase.phase==='run'?'🐾':null;
     const icon=playIcon||(visit&&visit.remaining!==null?facilityActivities[visit.site.type][0]:timer.harvestBubble>0?'📦':null);
     if(icon){drawMapBubble(x,top-(o.shiny?17:8),icon,now,o.id)}else{
-      const activity=o.phase213||phase213(state.hour);if(activity!=='work'){ctx.font='13px sans-serif';ctx.fillText(activity==='sleep'?'💤':activity==='eat'?'🍎':'🎾',x-7,top-2+Math.sin(now/500+o.id)*1.6)}
+      const activity=o.phase213||phase213(state.hour);if(activity!=='work'&&!(activity==='sleep'&&visit&&usesSleepingRoom(o,visit.site))){ctx.font='13px sans-serif';ctx.fillText(activity==='sleep'?'💤':activity==='eat'?'🍎':'🎾',x-7,top-2+Math.sin(now/500+o.id)*1.6)}
     }
   }else if(o.jobTask212){
     const work=o.jobTask212,site=state.buildings.find(b=>b.id===work.id),pct=clamp(1-work.remaining/work.duration,0,1);
@@ -1374,6 +1374,13 @@ function drawMapBubble(x,y,icon,now,id){
     ctx.fillStyle='#78b8c9';ctx.fillRect(cx-3,cy-4,7,2);ctx.fillRect(cx-5,cy-2,11,2);ctx.fillRect(cx-6,cy,13,1);
     ctx.fillStyle='#4f91a7';ctx.fillRect(cx-5,cy+1,3,1);ctx.fillRect(cx-1,cy+1,3,1);ctx.fillRect(cx+3,cy+1,3,1);
     ctx.fillStyle='#cce9e6';ctx.fillRect(cx-3,cy-2,4,1);
+  }else if(icon==='Zz'){
+    ctx.fillStyle='#575d92';
+    ctx.fillRect(cx-7,cy-1,5,1);ctx.fillRect(cx-4,cy,1,1);ctx.fillRect(cx-5,cy+1,1,1);
+    ctx.fillRect(cx-6,cy+2,1,1);ctx.fillRect(cx-7,cy+3,5,1);
+    ctx.fillStyle='#414d76';
+    ctx.fillRect(cx,cy-5,7,2);ctx.fillRect(cx+4,cy-3,2,2);ctx.fillRect(cx+2,cy-1,2,2);
+    ctx.fillRect(cx,cy+1,7,2);
   }else if(icon==='！'){
     ctx.fillStyle='#9b512e';ctx.fillRect(cx-1,cy-5,3,7);ctx.fillRect(cx-1,cy+3,3,2);
     ctx.fillStyle='#efac52';ctx.fillRect(cx-1,cy-5,1,5);
@@ -1489,7 +1496,7 @@ function drawWorld(now){
   const corners=[[left,top],[right,top],[left,bottom],[right,bottom]].map(([x,y])=>unprojectGround(x,y));
   const minX=Math.max(MIN_X,Math.floor(Math.min(...corners.map(p=>p.x)))-2),minY=Math.max(MIN_Y,Math.floor(Math.min(...corners.map(p=>p.y)))-2);
   const maxX=Math.min(W,Math.ceil(Math.max(...corners.map(p=>p.x)))+3),maxY=Math.min(H,Math.ceil(Math.max(...corners.map(p=>p.y)))+3);
-  const season=seasonInfo().name,objects=[];mapPickItems=[];
+  const season=seasonInfo().name,objects=[],occupiedBedrooms=new Set();mapPickItems=[];
   ctx.save();ctx.translate(origin.x,origin.y);ctx.scale(zoom,zoom);
   if(zoom<.6){
     const overview=overviewGround(season);
@@ -1506,8 +1513,10 @@ function drawWorld(now){
       if(b.type==='workshop'&&Math.sin(now/400+b.id)>.45){const pos=projectGround(b.x+m.w*.55,b.y+m.h*.53);ctx.fillStyle='#fff2ab';ctx.fillRect(pos.x+2,pos.y-m.h*12,3,3)}
     }});
   }
-  for(const [source,monster] of [[state.monsters,true],[state.staff,false],[state.guests,false]])for(const o of source){const p=projectGround(o.x+.5,o.y+.5);if(p.x<left-40||p.x>right+40||p.y<top-24||p.y>bottom+65)continue;
+  for(const [source,monster] of [[state.monsters,true],[state.staff,false],[state.guests,false]])for(const o of source){
     const visit=plotWalks.get(o);
+    if(o.indoorRest&&visit?.phase==='use'){occupiedBedrooms.add(visit.site);continue;}
+    const p=projectGround(o.x+.5,o.y+.5);if(p.x<left-40||p.x>right+40||p.y<top-24||p.y>bottom+65)continue;
     let depth=o.x+o.y+1;
     if(visit){
       // The left and upper gates are beyond the building in the isometric view.
@@ -1523,6 +1532,11 @@ function drawWorld(now){
   }
   objects.sort((a,b)=>a.depth-b.depth).forEach(item=>item.draw());
   if(selected&&!moveMode)drawGateMarker(selected,selected.facing);
+  for(const site of occupiedBedrooms){
+    if(!state.buildings.includes(site))continue;
+    const roof=plotImageRect(site);
+    drawMapBubble(Math.round(roof.x+roof.w/2),Math.round(roof.y+roof.h*.21),'Zz',now,site.id);
+  }
   for(const effect of swirls){const p=projectGround(effect.x/T,effect.y/T+.5);ctx.globalAlpha=clamp(effect.life,0,1);ctx.font='bold 15px sans-serif';ctx.fillStyle='#fff1b2';ctx.fillText(effect.text,p.x,p.y-14*(1-effect.life))}ctx.globalAlpha=1;
   ctx.restore();drawMapWeather(now);
   ctx.save();ctx.translate(origin.x,origin.y);ctx.scale(zoom,zoom);drawMapCursor();ctx.restore();
@@ -1549,10 +1563,10 @@ function stepActors(dt){for(let a of [...state.monsters,...state.staff]){if(!Arr
 function onMapClick(e){const p=canvasCell(e);
 const picked=(!clearMode&&!terrainMode&&!moveMode&&!buildMode)?pickMapActorOrFacility(p):null;
 if(picked){
-  if(picked.monster&&state.monsters.includes(picked.monster)){const m=picked.monster;openMonsterDetails(m.id,canvas);return}
+  if(picked.monster&&!picked.monster.indoorRest&&state.monsters.includes(picked.monster)){const m=picked.monster;openMonsterDetails(m.id,canvas);return}
   if(picked.building&&state.buildings.includes(picked.building)){const b=picked.building;selectedBuilding=b.id;selectedMonster=null;tab='build';renderUI(true);toast(`${B[b.type].icon} ${B[b.type].name} Lv.${b.level}`);return}
 }
-if(p.x<MIN_X||p.y<MIN_Y||p.x>=W||p.y>=H)return;if(clearMode){clearScenery(p.x,p.y);return}if(!unlocked(p.x,p.y)){if(moveMode){toast('施設は解放済みの土地にしか置けないよ','error');return}requestLandPurchase(zoneId(p.x,p.y));return}if(moveMode){moveBuilding(p.x,p.y);return}if(buildMode){place(buildMode,p.x,p.y);return}let m=state.monsters.findLast(m=>Math.hypot(m.x-p.x,m.y-p.y)<.9);if(m){openMonsterDetails(m.id,canvas);return}let b=getBuildingAt(p.x,p.y);if(b){selectedBuilding=b.id;selectedMonster=null;tab='build';renderUI(true);toast(`${B[b.type].icon} ${B[b.type].name} Lv.${b.level}`);return}selectedBuilding=null;selectedMonster=null;renderUI(true)}
+if(p.x<MIN_X||p.y<MIN_Y||p.x>=W||p.y>=H)return;if(clearMode){clearScenery(p.x,p.y);return}if(!unlocked(p.x,p.y)){if(moveMode){toast('施設は解放済みの土地にしか置けないよ','error');return}requestLandPurchase(zoneId(p.x,p.y));return}if(moveMode){moveBuilding(p.x,p.y);return}if(buildMode){place(buildMode,p.x,p.y);return}let m=state.monsters.findLast(m=>!m.indoorRest&&Math.hypot(m.x-p.x,m.y-p.y)<.9);if(m){openMonsterDetails(m.id,canvas);return}let b=getBuildingAt(p.x,p.y);if(b){selectedBuilding=b.id;selectedMonster=null;tab='build';renderUI(true);toast(`${B[b.type].icon} ${B[b.type].name} Lv.${b.level}`);return}selectedBuilding=null;selectedMonster=null;renderUI(true)}
 let mapPointer=null;
 canvas.addEventListener('pointerdown',e=>{if(e.button!==0&&e.pointerType==='mouse')return;mapPointer={id:e.pointerId,startX:e.clientX,startY:e.clientY,lastX:e.clientX,lastY:e.clientY,dragged:false};canvas.setPointerCapture(e.pointerId)});
 canvas.addEventListener('pointermove',e=>{const p=canvasCell(e);hover=p.x>=MIN_X&&p.y>=MIN_Y&&p.x<W&&p.y<H?p:null;if(mapPointer&&mapPointer.id===e.pointerId){const d=mapPointer;const rect=canvas.getBoundingClientRect();if(Math.hypot(e.clientX-d.startX,e.clientY-d.startY)>5)d.dragged=true;if(d.dragged){stopWalkCamera();const drag=unprojectGround((e.clientX-d.lastX)*VW*T/(rect.width*zoom),(e.clientY-d.lastY)*VH*T/(rect.height*zoom));cameraX-=drag.x;cameraY-=drag.y;limitCamera();hover=null}d.lastX=e.clientX;d.lastY=e.clientY}});
@@ -2691,6 +2705,8 @@ function nearestFree191(x,y){
 }
 function moveActorsOutOfWalls191(){
   for(const a of [...(state.monsters||[]),...(state.staff||[]),...(state.guests||[])]){
+    const visit=plotWalks.get(a);
+    if(a.indoorRest&&visit&&state.buildings.includes(visit.site)&&plotUsable(visit))continue;
     cancelPlotWalk(a);
     if((state.guests||[]).includes(a)&&a.fromOutside101&&(!a.entered211||a.phase212==='leave')&&!unlocked(Math.round(a.x),Math.round(a.y)))continue;
     a.path=[];
@@ -4824,11 +4840,16 @@ load=function(){
   for(const w of state.staff){w.jobTask212=null;w.jobTarget211=null;w.path=[]}
   for(const m of state.monsters){
    m.ranchTarget200=null;m.ranchGoal200=null;m.path=[];
+   if(m.indoorRest){
+    if(resumeIndoorRest(m,3.2))continue;
+    m.act='🐾 おさんぽ';
+   }
    if(m.act==='💤 お昼寝中'||m.act==='🐾 追いかけっこ'||m.act===chaseInviteAct||m.act===chaseNoticeAct||Object.values(rainActivities).includes(m.act))m.act='🐾 おさんぽ';
   }
   state.guests=state.guests.filter(g=>Number.isFinite(g.x)&&Number.isFinite(g.y));
   for(const g of state.guests){
    const oldPhase=g.phase212;
+   if(g.indoorRest&&resumeIndoorRest(g,2.5))continue;
    if(oldPhase==='detour'){
     const site=state.buildings.find(b=>b.id===g.visitBuildingId);
     if(!site||!planGuestDetour(g,site))beginReturn212(g);
@@ -5394,7 +5415,7 @@ function monsterRoute139(monster, sites, radius, production = false) {
     traffic.set(k, (traffic.get(k) || 0) + weight);
   }
   for (const other of state.monsters) {
-    if (other === monster) continue;
+    if (other === monster || other.indoorRest) continue;
     const x = Math.round(other.x), y = Math.round(other.y);
     mark(x, y, 8);
     const dest = other.ranchGoal200 || other.path?.at(-1) || [x, y];
@@ -6714,7 +6735,7 @@ function battlePartyHealth(party) {
   return Math.floor(party.reduce((sum, m) => sum + allyStats(m).hp + (m.equip ? 15 : 0) + (SPECIES[m.kind]?.large ? 16 : 0), 0));
 }
 function clearBarnWalk(m) {
-  cancelPlotWalk(m);delete m.facilityDoor;
+  cancelPlotWalk(m);delete m.facilityDoor;delete m.indoorRest;
   m.path = [];
   m.ranchTarget200 = null;
   m.ranchGoal200 = null;
@@ -7343,9 +7364,35 @@ function cancelPlotWalk(actor){
   const [x,y]=walk.door;
   const p=residentRoad(x,y)?{x,y}:actor.kind!==undefined||actor.job?nearestResidentRoad(x,y):nearestFree191(x,y);
   if(p){actor.x=p.x;actor.y=p.y;}
+  if(actor.indoorRest){
+    delete actor.indoorRest;actor.act=actor.kind!==undefined?'🐾 おさんぽ':'観光中';
+  }
   plotWalks.delete(actor);delete actor.facilityDoor;
 }
-function plotItinerary(site,door){
+function usesSleepingRoom(actor,site){
+  return (site.type==='home'||site.type==='inn')&&
+    (actor.kind!==undefined||actor.phase212==='sightseeing'||actor.phase212==='detour');
+}
+function enterIndoorRest(actor,walk){
+  actor.indoorRest={buildingId:walk.site.id,remaining:walk.remaining};
+  actor.act=B[walk.site.type].name+'で就寝中';
+}
+function resumeIndoorRest(actor,duration){
+  const {buildingId,remaining}=actor.indoorRest;
+  delete actor.indoorRest;
+  const site=state.buildings.find(b=>b.id===buildingId);
+  if(!site||!usesSleepingRoom(actor,site)||!Number.isFinite(remaining)||remaining<=0||remaining>duration)return false;
+  if(actor.kind===undefined&&(!actor.arrived211||actor.visitBuildingId!==buildingId))return false;
+  // The save loader has already restored the actor to its original entrance.
+  const door=[actor.x,actor.y],walk=beginPlotWalk(actor,site,door,remaining);
+  if(!walk)return false;
+  if(actor.kind!==undefined){
+    startFacilityVisit(actor,site,{pt:door,path:[]});monsterWalkTimer139(actor).visit.remaining=remaining;
+  }else{actor.visitGoal=door;actor.route212=[];}
+  [actor.x,actor.y]=walk.points.at(-1);walk.points=[];walk.phase='use';
+  enterIndoorRest(actor,walk);return true;
+}
+function plotItinerary(site,door,stopAtGate=false){
   const dir=validFacing(site.facing),{w,h}=buildingOf(site),length=dir%2?h:w;
   const ix=dir%2?door[1]-site.y:door[0]-site.x;
   const at=(t,offset)=>frontPoint(site.type,site.x,site.y,dir,t,offset).map(v=>v-.5);
@@ -7357,7 +7404,7 @@ function plotItinerary(site,door){
   // corner of a six-tile facade is served. Sideways travel then uses its apron.
   const reachable=clamp(.5,(first+.025)/length,(last+.975)/length);
   const edge=at((ix+.5)/length,.09), gate=at(reachable,.09);
-  if(packedPlots.has(site.type))return [edge,gate];
+  if(stopAtGate||packedPlots.has(site.type))return [edge,gate];
   const depth=site.type==='shop'?.18:site.type==='bench211'?.22:Math.min(.8,length*.21);
   return [edge,gate,at(reachable,-.07),at(.5,-.07),at(.5,-depth)];
 }
@@ -7370,22 +7417,30 @@ function walkPlotLeg(actor,points,dt){
   }
   return true;
 }
+function beginPlotWalk(actor,site,door,seconds){
+  if(!door||!entranceRoads(site).some(([x,y])=>x===door[0]&&y===door[1])||
+     Math.hypot(actor.x-door[0],actor.y-door[1])>.31)return null;
+  const bedroom=usesSleepingRoom(actor,site),points=plotItinerary(site,door,bedroom),{w,h}=buildingOf(site);
+  const v={site,x:site.x,y:site.y,facing:validFacing(site.facing),door:[...door],depth:site.x+site.y+(w+h)/2,
+    points:points.slice(),out:points.slice(0,-1).reverse().concat([[...door]]),phase:'enter',remaining:seconds,bedroom};
+  plotWalks.set(actor,v);actor.facilityDoor=[...door];return v;
+}
 function stepPlotWalk(actor,site,door,dt,seconds,onArrival,onServed){
-  let v=plotWalks.get(actor);
-  if(!v){
-    if(!door||!entranceRoads(site).some(([x,y])=>x===door[0]&&y===door[1])||
-       Math.hypot(actor.x-door[0],actor.y-door[1])>.31)return 'cancelled';
-    const points=plotItinerary(site,door),{w,h}=buildingOf(site);
-    v={site,x:site.x,y:site.y,facing:validFacing(site.facing),door:[...door],depth:site.x+site.y+(w+h)/2,
-      points:points.slice(),out:points.slice(0,-1).reverse().concat([[...door]]),phase:'enter',remaining:seconds};
-    plotWalks.set(actor,v);actor.facilityDoor=[...door];
-  }
+  const v=plotWalks.get(actor)||beginPlotWalk(actor,site,door,seconds);
+  if(!v)return 'cancelled';
   if(v.site!==site||!plotUsable(v)){cancelPlotWalk(actor);return 'cancelled';}
   if(v.phase==='enter'){
-    if(walkPlotLeg(actor,v.points,dt)){v.phase='use';onArrival?.();}
+    if(walkPlotLeg(actor,v.points,dt)){
+      v.phase='use';onArrival?.();
+      if(v.bedroom)enterIndoorRest(actor,v);
+    }
   }else if(v.phase==='use'){
     v.remaining=Math.max(0,v.remaining-dt);
-    if(v.remaining===0){v.phase='exit';onServed?.();}
+    if(actor.indoorRest)actor.indoorRest.remaining=v.remaining;
+    if(v.remaining===0){
+      if(v.bedroom){delete actor.indoorRest;actor.act=B[site.type].name+'を出る';}
+      v.phase='exit';onServed?.();
+    }
   }else if(walkPlotLeg(actor,v.out,dt)){
     plotWalks.delete(actor);delete actor.facilityDoor;return 'done';
   }
