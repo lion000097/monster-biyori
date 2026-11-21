@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<title>もんすたー日和 1.24.7 動作検証</title>
+<h1>もんすたー日和 1.24.7 動作検証</h1>
+<button id="run">検証を開始</button><pre id="result" aria-live="polite"></pre>
+<script>
+'use strict';
+const output = document.querySelector('#result');
+function check(ok, message) { if (!ok) throw Error(message); }
+function equal(a,b,message) { check(JSON.stringify(a)===JSON.stringify(b),message+' ('+JSON.stringify(a)+' / '+JSON.stringify(b)+')'); }
+
+// This function runs only in disposable test frames, inside the actual game closure.
+function installFixture() {
+  window.ranchTest = {
+    view: () => state,
+    save: () => save(true),
+    refresh: () => renderUI(false),
+    importSave,
+    backup: () => saveBackup213('manual'),
+    restore(name) {
+      const index=backupList213().findIndex(b=>b.type==='manual'&&JSON.parse(b.data).ranchName===name);
+      if(index<0)throw Error('Missing manual backup');
+      restore213(index);
+    },
+    seed() {
+      state.speed=0;state.coins=9480;state.food=217.5;state.day=5;state.hour=13;
+      state.monsters[0].name='こはく';state.materialStock211[41]=5;
+      if(!state.materialSeen211.includes(41))state.materialSeen211.push(41);
+      ensureMaterials211();renderUI(true);save(true);
+    },
+    production() {
+      const original=state, add=gainFood;
+      state=structuredClone(state);
+      try {
+        state.research.farm=2;
+        const field=state.buildings.find(b=>b.type==='farm');
+        field.level=3;
+        const glass={type:'greenhouse212',id:state.nextId++,x:15,y:10,w:3,h:3,level:4,facing:0};
+        state.buildings.push(glass);
+        let amounts=[];
+        gainFood=amount=>{amounts.push(amount);add(amount);};
+        tick(false);
+        const hourly=amounts;
+        const gather=site=>{
+          amounts=[];
+          const worker={...structuredClone(state.staff[0]),job:'gather',level:3,morale:80,fatigue:0};
+          workAtSite211(worker,site);
+          return amounts;
+        };
+        return {hourly,field:gather(field),glass:gather(glass)};
+      } finally {gainFood=add;state=original;}
+    },
+    clickPlot(allowed) {
+      const moving=state.buildings.find(b=>b.id===moveMode),type=buildMode||moving?.type;
+      for(let x=1;x<22;x++)for(let y=1;y<18;y++) {
+        if(!unlocked(x,y)||(moving&&moving.x===x&&moving.y===y))continue;
+        if(allowed?!canBuild(x,y,moving?.id,!!moving,type):frontRoads(type,x,y,placementFacing).length)continue;
+        const point=projectGround(x+.5,y+.5),origin=mapScreenOrigin(),box=canvas.getBoundingClientRect();
+        const fx=(origin.x+point.x*zoom)/(VW*T),fy=(origin.y+point.y*zoom)/(VH*T);
+        if(fx<.02||fx>.98||fy<.02||fy>.98)continue;
+        onMapClick({clientX:box.left+fx*box.width,clientY:box.top+fy*box.height});
+        return [x,y];
+      }
+      throw Error('No visible test plot for '+type+' '+placementFacing);
+    }
+  };
+}
+function records(s) {
+  return [s.createdAt,s.day,s.hour,s.speed,s.coins,s.food,s.magic,s.stock,s.fame,s.villageLv,s.villageXp,
+    s.paths,s.party,s.research,s.adventure,s.catalog,s.treasures,s.materialStock211,s.materialSeen211,
+    s.monsters.map(m=>[m.id,m.kind,m.name,m.lv,m.xp]),s.staff.map(w=>[w.id,w.name,w.job,w.level,w.workXp]),
+    s.buildings.map(b=>[b.id,b.type,b.x,b.y,b.facing,b.level,b.relic])];
+}
+async function verify(width,oldHtml,newHtml) {
+  const prefix='ranch_qa_'+crypto.randomUUID()+'_', key=prefix+'save_v1';
+  let frame,w,d,api;
+  const errors=[];
+  const remove=()=>{if(frame){frame.remove();frame=null;}};
+  const saved=()=>JSON.parse(localStorage.getItem(key));
+  const click=selector=>{
+    const button=d.querySelector(selector);check(button&&!button.disabled,'Enabled '+selector);button.click();return button;
+  };
+  function turn() {return Number(d.querySelector('#facilityFacing [aria-pressed="true"]').dataset.facing);}
+  function wheel(delta) {
+    const map=d.querySelector('#game'),rect=map.getBoundingClientRect();
+    map.dispatchEvent(new w.WheelEvent('wheel',{deltaY:delta,bubbles:true,cancelable:true,
+      clientX:rect.left+rect.width/2,clientY:rect.top+rect.height/2}));
+  }
+  function submit(value) {
+    click('#renameRanch');const input=d.querySelector('#ranchNameInput');input.value=value;input.form.requestSubmit();
+  }
+  async function open(source) {
+    remove();
+    frame=document.createElement('iframe');frame.width=width;frame.height=width===390?844:900;
+    const marker='})();\n<\/script>';
+    check(source.split(marker).length===2,'Game script end');
+    // Redirect all save and backup keys, including backups taken during pagehide.
+    frame.srcdoc=source.replaceAll('monster_biyori_',prefix).replace(marker,()=> '('+installFixture.toString()+')();\n'+marker);
+    const ready=new Promise(resolve=>frame.onload=resolve);
+    document.body.append(frame);await ready;
+    w=frame.contentWindow;d=w.document;api=w.ranchTest;check(api,'Game initialized');
+    w.addEventListener('error',event=>errors.push(event.message));
+    w.confirm=()=>true;
+    await new Promise(resolve=>setTimeout(resolve,35));
+  }
+  async function imported(raw,expected) {
+    api.importSave(new w.File([JSON.stringify(raw)],'ranch.json',{type:'application/json'}));
+    const start=performance.now();
+    while(api.view().ranchName!==expected&&performance.now()-start<6000)await new Promise(resolve=>setTimeout(resolve,30));
+    equal(api.view().ranchName,expected,'File import');
+    equal(d.querySelector('#ranchName').textContent,expected,'Imported name on map');
+  }
+  try {
+    await open(oldHtml);api.seed();await open(oldHtml);api.save();
+    const old=saved(),oldYields=api.production();
+    check(!('ranchName' in old),'Real 1.24.6 save without ranch name');
+    await open(newHtml);api.save();
+    equal(records(saved()),records(old),'Existing ranch, people, inventory and progress');
+    equal(saved().ranchName,'こもれび牧場','Old ranch default');
+    const yields=api.production();
+    for(const [key,length] of [['hourly',2],['field',1],['glass',2]]){
+      equal(yields[key].length,length,'Production transactions '+key);
+      equal(oldYields[key].length,length,'Previous transactions '+key);
+      yields[key].forEach((n,i)=>check(n>0&&Math.abs(n/oldYields[key][i]-.9)<1e-9,'90% production '+key+' '+i));
+    }
+
+    const citizens=click('[data-tab="staff"]');check(citizens.textContent.includes('市民'),'Citizen tab');
+    const job=d.querySelector('select[data-staff]'),id=Number(job.dataset.staff);
+    job.value='study';job.dispatchEvent(new w.Event('change',{bubbles:true}));
+    equal(saved().staff.find(s=>s.id===id).job,'study','Citizen work assignment');
+
+    const tips={coins:'建設',food:'食事',stock:'商隊',magic:'研究',fame:'牧場ランク'};
+    for(const [resource,term] of Object.entries(tips)){
+      const tip=d.getElementById('resource-help-'+resource),button=tip.previousElementSibling;
+      if(width===390)button.click();
+      else button.dispatchEvent(new w.PointerEvent('pointerenter',{pointerType:'mouse'}));
+      api.refresh();check(!tip.hidden&&tip.textContent.includes(term)&&tip.isConnected,'Tooltip '+resource);
+      if(width!==390)button.dispatchEvent(new w.PointerEvent('pointerleave',{pointerType:'mouse'}));
+      else button.blur();
+      check(tip.hidden,'Dismiss '+resource);
+      button.focus();check(!tip.hidden,'Keyboard '+resource);
+      button.dispatchEvent(new w.KeyboardEvent('keydown',{bubbles:true,key:'Escape'}));check(tip.hidden,'Escape '+resource);button.blur();
+    }
+
+    click('[data-tab="build"]');click('[data-action="build"][data-id="farm"]');
+    const zoom=()=>d.querySelector('#zoomLabel').textContent,originalZoom=zoom();
+    equal(turn(),0,'Initial direction');
+    for(const dir of [1,2,3,0]) {wheel(100);equal(turn(),dir,'Wheel forward');}
+    wheel(-100);equal(turn(),3,'Wheel backward');
+    equal(zoom(),originalZoom,'Placement keeps zoom');
+    if(width===390){click('[data-facing="2"]');equal(turn(),2,'Direction button');}
+    const size=api.view().buildings.length,initialFacing=turn(),beforeMoney=api.view().coins;
+    api.clickPlot(false);equal(api.view().buildings.length,size,'Blocked front road');
+    equal(api.view().coins,beforeMoney,'Invalid placement is free');
+    const placedAt=api.clickPlot(true),placed=api.view().buildings.find(b=>b.type==='farm'&&b.x===placedAt[0]&&b.y===placedAt[1]);
+    check(placed&&placed.facing===initialFacing,'Placed in preview direction');
+    const move='[data-action="moveBuilding"][data-id="'+placed.id+'"]';
+    click(move);wheel(100);const next=turn();equal(placed.facing,initialFacing,'Move is provisional');
+    equal(zoom(),originalZoom,'Move keeps zoom');api.clickPlot(false);equal(placed.facing,initialFacing,'Invalid move');click('[data-action="cancelMove"]');
+    equal([placed.x,placed.y,placed.facing],[...placedAt,initialFacing],'Cancel movement');
+    click(move);wheel(100);const moved=api.clickPlot(true);equal([placed.x,placed.y,placed.facing],[...moved,next],'Move and commit');
+    const finalBuilding=saved().buildings.find(b=>b.id===placed.id);
+    equal([finalBuilding.x,finalBuilding.y,finalBuilding.facing],[...moved,next],'Saved direction');
+    wheel(-100);check(zoom()!==originalZoom,'Map zoom with a selected facility');
+    equal(placed.facing,next,'Zoom keeps placed orientation');
+
+    submit('   ');check(d.querySelector('#ranchNameInput').getAttribute('aria-invalid')==='true','Blank name');
+    const input=d.querySelector('#ranchNameInput');input.value='森'.repeat(21);input.form.requestSubmit();
+    check(!d.querySelector('#ranchNameStatus').hidden&&d.querySelector('#ranchNameStatus').textContent,'Excess name length');
+    click('#modalClose');equal(saved().ranchName,'こもれび牧場','Cancel name');
+    const name='白い子ライオンの牧場🌱';
+    submit('  '+name+'  ');equal(saved().ranchName,name,'Immediate name save');
+    equal(d.querySelector('#ranchName').textContent,name,'Map name');const named=saved();
+    check(api.backup(),'Manual backup');
+    submit('🌱'.repeat(20));equal(saved().ranchName,'🌱'.repeat(20),'20 Unicode characters');
+    check(d.documentElement.scrollWidth<=w.innerWidth+1,'Layout width '+width);
+    api.restore(name);equal(saved().ranchName,name,'Restored name');
+    await open(newHtml);equal(d.querySelector('#ranchName').textContent,name,'Reloaded name');api.save();
+    equal(records(saved()),records(named),'Saved ranch after reload');
+    await imported(old,'こもれび牧場');equal(records(saved()),records(old),'Legacy file import');
+    await imported(named,name);equal(records(saved()),records(named),'Named file import');
+    api.view().unreadableProtect214=true;submit('保存失敗の確認');
+    equal(api.view().ranchName,name,'Failed write restores active name');equal(saved().ranchName,name,'Failed write leaves last save');
+    api.view().unreadableProtect214=false;click('#modalClose');
+    check(!errors.length,errors.join('\n'));
+    output.textContent+=width+'px PASS　旧セーブ・ごはん生産・市民・資源説明・施設回転と移設・牧場名・保存／復元／ファイル読込\n';
+  } finally {
+    remove();
+    for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);
+  }
+}
+document.querySelector('#run').onclick=async event=>{
+  const button=event.currentTarget;button.disabled=true;output.textContent='実行中\n';
+  try {
+    const pages=await Promise.all(['1.24.6','1.24.7'].map(async version=>{
+      const response=await fetch('../releases/'+version+'/game.html',{cache:'no-store'});check(response.ok,'HTTP '+version);
+      const source=await response.text();check(source.includes('Ver.'+version+' |'),'Version '+version);return source;
+    }));
+    for(const width of [1366,390])await verify(width,...pages);
+    output.textContent+='すべて成功';
+  }catch(error){output.textContent+='FAIL '+error.stack;}
+  finally{button.disabled=false;}
+};
+</script>
+</html>
