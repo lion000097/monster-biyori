@@ -835,9 +835,20 @@ hatchEggs();
 checkQuests();adventureTick(silent);
 if(state.food<6&&!silent&&state.ticks%24===0)message('🍎 おやつが少ないみたい。おやつ畑を増やそう！');
 }
+function constructionCost(type){
+  if(firstFree200(type))return 0;
+  const {cost,unlock}=B[type];
+  const percent=unlock<2?100:unlock<5?110:unlock<10?115:120;
+  return Math.round(cost*percent/100);
+}
 function costUpgrade(b){return Math.round(B[b.type].cost*(.58+b.level*.9))}
-function place(type,x,y){const spec=B[type];if(!spec)return;if(state.villageLv<spec.unlock){toast(`世界樹レベル ${spec.unlock} で解放されるよ`,'error');return}if(state.coins<spec.cost){toast('お金が足りないよ！','error');return}if(!canBuild(x,y)){toast('ここには建てられないよ。空いた草地を選んでね。','error');return}state.coins-=spec.cost;bookExpense(spec.cost);const b={id:state.nextId++,type,x,y,level:1};state.buildings.push(b);state.metrics.build++;state.fame+=3;villageAdd(25);selectedBuilding=b.id;buildMode=null;message(`🔨 ${spec.name}が完成したよ！`,'success');save(true);renderUI(true)}
-function investedIn(b){let n=B[b.type].cost;for(let lv=1;lv<b.level;lv++)n+=standardUpgradeCost({type:b.type,level:lv});return n-(b.upgradeSavings||0)}
+function place(type,x,y){const spec=B[type];if(!spec)return;if(state.villageLv<spec.unlock){toast(`世界樹レベル ${spec.unlock} で解放されるよ`,'error');return}const price=constructionCost(type);if(state.coins<price){toast('お金が足りないよ！','error');return}if(!canBuild(x,y)){toast('ここには建てられないよ。空いた草地を選んでね。','error');return}state.coins-=price;bookExpense(price);const b={id:state.nextId++,type,x,y,level:1,constructionPaid:price};state.buildings.push(b);state.metrics.build++;state.fame+=3;villageAdd(25);selectedBuilding=b.id;buildMode=null;message(`🔨 ${spec.name}が完成したよ！`,'success');save(true);renderUI(true)}
+function investedIn(b){
+  const legacyCost=b.freeStarter200?0:B[b.type].cost;
+  let total=Number.isSafeInteger(b.constructionPaid)&&b.constructionPaid>=0?b.constructionPaid:legacyCost;
+  for(let lv=1;lv<b.level;lv++)total+=standardUpgradeCost({type:b.type,level:lv});
+  return Math.max(0,total-(b.upgradeSavings||0));
+}
 function startMoving(id){const b=state.buildings.find(v=>v.id===id);if(!b)return;moveMode=b.id;buildMode=null;selectedBuilding=id;toast('🏗️ 移動先の2×2の空き地をクリック。長押しドラッグは地図の移動！');renderUI(true)}
 function cancelMoving(){moveMode=null;renderUI(true)}
 function moveBuilding(x,y){const b=state.buildings.find(v=>v.id===moveMode);if(!b){cancelMoving();return}if(!canBuild(x,y,b.id,true)){toast('そこには移動できないよ。2×2の空き地を選んでね','error');return}if(b.x===x&&b.y===y){cancelMoving();return}b.x=x;b.y=y;for(const a of [...state.monsters,...state.staff]){a.path=[];if(a.x>=x-.7&&a.x<x+2&&a.y>=y-.7&&a.y<y+2){const p=randWalk();a.x=p.x;a.y=p.y}}selectedBuilding=b.id;moveMode=null;message(`🚚 ${B[b.type].name}を移設したよ！ Lv.${b.level}はそのまま。`,'success');save(true);renderUI(true)}
@@ -971,7 +982,7 @@ function renderTab(){const body=$('tabBody');document.querySelectorAll('.tab').f
 }else if(tab==='build'){
 let html=`<p class="help">施設をタップすると、正面に道がある向きに回せるよ。🌲木と🪨石は「🪓整地」から少額で撤去可能。</p>`;
 html+=facilityRolePicker();
-for(const [id,b] of Object.entries(B)){if(id==='worldtree'||!roleIncludes(id))continue;let locked=state.villageLv<b.unlock;html+=`<div class="build-option ${locked?'locked':''} ${buildMode===id?'selected':''}"><div class="option-header"><div class="building-icon">${facilityThumbnail(id,1,buildMode===id?placementFacing:0)}</div><div class="option-info"><div class="option-name">${b.name}</div><div class="option-desc">${b.desc}</div></div></div><div class="option-bottom"><span class="price">${locked?'🔒 世界樹 Lv.'+b.unlock+' で解放':num(b.cost)+' G'}</span><button class="small-button" ${locked||state.coins<b.cost?'disabled':''} data-action="build" data-id="${id}">${buildMode===id?'選択中 ✓':'建てる'}</button></div>${buildMode===id?facingShortcut(placementFacing):''}</div>`}
+for(const [id,b] of Object.entries(B)){if(id==='worldtree'||!roleIncludes(id))continue;const locked=state.villageLv<b.unlock,price=constructionCost(id);html+=`<div class="build-option ${locked?'locked':''} ${buildMode===id?'selected':''}"><div class="option-header"><div class="building-icon">${facilityThumbnail(id,1,buildMode===id?placementFacing:0)}</div><div class="option-info"><div class="option-name">${b.name}</div><div class="option-desc">${b.desc}</div></div></div><div class="option-bottom"><span class="price">${locked?'🔒 世界樹 Lv.'+b.unlock+' で解放':num(price)+' G'}</span><button class="small-button" ${locked||state.coins<price?'disabled':''} data-action="build" data-id="${id}">${buildMode===id?'選択中 ✓':'建てる'}</button></div>${buildMode===id?facingShortcut(placementFacing):''}</div>`}
 let b=state.buildings.find(o=>o.id===selectedBuilding);if(b){let cost=costUpgrade(b);html=`<div class="info-card"><strong>🏗️ 選択中: ${B[b.type].name} Lv.${b.level}</strong><br>${entranceRoads(b).length?'':'🛣️ 黄色い矢印が示す正面の辺に道を敷くと、仲間と職員が訪れるよ。<br>'}${b.type==='worldtree'?B[b.type].effect:buildingUpgradePreview(b)}<button class="small-button" data-action="upgrade" data-id="${b.id}" ${state.coins<cost?'disabled':''}>⬆️ 強化する（${num(cost)} G）</button><div class="facility-actions">${b.type==='worldtree'?'':facingShortcut(moveMode===b.id?placementFacing:b.facing)}<button class="small-button secondary" data-action="moveBuilding" data-id="${b.id}">🚚 施設を移動（無料）</button><button class="small-button secondary" data-action="recoverBuilding" data-id="${b.id}">📦 回収（${num(Math.floor(investedIn(b)*.65))}G）</button></div></div>`+html}body.innerHTML=html;
 }else if(tab==='monster'){
 const cost=180+Math.floor(state.monsters.length/3)*45;let html=`<div class="info-card"><strong>🥚 たまご孵化所</strong><br>たまごは最大${EGG_LIMIT}個。放牧枠に空きができると、準備の済んだたまごからふ化するよ。<br><span class="big-count">${state.monsters.length}</span> / ${monsterLimit()} 匹、たまご ${state.eggs.length} / ${EGG_LIMIT} 個<br>🌳 世界樹Lv.${state.villageLv}の配置枠：${monsterTreeLimit135()}匹。次のレベルで${monsterTreeLimit135(state.villageLv+1)}匹まで配置できるよ。${state.monsters.length>monsterLimit()?' 既存の仲間はそのまま残るよ。':''}</div><button class="wide-button" data-action="egg" ${state.coins<cost||state.food<18||state.eggs.length>=EGG_LIMIT||state.pendingExploreEgg?'disabled':''}>🥚 たまごを仕入れる（${num(cost)}G + 🍎18）</button>`;
@@ -1799,7 +1810,7 @@ function stopTerrainEditing(){
 window.addEventListener('pointerup',finishTerrainStroke,true);
 window.addEventListener('pointercancel',finishTerrainStroke,true);
 
-place=function(type,x,y){const spec=B[type];if(!spec)return;if(state.villageLv<spec.unlock){toast(`世界樹レベル ${spec.unlock} で解放されるよ`,'error');return}if(state.coins<spec.cost){toast('お金が足りないよ！','error');return}if(!canBuild(x,y,null,false,type)){toast(`ここには建てられないよ。${buildingMeta(type).w}×${buildingMeta(type).h} の空き地を選んでね。`,'error');return}state.coins-=spec.cost;bookExpense(spec.cost);const m=buildingMeta(type);const b={id:state.nextId++,type,x,y,level:1,w:m.w,h:m.h,facing:placementFacing};state.buildings.push(b);state.metrics.build++;state.fame+=4+Math.max(0,m.w-2);villageAdd(25+m.w*4);selectedBuilding=b.id;buildMode=null;message(`🔨 ${spec.name} (${m.w}×${m.h}) が完成したよ！`,'success');save(true);renderUI(true)}
+place=function(type,x,y){const spec=B[type];if(!spec)return;if(state.villageLv<spec.unlock){toast(`世界樹レベル ${spec.unlock} で解放されるよ`,'error');return}const price=constructionCost(type);if(state.coins<price){toast('お金が足りないよ！','error');return}if(!canBuild(x,y,null,false,type)){toast(`ここには建てられないよ。${buildingMeta(type).w}×${buildingMeta(type).h} の空き地を選んでね。`,'error');return}state.coins-=price;bookExpense(price);const m=buildingMeta(type);const b={id:state.nextId++,type,x,y,level:1,w:m.w,h:m.h,facing:placementFacing,constructionPaid:price};state.buildings.push(b);state.metrics.build++;state.fame+=4+Math.max(0,m.w-2);villageAdd(25+m.w*4);selectedBuilding=b.id;buildMode=null;message(`🔨 ${spec.name} (${m.w}×${m.h}) が完成したよ！`,'success');save(true);renderUI(true)}
 startMoving=function(id){const b=state.buildings.find(v=>v.id===id);if(!b)return;moveMode=b.id;placementFacing=validFacing(b.facing);buildMode=null;terrainMode=null;clearMode=false;selectedBuilding=id;const m=buildingOf(b);toast(`🏗️ 移動先の ${m.w}×${m.h} の空き地をクリックしてね。`);renderUI(true)}
 moveBuilding=function(x,y){const b=state.buildings.find(v=>v.id===moveMode);if(!b){cancelMoving();return}const m=buildingOf(b);if(!canBuild(x,y,b.id,true,b.type)){toast(`そこには移動できないよ。${m.w}×${m.h} の空き地を選んでね。`,'error');return}
 if(!commitMoveFacing(b,x,y))return;if(b.x===x&&b.y===y){cancelMoving();return}b.x=x;b.y=y;for(const a of [...state.monsters,...state.staff]){a.path=[];if(a.x>=x-.7&&a.x<x+m.w&&a.y>=y-.7&&a.y<y+m.h){const p=randWalk();a.x=p.x;a.y=p.y}}selectedBuilding=b.id;moveMode=null;message(`🚚 ${B[b.type].name}を移設したよ！`,'success');save(true);renderUI(true)}
@@ -3751,16 +3762,13 @@ const oldPlace200=place;
 place=function(t,x,y){
  if(t!=='shop'&&t!=='ranch')return oldPlace200(t,x,y);
  ensureStarter200();
- const free=firstFree200(t),before=state.buildings.length,cost=B[t].cost;
- if(free)B[t].cost=0;
- try{oldPlace200(t,x,y)}finally{B[t].cost=cost}
+ const free=firstFree200(t),before=state.buildings.length;
+ oldPlace200(t,x,y);
  if(state.buildings.length>before){
   if(free){state.buildings[state.buildings.length-1].freeStarter200=true;state.starterFacilities200[t]=true;message('🎁 '+B[t].name+'の1軒目は無料！','success')}
   save(true);renderUI(true);
  }
 };
-const investedOld200=investedIn;
-investedIn=function(b){return Math.max(0,investedOld200(b)-(b.freeStarter200?(B[b.type]?.cost||0):0))};
 const renderTabOld200=renderTab;
 renderTab=function(){
  renderTabOld200();
@@ -3770,7 +3778,7 @@ renderTab=function(){
   const button=el.querySelector('[data-action="build"]'),t=button?.dataset.id;
   if(t!=='shop'&&t!=='ranch')continue;
   const used=state.buildings.filter(b=>b.type===t).length,cap=facilityCountCap193(t),locked=state.villageLv<B[t].unlock;
-  const free=firstFree200(t),cost=free?0:B[t].cost,p=el.querySelector('.price');
+  const free=firstFree200(t),cost=constructionCost(t),p=el.querySelector('.price');
   if(p)p.textContent=locked?'🔒 世界樹 Lv.'+B[t].unlock:free?'🎁 初回無料':num(cost)+'G';
   button.disabled=locked||used>=cap||state.coins<cost;
   if(used>=cap)button.textContent='上限に到達';
