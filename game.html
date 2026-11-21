@@ -1303,9 +1303,14 @@ function drawMapActor(o,monster,now) {
     else if(['park','fountain211'].includes(site.type))dy=-Math.round(5*Math.abs(pulse));else if(['home','inn','bench211','hut'].includes(site.type))dy=1;
   }
   const napping=pastime?.kind==='nap';
+  const chase=pastime?.chase;
+  const touch=chase?.phase==='tap'?Math.sin(Math.PI*chase.elapsed/chaseTapTime):0;
   const height=napping?Math.round(size*.74+Math.sin(now/850)*1.5):size;
   if(napping)dy=0;
-  else if(pastime?.kind==='chase'&&o.path?.length)dy=-Math.round(Math.abs(Math.sin(now/105))*4);
+  else if(chase?.phase==='tap'&&pastime.leader){
+    dx=Math.round(7*chase.side*touch);dy=Math.round((3*chase.slope-2)*touch);
+  }else if(chase?.phase==='headStart'&&!pastime.leader)dy=-Math.round(5*Math.sin(Math.PI*chase.elapsed/chaseHeadStart));
+  else if(chase&&chase.phase!=='approach'&&o.path?.length)dy=-Math.round(Math.abs(Math.sin(now/105))*4);
   if(pastime?.kind==='rain'){
     if(pastime.phase==='jump')dy=-Math.round(Math.sin(Math.PI*pastime.elapsed/pastime.duration)*(pastime.action==='leap'?19:14));
     else if(pastime.startled>0)dy=-Math.round(Math.sin(Math.PI*pastime.startled/.65)*8);
@@ -1314,6 +1319,12 @@ function drawMapActor(o,monster,now) {
   const left=Math.round(x-size/2)+dx,top=foot-height+dy,art=monster?spriteMonsterHD(o.kind,!!o.shiny):citizenArt(o);
   ctx.fillStyle='#294f4b3a';ctx.fillRect(x-Math.round(size*.26),foot-2,Math.round(size*.52),3);
   ctx.drawImage(art,left,top,size,height);
+  if(touch>.4&&pastime.leader){
+    const pawX=Math.round(x+dx+chase.side*size*.39),pawY=top+Math.round(size*.66+chase.slope*4);
+    ctx.fillStyle='#645648';ctx.fillRect(pawX-3,pawY,7,4);
+    ctx.fillStyle='#f4d7a3';ctx.fillRect(pawX-2,pawY,5,3);ctx.fillRect(pawX+chase.side*3,pawY-1,2,2);
+    ctx.fillStyle='#fff3ad';ctx.fillRect(pawX+chase.side*6,pawY-4,2,3);ctx.fillRect(pawX+chase.side*8,pawY,2,1);
+  }
   if(pastime?.action==='splash'&&pastime.phase==='rest'&&pastime.elapsed<.75)drawPuddleSplash(x,foot-2,pastime.elapsed);
   if(monster)mapPickItems.push({monster:o,art,rect:{x:left,y:top,w:size,h:height}});
   if(monster){
@@ -1322,7 +1333,8 @@ function drawMapActor(o,monster,now) {
     if(selectedMonster===o.id){ctx.strokeStyle='#fff6d6';ctx.lineWidth=2;ctx.strokeRect(left,top,size,height)}
     if(Math.sin(now/1300+o.id*3)>.985){ctx.fillStyle='#fff8ec';ctx.fillRect(left+size-4,top-1,13,11);ctx.fillStyle='#ed9c9c';ctx.font='bold 11px sans-serif';ctx.fillText('♥',left+size-2,top+8)}
     const rainIcon=pastime?.phase==='rest'&&pastime.action==='shelter'?(pastime.startled>0?'！':'☂'):null;
-    const playIcon=rainIcon||(napping?'💤':pastime?.kind==='chase'?(pastime.leader?'♪':'🐾'):null);
+    let playIcon=rainIcon||(napping?'💤':null);
+    if(chase)playIcon=pastime.leader?'♪':chase.phase==='headStart'?'！':chase.phase==='run'?'🐾':null;
     const icon=playIcon||(visit&&visit.remaining!==null?facilityActivities[visit.site.type][0]:timer.harvestBubble>0?'📦':null);
     if(icon){drawMapBubble(x,top-(o.shiny?17:8),icon,now,o.id)}else{
       const activity=o.phase213||phase213(state.hour);if(activity!=='work'){ctx.font='13px sans-serif';ctx.fillText(activity==='sleep'?'💤':activity==='eat'?'🍎':'🎾',x-7,top-2+Math.sin(now/500+o.id)*1.6)}
@@ -4787,7 +4799,7 @@ load=function(){
   for(const w of state.staff){w.jobTask212=null;w.jobTarget211=null;w.path=[]}
   for(const m of state.monsters){
    m.ranchTarget200=null;m.ranchGoal200=null;m.path=[];
-   if(m.act==='💤 お昼寝中'||m.act==='🐾 追いかけっこ'||Object.values(rainActivities).includes(m.act))m.act='🐾 おさんぽ';
+   if(m.act==='💤 お昼寝中'||m.act==='🐾 追いかけっこ'||m.act===chaseInviteAct||m.act===chaseNoticeAct||Object.values(rainActivities).includes(m.act))m.act='🐾 おさんぽ';
   }
   state.guests=state.guests.filter(g=>Number.isFinite(g.x)&&Number.isFinite(g.y));
   for(const g of state.guests){
@@ -5472,6 +5484,8 @@ function freeForPlay(m){
   !plotWalks.has(m)&&residentRoad(Math.round(m.x),Math.round(m.y));
 }
 const rainActivities={leap:'🐾 水たまりをひと跳び',splash:'💧 水たまりに飛び込み中',shelter:'☂ 軒先で雨宿り'};
+const chaseInviteAct='🐾 ちょんとお誘い',chaseNoticeAct='！ お誘いに気づいた';
+const chaseTapTime=.55,chaseHeadStart=.65;
 const shelterBuildings=new Set(['home','hut','inn','cafe','shop','clinic','workshop','school','postOffice']);
 function startRainPastime(m,timer){
  const trait=TRAITS[m.trait]?.name;
@@ -5555,23 +5569,53 @@ function startMonsterPastime(m,timer){
  if(roll>=.36)return false;
  const nearby=state.monsters.filter(b=>b!==m&&Math.hypot(b.x-m.x,b.y-m.y)<=4&&freeForPlay(b));
  if(!nearby.length)return false;
- const leader=rnd(nearby),lx=Math.round(leader.x),ly=Math.round(leader.y);
- const approach=pathTo(m.x,m.y,lx,ly,true);
+ const mate=rnd(nearby),waitAt=[Math.round(mate.x),Math.round(mate.y)];
+ const approach=pathTo(m.x,m.y,...waitAt,true);
  if(!approach.length||approach.length>5)return false;
- // The leader runs ahead on the same road. Leave the last tile to the leader.
- const used=new Set(approach.map(([x,y])=>keyXY(x,y)));
- used.add(keyXY(Math.round(m.x),Math.round(m.y)));
- const trail=[];let x=lx,y=ly;
+ // Stop next to the other monster and choose a road away from it.
+ approach.pop();
+ const tagAt=approach.at(-1)||[Math.round(m.x),Math.round(m.y)];
+ const used=new Set([keyXY(...waitAt),keyXY(...tagAt)]);
+ const trail=[];let [x,y]=tagAt;
  while(trail.length<4){
   const choices=neighbors(x,y).filter(([nx,ny])=>residentRoad(nx,ny)&&!used.has(keyXY(nx,ny)));
   if(!choices.length)break;
   [x,y]=rnd(choices);trail.push([x,y]);used.add(keyXY(x,y));
  }
  if(trail.length<2)return false;
- leader.path=trail;m.path=approach.concat(trail.slice(0,-1));
- leader.act=m.act='🐾 追いかけっこ';
- timer.pastime={kind:'chase',partner:leader,leader:false,remaining:9};
- monsterWalkTimer139(leader).pastime={kind:'chase',partner:m,leader:true,remaining:9};
+ if(!approach.length&&Math.hypot(m.x-tagAt[0],m.y-tagAt[1])>.01)approach.push(tagAt);
+ m.path=approach;mate.path=Math.hypot(mate.x-waitAt[0],mate.y-waitAt[1])>.01?[waitAt]:[];
+ m.act=chaseInviteAct;mate.act='🐾 おさんぽ';
+ const deltaX=waitAt[0]-tagAt[0],deltaY=waitAt[1]-tagAt[1];
+ const chase={tagAt,waitAt,trail,side:Math.sign(deltaX-deltaY),slope:Math.sign(deltaX+deltaY),phase:'approach',elapsed:0,remaining:13};
+ timer.pastime={kind:'chase',partner:mate,leader:true,chase};
+ monsterWalkTimer139(mate).pastime={kind:'chase',partner:m,leader:false,chase};
+ return true;
+}
+function advanceChase(m,play,dt){
+ const mate=play.partner,c=play.chase;
+ if(state.hour<9||state.hour>=19||!state.monsters.includes(mate)||monsterWalkTimer139(mate).needsRanch||mate.ranchTarget200)return false;
+ // The inviter advances the shared clock once per simulation step.
+ if(!play.leader)return true;
+ c.remaining-=dt;c.elapsed+=dt;
+ if(c.remaining<=0)return false;
+ const at=(actor,tile)=>Math.hypot(actor.x-tile[0],actor.y-tile[1])<.06;
+ if(c.phase==='approach'){
+  if(m.path?.length||mate.path?.length)return true;
+  if(!at(m,c.tagAt)||!at(mate,c.waitAt))return false;
+  c.phase='tap';c.elapsed=0;
+ }else if(c.phase==='tap'&&c.elapsed>=chaseTapTime){
+  if(!at(m,c.tagAt)||!at(mate,c.waitAt)||!c.trail.every(point=>residentRoad(...point)))return false;
+  m.path=c.trail.slice();m.act='🐾 追いかけっこ';mate.act=chaseNoticeAct;
+  c.phase='headStart';c.elapsed=0;
+ }else if(c.phase==='headStart'&&c.elapsed>=chaseHeadStart){
+  if(!m.path?.length||!at(mate,c.waitAt)||!residentRoad(...c.tagAt))return false;
+  mate.path=[c.tagAt,...c.trail.slice(0,-1)];mate.act='🐾 追いかけっこ';
+  c.phase='run';c.elapsed=0;
+ }else if(c.phase==='run'){
+  if((!m.path?.length&&!at(m,c.trail.at(-1)))||(!mate.path?.length&&!at(mate,c.trail.at(-2))))return false;
+  return !!(m.path?.length||mate.path?.length);
+ }
  return true;
 }
 function advanceMonsterPastime(m,dt){
@@ -5581,12 +5625,11 @@ function advanceMonsterPastime(m,dt){
  if(!timer.needsRanch&&!m.ranchTarget200){
   if(play.kind==='rain'){
    if(advanceRainPastime(m,play,dt))return true;
+  }else if(play.kind==='chase'){
+   if(advanceChase(m,play,dt))return true;
   }else{
    play.remaining-=dt;
-   const activeHours=play.kind==='nap'?state.hour>=11&&state.hour<16:state.hour>=9&&state.hour<19;
-   const playing=play.kind==='nap'||(state.monsters.includes(mate)&&
-    !monsterWalkTimer139(mate).needsRanch&&(m.path?.length||mate.path?.length));
-   if(activeHours&&playing&&play.remaining>0)return true;
+   if(state.hour>=11&&state.hour<16&&play.remaining>0)return true;
   }
  }
  for(const actor of mate?[m,mate]:[m]){

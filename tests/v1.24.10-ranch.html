@@ -89,9 +89,67 @@ function ranchFixture(){
       check(!motion(jumper),'clear weather stops rainy play');
       state.day=wet;state.hour=23;monsterWalkTimer139(jumper).wait=0;stepActors(.05);
       check(!motion(jumper),'sleep takes priority');
+      jumper.path=[];state.hour=12;monsterWalkTimer139(jumper).wait=0;
+      until(()=>motion(jumper)?.phase==='jump'&&motion(jumper).elapsed>.20,'save while jumping');
+      const pos=[jumper.x,jumper.y];check(save(true)&&load(),'reload wet day');
+      const loaded=state.monsters[0];
+      check(loaded.trait===jumper.trait&&!motion(loaded)&&loaded.act==='🐾 おさんぽ'&&
+        loaded.x===pos[0]&&loaded.y===pos[1]&&residentRoad(Math.round(loaded.x),Math.round(loaded.y)),'resume on a road after a jump');
     }finally{Math.random=random;state.speed=0;}
   }
-  window.ranchQA={ready:()=>villageSheetReady&&facilitySheetReady,seed,snapshot,rain};
+  function chase(){
+    roadLayout();state.staff=[];state.hour=12;state.day=1;state.speed=1;
+    const random=Math.random;Math.random=()=>.22;
+    const motion=m=>monsterWalkTimer139(m).pastime;
+    function until(fn,label){for(let n=0;n<300&&!fn();n++)stepActors(.05);check(fn(),label);}
+    function pair(reversed=false){
+      const runner=makeMonster(401,0,5,8),mate=makeMonster(402,1,8,8);
+      state.monsters=reversed?[mate,runner]:[runner,mate];
+      monsterWalkTimer139(runner).wait=0;monsterWalkTimer139(mate).wait=90;
+      stepActors(.05);
+      check(motion(runner)?.leader===true&&motion(mate)?.partner===runner,'both join one invitation');
+      return {runner,mate,scene:motion(runner).chase};
+    }
+    try{
+      for(const reversed of [false,true]){
+        const {runner,mate,scene}=pair(reversed),stats=[runner.xp,runner.bond,mate.xp,mate.bond];
+        check(scene.phase==='approach'&&mate.x===8&&runner.x<7,'approach before touching');
+        until(()=>scene.phase==='tap'&&scene.elapsed>=.23,'tap begins');
+        check(runner.x===7&&mate.x===8&&!runner.path.length&&!mate.path.length,'contact from adjacent tile');
+        drawMapActor(runner,true,500);const r=mapPickItems.at(-1).rect;
+        check(r.x+r.w/2>projectGround(runner.x+.5,runner.y+.5).x+4,'inviter leans towards its friend');
+        state.speed=0;const stopped=[runner.x,mate.x,scene.elapsed];
+        animate(frameAt+80);check(JSON.stringify(stopped)===JSON.stringify([runner.x,mate.x,scene.elapsed]),'pause freezes invitation');state.speed=1;
+        until(()=>scene.phase==='headStart','inviter runs first');
+        for(let i=0;i<10;i++)stepActors(.05);
+        check(runner.x<7&&mate.x===8&&!mate.path.length&&mate.act===chaseNoticeAct,'second monster waits a beat');
+        until(()=>scene.phase==='run','partner starts chasing');
+        let steps=0;
+        while(motion(runner)&&steps++<250){
+          stepActors(.05);
+          for(const m of [runner,mate])check(residentRoad(Math.round(m.x),Math.round(m.y)),'both stay on the road');
+        }
+        check(!motion(runner)&&!motion(mate)&&runner.x===scene.trail.at(-1)[0]&&mate.x===scene.trail.at(-2)[0],'separate end tiles and return to walks');
+        check(JSON.stringify(stats)===JSON.stringify([runner.xp,runner.bond,mate.xp,mate.bond]),'no chase stat changes');
+      }
+      let {runner,mate,scene}=pair();
+      until(()=>scene.phase==='tap','tag before partner leaves');state.monsters=[mate];stepActors(.05);
+      check(!motion(runner)&&!motion(mate)&&!mate.path.length,'inviter removed releases partner');
+      ({runner,mate,scene}=pair());
+      until(()=>scene.phase==='tap','road removal before escape');
+      const closed=keyXY(...scene.trail[0]);state.paths=state.paths.filter(k=>k!==closed);
+      until(()=>!motion(runner),'closed escape road cancels tag');check(!motion(mate),'no stranded partner');state.paths.push(closed);
+      ({runner,mate,scene}=pair());
+      until(()=>scene.phase==='headStart','ranch interrupts a tag');const ranch=placeAlongRoad('ranch',10);
+      monsterWalkTimer139(mate).needsRanch=true;stepActors(.05);
+      check(!motion(runner)&&!motion(mate)&&mate.ranchTarget200===ranch.id,'material work takes priority');
+      ({runner,mate,scene}=pair());
+      until(()=>scene.phase==='headStart','save while waiting to chase');
+      const ids=state.monsters.map(m=>m.id);check(save(true)&&load(),'reload invitation');
+      check(state.monsters.every((m,i)=>m.id===ids[i]&&!motion(m)&&!m.path.length&&m.act==='🐾 おさんぽ'),'fresh walks after reload');
+    }finally{Math.random=random;state.speed=0;}
+  }
+  window.ranchQA={ready:()=>villageSheetReady&&facilitySheetReady,seed,snapshot,rain,chase};
 }
 async function verify(width,previous,current){
   const prefix='qa12410_'+crypto.randomUUID()+'_',errors=[];let frame;
@@ -115,7 +173,7 @@ async function verify(width,previous,current){
       throw Error('old save field '+i+' / '+JSON.stringify(before[i])+' / '+JSON.stringify(after[i]));
     }
     if(frame.contentDocument.documentElement.scrollWidth>frame.contentWindow.innerWidth+1)throw Error('layout width');
-    qa.rain();
+    qa.rain();qa.chase();
     if(errors.length)throw Error(errors.join(' / '));
     document.querySelector('#result').textContent+=width+'px 成功\n';
   }finally{
