@@ -181,7 +181,7 @@ async function verify(width,previous,current){
 document.querySelector('#run').onclick=async({currentTarget})=>{
   currentTarget.disabled=true;const output=document.querySelector('#result');output.textContent='';
   try{
-    const pages=await Promise.all(['../releases/1.24.8/game.html','../game.html'].map(async url=>{
+    const pages=await Promise.all(['../releases/1.24.8/game.html','../releases/1.24.9/game.html'].map(async url=>{
       const response=await fetch(url);if(!response.ok)throw Error(url);return response.text();
     }));
     for(const width of [1366,390])await verify(width,...pages);
