@@ -51,7 +51,38 @@ function ranchFixture(){
     state.research.farm=0;const plain=foodProduction.field(3);
     state.research.farm=3;check(Math.abs(foodProduction.field(3)/plain-1.3)<1e-8,'field yield');
   }
-  window.ranchQA={ready:()=>villageSheetReady&&facilitySheetReady,seed,snapshot,research};
+  function boss(){
+    tab='adventure';state.battle=null;
+    Object.assign(state.adventure,{stage:5,auto:false,bossLoop:null,cooldown:0});
+    const launch=(action,stage)=>{renderUI(true);document.querySelector('[data-v192="'+action+'"][data-stage="'+stage+'"]').click();};
+    function finish(stage,coins,silent=false){
+      const b=state.battle;check(b?.stage===stage,'battle stage '+stage);
+      const before=[state.coins,state.economy.income,state.metrics.coins],clears=state.adventure.clears,magic=state.magic;
+      const xp=crewParty()[0].xp;
+      b.foes.forEach(f=>f.hp=0);adventureTick(silent);
+      check(!state.battle&&state.adventure.clears===clears+1,'cleared battle');
+      check([state.coins,state.economy.income,state.metrics.coins].every((n,i)=>n-before[i]===coins),'gold credited '+stage);
+      check(state.magic===magic+(b.boss?5:1)&&crewParty()[0].xp>xp,'non-gold rewards');
+      const line=state.log.find(entry=>entry.msg.startsWith('🏆 '+stageLabel(stage)+' ')).msg;
+      check(coins?line.endsWith('+'+coins+'G'):!line.includes('G'),'reward message '+line);
+    }
+    launch('fight',5);state.battle.ourHp=1;
+    for(const f of state.battle.foes){f.hp=90000;f.atk=90000;}
+    const purse=state.coins;adventureTick(false);
+    check(!state.battle&&state.coins===purse&&state.adventure.stage===5,'loss before first victory');
+    launch('fight',5);finish(5,330);check(state.adventure.stage===6,'first boss progress');
+    launch('fight',5);finish(5,0);
+    launch('loop',5);finish(5,0);
+    for(let n=0;n<8&&!state.battle;n++)adventureTick(true);
+    finish(5,0,true);
+    check(save(true)&&load(),'reload active boss loop');
+    for(let n=0;n<8&&!state.battle;n++)adventureTick(false);
+    launch('loop',5);finish(5,0);check(state.adventure.bossLoop===null,'stopped loop');
+    startAdventure();finish(6,Math.floor(86*1.48+6*14));
+    state.adventure.stage=36;selectedBattleStage=31;startAdventure();finish(31,Math.floor(86*(1+6*.48)+31*14));
+    state.adventure.stage=40;startAdventure();finish(40,Math.floor(260*(1+7*.48)+40*14));
+  }
+  window.ranchQA={ready:()=>villageSheetReady&&facilitySheetReady,seed,snapshot,research,boss};
 }
 async function verify(width,previous,current){
   const prefix='qa12411_'+crypto.randomUUID()+'_',errors=[];let frame;
@@ -76,7 +107,7 @@ async function verify(width,previous,current){
       throw Error('old save field '+i+' / '+JSON.stringify(before[i])+' / '+JSON.stringify(after[i]));
     }
     if(frame.contentDocument.documentElement.scrollWidth>frame.contentWindow.innerWidth+1)throw Error('layout width');
-    qa.research();
+    qa.research();qa.boss();
     if(errors.length)throw Error(errors.join(' / '));
     document.querySelector('#result').textContent+=width+'px 成功\n';
   }finally{
