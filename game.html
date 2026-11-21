@@ -280,6 +280,12 @@ html.monster-detail-open{overflow:hidden}
 .postcard-album li{display:flex;align-items:center;gap:9px;padding:6px 0;border-top:1px solid #d7e2d8}
 .postcard-album canvas{width:80px;height:auto;flex:none;image-rendering:pixelated}
 .postcard-album small{display:block;color:#52685d;overflow-wrap:anywhere}
+
+.resource-field{position:relative;border-bottom:1px dashed #e4eee5}
+.resource-field:last-child{border-bottom:0}
+.resource-field>.resource{width:100%;border:0;background:transparent;color:inherit;text-align:start;cursor:help}
+.resource-field>.resource:focus-visible{outline:2px solid #318f80;outline-offset:-2px;border-radius:5px}
+.resource-tip{pointer-events:none;position:absolute;z-index:5;inset-inline:0;top:100%;padding:8px 10px;border-radius:7px;background:#244d47;color:#fff;font-size:13px;line-height:1.55;box-shadow:0 3px 9px #193f3826}
 </style>
 </head>
 <body>
@@ -880,7 +886,50 @@ function hatchStatus138(egg=null){
  return {ready,free,blocked,paused,capacityReason,capacityHint,summary,title,detail,tip:summary};
 }
 
-function renderUI(full=false){if(!state)return;const resources=[['ri-money','🪙','おかね',state.coins,'G'],['ri-food','🍎','ごはん',state.food,'個'],['ri-stock','📦','おみせの素材',state.stock,'個'],['ri-magic','✨','キラキラ',state.magic,'個'],['ri-fame','🌟','ひょうばん',state.fame,'pt']];$('resources').innerHTML=resources.map(v=>`<div class="resource"><div class="resource-label"><span class="resource-icon ${v[0]}">${v[1]}</span>${v[2]}</div><div><span class="resource-value">${num(v[3])}</span><small> ${v[4]}</small></div></div>`).join('');const r=rank();$('mapRegion').textContent=`区画 ${Math.floor((cameraX+VW/(2*zoom)-MIN_X)/ZONE_W)+1} / ${Math.floor((cameraY+VH/(2*zoom)-MIN_Y)/ZONE_H)+1} · 解放 ${state.zones.length}/${ZONES.length}`;$('rankName').textContent=r.name;$('rankProgress').textContent=`${num(state.fame)} / ${num(r.next)}`;$('rankBar').style.width=clamp((state.fame-r.current)/(r.next-r.current)*100,0,100)+'%';$('countInfo').textContent=state.monsters.length+' / '+monsterLimit();$('staffCount').textContent=state.staff.length+' / '+staffLimit();$('clock').textContent=`${timeIcon()} ${num(state.day)}日目　${String(state.hour).padStart(2,'0')}:00`;$('autoLabel').textContent=state.speed===0?'● 一時停止中':'● 自動運営中';$('autoLabel').style.color=state.speed?'#459b80':'#c49a73';$('statusTag').textContent=(state.hour>=6&&state.hour<18?'🌤️ のんびり':'🌙 しずかな夜');
+let visibleResourceTip = null;
+function showResourceTip(tip) {
+  if (visibleResourceTip) visibleResourceTip.hidden = true;
+  visibleResourceTip = tip;
+  if (tip) tip.hidden = false;
+}
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && visibleResourceTip) {
+    showResourceTip(null);
+    event.stopPropagation();
+  }
+});
+const resourceRows = [
+  ['coins','ri-money','🪙','おかね','G','施設の建設・強化、土地の開拓、市民の雇用や給料に使うよ。'],
+  ['food','ri-food','🍎','ごはん','個','仲間と市民の食事、特訓、たまごの購入、商隊への納品やお祭りに使うよ。'],
+  ['stock','ri-stock','📦','おみせの素材','個','お店で旅人に売ったり、商隊に納めたり、工房でおまもりを作ったりするよ。'],
+  ['magic','ri-magic','✨','キラキラ','個','研究を進めるときや、世界樹を育てるとき、工房でおまもりを作るときに使うよ。'],
+  ['fame','ri-fame','🌟','ひょうばん','pt','牧場の人気を表すよ。増えると牧場ランクが上がり、お店の素材も高く売れるよ。']
+].map(([key,style,icon,label,unit,help]) => {
+  const row = document.createElement('div');
+  row.className = 'resource-field';
+  row.innerHTML = `<button type="button" class="resource" aria-describedby="resource-help-${key}">
+    <span class="resource-label"><span class="resource-icon ${style}" aria-hidden="true">${icon}</span>${label}</span>
+    <span><span class="resource-value"></span><small> ${unit}</small></span></button>
+    <span class="resource-tip" id="resource-help-${key}" role="tooltip" hidden>${help}</span>`;
+  $('resources').appendChild(row);
+  const button = row.querySelector('button');
+  const tip = row.querySelector('.resource-tip');
+  const open = () => showResourceTip(tip);
+  const close = () => { if (visibleResourceTip === tip) showResourceTip(null); };
+  button.addEventListener('pointerenter', event => { if (event.pointerType !== 'touch') open(); });
+  button.addEventListener('pointerleave', event => { if (event.pointerType !== 'touch') close(); });
+  button.addEventListener('focus', open);
+  button.addEventListener('blur', close);
+  button.addEventListener('click', () => { button.focus({preventScroll:true}); open(); });
+  return {key, value:row.querySelector('.resource-value')};
+});
+
+function renderUI(full=false){if(!state)return;
+for (const {key,value} of resourceRows) {
+  const amount = num(state[key]);
+  if (value.textContent !== amount) value.textContent = amount;
+}
+const r=rank();$('mapRegion').textContent=`区画 ${Math.floor((cameraX+VW/(2*zoom)-MIN_X)/ZONE_W)+1} / ${Math.floor((cameraY+VH/(2*zoom)-MIN_Y)/ZONE_H)+1} · 解放 ${state.zones.length}/${ZONES.length}`;$('rankName').textContent=r.name;$('rankProgress').textContent=`${num(state.fame)} / ${num(r.next)}`;$('rankBar').style.width=clamp((state.fame-r.current)/(r.next-r.current)*100,0,100)+'%';$('countInfo').textContent=state.monsters.length+' / '+monsterLimit();$('staffCount').textContent=state.staff.length+' / '+staffLimit();$('clock').textContent=`${timeIcon()} ${num(state.day)}日目　${String(state.hour).padStart(2,'0')}:00`;$('autoLabel').textContent=state.speed===0?'● 一時停止中':'● 自動運営中';$('autoLabel').style.color=state.speed?'#459b80':'#c49a73';$('statusTag').textContent=(state.hour>=6&&state.hour<18?'🌤️ のんびり':'🌙 しずかな夜');
 $('quests').innerHTML=state.quests.map(q=>{const p=clamp((state.metrics[q.id]-q.base),0,q.goal);return `<div class="quest"><div class="quest-title"><span>✅ ${esc(q.title)}</span><span>🌟+${q.fame}</span></div><div class="progress-track"><div class="progress-bar" style="width:${p/q.goal*100}%"></div></div><div class="quest-bottom"><span>${num(p)} / ${num(q.goal)} ${esc(q.unit)}</span><span>報酬 ${num(q.coin)}G</span></div></div>`}).join('');
 $('log').innerHTML=state.log.slice(0,6).map(m=>`<div class="log-entry"><span class="log-time">${esc(m.t)}</span><span>${esc(m.msg)}</span></div>`).join('');
 const refocusTurn=document.activeElement?.hasAttribute('data-turn-facility');
