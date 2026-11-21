@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8">
+<title>もんすたー日和 1.24.10 動作検証</title>
+<h1>もんすたー日和 1.24.10 動作検証</h1>
+<button id="run">検証を開始</button><pre id="result" aria-live="polite"></pre>
+<script>
+'use strict';
+function ranchFixture(){
+  const check=(condition,label)=>{if(!condition)throw Error(label)};
+  function seed(){
+    Object.assign(state,{speed:0,ranchName:'なよ牧場',coins:34567,food:191.5,magic:33,fame:127});
+    state.monsters[1].shiny=true;addCatalogMonster(state.monsters[1]);state.party=[state.monsters[1].id];
+    state.treasures=[0,1];state.adventure.stage=7;state.adventure.clears=6;
+    state.postcards[0]={count:3,day:1,sender:'旅人アン'};
+    save(true);
+  }
+  function snapshot(){
+    return JSON.stringify([state.ranchName,state.coins,state.food,state.magic,state.fame,state.day,state.hour,
+      state.monsters.map(m=>[m.id,m.kind,m.lv,m.xp,m.shiny,m.trait,m.bond,m.energy]),state.restingMonsters,state.party,state.paths,
+      state.staff.map(w=>[w.id,w.name,w.job,w.level]),state.buildings.map(b=>[b.id,b.type,b.level,b.x,b.y,b.facing]),
+      state.adventure,state.catalog,state.treasures,state.materialStock211,state.postcards,state.zones]);
+  }
+  function roadLayout(){
+    state.buildings=[];state.guests=[];state.ponds=[];state.paths=[];state.removedDefaultPaths=[...DEFAULT_PATH_KEYS];
+    state.zones=[0,1,4,5];state.clearedScenery=[];state.clearedPonds=[];
+    for(let x=0;x<22;x++)for(let y=0;y<20;y++){
+      state.clearedScenery.push(keyXY(x,y));state.clearedPonds.push(keyXY(x,y));
+    }
+    for(let x=0;x<22;x++)state.paths.push(keyXY(x,8));
+  }
+  function placeAlongRoad(type,x){
+    const b={type,id:state.nextId++,x,y:8-buildingMeta(type).h,facing:0,level:1};
+    state.buildings.push(b);return b;
+  }
+  function rain(){
+    roadLayout();state.staff=[];state.hour=12;state.speed=1;
+    const days=Array.from({length:70},(_,i)=>i+1);
+    const wet=days.find(d=>weatherInfo(d).name==='雨'),clear=days.find(d=>weatherInfo(d).name==='晴れ');
+    state.day=wet;
+    const x=Array.from({length:15},(_,i)=>i+3).find(i=>rainPuddleAt(i,8)&&!rainPuddleAt(i-1,8)&&!rainPuddleAt(i+1,8));
+    check(Number.isInteger(x),'puddle with dry approach and landing');
+    const point=projectGround(x+.5,8.5);
+    function waterPixel(overview){
+      let g,left,top;
+      if(overview){
+        const view=overviewGround(seasonInfo().name);g=view.image.getContext('2d');left=view.bounds.left;top=view.bounds.top;
+      }else{
+        const img=document.createElement('canvas');img.width=80;img.height=60;
+        g=img.getContext('2d');left=point.x-40;top=point.y-30;g.translate(-left,-top);
+        paintGround(g,seasonInfo().name,{minX:x,maxX:x+1,minY:8,maxY:9,left,top,right:left+80,bottom:top+60},[]);
+      }
+      return [...g.getImageData(point.x-4-left,point.y-2-top,1,1).data].join(',');
+    }
+    for(const overview of [false,true]){
+      check(waterPixel(overview)==='224,238,234,255','puddle highlight on wet road');
+      state.day=clear;check(waterPixel(overview)!=='224,238,234,255','clear road after weather change');state.day=wet;
+    }
+    function monster(id,trait,pos){
+      const m=Object.assign(makeMonster(id,0,pos,8),{trait});monsterWalkTimer139(m).wait=0;return m;
+    }
+    const motion=m=>monsterWalkTimer139(m).pastime;
+    function until(fn,label){for(let n=0;n<180&&!fn();n++)stepActors(.05);check(fn(),label);}
+    const home=placeAlongRoad('home',x+1),random=Math.random;Math.random=()=>.06;
+    try{
+      for(const trait of [0,1,2,3,4]){
+        const cautious=[1,4].includes(trait),m=monster(200+trait,trait,cautious?x+1:x-1);state.monsters=[m];
+        stepActors(.05);check(motion(m)?.action===(cautious?'shelter':trait===0?'leap':'splash'),'rain action for trait '+trait);
+        if(cautious){until(()=>motion(m)?.phase==='rest','under real roof');check(m.x===x+1&&m.act===rainActivities.shelter,'rests by entrance');}
+        else{
+          until(()=>motion(m)?.phase==='jump'&&motion(m).elapsed>.25,'airborne');
+          drawMapActor(m,true,500);const rect=mapPickItems.at(-1).rect;
+          check(rect.y+rect.h<projectGround(m.x+.5,m.y+.5).y-3,'sprite and clickable rect lifted');
+          until(()=>!motion(m),'land and recover');check(m.x===(trait===0?x+1:x)&&m.y===8,'correct landing tile');
+        }
+      }
+      const shy=monster(211,1,x+1),bold=monster(212,3,x-1);state.monsters=[shy,bold];
+      const stats=()=>JSON.stringify([state.coins,state.food,state.materialStock211,...state.monsters.map(m=>[m.xp,m.bond,m.energy,m.trait])]);
+      const before=stats();
+      until(()=>motion(shy)?.startled>0,'splash surprises nearby sheltered monster');
+      check(motion(bold)?.phase==='rest'&&bold.x===x&&motion(shy).site===home,'splash and shelter together');
+      until(()=>!motion(bold),'splash finishes');check(stats()===before,'no economic or stat change');
+      state.buildings=[];stepActors(.05);check(!motion(shy),'removed shelter releases resident');
+      state.monsters=[monster(220,0,x-1)];const jumper=state.monsters[0];
+      until(()=>motion(jumper)?.phase==='jump','second leap');
+      state.paths=state.paths.filter(k=>k!==keyXY(x+1,8));stepActors(.05);
+      check(!motion(jumper)&&jumper.x===x-1,'removed landing cancels leap');
+      state.paths.push(keyXY(x+1,8));monsterWalkTimer139(jumper).wait=0;
+      until(()=>motion(jumper)?.phase==='jump','third leap');state.day=clear;stepActors(.05);
+      check(!motion(jumper),'clear weather stops rainy play');
+      state.day=wet;state.hour=23;monsterWalkTimer139(jumper).wait=0;stepActors(.05);
+      check(!motion(jumper),'sleep takes priority');
+    }finally{Math.random=random;state.speed=0;}
+  }
+  window.ranchQA={ready:()=>villageSheetReady&&facilitySheetReady,seed,snapshot,rain};
+}
+async function verify(width,previous,current){
+  const prefix='qa12410_'+crypto.randomUUID()+'_',errors=[];let frame;
+  async function open(html){
+    frame?.remove();frame=document.createElement('iframe');frame.width=width;frame.height=width===390?844:900;
+    const end='})();\n<\/script>';
+    if(!html.includes(end))throw Error('missing game entry');
+    frame.srcdoc=html.replaceAll('monster_biyori_',prefix).replace(end,()=> '('+ranchFixture.toString()+')();\n'+end);
+    const ready=new Promise(resolve=>frame.onload=resolve);document.body.append(frame);await ready;
+    frame.contentWindow.addEventListener('error',e=>errors.push(e.message));
+    const qa=frame.contentWindow.ranchQA;
+    for(let n=0;qa&&!qa.ready()&&n<200;n++)await new Promise(resolve=>setTimeout(resolve,30));
+    if(!qa?.ready())throw Error('game or sprites failed to load');return qa;
+  }
+  try{
+    let qa=await open(previous);qa.seed();qa=await open(previous);const legacy=qa.snapshot();
+    qa=await open(current);
+    const currentSave=qa.snapshot(),before=JSON.parse(legacy),after=JSON.parse(currentSave);
+    if(currentSave!==legacy){
+      const i=before.findIndex((v,i)=>JSON.stringify(v)!==JSON.stringify(after[i]));
+      throw Error('old save field '+i+' / '+JSON.stringify(before[i])+' / '+JSON.stringify(after[i]));
+    }
+    if(frame.contentDocument.documentElement.scrollWidth>frame.contentWindow.innerWidth+1)throw Error('layout width');
+    qa.rain();
+    if(errors.length)throw Error(errors.join(' / '));
+    document.querySelector('#result').textContent+=width+'px 成功\n';
+  }finally{
+    frame?.remove();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);
+  }
+}
+document.querySelector('#run').onclick=async({currentTarget})=>{
+  currentTarget.disabled=true;const output=document.querySelector('#result');output.textContent='';
+  try{
+    const pages=await Promise.all(['../releases/1.24.9/game.html','../game.html'].map(async url=>{
+      const response=await fetch(url);if(!response.ok)throw Error(url);return response.text();
+    }));
+    for(const width of [1366,390])await verify(width,...pages);
+    output.textContent+='すべて成功';
+  }catch(e){output.textContent+='失敗 '+e.stack;}
+  finally{currentTarget.disabled=false;}
+};
+</script></html>

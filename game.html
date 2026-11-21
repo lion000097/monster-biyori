@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>もんすたー日和 Ver.1.24.9 | まもの牧場シミュレーション</title>
+<title>もんすたー日和 Ver.1.24.10 | まもの牧場シミュレーション</title>
 <style>
 :root{--ink:#263d42;--muted:#74878a;--mint:#2d978a;--mint-dark:#20796f;--cream:#fffdf6;--bg:#e9f0e5;--line:#dae5db;--yellow:#f4ba54;--red:#e77969;--shadow:0 5px 0 #cddbd2,0 12px 28px #18372d15}
 *{box-sizing:border-box}body{margin:0;color:var(--ink);background:radial-gradient(ellipse at 50% -100px,#f8faed 0%,#e6eee5 85%);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;font-size:13px;-webkit-font-smoothing:antialiased}button,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.43}.app{max-width:1650px;margin:auto;padding:18px 18px 22px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}.brand{display:flex;align-items:center;gap:12px}.brand-badge{height:51px;width:51px;background:#344c53;box-shadow:inset 0 -5px #1d343a,0 5px #bacbc0;border:3px solid #fff5df;border-radius:12px;display:grid;place-items:center;font-size:27px;transform:rotate(-3deg)}.brand small{font-size:10px;letter-spacing:.24em;font-weight:900;color:#729187;display:block}.brand h1{font-size:23px;letter-spacing:.02em;line-height:1.1;margin:3px 0 0;font-weight:950}.top-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.clock{font-size:13px;color:#54736a;font-weight:900;background:#d8e9dc;border:1px solid #c3dccb;border-radius:10px;padding:12px 14px}.button{border:1px solid #cfddd1;background:var(--cream);padding:10px 12px;border-radius:10px;color:#365c57;font-weight:900;box-shadow:0 3px 0 #d2dfd6;transition:transform .1s,background .1s}.button:hover:not(:disabled){background:#f3faf2;transform:translateY(-1px)}.button:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #d2dfd6}.button.primary{background:#26988b;border-color:#1b8077;color:white;box-shadow:0 3px 0 #176b63}.button.primary:hover:not(:disabled){background:#178879}.button.warn{color:#c36455}.speed-group{display:flex;background:#dde9de;border-radius:10px;padding:4px;gap:3px}.speed-group button{background:transparent;border:0;border-radius:7px;color:#648178;font-size:12px;font-weight:900;padding:7px 10px}.speed-group button.on{color:white;background:#365c57;box-shadow:0 2px 0 #25443f}.layout{display:grid;grid-template-columns:238px minmax(480px,1fr) 300px;gap:16px;align-items:start}.panel{border:1px solid #dfebe0;background:#fffef8;border-radius:15px;box-shadow:var(--shadow);overflow:hidden}.panel-heading{padding:15px 16px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px}.panel-heading h2{font-size:13px;margin:0;font-weight:950}.subtext{color:#8aa097;font-size:11px;font-weight:700}.side-left,.side-right{display:flex;flex-direction:column;gap:16px}.resources{padding:0 14px 12px}.resource{display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-bottom:1px dashed #e4eee5}.resource:last-child{border-bottom:0}.resource-label{display:flex;align-items:center;gap:9px;color:#5f7874;font-weight:800}.resource-icon{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:16px}.ri-money{background:#fff0c4}.ri-food{background:#e6f5d8}.ri-stock{background:#f9e9d9}.ri-magic{background:#e9e8ff}.ri-fame{background:#ffe9dc}.resource-value{font-size:17px;font-weight:950;letter-spacing:-.03em;font-variant-numeric:tabular-nums}.resource small{font-size:10px;color:#95aaa0}.progress-section{padding:0 15px 16px}.progress-top{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#67827b;font-weight:800;margin:8px 0}.progress-track{height:9px;background:#e7ede5;border-radius:10px;overflow:hidden;border:1px solid #d8e6dc}.progress-bar{height:100%;background:linear-gradient(90deg,#81cbaa,#35a28d);border-radius:10px;transition:width .3s}.quests{padding:0 12px 13px}.quest{background:#f6f9f0;border:1px solid #e6eddd;border-radius:10px;padding:11px 11px 9px;margin:6px 0}.quest-title{display:flex;align-items:center;justify-content:space-between;gap:7px;font-size:11px;font-weight:900}.quest-title span:last-child{color:#3f9783;font-size:10px;white-space:nowrap}.quest .progress-track{margin:8px 0 4px;height:6px}.quest-bottom{color:#8da397;display:flex;justify-content:space-between;font-size:10px;font-weight:700}.tip-box{padding:14px 15px;background:#fef9ec;color:#806f4e;font-size:11px;line-height:1.75;border-top:1px solid #f0ebd8}.tip-box strong{color:#a6793b}.world-shell{padding:12px}.world-header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 5px 12px}.world-title{font-size:15px;font-weight:950}.world-title small{display:block;color:#9caf9c;font-size:10px;letter-spacing:.08em;margin-top:3px}.world-badges{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.world-tag{background:#e8f3e9;color:#568475;font-size:10px;font-weight:900;padding:6px 9px;border-radius:7px}.world-tag.gold{background:#fff1d5;color:#a98445}.canvas-frame{position:relative;border-radius:9px;overflow:hidden;border:4px solid #f3f4dc;outline:1px solid #d9e1c5;background:#8ecb78;box-shadow:inset 0 0 0 4px #fff;line-height:0}#game{width:100%;height:auto;display:block;image-rendering:pixelated;cursor:grab;touch-action:none;user-select:none}#game:active{cursor:grabbing}#battleCanvas{display:block;width:100%;height:auto;image-rendering:pixelated;aspect-ratio:1200/318}.battle-scene{background:#e7f3eb;border:3px solid #fbf5d6;border-radius:11px;overflow:hidden;box-shadow:inset 0 0 0 2px #a7cdb1}.battle-caption{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:9px 0 8px;color:#537d6d;font-weight:900;font-size:11px}.battle-caption strong{font-size:12px;color:#2f6c5d}.camera-toolbar{display:flex;align-items:center;justify-content:space-between;gap:5px;background:#f5f8ed;border:1px solid #e3ead8;border-radius:9px;padding:6px 7px;margin:0 3px 9px;flex-wrap:wrap;font-weight:900;font-size:11px;color:#6d8e7d}.camera-toolbar .camera-buttons{display:flex;align-items:center;gap:5px}.camera-toolbar button{border:1px solid #c9ded0;border-radius:7px;background:#fffefa;color:#38675b;padding:5px 11px;font-size:13px;font-weight:950;cursor:pointer}.camera-toolbar button:hover{background:#def2df}.battle-stats{font-size:10px;padding:6px 10px;color:#678e7b;line-height:1.5;background:#f6f8ec}.relocate-hint{background:#f0f1ff;border:1px solid #d0d6fa;color:#6566a1}.facility-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.facility-actions button{font-size:11px}.mini-instruction{font-size:10px;color:#859b8e}.canvas-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 4px 0;gap:8px;flex-wrap:wrap;font-size:11px;color:#8b9f97;font-weight:700}.building-mode{display:none;background:#fff2c6;border:1px solid #f0d78b;color:#9b7826;border-radius:9px;padding:9px 11px;line-height:1.5;margin-top:10px;font-weight:900;font-size:12px}.building-mode.active{display:flex;align-items:center;justify-content:space-between;gap:10px}.game-log{padding:0 14px 14px;max-height:200px;overflow:auto}.log-entry{display:flex;gap:9px;padding:9px 1px;border-bottom:1px dashed #e6ebe3;font-size:11px;line-height:1.45;color:#617971}.log-entry:last-child{border-bottom:0}.log-time{white-space:nowrap;font-size:10px;color:#a1b2a7;font-weight:800}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:10px 10px 0}.tab{background:#eff3ec;color:#78938a;border:0;padding:10px 0;border-radius:8px 8px 6px 6px;font-size:11px;font-weight:950}.tab.on{background:#2c8f82;color:white}.tab-body{padding:12px;min-height:445px;max-height:690px;overflow:auto}.help{font-size:11px;color:#8ca095;line-height:1.6;margin:3px 2px 10px}.build-option,.entity-row,.research-option{border:1px solid #e2e9de;background:#fcfdf7;border-radius:11px;padding:10px;margin-bottom:8px;transition:background .15s,border-color .15s}.build-option:hover{border-color:#b3d7c1}.build-option.selected{border-color:#4ba98f;background:#e9f7e9}.option-header{display:flex;align-items:center;gap:10px}.building-icon{width:45px;height:45px;flex:none;background:#eaf2dd;border:1px solid #e0ead5;display:grid;place-items:center;font-size:24px;border-radius:9px}.option-info{flex:1;min-width:0}.option-name{font-size:12px;font-weight:950}.option-desc{font-size:10px;line-height:1.55;color:#91a39a;margin-top:4px}.option-bottom{display:flex;gap:6px;align-items:center;justify-content:space-between;margin-top:9px}.price{font-size:11px;font-weight:950;color:#b17b30}.price-food{color:#539b5b}.small-button{border:0;background:#318f80;color:white;padding:7px 10px;border-radius:7px;font-weight:900;font-size:11px}.small-button.secondary{background:#e5ede4;color:#5c8374}.small-button:disabled{background:#e8e8e1;color:#a7afa6}.locked{opacity:.63}.locked .small-button{background:#f0eee5;color:#8e948a}.section-label{display:flex;justify-content:space-between;align-items:center;color:#617f73;font-weight:950;font-size:11px;margin:12px 1px 9px}.entity-row{padding:10px;display:flex;gap:10px;align-items:center}.monster-avatar{width:48px;height:48px;image-rendering:pixelated;background:#e5f4e9;border:1px solid #d1e8db;border-radius:9px;flex:none}.entity-info{flex:1;min-width:0}.entity-name{display:flex;align-items:center;justify-content:space-between;font-weight:950;font-size:12px;gap:4px}.entity-sub{color:#869b8f;font-weight:800;font-size:10px;margin-top:4px}.tiny-track{height:5px;border-radius:5px;background:#e6ebde;margin-top:7px;overflow:hidden}.tiny-track div{height:100%;background:#7fc8a6;border-radius:5px}.entity-row.highlighted{border-color:#46aa92;background:#effaf0}.pill{display:inline-block;font-weight:900;color:#6d887b;background:#eff2e9;padding:4px 6px;border-radius:5px;font-size:10px}.info-card{border-radius:11px;background:#eaf5ed;border:1px solid #d4e9db;padding:12px;margin-bottom:10px;line-height:1.6;font-size:11px;color:#58786b}.info-card strong{color:#287e70}.wide-button{width:100%;border:none;border-radius:10px;background:#309487;color:#fff;font-weight:950;padding:12px 9px;margin:5px 0 10px;box-shadow:0 3px 0 #1c7369}.wide-button:disabled{box-shadow:none;background:#d7e1d8;color:#9faea6}.big-count{font-size:22px;font-weight:950;color:#2e796e}.staff-select{appearance:auto;background:#edf5e9;border:1px solid #d6e4d7;border-radius:6px;padding:5px;font-size:10px;font-weight:900;color:#477c6b;max-width:118px}.research-option{margin-bottom:9px}.research-header{display:flex;align-items:center;justify-content:space-between;gap:5px;font-weight:950}.research-level{font-size:10px;color:#80a091}.research-desc{font-size:10px;color:#7f978b;line-height:1.65;margin:7px 0}.research-bottom{display:flex;justify-content:space-between;align-items:center;gap:7px}.empty{text-align:center;padding:28px 8px;font-size:11px;color:#98a8a0;line-height:1.75}.footer{font-size:10px;color:#91a59a;text-align:center;margin-top:17px}.toast-area{position:fixed;right:25px;bottom:20px;display:flex;flex-direction:column;gap:8px;z-index:999;pointer-events:none}.toast{background:#2d5752;color:white;border:2px solid #c9ebd0;border-radius:10px;padding:11px 15px;box-shadow:0 7px 22px #132b2355;font-weight:900;max-width:330px;animation:slidein .2s ease-out;line-height:1.5}.toast.error{background:#9f6453;border-color:#ffdfcc}.toast.success{background:#2d826d}.toast.fade{opacity:0;transform:translateY(9px);transition:all .3s}@keyframes slidein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.modal-wrap{display:none;position:fixed;inset:0;background:#112b2a91;z-index:1000;padding:20px;align-items:center;justify-content:center}.modal-wrap.show{display:flex}.modal{width:min(540px,100%);background:#fffef7;border-radius:18px;border:4px solid #e7eedf;padding:22px;box-shadow:0 15px 70px #09211b66;max-height:90vh;overflow:auto}.modal h2{margin:0 0 12px;font-size:20px}.modal p{color:#6f8880;line-height:1.85;font-size:13px}.modal .cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}.modal .cols div{padding:11px;border-radius:9px;background:#f1f6ec;font-size:11px;line-height:1.65}.modal .close-row{display:flex;justify-content:flex-end;gap:8px;margin-top:17px}.chip{font-size:10px;font-weight:900;padding:4px 7px;background:#edf6e6;border-radius:5px;color:#5a9169}.pixel-icon{font-family:monospace}@media(max-width:1240px){.layout{grid-template-columns:210px minmax(400px,1fr) 273px;gap:11px}.app{padding:12px}.panel-heading{padding:13px 12px 9px}}@media(max-width:1040px){.layout{grid-template-columns:minmax(0,1fr) 295px}.side-left{grid-column:1 / -1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.side-left .panel:last-child{grid-column:auto}}@media(max-width:710px){.app{padding:9px}.layout{display:flex;flex-direction:column}.layout>*{width:100%}.side-left{display:grid;grid-template-columns:1fr}.top{align-items:flex-start}.top-right{gap:5px}.clock{padding:10px}.brand h1{font-size:19px}.tabs .tab{font-size:12px}.tab-body{max-height:none;min-height:250px}}
@@ -334,7 +334,7 @@ html.monster-detail-open{overflow:hidden}
 </div>
 <div class="side-right"><section class="panel"><div class="tabs" role="tablist"><button class="tab" data-tab="management">📊 経営</button><button class="tab on" data-tab="build">🏠 施設</button><button class="tab" data-tab="monster">🐾 仲間</button><button class="tab" data-tab="staff">🧑‍🌾 市民</button><button class="tab" data-tab="research">✨ 研究</button><button class="tab" data-tab="adventure">⚔️ 冒険</button><button class="tab" data-tab="bestiary">📚 図鑑</button></div><div class="tab-body" id="tabBody"></div></section><section class="panel"><div class="panel-heading"><h2>🌱 今日のひとこと</h2></div><div class="tip-box" style="background:transparent;border:0" id="dailyTip">新しい施設を建てると、できることが増えるよ。</div></section></div>
 </main>
-<footer class="footer">© もんすたー日和 Ver.1.24.9 — 旅人の寄り道と牧場の小さな出来事</footer>
+<footer class="footer">© もんすたー日和 Ver.1.24.10 — 水たまりと追いかけっこのお誘い</footer>
 </div>
 <div class="toast-area" id="toasts" aria-live="polite"></div>
 <div class="modal-wrap" id="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal" id="modalContent"></div></div>
@@ -418,7 +418,7 @@ function toggleBossLoop(stage) {
   if(!state.battle){selectedBattleStage=stage;startAdventure();}
   else{save(true);renderUI(true);}
 }
-const GAME_APP_VERSION='1.24.9';
+const GAME_APP_VERSION='1.24.10';
 const MIN_MAP_ZOOM=.15, MAX_MAP_ZOOM=2.8;
 const W=44,H=30,T=32,VW=22,VH=15,ZONE_W=11,ZONE_H=10,MIN_X=-22,MIN_Y=-20,SAVE_KEY='monster_biyori_save_v1';
 const $=id=>document.getElementById(id);
@@ -1232,6 +1232,25 @@ function drawGroundLoop(rect,w,h,g=ctx) {
   const corners=[projectGround(rect.x,rect.y),projectGround(rect.x+w,rect.y),projectGround(rect.x+w,rect.y+h),projectGround(rect.x,rect.y+h)];
   g.beginPath();g.moveTo(corners[0].x,corners[0].y);for(const p of corners.slice(1))g.lineTo(p.x,p.y);g.closePath();
 }
+function rainPuddleAt(x,y){
+  return hash(x+state.day*3,y-state.day)<.24;
+}
+function drawRainPuddle(g,x,y){
+  const p=projectGround(x+.5,y+.5),cx=p.x,cy=p.y;
+  g.fillStyle='#8b9e99';g.fillRect(cx-10,cy-2,17,5);g.fillRect(cx-7,cy+2,14,2);
+  g.fillStyle='#88bcc6';g.fillRect(cx-12,cy-1,22,3);g.fillRect(cx-7,cy-3,13,5);
+  g.fillStyle='#b0dce0';g.fillRect(cx-8,cy-1,8,1);g.fillRect(cx+1,cy+1,5,1);
+  g.fillStyle='#e0eeea';g.fillRect(cx-5,cy-2,4,1);
+}
+function drawPuddleSplash(x,y,elapsed){
+  const t=clamp(elapsed/.75,0,1),rise=Math.sin(Math.PI*t);
+  for(const side of [-1,1]){
+    const px=x+side*Math.round(6+16*t),py=y-Math.round(13*rise);
+    ctx.fillStyle='#679bae';ctx.fillRect(px-1,py,3,3);
+    ctx.fillStyle='#d8f2ed';ctx.fillRect(px,py-1,2,2);
+    ctx.fillStyle='#a5d8df';ctx.fillRect(px+side*3,py+4,2,2);
+  }
+}
 function drawBorderPost(x,y,g=ctx) {
   const p=projectGround(x,y);g.fillStyle='#906949';g.fillRect(p.x-2,p.y-6,4,7);g.fillStyle='#e2ba7e';g.fillRect(p.x-2,p.y-7,3,2);
 }
@@ -1287,16 +1306,23 @@ function drawMapActor(o,monster,now) {
   const height=napping?Math.round(size*.74+Math.sin(now/850)*1.5):size;
   if(napping)dy=0;
   else if(pastime?.kind==='chase'&&o.path?.length)dy=-Math.round(Math.abs(Math.sin(now/105))*4);
+  if(pastime?.kind==='rain'){
+    if(pastime.phase==='jump')dy=-Math.round(Math.sin(Math.PI*pastime.elapsed/pastime.duration)*(pastime.action==='leap'?19:14));
+    else if(pastime.startled>0)dy=-Math.round(Math.sin(Math.PI*pastime.startled/.65)*8);
+    else if(pastime.phase==='rest')dy=1;
+  }
   const left=Math.round(x-size/2)+dx,top=foot-height+dy,art=monster?spriteMonsterHD(o.kind,!!o.shiny):citizenArt(o);
   ctx.fillStyle='#294f4b3a';ctx.fillRect(x-Math.round(size*.26),foot-2,Math.round(size*.52),3);
   ctx.drawImage(art,left,top,size,height);
+  if(pastime?.action==='splash'&&pastime.phase==='rest'&&pastime.elapsed<.75)drawPuddleSplash(x,foot-2,pastime.elapsed);
   if(monster)mapPickItems.push({monster:o,art,rect:{x:left,y:top,w:size,h:height}});
   if(monster){
     if(o.shiny){ctx.fillStyle='#503977';ctx.fillRect(x-16,top-9,33,9);ctx.fillStyle='#fff173';ctx.font='bold 8px monospace';ctx.fillText('★ RARE',x-14,top-2)}
     if(o.lv>=10){ctx.fillStyle='#fff1a5';ctx.font='bold 11px sans-serif';ctx.fillText(o.lv>=25?'✦✦':'✦',left+size-5,top+9)}
     if(selectedMonster===o.id){ctx.strokeStyle='#fff6d6';ctx.lineWidth=2;ctx.strokeRect(left,top,size,height)}
     if(Math.sin(now/1300+o.id*3)>.985){ctx.fillStyle='#fff8ec';ctx.fillRect(left+size-4,top-1,13,11);ctx.fillStyle='#ed9c9c';ctx.font='bold 11px sans-serif';ctx.fillText('♥',left+size-2,top+8)}
-    const playIcon=napping?'💤':pastime?.kind==='chase'?(pastime.leader?'♪':'🐾'):null;
+    const rainIcon=pastime?.phase==='rest'&&pastime.action==='shelter'?(pastime.startled>0?'！':'☂'):null;
+    const playIcon=rainIcon||(napping?'💤':pastime?.kind==='chase'?(pastime.leader?'♪':'🐾'):null);
     const icon=playIcon||(visit&&visit.remaining!==null?facilityActivities[visit.site.type][0]:timer.harvestBubble>0?'📦':null);
     if(icon){drawMapBubble(x,top-(o.shiny?17:8),icon,now,o.id)}else{
       const activity=o.phase213||phase213(state.hour);if(activity!=='work'){ctx.font='13px sans-serif';ctx.fillText(activity==='sleep'?'💤':activity==='eat'?'🍎':'🎾',x-7,top-2+Math.sin(now/500+o.id)*1.6)}
@@ -1373,6 +1399,7 @@ function drawMapCursor(){
 }
 function paintGround(g,season,bounds,objects){
   const {minX,minY,maxX,maxY,left,top,right,bottom}=bounds;
+  const wet=weatherInfo().name==='雨';
   for(let y=minY;y<maxY;y++)for(let x=minX;x<maxX;x++){
     const p=projectGround(x,y);if(p.x+T<left||p.x-T>right||p.y>bottom+36||p.y+T<top)continue;
     const kind=isPath(x,y)?(state.stoneTiles[keyXY(x,y)]?'stone':'road'):isPond(x,y)?'pond':'grass';
@@ -1382,6 +1409,7 @@ function paintGround(g,season,bounds,objects){
       for(const [du,dv,a,b] of [[0,-1,[0,0],[1,0]],[1,0,[1,0],[1,1]],[0,1,[0,1],[1,1]],[-1,0,[0,0],[0,1]]]){
         if(isPath(x+du,y+dv))continue;const q=projectGround(x+a[0],y+a[1]),r=projectGround(x+b[0],y+b[1]);g.moveTo(q.x,q.y);g.lineTo(r.x,r.y);
       }g.stroke();
+      if(wet&&rainPuddleAt(x,y))drawRainPuddle(g,x,y);
     }
     if(x===MIN_X||x===W-1||y===MIN_Y||y===H-1)drawBorderPost(x+.5,y+.5,g);
     const scenery=kind==='grass'&&sceneryAt(x,y);
@@ -1406,7 +1434,7 @@ function overviewGround(season){
   const view=cachedOverview;
   // Roads can be edited in place. Include the terrain and footprints so edits, imports,
   // tree moves and zone purchases are visible on the very next overview frame.
-  const stamp=JSON.stringify([season,state.zones,state.paths,state.removedDefaultPaths,state.stoneTiles,
+  const stamp=JSON.stringify([season,weatherInfo().name==='雨'?state.day:0,state.zones,state.paths,state.removedDefaultPaths,state.stoneTiles,
     state.ponds,state.clearedPonds,state.clearedScenery,state.buildings.map(b=>[b.type,b.x,b.y,b.w,b.h])]);
   if(view.stamp!==stamp){
     const g=view.image.getContext('2d'),bounds=view.bounds;
@@ -4759,7 +4787,7 @@ load=function(){
   for(const w of state.staff){w.jobTask212=null;w.jobTarget211=null;w.path=[]}
   for(const m of state.monsters){
    m.ranchTarget200=null;m.ranchGoal200=null;m.path=[];
-   if(m.act==='💤 お昼寝中'||m.act==='🐾 追いかけっこ')m.act='🐾 おさんぽ';
+   if(m.act==='💤 お昼寝中'||m.act==='🐾 追いかけっこ'||Object.values(rainActivities).includes(m.act))m.act='🐾 おさんぽ';
   }
   state.guests=state.guests.filter(g=>Number.isFinite(g.x)&&Number.isFinite(g.y));
   for(const g of state.guests){
@@ -5443,8 +5471,82 @@ function freeForPlay(m){
  return !timer.visit&&!timer.pastime&&!timer.needsRanch&&!m.ranchTarget200&&
   !plotWalks.has(m)&&residentRoad(Math.round(m.x),Math.round(m.y));
 }
+const rainActivities={leap:'🐾 水たまりをひと跳び',splash:'💧 水たまりに飛び込み中',shelter:'☂ 軒先で雨宿り'};
+const shelterBuildings=new Set(['home','hut','inn','cafe','shop','clinic','workshop','school','postOffice']);
+function startRainPastime(m,timer){
+ const trait=TRAITS[m.trait]?.name;
+ const action=trait==='おっとり'||trait==='のんびり'?'shelter':trait==='きらめき'||trait==='まけずぎらい'?'splash':'leap';
+ const sx=Math.round(m.x),sy=Math.round(m.y),doors=new Map();
+ if(action==='shelter'){
+  for(const b of state.buildings){
+   if(!shelterBuildings.has(b.type)||Math.abs(b.x-sx)>8||Math.abs(b.y-sy)>8)continue;
+   for(const [x,y] of entranceRoads(b))doors.set(keyXY(x,y),b);
+  }
+  if(!doors.size)return false;
+ }
+ const queue=[{x:sx,y:sy,path:[]}],seen=new Set([keyXY(sx,sy)]);
+ for(let i=0;i<queue.length;i++){
+  const {x,y,path}=queue[i],site=doors.get(keyXY(x,y));
+  let puddle,land;
+  const next=neighbors(x,y).filter(([nx,ny])=>residentRoad(nx,ny));
+  if(action!=='shelter'&&!rainPuddleAt(x,y)){
+   for(const [nx,ny] of next){
+    if(!rainPuddleAt(nx,ny))continue;
+    const beyond=action==='leap'?[2*nx-x,2*ny-y]:[nx,ny];
+    if(action==='leap'&&(!residentRoad(...beyond)||rainPuddleAt(...beyond)))continue;
+    puddle=[nx,ny];land=beyond;break;
+   }
+  }
+  if(site||land){
+   const from=[x,y];
+   timer.pastime={kind:'rain',action,phase:'approach',from,puddle,land,site,
+    siteX:site?.x,siteY:site?.y,facing:site?.facing,day:state.day,elapsed:0,startled:0};
+   m.path=path.length?path:Math.hypot(m.x-x,m.y-y)>.01?[from]:[];
+   m.act='🐾 おさんぽ';return true;
+  }
+  if(path.length>=4)continue;
+  for(const point of next){
+   const key=keyXY(...point);if(seen.has(key))continue;
+   seen.add(key);queue.push({x:point[0],y:point[1],path:[...path,point]});
+  }
+ }
+ return false;
+}
+function advanceRainPastime(m,play,dt){
+ if(play.day!==state.day||weatherInfo().name!=='雨'||phase213(state.hour)==='sleep'||!residentRoad(...play.from))return false;
+ const site=play.site;
+ if(site){
+  if(!state.buildings.includes(site)||site.x!==play.siteX||site.y!==play.siteY||site.facing!==play.facing)return false;
+ }else if(!residentRoad(...play.puddle)||!residentRoad(...play.land))return false;
+ if(play.phase==='approach'){
+  if(m.path?.length)return true;
+  if(Math.hypot(m.x-play.from[0],m.y-play.from[1])>.06)return false;
+  m.act=rainActivities[play.action];
+  play.phase=site?'rest':'jump';play.duration=site?6:play.action==='leap'?.9:.65;play.elapsed=0;
+  return true;
+ }
+ play.elapsed=Math.min(play.duration,play.elapsed+dt);
+ if(play.phase==='rest'){
+  play.startled=Math.max(0,play.startled-dt);
+  return play.elapsed<play.duration;
+ }
+ const t=play.elapsed/play.duration;
+ m.x=play.from[0]+(play.land[0]-play.from[0])*t;m.y=play.from[1]+(play.land[1]-play.from[1])*t;
+ if(t<1)return true;
+ if(play.action==='leap')return false;
+ play.phase='rest';play.duration=.85;play.elapsed=0;
+ for(const other of state.monsters){
+  const rest=monsterWalkTimer139(other).pastime;
+  if(rest?.action==='shelter'&&rest.phase==='rest'&&Math.hypot(other.x-m.x,other.y-m.y)<=1.5){
+   rest.startled=.65;rest.elapsed=Math.min(rest.elapsed,rest.duration-.65);
+  }
+ }
+ return true;
+}
 function startMonsterPastime(m,timer){
- if(state.hour<9||state.hour>=19||!freeForPlay(m))return false;
+ if(!freeForPlay(m))return false;
+ if(weatherInfo().name==='雨'&&phase213(state.hour)!=='sleep'&&Math.random()<.55&&startRainPastime(m,timer))return true;
+ if(state.hour<9||state.hour>=19)return false;
  const roll=Math.random();
  if(roll<.16&&state.hour>=11&&state.hour<16){
   timer.pastime={kind:'nap',remaining:4+Math.random()*3};
@@ -5475,12 +5577,18 @@ function startMonsterPastime(m,timer){
 function advanceMonsterPastime(m,dt){
  const timer=monsterWalkTimer139(m),play=timer.pastime;
  if(!play)return false;
- play.remaining-=dt;
  const mate=play.partner;
- const activeHours=play.kind==='nap'?state.hour>=11&&state.hour<16:state.hour>=9&&state.hour<19;
- const playing=play.kind==='nap'||(state.monsters.includes(mate)&&
-  !monsterWalkTimer139(mate).needsRanch&&(m.path?.length||mate.path?.length));
- if(activeHours&&playing&&play.remaining>0&&!timer.needsRanch&&!m.ranchTarget200)return true;
+ if(!timer.needsRanch&&!m.ranchTarget200){
+  if(play.kind==='rain'){
+   if(advanceRainPastime(m,play,dt))return true;
+  }else{
+   play.remaining-=dt;
+   const activeHours=play.kind==='nap'?state.hour>=11&&state.hour<16:state.hour>=9&&state.hour<19;
+   const playing=play.kind==='nap'||(state.monsters.includes(mate)&&
+    !monsterWalkTimer139(mate).needsRanch&&(m.path?.length||mate.path?.length));
+   if(activeHours&&playing&&play.remaining>0)return true;
+  }
+ }
  for(const actor of mate?[m,mate]:[m]){
   const motion=monsterWalkTimer139(actor);
   if(actor!==m&&motion.pastime?.partner!==m)continue;
