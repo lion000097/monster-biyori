@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8">
+<title>もんすたー日和 1.24.9 動作検証</title>
+<h1>もんすたー日和 1.24.9 動作検証</h1>
+<button id="run">検証を開始</button><pre id="result" aria-live="polite"></pre>
+<script>
+'use strict';
+function ranchFixture(){
+  const check=(condition,label)=>{if(!condition)throw Error(label)};
+  function seed(){
+    Object.assign(state,{speed:0,ranchName:'なよ牧場',coins:34567,food:191.5,magic:33,fame:127});
+    state.monsters[1].shiny=true;addCatalogMonster(state.monsters[1]);state.party=[state.monsters[1].id];
+    state.treasures=[0,1];state.adventure.stage=7;state.adventure.clears=6;
+    state.postcards[0]={count:3,day:1,sender:'旅人アン'};
+    save(true);
+  }
+  function snapshot(){
+    return JSON.stringify([state.ranchName,state.coins,state.food,state.magic,state.fame,state.day,state.hour,
+      state.monsters.map(m=>[m.id,m.kind,m.lv,m.xp,m.shiny]),state.restingMonsters,state.party,
+      state.staff.map(w=>[w.id,w.name,w.job,w.level]),state.buildings.map(b=>[b.id,b.type,b.level,b.x,b.y,b.facing]),
+      state.adventure,state.catalog,state.treasures,state.materialStock211,state.postcards,state.zones]);
+  }
+  function roadLayout(){
+    state.buildings=[];state.guests=[];state.ponds=[];state.paths=[];state.removedDefaultPaths=[...DEFAULT_PATH_KEYS];
+    state.zones=[0,1,4,5];state.clearedScenery=[];state.clearedPonds=[];
+    for(let x=0;x<22;x++)for(let y=0;y<20;y++){
+      state.clearedScenery.push(keyXY(x,y));state.clearedPonds.push(keyXY(x,y));
+    }
+    for(let x=0;x<22;x++)state.paths.push(keyXY(x,8));
+  }
+  function placeAlongRoad(type,x){
+    const b={type,id:state.nextId++,x,y:8-buildingMeta(type).h,facing:0,level:1};
+    state.buildings.push(b);return b;
+  }
+  function guests(){
+    roadLayout();const shop=placeAlongRoad('shop',5),office=placeAlongRoad('postOffice',12);
+    state.postcards=[];state.fame=10000;ensureMaterials211();state.materialStock211[0]=30;state.stock=30;
+    const customers=state.shopStats211.customers,visitors=state.economy.totalVisitors;
+    const previous=Math.random;Math.random=()=>.32;
+    try{
+      visitTick(false);let g=state.guests[0];check(g?.shopId200===shop.id,'shop visitor spawned');
+      let served=false,detour=false,posted=false,loaded=false;
+      for(let i=0;i<1800&&!g.gone212;i++){
+        animateGuest212(g,.09);
+        if(g.checkedOut211)served=true;
+        if(g.phase212==='detour'&&g.visitBuildingId===office.id){
+          detour=true;
+          if(!loaded&&plotWalks.get(g)?.phase==='use'){
+            save(true);check(load(),'reload during stop');g=state.guests[0];loaded=true;
+          }
+        }
+        posted ||= !!g.postedCard;
+      }
+      check(served&&detour&&loaded&&posted&&g.gone212,'shop, detour, reload, post, exit');
+      check(state.shopStats211.customers===customers+1&&state.economy.totalVisitors===visitors+1,'one shopper and arrival');
+      check(state.postcards.reduce((n,p)=>n+(p?.count||0),0)===1,'only one postcard');
+      const closed=state.buildings.find(b=>b.id===office.id);
+      const another={x:6,y:8,entered211:true,arrived211:true,visitBuildingId:shop.id};
+      state.paths=state.paths.filter(key=>!['8,8','9,8','10,8'].includes(key));
+      finishGuestVisit(another);check(another.phase212==='leave','disconnected stop');
+      state.paths.push('8,8','9,8','10,8');finishGuestVisit(another);check(another.phase212==='detour','reconnected stop');
+      state.buildings=state.buildings.filter(b=>b!==closed);
+      animateGuest212(another,.08);check(another.phase212==='leave','removed stop');
+    }finally{Math.random=previous}
+  }
+  window.ranchQA={ready:()=>villageSheetReady&&facilitySheetReady,seed,snapshot,guests};
+}
+async function verify(width,previous,current){
+  const prefix='qa1249_'+crypto.randomUUID()+'_';let frame;
+  async function open(html){
+    frame?.remove();frame=document.createElement('iframe');frame.width=width;frame.height=width===390?844:900;
+    const end='})();\n<\/script>';
+    if(!html.includes(end))throw Error('missing game entry');
+    frame.srcdoc=html.replaceAll('monster_biyori_',prefix).replace(end,()=> '('+ranchFixture.toString()+')();\n'+end);
+    const ready=new Promise(resolve=>frame.onload=resolve);document.body.append(frame);await ready;
+    const qa=frame.contentWindow.ranchQA;
+    for(let n=0;qa&&!qa.ready()&&n<200;n++)await new Promise(resolve=>setTimeout(resolve,30));
+    if(!qa?.ready())throw Error('game or sprites failed to load');return qa;
+  }
+  try{
+    let qa=await open(previous);qa.seed();qa=await open(previous);const legacy=qa.snapshot();
+    qa=await open(current);
+    const currentSave=qa.snapshot(),before=JSON.parse(legacy),after=JSON.parse(currentSave);
+    if(currentSave!==legacy){
+      const i=before.findIndex((v,i)=>JSON.stringify(v)!==JSON.stringify(after[i]));
+      throw Error('old save field '+i+' / '+JSON.stringify(before[i])+' / '+JSON.stringify(after[i]));
+    }
+    if(frame.contentDocument.documentElement.scrollWidth>frame.contentWindow.innerWidth+1)throw Error('layout width');
+    qa.guests();
+    document.querySelector('#result').textContent+=width+'px 成功\n';
+  }finally{
+    frame?.remove();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);
+  }
+}
+document.querySelector('#run').onclick=async({currentTarget})=>{
+  currentTarget.disabled=true;const output=document.querySelector('#result');output.textContent='';
+  try{
+    const pages=await Promise.all(['../releases/1.24.8/game.html','../game.html'].map(async url=>{
+      const response=await fetch(url);if(!response.ok)throw Error(url);return response.text();
+    }));
+    for(const width of [1366,390])await verify(width,...pages);
+    output.textContent+='すべて成功';
+  }catch(e){output.textContent+='失敗 '+e.stack;}
+  finally{currentTarget.disabled=false;}
+};
+</script></html>
