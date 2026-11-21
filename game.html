@@ -725,6 +725,15 @@ function buildingLevel(type){return state.buildings.filter(b=>b.type===type).red
 function rank(){const a=[{v:0,n:'みならい'},{v:60,n:'あたらしい村'},{v:160,n:'にぎやか牧場'},{v:350,n:'人気の楽園'},{v:750,n:'まものの街'},{v:1600,n:'きらめく王国'},{v:3400,n:'伝説の島'}];let i=a.findLastIndex(o=>state.fame>=o.v);if(i<0)i=0;let current=a[i],next=a[i+1]||{v:Math.floor(state.fame/1500+1)*1500,n:'未来の牧場'};return {name:current.n,current:current.v,next:next.v}};
 function message(msg,kind){if(!state)return;state.log.unshift({t:`${state.day}日目`,msg});if(state.log.length>35)state.log.length=35;if(kind)toast(msg,kind)}
 function toast(msg,kind=''){const e=document.createElement('div');e.className='toast '+kind;e.textContent=msg;$('toasts').appendChild(e);setTimeout(()=>{e.classList.add('fade');setTimeout(()=>e.remove(),330)},3200)}
+// Use the same yields in the game clock, citizen jobs and facility upgrade panel.
+const FOOD_PRODUCTION_RATE = .9;
+const foodProduction = {
+  field: level => .78*Math.pow(level,.84)*(1+state.research.farm*.25)*
+    seasonInfo().food*weatherInfo().food*FOOD_PRODUCTION_RATE,
+  gather: level => (1.5+level*.4)*FOOD_PRODUCTION_RATE,
+  greenhouse: level => level*.18*FOOD_PRODUCTION_RATE,
+  greenhouseGatherBonus: level => (1+level*.45)*FOOD_PRODUCTION_RATE
+};
 function gainCoins(received){state.coins+=received;if(received>0){state.metrics.coins+=received;if(state.economy)state.economy.income+=received}return received}function gainFood(n){state.food+=n;if(n>0)state.metrics.food+=n}
 function createQuest(index){const q=QUESTS[index%QUESTS.length];const factor=1+Math.floor(state.fame/120)*0.18;let amount=Math.max(1,Math.round(q.factor*factor));if(['level','build','explore','hatch','days'].includes(q.id))amount=Math.max(1,Math.round(q.factor*(1+Math.floor(state.fame/350)*.3)));return {id:q.id,title:q.title,base:state.metrics[q.id]||0,goal:amount,coin:Math.round(q.coin*(1+.18*Math.sqrt(Math.max(0,state.fame)/100))),fame:Math.max(1,Math.round(q.fame*.55)),magic:q.magic,unit:q.unit}}
 function checkQuests(){let changed=false;for(let i=0;i<state.quests.length;i++){let q=state.quests[i],done=(state.metrics[q.id]||0)-q.base;if(done>=q.goal){const earned=gainCoins(q.coin);state.fame+=q.fame;state.magic+=q.magic;message(`📜 任務達成！「${q.title}」 +${earned}G / 評判+${q.fame}`);state.quests[i]=createQuest(state.questSequence++);changed=true}}return changed}
@@ -785,8 +794,7 @@ function tick(silent=false){state.ticks++;advanceSystems(silent);state.hour++;vi
  if(aid){gainCoins(aid);if(!silent)message('🌱 牧場支援金 +'+aid+'G');}
  const wages=Math.min(state.coins,staffWages());bookExpense(wages);state.coins-=wages;if(!silent&&state.day%3===0)message(`🌄 ${state.day}日目。スタッフにお給料 ${wages}G を支払ったよ。`);if(state.day%4===0){let bonus=40+state.monsters.length*7+buildingLevel('tower')*35;const earned=gainCoins(bonus);state.fame+=1+buildingLevel('tower')*.4;if(!silent)message(`🎪 旅人が遊びに来た！ +${earned}G、評判アップ`)}if(state.day%7===0){state.magic+=2+Math.floor(Math.sqrt(buildingLevel('lab')));if(!silent)message('🌠 流れ星の夜！ キラキラを手に入れたよ。')}}
 const farm=buildingLevel('farm'),school=buildingLevel('school'),shop=buildingLevel('shop'),park=buildingLevel('park'),lab=buildingLevel('lab'),spring=buildingLevel('spring'),tower=buildingLevel('tower');
-const food=.78*Math.pow(farm,.84)*(1+state.research.farm*.25);
-gainFood(food*seasonInfo().food*weatherInfo().food);
+gainFood(foodProduction.field(farm));
 const demand=state.monsters.length*.44+state.staff.length*.10;
 const fed=state.food>=demand;
 state.food=Math.max(0,state.food-demand);
@@ -3947,7 +3955,7 @@ function workAtSite211(w,b){
  const power=(1+.08*Math.max(0,(w.level||1)-1))*(.6+(w.morale||80)/200)*
   (1-Math.max(0,(w.fatigue||0)-65)*.007);
  if(w.job==='gather'){
-  const qty=(1.5+b.level*.4)*power*(1+(state.research.farm||0)*.25);gainFood(qty);w.act='🥬 採集 +'+Math.round(qty);
+  const qty=foodProduction.gather(b.level)*power*(1+(state.research.farm||0)*.25);gainFood(qty);w.act='🥬 採集 +'+Math.round(qty);
  }else if(w.job==='keeper'){
   const friends=[...state.monsters].sort((a,b)=>a.happy-b.happy).slice(0,2+Math.floor(b.level/2));
   for(const m of friends){m.happy=clamp(m.happy+3*power*(m.gift212===4?1.25:1),4,100);m.bond=clamp(m.bond+1.5*power,0,100)}
@@ -4402,14 +4410,14 @@ workplaceType211=function(job){
 const staffRewardBefore212=workAtSite211;
 workAtSite211=function(w,b){
  staffRewardBefore212(w,b);
- if(w.job==='gather'&&b.type==='greenhouse212')gainFood(1+b.level*.45);
+ if(w.job==='gather'&&b.type==='greenhouse212')gainFood(foodProduction.greenhouseGatherBonus(b.level));
 };
 const tickPrev212=tick;
 tick=function(silent=false){
  tickPrev212(silent);
  if(!silent){
   const green=buildingLevel('greenhouse212'),gallery=buildingLevel('gallery212'),forest=buildingLevel('sanctuary212');
-  if(green)gainFood(green*.18);
+  if(green)gainFood(foodProduction.greenhouse(green));
   if(gallery)state.fame+=gallery*.010;
   if(forest)for(const m of state.monsters)m.happy=clamp(m.happy+forest*.025,4,100);
  }
@@ -6579,9 +6587,8 @@ function buildingUpgradePreview(building) {
     note = '街の人気度は旅人の来訪率と、珍しいお客さんの出現率に影響します。';
   } else switch (type) {
     case 'farm': {
-      const harvest = .78*(1+state.research.farm*.25)*seasonInfo().food*weatherInfo().food;
-      ranch('畑全体のごはん'+time,n => harvest*Math.pow(n,.84),'個');
-      local('採集1回の基本量',n => 1.5+n*.4,'個');
+      ranch('畑全体のごはん'+time,foodProduction.field,'個');
+      local('採集1回の基本量',foodProduction.gather,'個');
       note = '畑の収穫は今の季節・天気・研究で計算しています。採集量は職員の状態と研究で変わります。';
       break;
     }
@@ -6648,9 +6655,9 @@ function buildingUpgradePreview(building) {
       local('探検担当の仕事1回の遠征加算',n => .15+.035*n,'pt');
       break;
     case 'greenhouse212':
-      ranch('温室のごはん'+time,n => n*.18,'個');
-      local('採集1回の基本量',n => 1.5+n*.4,'個');
-      local('温室で採集したときの追加分',n => 1+n*.45,'個');
+      ranch('温室のごはん'+time,foodProduction.greenhouse,'個');
+      local('採集1回の基本量',foodProduction.gather,'個');
+      local('温室で採集したときの追加分',foodProduction.greenhouseGatherBonus,'個');
       break;
     case 'gallery212':
       ranch('素材博物館の評判'+time,n => n*.010,'pt');
