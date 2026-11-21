@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8">
+<title>もんすたー日和 1.24.11 動作検証</title>
+<h1>もんすたー日和 1.24.11 動作検証</h1>
+<button id="run">検証を開始</button><pre id="result" aria-live="polite"></pre>
+<script>
+'use strict';
+function ranchFixture(){
+  const check=(condition,label)=>{if(!condition)throw Error(label)};
+  function seed(){
+    Object.assign(state,{speed:0,ranchName:'なよ牧場',coins:34567,food:191.5,magic:33,fame:127});
+    state.monsters[1].shiny=true;addCatalogMonster(state.monsters[1]);state.party=[state.monsters[1].id];
+    Object.assign(state.research,{farm:3,train:2,market:1,quest:4,battle:2,guest:1});
+    state.treasures=[0,1];state.adventure.stage=7;state.adventure.clears=6;
+    state.postcards[0]={count:3,day:1,sender:'旅人アン'};
+    save(true);
+  }
+  function snapshot(){
+    return JSON.stringify([state.ranchName,state.coins,state.food,state.magic,state.fame,state.day,state.hour,
+      state.monsters.map(m=>[m.id,m.kind,m.lv,m.xp,m.shiny,m.trait,m.bond,m.energy]),state.restingMonsters,state.party,state.paths,
+      state.staff.map(w=>[w.id,w.name,w.job,w.level]),state.buildings.map(b=>[b.id,b.type,b.level,b.x,b.y,b.facing]),
+      state.research,state.adventure,state.catalog,state.treasures,state.materialStock211,state.postcards,state.zones]);
+  }
+  function research(){
+    const cases=[
+      ['farm',44,320,10],['train',52,340,10],['market',60,380,10],
+      ['quest',66,420,10],['battle',96,660,5],['guest',68,460,8]
+    ];
+    const lab={type:'lab',id:state.nextId++,x:11,y:5,level:1};
+    state.buildings.push(lab);tab='research';
+    for(const [id,baseMagic,baseGold,percent] of cases){
+      for(const level of [0,3]){
+        state.research[id]=level;
+        const magic=Math.round(baseMagic*1.6**level),gold=Math.round(baseGold*1.65**level);
+        const button=()=>document.querySelector('[data-action="research"][data-id="'+id+'"]');
+        for(const [coins,sparkles] of [[gold-1,magic],[gold,magic-1],[gold,magic]]){
+          state.coins=coins;state.magic=sparkles;renderUI(true);
+          const row=button().closest('.research-option'),affordable=coins===gold&&sparkles===magic;
+          check(row.querySelector('.price').textContent===num(gold)+'G ＋ ✨'+num(magic),'quoted cost '+id);
+          check(row.querySelector('.research-desc').textContent.includes('+'+percent+'% / Lv'),'quoted benefit '+id);
+          check(button().disabled===!affordable,'affordability '+id);
+          const expense=state.economy.expense,fame=state.fame;
+          if(affordable)button().click();else doResearch(id);
+          check(state.coins===coins-(affordable?gold:0)&&state.magic===sparkles-(affordable?magic:0),'payment '+id);
+          check(state.research[id]===level+Number(affordable)&&state.economy.expense===expense+(affordable?gold:0),'ledger '+id);
+          check(state.fame===fame+(affordable?2:0),'research fame '+id);
+          check(researchMultiplier(id)===1+state.research[id]*percent/100,'applied benefit '+id);
+        }
+      }
+    }
+    state.research.farm=0;const plain=foodProduction.field(3);
+    state.research.farm=3;check(Math.abs(foodProduction.field(3)/plain-1.3)<1e-8,'field yield');
+  }
+  window.ranchQA={ready:()=>villageSheetReady&&facilitySheetReady,seed,snapshot,research};
+}
+async function verify(width,previous,current){
+  const prefix='qa12411_'+crypto.randomUUID()+'_',errors=[];let frame;
+  async function open(html){
+    frame?.remove();frame=document.createElement('iframe');frame.width=width;frame.height=width===390?844:900;
+    const end='})();\n<\/script>';
+    if(!html.includes(end))throw Error('missing game entry');
+    frame.srcdoc=html.replaceAll('monster_biyori_',prefix).replace(end,()=> '('+ranchFixture.toString()+')();\n'+end);
+    const ready=new Promise(resolve=>frame.onload=resolve);document.body.append(frame);await ready;
+    frame.contentWindow.addEventListener('error',e=>errors.push(e.message));
+    const qa=frame.contentWindow.ranchQA;
+    for(let n=0;qa&&!qa.ready()&&n<200;n++)await new Promise(resolve=>setTimeout(resolve,30));
+    if(!qa?.ready())throw Error('game or sprites failed to load');return qa;
+  }
+  try{
+    let qa=await open(previous);qa.seed();qa=await open(previous);const legacy=qa.snapshot();
+    qa=await open(current);
+    if(!frame.contentDocument.title.includes('Ver.1.24.11'))throw Error('wrong game version');
+    const currentSave=qa.snapshot(),before=JSON.parse(legacy),after=JSON.parse(currentSave);
+    if(currentSave!==legacy){
+      const i=before.findIndex((v,i)=>JSON.stringify(v)!==JSON.stringify(after[i]));
+      throw Error('old save field '+i+' / '+JSON.stringify(before[i])+' / '+JSON.stringify(after[i]));
+    }
+    if(frame.contentDocument.documentElement.scrollWidth>frame.contentWindow.innerWidth+1)throw Error('layout width');
+    qa.research();
+    if(errors.length)throw Error(errors.join(' / '));
+    document.querySelector('#result').textContent+=width+'px 成功\n';
+  }finally{
+    frame?.remove();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);
+  }
+}
+document.querySelector('#run').onclick=async({currentTarget})=>{
+  currentTarget.disabled=true;const output=document.querySelector('#result');output.textContent='';
+  try{
+    const pages=await Promise.all(['../releases/1.24.10/game.html','../releases/1.24.11/game.html'].map(async url=>{
+      const response=await fetch(url);if(!response.ok)throw Error(url);return response.text();
+    }));
+    for(const width of [1366,390])await verify(width,...pages);
+    output.textContent+='すべて成功';
+  }catch(e){output.textContent+='失敗 '+e.stack;}
+  finally{currentTarget.disabled=false;}
+};
+</script></html>
