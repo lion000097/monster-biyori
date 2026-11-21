@@ -59,8 +59,14 @@ function ranchFixture(){
       state.paths=state.paths.filter(key=>!['8,8','9,8','10,8'].includes(key));
       finishGuestVisit(another);check(another.phase212==='leave','disconnected stop');
       state.paths.push('8,8','9,8','10,8');finishGuestVisit(another);check(another.phase212==='detour','reconnected stop');
+      state.paths=state.paths.filter(key=>key!=='9,8');
+      for(let i=0;i<250&&another.phase212==='detour';i++)animateGuest212(another,.08);
+      check(another.phase212==='leave'&&another.x<9,'road removed during detour');
+      state.paths.push('9,8');
+      const last={x:6,y:8,entered211:true,arrived211:true,visitBuildingId:shop.id};
+      finishGuestVisit(last);check(last.phase212==='detour','next stop selected');
       state.buildings=state.buildings.filter(b=>b!==closed);
-      animateGuest212(another,.08);check(another.phase212==='leave','removed stop');
+      animateGuest212(last,.08);check(last.phase212==='leave','removed stop');
     }finally{Math.random=previous}
   }
   function pastimes(){
@@ -95,16 +101,63 @@ function ranchFixture(){
       state.hour=22;timer.wait=0;stepActors(.08);check(!timer.pastime,'night routine');
     }finally{Math.random=previous}
   }
-  window.ranchQA={ready:()=>villageSheetReady&&facilitySheetReady,seed,snapshot,guests,pastimes};
+  function battle(){
+    state.monsters=Array.from({length:6},(_,i)=>Object.assign(makeMonster(state.nextId++,0,7,8),{lv:6-i}));
+    const accept=window.confirm;window.confirm=()=>true;
+    function part(member){
+      openMonsterDetails(member.id,canvas);
+      document.querySelector('[data-v171-action="partMonster"]').click();
+      check(!state.monsters.includes(member),'parting button');
+    }
+    try{
+      for(const automatic of [false,true]){
+        state.party=automatic?[]:[state.monsters[0].id];startAdventure();
+        const active=state.battle,previous=JSON.stringify(active);check(active,'battle started');
+        part(state.monsters.find(m=>!crewParty().includes(m)));
+        check(state.battle===active&&JSON.stringify(active)===previous,'nonparticipant leaves during battle');
+        part(crewParty()[0]);check(state.battle===null,'participant leaves during battle');
+      }
+    }finally{window.confirm=accept}
+  }
+  function weather(){
+    roadLayout();state.economy.festival=false;
+    function sample(draw){
+      ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,720,480);
+      draw();ctx.restore();
+      const data=ctx.getImageData(0,0,720,480).data;
+      let count=0,hash=0;for(let i=3;i<data.length;i+=4)if(data[i]){count++;hash=(hash*31+i+data[i])>>>0;}
+      return {count,hash};
+    }
+    const days=Array.from({length:84},(_,i)=>i+1);
+    const afterRain=days.find(day=>day>1&&weatherInfo(day-1).name==='雨'&&weatherInfo(day).name==='晴れ');
+    const summer=days.find(day=>seasonInfo(day).name==='夏'&&weatherInfo(day).name==='晴れ');
+    const wet=days.find(day=>seasonInfo(day).name==='夏'&&weatherInfo(day).name==='雨');
+    const spring=days.find(day=>seasonInfo(day).name==='春'&&weatherInfo(day).name==='晴れ');
+    const fireflies=now=>sample(()=>{ctx.translate(360,10);drawSummerFireflies(now,{minX:0,minY:0,maxX:16,maxY:16});});
+    state.day=afterRain;state.hour=8;
+    check(sample(drawMorningRainbow).count>1000,'rainbow painted on clear morning after rain');
+    state.hour=15;check(!sample(drawMorningRainbow).count,'rainbow fades before noon');
+    state.day=afterRain-1;state.hour=8;check(!sample(drawMorningRainbow).count,'no rainbow while raining');
+    state.day=1;check(!sample(drawMorningRainbow).count,'no previous rain on first day');
+    state.day=summer;state.hour=20;
+    const first=fireflies(1000),again=fireflies(1000),later=fireflies(1600);
+    check(first.count>0&&later.count>0&&first.hash===again.hash&&first.hash!==later.hash,'fireflies drift and pulse with the map clock');
+    state.hour=2;check(fireflies(1000).count>0,'fireflies after midnight');
+    state.hour=12;check(!fireflies(1000).count,'no fireflies in daylight');
+    state.hour=20;state.day=wet;check(!fireflies(1000).count,'no fireflies in rain');
+    state.day=spring;check(!fireflies(1000).count,'summer only');
+  }
+  window.ranchQA={ready:()=>villageSheetReady&&facilitySheetReady,seed,snapshot,guests,pastimes,battle,weather};
 }
 async function verify(width,previous,current){
-  const prefix='qa1249_'+crypto.randomUUID()+'_';let frame;
+  const prefix='qa1249_'+crypto.randomUUID()+'_',errors=[];let frame;
   async function open(html){
     frame?.remove();frame=document.createElement('iframe');frame.width=width;frame.height=width===390?844:900;
     const end='})();\n<\/script>';
     if(!html.includes(end))throw Error('missing game entry');
     frame.srcdoc=html.replaceAll('monster_biyori_',prefix).replace(end,()=> '('+ranchFixture.toString()+')();\n'+end);
     const ready=new Promise(resolve=>frame.onload=resolve);document.body.append(frame);await ready;
+    frame.contentWindow.addEventListener('error',e=>errors.push(e.message));
     const qa=frame.contentWindow.ranchQA;
     for(let n=0;qa&&!qa.ready()&&n<200;n++)await new Promise(resolve=>setTimeout(resolve,30));
     if(!qa?.ready())throw Error('game or sprites failed to load');return qa;
@@ -118,7 +171,8 @@ async function verify(width,previous,current){
       throw Error('old save field '+i+' / '+JSON.stringify(before[i])+' / '+JSON.stringify(after[i]));
     }
     if(frame.contentDocument.documentElement.scrollWidth>frame.contentWindow.innerWidth+1)throw Error('layout width');
-    qa.guests();qa.pastimes();
+    qa.battle();qa.guests();qa.pastimes();qa.weather();
+    if(errors.length)throw Error(errors.join(' / '));
     document.querySelector('#result').textContent+=width+'px 成功\n';
   }finally{
     frame?.remove();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);

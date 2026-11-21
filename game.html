@@ -623,8 +623,8 @@ function ensureAdvanced(){
  for(const m of state.monsters){m.trait=Number.isInteger(m.trait)?clamp(m.trait,0,TRAITS.length-1):m.id%TRAITS.length;m.element=KIND_ELEMENTS[m.kind]||'草';m.equip=Boolean(m.equip);m.trainedDay=Number(m.trainedDay)||0;m.energy=clamp(Number(m.energy)||80,0,100)}
  for(const w of state.staff){w.gender=(w.gender==='男'||w.gender==='女')?w.gender:genderForName(w.name);addCitizen(w);w.level=clamp(Number(w.level)||1,1,99);w.morale=clamp(Number(w.morale) || 80,1,100);w.fatigue=clamp(Number.isFinite(w.fatigue)?w.fatigue:Number(w.fatigue)||12,0,100);w.mastery=Object.assign({keeper:0,gather:0,sell:0,study:0,explore:0},w.mastery||{});w.work=Number(w.work)||0}
 }
-function seasonInfo(){return SEASONS[Math.floor((state.day-1)/7)%4]}
-function weatherInfo(){let n=(state.day*571+317)%17;let snow=seasonInfo().name==='冬';return WEATHER[snow&&n<5?3:n<9?0:n<13?1:2]}
+function seasonInfo(day=state.day){return SEASONS[Math.floor((day-1)/7)%4]}
+function weatherInfo(day=state.day){const n=(day*571+317)%17,snow=seasonInfo(day).name==='冬';return WEATHER[snow&&n<5?3:n<9?0:n<13?1:2]}
 function workEff(job){return state.staff.filter(s=>s.job===job).reduce((v,s)=>v+(1+(s.level-1)*.09+Math.floor((s.mastery?.[job]||0)/70)*.08)*(.5+(s.morale||80)/200)*(1-Math.max(0,(s.fatigue||0)-65)*.007),0)}
 function staffWages(){return state.staff.reduce((sum,s)=>sum+15+Math.floor(((s.level||1)-1)*1.8),0)}
 function bookExpense(n){ensureEconomy();state.economy.expense+=Math.max(0,n)}
@@ -1319,8 +1319,41 @@ function drawMapBubble(x,y,icon,now,id){
   ctx.save();ctx.fillStyle='#fffaf0';ctx.strokeStyle='#465e55';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(x-11,top-15,22,17,5);ctx.fill();ctx.stroke();
   ctx.fillStyle='#344b42';ctx.textAlign='center';ctx.font='13px sans-serif';ctx.fillText(icon,x,top-2);ctx.restore();
 }
+let rainbowArt;
+function drawMorningRainbow(){
+  if(state.day<2||state.hour<6||state.hour>=11||weatherInfo().name!=='晴れ'||weatherInfo(state.day-1).name!=='雨')return;
+  if(!rainbowArt)rainbowArt=pixelSprite(104,44,g=>{
+    const colors=['#ed969d','#f5b18b','#ffe39c','#afcf9e','#91c8d5','#a4afde','#c4a8d6'];
+    for(let y=0;y<44;y++)for(let x=0;x<104;x++){
+      const radius=Math.hypot(x-51.5,(44-y)*1.18),band=Math.floor((51-radius)/1.65);
+      if(band>=0&&band<colors.length){g.fillStyle=colors[band];g.fillRect(x,y,1,1);}
+    }
+  });
+  const morning=(state.hour-6+clamp(tickAccum,0,1))/5;
+  ctx.save();ctx.globalAlpha=.67*Math.sin(morning*Math.PI);
+  ctx.drawImage(rainbowArt,VW*T-230,17,208,88);ctx.restore();
+}
+function drawSummerFireflies(now,bounds){
+  if(seasonInfo().name!=='夏'||(state.hour>=5&&state.hour<19)||weatherInfo().name==='雨')return;
+  ctx.save();
+  for(let row=Math.floor(bounds.minY/4);row<Math.ceil(bounds.maxY/4);row++){
+    for(let col=Math.floor(bounds.minX/4);col<Math.ceil(bounds.maxX/4);col++){
+      const seed=Math.abs(col*97+row*61+state.day*17);
+      const x=col*4+seed%3,y=row*4+Math.floor(seed/7)%3;
+      if(!unlocked(x,y)||isPath(x,y)||getBuildingAt(x,y))continue;
+      const phase=now/830+seed,glow=(1+Math.sin(phase))*.5;
+      if(glow<.28)continue;
+      const p=projectGround(x+.5,y+.5);
+      const px=Math.round(p.x+Math.sin(phase*.53)*8),py=Math.round(p.y-9+Math.cos(phase*.71)*4);
+      ctx.globalAlpha=glow*.36;ctx.fillStyle='#c1ec79';ctx.fillRect(px-2,py-2,6,6);
+      ctx.globalAlpha=glow;ctx.fillStyle='#fff4a2';ctx.fillRect(px,py,2,2);
+    }
+  }
+  ctx.restore();
+}
 function drawMapWeather(now){
   const width=VW*T,height=VH*T;
+  drawMorningRainbow();
   if(state.hour>=19||state.hour<6){ctx.fillStyle='rgba(28,49,99,.15)';ctx.fillRect(0,0,width,height);ctx.fillStyle='#fffbd88a';for(let i=0;i<7;i++)ctx.fillRect((i*137+59)%width,(i*67+35)%height,2,2)}
   if(state.economy?.festival)for(let i=0;i<35;i++){ctx.fillStyle=['#f4b2ac','#fff1a6','#a2e0de'][i%3];ctx.fillRect((i*179+now/22)%width,(i*107+now/35)%height,3,3)}
   const kind=weatherInfo().name;if(kind==='雨'||kind==='雪'){
@@ -1400,6 +1433,7 @@ function drawWorld(now){
   }else{
     paintGround(ctx,season,{minX,minY,maxX,maxY,left,top,right,bottom},objects);
   }
+  drawSummerFireflies(now,{minX,minY,maxX,maxY});
   if($('roadCheck').open)drawWorkRoad(now);
   for(const b of state.buildings){const m=buildingOf(b),r=plotImageRect(b,m);if(r.x+r.w<left||r.x>right||r.y+r.h<top||r.y>bottom)continue;
     objects.push({depth:b.x+b.y+(m.w+m.h)/2,draw(){
@@ -4409,11 +4443,12 @@ function walkGuest212(g,dt){
   g.route212.shift();return false;
  }
  // Paths in old saves can become blocked by newly constructed/moved facilities.
- if(g.entered211&&!isWalkable(Math.round(p[0]),Math.round(p[1]))&&
+ const roadOnly=g.phase212==='detour',passable=roadOnly?residentRoad:isWalkable;
+ if(g.entered211&&!passable(Math.round(p[0]),Math.round(p[1]))&&
     !(g.phase212==='leave'&&g.route212.length===1)){
   const goal=g.route212[g.route212.length-1];
-  const safe=isWalkable(Math.round(goal[0]),Math.round(goal[1]));
-  g.route212=safe?pathTo(g.x,g.y,Math.round(goal[0]),Math.round(goal[1])):[];
+  const safe=passable(Math.round(goal[0]),Math.round(goal[1]));
+  g.route212=safe?pathTo(g.x,g.y,Math.round(goal[0]),Math.round(goal[1]),roadOnly):[];
   if(!g.route212.length)return true;
   p=g.route212[0];
  }
