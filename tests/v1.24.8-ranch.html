@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<title>もんすたー日和 1.24.8 動作検証</title>
+<h1>もんすたー日和 1.24.8 動作検証</h1>
+<button id="run">検証を開始</button>
+<pre id="result" aria-live="polite"></pre>
+<script>
+'use strict';
+const result=document.getElementById('result');
+function check(value,message){if(!value)throw Error(message);}
+function equal(actual,expected,message){
+  check(JSON.stringify(actual)===JSON.stringify(expected),message+' / '+JSON.stringify(actual)+' / '+JSON.stringify(expected));
+}
+function fixture(){
+  function buy(type){
+    const count=state.buildings.length;
+    for(let dir=0;dir<4;dir++){
+      placementFacing=dir;
+      for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+        if(!canBuild(x,y,null,false,type))continue;
+        place(type,x,y);
+        return state.buildings.length>count?state.buildings.at(-1):null;
+      }
+    }
+    throw Error('No test plot for '+type);
+  }
+  function seed(){
+    Object.assign(state,{speed:0,ranchName:'なよ牧場',coins:34567,food:191.5,villageLv:18,worldTreeLevel:18});
+    state.buildings.find(b=>b.type==='worldtree').level=18;
+    const companions=[['ふつう',15],['レア',3],['めずらしい',9],['とてもレア',1],['ふつう',19],['レア',21]];
+    state.monsters=companions.map(([rarity,lv],i)=>{
+      const m=makeMonster(state.nextId++,SPECIES.findIndex(s=>s.rarity===rarity),7,9);
+      return Object.assign(m,{name:'仲間'+i,lv,favorite138:i===0,shiny:i===4});
+    });
+    state.party=state.monsters.slice(2,5).map(m=>m.id);
+    state.adventure.stage=7;state.adventure.clears=6;state.treasures=[0,7];
+    const school=buy('school');school.level=2;school.upgradeSavings=8;
+    buy('shop');save(true);
+  }
+  function snapshot(){
+    return [state.ranchName,state.day,state.coins,state.food,state.magic,state.fame,state.treasures,state.adventure,
+      state.catalog,state.staff.map(s=>[s.id,s.name,s.job,s.level]),state.party,state.materialStock211,
+      state.monsters.map(m=>[m.id,m.name,m.kind,m.lv,m.xp,m.shiny,m.favorite138]),
+      state.buildings.map(b=>[b.id,b.type,b.level,b.x,b.y,b.facing])];
+  }
+  function measureLayers(){
+    const loginState=state,oldDrawLot=drawLot,oldDrawActor=drawMapActor,oldCamera=[cameraX,cameraY,zoom];
+    state=structuredClone(state);
+    const calls=[],observations=[];
+    let actors,site;
+    drawLot=function(b,...args){if(b===site)calls.push('site');return oldDrawLot(b,...args);};
+    drawMapActor=function(o,...args){calls.push(actors.indexOf(o));return oldDrawActor(o,...args);};
+    try{
+      zoom=1;cameraX=7-VW/2;cameraY=7-VH/2;
+      state.removedDefaultPaths=[...DEFAULT_PATH_KEYS];state.ponds=[];state.clearedScenery=[];state.clearedPonds=[];
+      for(let x=4;x<14;x++)for(let y=4;y<14;y++){state.clearedScenery.push(keyXY(x,y));state.clearedPonds.push(keyXY(x,y));}
+      actors=[state.monsters[0],state.staff[0],{...state.staff[0],job:null,phase212:'sightseeing'}];
+      state.monsters=[actors[0]];state.staff=[actors[1]];state.guests=[actors[2]];
+      for(const type of ['home','postOffice'])for(let facing=0;facing<4;facing++){
+        site={type,id:99001,x:6,y:6,level:1,facing};state.buildings=[site];
+        const {w,h}=buildingMeta(type),door=[[6,6+h],[5,6],[6,5],[6+w,6]][facing];
+        state.paths=[door.join(',')];
+        for(const a of actors)Object.assign(a,{x:door[0],y:door[1],path:[]});
+        const phases=new Set();let served=0,hitTest=false;
+        for(let step=0;step<200;step++){
+          const moves=actors.map(a=>stepPlotWalk(a,site,door,.05,.25,null,()=>served++));
+          if(moves.some(m=>m!==moves[0]||m==='cancelled'))throw Error('Visit failed '+type+'/'+facing);
+          const phase=moves[0];
+          if(phase==='done')break;
+          if(phases.has(phase))continue;
+          phases.add(phase);calls.length=0;drawWorld(1000);
+          const buildingIndex=calls.indexOf('site');
+          const far=facing===1||facing===2;
+          if(buildingIndex<0||actors.some((_,i)=>calls.indexOf(i)<0||((calls.indexOf(i)<buildingIndex)!==far))){
+            throw Error('Paint order '+type+'/'+facing+'/'+phase+' '+calls);
+          }
+          if(type==='home'&&facing===2&&phase==='use'){
+            const b=mapPickItems.find(i=>i.building===site),m=mapPickItems.find(i=>i.monster===actors[0]);
+            const pixels=item=>item.art.getContext('2d').getImageData(0,0,item.art.width,item.art.height).data;
+            const bp=pixels(b),mp=pixels(m);
+            function opaque(item,data,x,y){
+              const r=item.rect,u=Math.floor((x-r.x)*item.art.width/r.w),v=Math.floor((y-r.y)*item.art.height/r.h);
+              return u>=0&&v>=0&&u<item.art.width&&v<item.art.height&&data[(v*item.art.width+u)*4+3]>210;
+            }
+            for(let y=m.rect.y;y<m.rect.y+m.rect.h;y++)for(let x=m.rect.x;x<m.rect.x+m.rect.w;x++){
+              if(!opaque(b,bp,x,y)||!opaque(m,mp,x,y))continue;
+              if(pickMapActorOrFacility({px:x,py:y})?.building!==site)throw Error('Roof picked as monster');
+              hitTest=true;
+            }
+            if(!hitTest)throw Error('No overlapping opaque roof and monster pixels');
+          }
+        }
+        if(phases.size!==3||served!==3||actors.some(a=>a.x!==door[0]||a.y!==door[1]||plotWalks.has(a))){
+          throw Error('Incomplete visit '+type+'/'+facing);
+        }
+        observations.push([type,facing]);
+      }
+      return observations.length;
+    }finally{
+      state=loginState;drawLot=oldDrawLot;drawMapActor=oldDrawActor;[cameraX,cameraY,zoom]=oldCamera;
+    }
+  }
+  window.testRanch={state:()=>state,seed,snapshot,buy,save:()=>save(true),render:()=>renderUI(true),
+    specs:()=>Object.fromEntries(Object.entries(B).map(([k,v])=>[k,[v.cost,v.unlock]])),
+    upgradeCost:costUpgrade,invested:investedIn,recover:recoverBuilding,measureLayers,
+    assetsReady:()=>facilitySheetReady&&villageSheetReady&&lionReady};
+}
+async function verify(width,oldPage,newPage){
+  const prefix='v1248_test_'+crypto.randomUUID()+'_',key=prefix+'save_v1';
+  let frame,w,d,api;const errors=[];
+  async function open(html){
+    frame?.remove();frame=document.createElement('iframe');
+    frame.width=width;frame.height=width===390?844:900;
+    const end='})();\n<\/script>';
+    check(html.split(end).length===2,'Game script end');
+    frame.srcdoc=html.replaceAll('monster_biyori_',prefix).replace(end,()=>'('+fixture.toString()+')();\n'+end);
+    const loaded=new Promise(resolve=>frame.onload=resolve);document.body.append(frame);await loaded;
+    w=frame.contentWindow;d=w.document;api=w.testRanch;check(api,'Game started');w.confirm=()=>true;
+    w.addEventListener('error',e=>errors.push(e.message));
+    const deadline=performance.now()+10000;
+    while(!api.assetsReady()&&performance.now()<deadline)await new Promise(r=>setTimeout(r,30));
+    check(api.assetsReady(),'Map and character art');await new Promise(r=>setTimeout(r,30));
+  }
+  function click(selector){
+    const el=d.querySelector(selector);check(el&&!el.disabled,'Enabled control '+selector);el.click();
+  }
+  function change(selector,value){
+    const input=d.querySelector(selector);check(input,'Selector '+selector);
+    input.value=value;input.dispatchEvent(new w.Event('change',{bubbles:true}));
+  }
+  function school(){return api.state().buildings.find(b=>b.type==='school');}
+  try{
+    await open(oldPage);api.seed();await open(oldPage);api.save();
+    const original=api.snapshot(),oldInvestment=api.invested(school()),oldUpgrade=api.upgradeCost(school()),specs=api.specs();
+    const legacyRaw=localStorage.getItem(key);
+    await open(newPage);equal(api.snapshot(),original,'1.24.7 save loaded');
+    equal(api.invested(school()),oldInvestment,'Historical construction and discounted upgrades');
+    equal(api.upgradeCost(school()),oldUpgrade,'Upgrade cost');
+    equal(api.invested(api.state().buildings.find(b=>b.type==='shop')),0,'Previously free shop');
+    check(d.title.includes('1.24.8'),'Game title');
+    click('[data-tab="build"]');
+    const buildButton=type=>'[data-action="build"][data-id="'+type+'"]';
+    for(const [type,[base,unlock]] of Object.entries(specs)){
+      if(type==='worldtree')continue;
+      const expected=Math.round(base*(unlock<2?100:unlock<5?110:unlock<10?115:120)/100);
+      const label=d.querySelector(buildButton(type)).closest('.build-option').querySelector('.price').textContent;
+      if(type==='ranch')check(label.includes('無料'),'First ranch');
+      else equal(Number(label.replace(/[^0-9]/g,'')),expected,'Construction list '+type);
+    }
+    const due=Math.round(specs.school[0]*1.10),s=api.state();s.coins=due-1;api.render();
+    check(d.querySelector(buildButton('school')).disabled,'One gold short');equal(api.buy('school'),null,'Purchase rejected');
+    equal(s.coins,due-1,'Rejected purchase preserves wallet');
+    s.coins=due;api.render();click(buildButton('school'));
+    const previousExpense=s.economy.expense,bought=api.buy('school');check(bought,'Purchase at exact price');
+    equal(s.coins,0,'Amount charged');equal(s.economy.expense-previousExpense,due,'Ledger amount');
+    const newId=bought.id,free=api.buy('ranch');check(free&&free.freeStarter200,'Free first ranch');
+    equal(s.coins,0,'Free construction');api.save();
+    await open(newPage);
+    const savedBuilding=api.state().buildings.find(b=>b.id===newId),wallet=api.state().coins;
+    equal(api.invested(savedBuilding),due,'New purchase price survives reload');api.recover(newId);
+    equal(api.state().coins-wallet,Math.floor(.65*due),'Refund after reload');
+    check(!api.state().buildings.some(b=>b.id===newId),'Recovered building');
+    click('[data-tab="adventure"]');
+    const panel=d.getElementById('tabBody');
+    check(!/お宝コレクション|冒険の旅|1-1で1か所/.test(panel.textContent),'Removed adventure copy');
+    check(panel.querySelector('.boss-panel192')&&panel.querySelector('[data-action="adventureStart"]')&&
+      panel.querySelector('[data-action="toggleParty"]')&&panel.querySelector('[data-exp-next]'),'Adventure controls');
+    const unlocked=d.querySelector('#areaSelect213');check(unlocked.options.length>=2,'Destinations unlocked');
+    change('#areaSelect213','1');equal(api.state().expeditionArea213,1,'Destination changed');
+    const running=api.state().expeditionAuto213;click('[data-v213="auto"]');
+    equal(api.state().expeditionAuto213,!running,'Expedition toggle');click('[data-v213="auto"]');
+    click('[data-v161-action="treasureTab"]');check(d.querySelector('.treasure-card'),'Treasure catalog opens');
+    equal(api.state().treasures,[0,7],'Treasure ownership');
+    click('[data-tab="monster"]');
+    const party=[...api.state().party],roster=api.state().monsters.map(m=>m.id);
+    const select='[data-v137-sort="monster"]';change(select,'rarity');
+    function names(){return [...d.querySelectorAll('.monster-row')].map(e=>e.querySelector('.entity-name span').textContent);}
+    equal(names(),['仲間0','仲間3','仲間5','仲間1','仲間2','仲間4'],'Pinned, rarity, then level');
+    check([...d.querySelectorAll('.monster-row')].every(row=>/ふつう|めずらしい|レア/.test(row.querySelector('.entity-sub').textContent)),'Rarity labels');
+    api.render();equal(d.querySelector(select).value,'rarity','Sort through refresh');change(select,'name');
+    equal(names(),['仲間0','仲間1','仲間2','仲間3','仲間4','仲間5'],'Original sort option');
+    api.save();const disk=JSON.parse(localStorage.getItem(key));
+    equal(disk.monsters.map(m=>m.id),roster,'Saved roster order');equal(disk.party,party,'Battle party');
+    click('[data-tab="staff"]');check(!d.querySelector('[data-v137-sort="staff"] option[value="rarity"]'),'Citizen list');
+    equal(api.measureLayers(),8,'Packed and open facilities in four directions');
+    check(d.documentElement.scrollWidth<=w.innerWidth+1,'Layout width '+width);
+    check(!errors.length,errors.join('\n'));check(JSON.parse(legacyRaw).ranchName==='なよ牧場','Isolated save');
+    result.textContent+=width+'px 成功　旧セーブ・建設費と回収額・冒険・仲間の並べ替え・施設の出入りと描画順\n';
+  }finally{
+    frame?.remove();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);
+  }
+}
+document.getElementById('run').onclick=async ({currentTarget:button})=>{
+  button.disabled=true;result.textContent='検証中\n';
+  try{
+    const pages=await Promise.all(['1.24.7','1.24.8'].map(async v=>{
+      const response=await fetch('../releases/'+v+'/game.html',{cache:'no-store'});check(response.ok,'Game '+v);return response.text();
+    }));
+    for(const width of [1366,390])await verify(width,...pages);
+    result.textContent+='すべて成功';
+  }catch(e){result.textContent+='失敗 '+e.stack;}
+  finally{button.disabled=false;}
+};
+</script>
+</html>
