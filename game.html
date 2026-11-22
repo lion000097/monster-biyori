@@ -1323,7 +1323,7 @@ function pickMapActorOrFacility(p) {
     let pixels=hitMasks.get(item.art);
     if(!pixels){pixels=item.art.getContext('2d').getImageData(0,0,item.art.width,item.art.height).data;hitMasks.set(item.art,pixels)}
     const x=Math.floor((p.px-r.x)*item.art.width/r.w),y=Math.floor((p.py-r.y)*item.art.height/r.h);
-    if(pixels[(y*item.art.width+x)*4+3]>72)return item;
+    if(pixels[(y*item.art.width+(item.flipped?item.art.width-1-x:x))*4+3]>72)return item;
   }
   return null;
 }
@@ -1363,9 +1363,24 @@ function drawMapActor(o,monster,now) {
     if(wake.time>1.1&&wake.trait==='おっとり')height=Math.round(size*.83);
   }
   if(timer?.morningRun>0&&o.path?.length)dy-=Math.round(Math.abs(Math.sin(timer.morningRun*14))*5);
+  const greeting=greetings.get(o);
+  let facingFriend=0;
+  if(greeting){
+    const other=monster?greeting.worker:greeting.monster;
+    facingFriend=Math.sign((other.x-other.y)-(o.x-o.y))||1;
+    dx+=facingFriend*2;
+    if(monster&&greeting.time>.85)dy-=Math.round(Math.sin(Math.PI*clamp((greeting.time-.85)/.65,0,1))*8);
+  }
   const left=Math.round(x-size/2)+dx,top=foot-height+dy,art=monster?spriteMonsterHD(o.kind,!!o.shiny):citizenArt(o);
   ctx.fillStyle='#294f4b3a';ctx.fillRect(x-Math.round(size*.26),foot-2,Math.round(size*.52),3);
-  ctx.drawImage(art,left,top,size,height);
+  if(greeting&&facingFriend<0){
+    ctx.save();ctx.translate(left+size,top);ctx.scale(-1,1);ctx.drawImage(art,0,0,size,height);ctx.restore();
+  }else ctx.drawImage(art,left,top,size,height);
+  if(greeting&&!monster&&greeting.time<1.15){
+    const hand=x+facingFriend*(size*.36+Math.round(Math.sin(greeting.time*18)*2));
+    ctx.fillStyle='#785846';ctx.fillRect(hand-3,top+12,6,7);
+    ctx.fillStyle='#f7c99d';ctx.fillRect(hand-2,top+11,4,5);
+  }
   if(touch>.4&&pastime.leader){
     const pawX=Math.round(x+dx+chase.side*size*.39),pawY=top+Math.round(size*.66+chase.slope*4);
     ctx.fillStyle='#645648';ctx.fillRect(pawX-3,pawY,7,4);
@@ -1373,14 +1388,14 @@ function drawMapActor(o,monster,now) {
     ctx.fillStyle='#fff3ad';ctx.fillRect(pawX+chase.side*6,pawY-4,2,3);ctx.fillRect(pawX+chase.side*8,pawY,2,1);
   }
   if(pastime?.action==='splash'&&pastime.phase==='rest'&&pastime.elapsed<.75)drawPuddleSplash(x,foot-2,pastime.elapsed);
-  if(monster)mapPickItems.push({monster:o,art,rect:{x:left,y:top,w:size,h:height}});
+  if(monster)mapPickItems.push({monster:o,art,flipped:!!greeting&&facingFriend<0,rect:{x:left,y:top,w:size,h:height}});
   if(monster){
     if(o.shiny){ctx.fillStyle='#503977';ctx.fillRect(x-16,top-9,33,9);ctx.fillStyle='#fff173';ctx.font='bold 8px monospace';ctx.fillText('★ RARE',x-14,top-2)}
     if(o.lv>=10){ctx.fillStyle='#fff1a5';ctx.font='bold 11px sans-serif';ctx.fillText(o.lv>=25?'✦✦':'✦',left+size-5,top+9)}
     if(selectedMonster===o.id){ctx.strokeStyle='#fff6d6';ctx.lineWidth=2;ctx.strokeRect(left,top,size,height)}
     if(Math.sin(now/1300+o.id*3)>.985){ctx.fillStyle='#fff8ec';ctx.fillRect(left+size-4,top-1,13,11);ctx.fillStyle='#ed9c9c';ctx.font='bold 11px sans-serif';ctx.fillText('♥',left+size-2,top+8)}
     const rainIcon=pastime?.phase==='rest'&&pastime.action==='shelter'?(pastime.startled>0?'！':'☂'):null;
-    let playIcon=wake?(wake.time>1.1&&wake.trait==='おっとり'?'Zz':'☀'):rainIcon||(napping?'💤':null);
+    let playIcon=greeting&&greeting.time>1.4?'♪':wake?(wake.time>1.1&&wake.trait==='おっとり'?'Zz':'☀'):rainIcon||(napping?'💤':null);
     if(chase)playIcon=pastime.leader?'♪':chase.phase==='headStart'?'！':chase.phase==='run'?'🐾':null;
     const icon=playIcon||(visit&&visit.remaining!==null?facilityActivities[visit.site.type][0]:timer.harvestBubble>0?'📦':null);
     if(icon){drawMapBubble(x,top-(o.shiny?17:8),icon,now,o.id)}else{
@@ -2820,7 +2835,7 @@ stepActors=function(dt){
         const p=randWalk();a.tx=p.x;a.ty=p.y;
       }
     }
-    if(!a.path.length||morningPoses.has(a))continue;
+    if(!a.path.length||morningPoses.has(a)||greetings.has(a))continue;
     const next=a.path[0],nx=next?.[0],ny=next?.[1];
     if(!isVisitor){
       const cx=Math.round(a.x),cy=Math.round(a.y);
@@ -5751,10 +5766,41 @@ function seekMonster139(m) {
   m.act = phase === 'sleep' ? '💤 休み場所へ' : phase === 'eat' ? '🍎 朝ごはん' :
     phase === 'play' ? '🎾 あそびに' : '🐾 おさんぽ';
 }
+const greetings=new WeakMap();
+let nextGreeting=4;
+function updateGreetings(dt){
+  for(const m of state.monsters){
+    const g=greetings.get(m);
+    if(!g)continue;
+    g.time+=dt;
+    if(g.time<2.15&&state.staff.includes(g.worker)&&freeForPlay(m)&&!g.worker.jobTask212&&
+       Math.hypot(m.x-g.worker.x,m.y-g.worker.y)<2)continue;
+    greetings.delete(m);greetings.delete(g.worker);
+  }
+  // A removed companion cannot keep a worker waiting.
+  for(const w of state.staff){
+    const g=greetings.get(w);
+    if(g&&!state.monsters.includes(g.monster)){greetings.delete(w);greetings.delete(g.monster);}
+  }
+  nextGreeting-=dt;
+  if(nextGreeting>0||state.hour<8||state.hour>=19)return;
+  nextGreeting=2.5;
+  for(const monster of state.monsters){
+    if(!freeForPlay(monster)||morningPoses.has(monster)||greetings.has(monster))continue;
+    const worker=state.staff.find(w=>!greetings.has(w)&&!w.jobTask212&&!plotWalks.has(w)&&
+      (monster.path?.length||w.path?.length)&&residentRoad(Math.round(w.x),Math.round(w.y))&&
+      Math.hypot(w.x-monster.x,w.y-monster.y)<1.5);
+    if(!worker)continue;
+    const g={monster,worker,time:0};greetings.set(monster,g);greetings.set(worker,g);
+    nextGreeting=18+Math.random()*12;break;
+  }
+}
 function updateMonsterWalks139(dt) {
+  updateGreetings(dt);
   let searches = 0;
   for (const m of state.monsters) {
     const motion=monsterWalkTimer139(m);if(motion.harvestBubble>0)motion.harvestBubble-=dt;
+    if(greetings.has(m))continue;
     const waking=morningPoses.get(m);
     if(waking){
       waking.time+=dt;
