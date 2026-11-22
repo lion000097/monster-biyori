@@ -1,0 +1,38 @@
+https://lion000097.github.io/monster-biyori/tests/v1.24.30-ranch.html
+
+✓ 自動更新情報　1.24.30
+✓ game.html　cbda7fdd15ad9f3cfba70aeba79834bafa3d44f5d6ffc82350c73c2466beaa96
+✓ releases/1.24.30/game.html　cbda7fdd15ad9f3cfba70aeba79834bafa3d44f5d6ffc82350c73c2466beaa96
+✓ 配布ZIP　63aa076d7c86b0723b94327a238a7ba25a8c94c87d2f894efa87603b45a6908c
+公開ファイルの照合に成功
+
+1366px: 旧セーブ互換・画面幅
+✓ all 8 game sprites are crisp high-resolution art with native in-cell color/shape details, not integer scaling
+✓ both optional facilities build, rotate in four facings, move, save, reopen and recover correctly; no upgrades or World Tree conditions added
+✓ open-air onsen genuinely selected on a connected road at dusk; four facing high-resolution art and visible bathers draw live; original exit and no resource/actor stat changes
+✓ Shirogao wind vane uses exact four-facing high-resolution art and multiple real live breeze poses; no save mutation
+✓ 4方向で2匹の同時入浴、耳だけ出すしぐさ、ふちでの待ち合わせと帰り道、途中保存・向き変更を確認
+✓ 木彫りのしっぽに結んだ布が、全28コマで結び目を保ってなびくことを確認
+✓ 2種4方向・全32コマで接地部が敷地に収まり、四辺の道を通行できる。土の道と石のタイルの上に設置できる。
+✓ 全8種類で設置前・設置中・回収後の地形画素が一致。四季の草地・土の道・石畳・混在、4倍率、遠景と向き別の配置プレビューを確認。
+✓ 全8種類を道の上に建設し、設置後の土・石・道消し、料金、移動・回収後の路面、出入口とセーブ復元を確認。
+✓ 旧確認版の水車を回収し、建設費を1回だけ返金。ほかの施設を保ったまま再読込できることを確認。
+✓ 建設タブの「道を置く」「石のタイル」「道けし」で、設置した露天風呂の下をクリック・ドラッグして変更。
+✓ 2種の全4方向で、前の確認版の最近傍・平滑な拡大との差を確認（16比較）。
+✓ onsen130: 768px、4コマの配布PNGがゲームの描画と完全一致。
+✓ shirovane130: 256px、28コマの配布PNGがゲームの描画と完全一致。
+✓ 1.24.29で草地に置いて保存した6種類を引き継ぎ、同じ場所で土・石畳・草地に変更。
+390px: 旧セーブ互換・画面幅
+✓ all 8 game sprites are crisp high-resolution art with native in-cell color/shape details, not integer scaling
+✓ both optional facilities build, rotate in four facings, move, save, reopen and recover correctly; no upgrades or World Tree conditions added
+✓ open-air onsen genuinely selected on a connected road at dusk; four facing high-resolution art and visible bathers draw live; original exit and no resource/actor stat changes
+✓ Shirogao wind vane uses exact four-facing high-resolution art and multiple real live breeze poses; no save mutation
+✓ 4方向で2匹の同時入浴、耳だけ出すしぐさ、ふちでの待ち合わせと帰り道、途中保存・向き変更を確認
+✓ 木彫りのしっぽに結んだ布が、全28コマで結び目を保ってなびくことを確認
+✓ 2種4方向・全32コマで接地部が敷地に収まり、四辺の道を通行できる。土の道と石のタイルの上に設置できる。
+✓ 全8種類で設置前・設置中・回収後の地形画素が一致。四季の草地・土の道・石畳・混在、4倍率、遠景と向き別の配置プレビューを確認。
+✓ 全8種類を道の上に建設し、設置後の土・石・道消し、料金、移動・回収後の路面、出入口とセーブ復元を確認。
+✓ 旧確認版の水車を回収し、建設費を1回だけ返金。ほかの施設を保ったまま再読込できることを確認。
+✓ 建設タブの「道を置く」「石のタイル」「道けし」で、設置した露天風呂の下をクリック・ドラッグして変更。
+✓ 1.24.29で草地に置いて保存した6種類を引き継ぎ、同じ場所で土・石畳・草地に変更。
+すべて成功
