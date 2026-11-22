@@ -2588,7 +2588,7 @@ function drawMapActor(o,monster,now,star=null,origin=null) {
     if(kind==='browseNuts'){
       const [nx,ny]=gardenNutPoint250(target),toward=Math.sign(nx-x)||1;
       const reach=clamp(Math.min(elapsed/.75,(ranchSceneSeconds124.browseNuts-elapsed)/.75),0,1);
-      x=Math.round(x+(nx-toward*size*.53-x)*reach-toward*5*gardenNutLift250(elapsed));
+      x=Math.round(x+(nx-toward*size*.53-x)*reach-toward*9*gardenNutLift250(elapsed));
       foot=Math.round(foot+(ny+size*.46-foot)*reach);
       height=Math.round(size*(1-.09*reach));dx=toward*Math.round(reach*2);dy=0;
     }
