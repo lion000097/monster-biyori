@@ -1,0 +1,451 @@
+{
+  "purpose": "Battle-only stage25 reachability diagnostic; not progression time",
+  "conditions": {
+    "stage": 25,
+    "party": "initial three species",
+    "charms": true,
+    "battleResearch": 3,
+    "otherResearch": 0,
+    "talentFruit": 0
+  },
+  "runs": [
+    {
+      "level": 99,
+      "seed": 1,
+      "win": true,
+      "unfinished": false,
+      "rounds": 14,
+      "remainingPartyHp": 1600,
+      "maxPartyHp": 3103,
+      "remainingEnemyHp": 0,
+      "enemies": [
+        {
+          "name": "氷晶ヒドラ",
+          "hp": 9604,
+          "attack": 277
+        }
+      ],
+      "party": [
+        {
+          "kind": 0,
+          "name": "モフリン",
+          "level": 99,
+          "trait": "がんばりや",
+          "gift": "勇敢",
+          "equip": true,
+          "iv": {
+            "hp": 23,
+            "attack": 37,
+            "defense": 50
+          },
+          "stats": {
+            "hp": 961,
+            "attack": 1646,
+            "defense": 206
+          }
+        },
+        {
+          "kind": 1,
+          "name": "ピカピヨ",
+          "level": 99,
+          "trait": "おっとり",
+          "gift": "働きもの",
+          "equip": true,
+          "iv": {
+            "hp": 64,
+            "attack": 25,
+            "defense": 42
+          },
+          "stats": {
+            "hp": 1044,
+            "attack": 1606,
+            "defense": 203
+          }
+        },
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 99,
+          "trait": "きらめき",
+          "gift": "勉強家",
+          "equip": true,
+          "iv": {
+            "hp": 68,
+            "attack": 53,
+            "defense": 21
+          },
+          "stats": {
+            "hp": 1053,
+            "attack": 1700,
+            "defense": 194
+          }
+        }
+      ]
+    },
+    {
+      "level": 99,
+      "seed": 23,
+      "win": true,
+      "unfinished": false,
+      "rounds": 14,
+      "remainingPartyHp": 1556,
+      "maxPartyHp": 3072,
+      "remainingEnemyHp": 0,
+      "enemies": [
+        {
+          "name": "氷晶ヒドラ",
+          "hp": 9604,
+          "attack": 277
+        }
+      ],
+      "party": [
+        {
+          "kind": 0,
+          "name": "モフリン",
+          "level": 99,
+          "trait": "おっとり",
+          "gift": "勇敢",
+          "equip": true,
+          "iv": {
+            "hp": 24,
+            "attack": 36,
+            "defense": 57
+          },
+          "stats": {
+            "hp": 963,
+            "attack": 1643,
+            "defense": 209
+          }
+        },
+        {
+          "kind": 1,
+          "name": "ピカピヨ",
+          "level": 99,
+          "trait": "まけずぎらい",
+          "gift": "働きもの",
+          "equip": true,
+          "iv": {
+            "hp": 91,
+            "attack": 23,
+            "defense": 49
+          },
+          "stats": {
+            "hp": 1099,
+            "attack": 1599,
+            "defense": 206
+          }
+        },
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 99,
+          "trait": "まけずぎらい",
+          "gift": "勉強家",
+          "equip": true,
+          "iv": {
+            "hp": 25,
+            "attack": 4,
+            "defense": 42
+          },
+          "stats": {
+            "hp": 965,
+            "attack": 1535,
+            "defense": 203
+          }
+        }
+      ]
+    },
+    {
+      "level": 99,
+      "seed": 91,
+      "win": true,
+      "unfinished": false,
+      "rounds": 14,
+      "remainingPartyHp": 1534,
+      "maxPartyHp": 3121,
+      "remainingEnemyHp": 0,
+      "enemies": [
+        {
+          "name": "氷晶ヒドラ",
+          "hp": 9604,
+          "attack": 277
+        }
+      ],
+      "party": [
+        {
+          "kind": 0,
+          "name": "モフリン",
+          "level": 99,
+          "trait": "のんびり",
+          "gift": "勇敢",
+          "equip": true,
+          "iv": {
+            "hp": 27,
+            "attack": 53,
+            "defense": 12
+          },
+          "stats": {
+            "hp": 969,
+            "attack": 1700,
+            "defense": 190
+          }
+        },
+        {
+          "kind": 1,
+          "name": "ピカピヨ",
+          "level": 99,
+          "trait": "まけずぎらい",
+          "gift": "働きもの",
+          "equip": true,
+          "iv": {
+            "hp": 81,
+            "attack": 8,
+            "defense": 5
+          },
+          "stats": {
+            "hp": 1079,
+            "attack": 1548,
+            "defense": 187
+          }
+        },
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 99,
+          "trait": "きらめき",
+          "gift": "勉強家",
+          "equip": true,
+          "iv": {
+            "hp": 56,
+            "attack": 34,
+            "defense": 41
+          },
+          "stats": {
+            "hp": 1028,
+            "attack": 1636,
+            "defense": 202
+          }
+        }
+      ]
+    },
+    {
+      "level": 99,
+      "seed": 42,
+      "win": true,
+      "unfinished": false,
+      "rounds": 14,
+      "remainingPartyHp": 1727,
+      "maxPartyHp": 3231,
+      "remainingEnemyHp": 0,
+      "enemies": [
+        {
+          "name": "氷晶ヒドラ",
+          "hp": 9604,
+          "attack": 277
+        }
+      ],
+      "party": [
+        {
+          "kind": 0,
+          "name": "モフリン",
+          "level": 99,
+          "trait": "のんびり",
+          "gift": "勇敢",
+          "equip": true,
+          "iv": {
+            "hp": 25,
+            "attack": 8,
+            "defense": 58
+          },
+          "stats": {
+            "hp": 965,
+            "attack": 1548,
+            "defense": 209
+          }
+        },
+        {
+          "kind": 1,
+          "name": "ピカピヨ",
+          "level": 99,
+          "trait": "のんびり",
+          "gift": "働きもの",
+          "equip": true,
+          "iv": {
+            "hp": 100,
+            "attack": 86,
+            "defense": 50
+          },
+          "stats": {
+            "hp": 1118,
+            "attack": 1812,
+            "defense": 206
+          }
+        },
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 99,
+          "trait": "がんばりや",
+          "gift": "勉強家",
+          "equip": true,
+          "iv": {
+            "hp": 93,
+            "attack": 89,
+            "defense": 55
+          },
+          "stats": {
+            "hp": 1103,
+            "attack": 1822,
+            "defense": 208
+          }
+        }
+      ]
+    },
+    {
+      "level": 67,
+      "seed": 23,
+      "win": false,
+      "unfinished": false,
+      "rounds": 15,
+      "remainingPartyHp": 0,
+      "maxPartyHp": 2119,
+      "remainingEnemyHp": 2186,
+      "enemies": [
+        {
+          "name": "氷晶ヒドラ",
+          "hp": 9604,
+          "attack": 277
+        }
+      ],
+      "party": [
+        {
+          "kind": 0,
+          "name": "モフリン",
+          "level": 67,
+          "trait": "おっとり",
+          "gift": "勇敢",
+          "equip": true,
+          "iv": {
+            "hp": 24,
+            "attack": 36,
+            "defense": 57
+          },
+          "stats": {
+            "hp": 660,
+            "attack": 1118,
+            "defense": 144
+          }
+        },
+        {
+          "kind": 1,
+          "name": "ピカピヨ",
+          "level": 67,
+          "trait": "まけずぎらい",
+          "gift": "働きもの",
+          "equip": true,
+          "iv": {
+            "hp": 91,
+            "attack": 23,
+            "defense": 49
+          },
+          "stats": {
+            "hp": 753,
+            "attack": 1088,
+            "defense": 142
+          }
+        },
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 67,
+          "trait": "まけずぎらい",
+          "gift": "勉強家",
+          "equip": true,
+          "iv": {
+            "hp": 25,
+            "attack": 4,
+            "defense": 42
+          },
+          "stats": {
+            "hp": 661,
+            "attack": 1044,
+            "defense": 140
+          }
+        }
+      ]
+    },
+    {
+      "level": 71,
+      "seed": 91,
+      "win": false,
+      "unfinished": false,
+      "rounds": 15,
+      "remainingPartyHp": 0,
+      "maxPartyHp": 2274,
+      "remainingEnemyHp": 1880,
+      "enemies": [
+        {
+          "name": "氷晶ヒドラ",
+          "hp": 9604,
+          "attack": 277
+        }
+      ],
+      "party": [
+        {
+          "kind": 0,
+          "name": "モフリン",
+          "level": 71,
+          "trait": "のんびり",
+          "gift": "勇敢",
+          "equip": true,
+          "iv": {
+            "hp": 27,
+            "attack": 53,
+            "defense": 12
+          },
+          "stats": {
+            "hp": 702,
+            "attack": 1227,
+            "defense": 139
+          }
+        },
+        {
+          "kind": 1,
+          "name": "ピカピヨ",
+          "level": 71,
+          "trait": "まけずぎらい",
+          "gift": "働きもの",
+          "equip": true,
+          "iv": {
+            "hp": 81,
+            "attack": 8,
+            "defense": 5
+          },
+          "stats": {
+            "hp": 782,
+            "attack": 1118,
+            "defense": 137
+          }
+        },
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 71,
+          "trait": "きらめき",
+          "gift": "勉強家",
+          "equip": true,
+          "iv": {
+            "hp": 56,
+            "attack": 34,
+            "defense": 41
+          },
+          "stats": {
+            "hp": 745,
+            "attack": 1181,
+            "defense": 147
+          }
+        }
+      ]
+    }
+  ]
+}

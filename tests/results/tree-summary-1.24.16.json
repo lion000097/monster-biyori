@@ -1,0 +1,1693 @@
+{
+  "target": "世界樹Lv20",
+  "complete": true,
+  "baseline": "New game; 1x; management every 10 minutes; no manual training or boss farming; world tree held at Lv20 thereafter",
+  "fourSpeedAssumption": "Same actions at the same simulated times; management every 2.5 minutes of wall time",
+  "runs": [
+    {
+      "seed": 7,
+      "sourceSha256": "49483fef1840aff6fd88fdf6383aa6aa2dc1e211dedd065e04a55f6871c7d17c",
+      "sourceResult": "simulation-1.24.16-seed7.json",
+      "tree20Seconds": 133800,
+      "hours1x": 37.166666666666664,
+      "hours4xEquivalent": 9.291666666666666,
+      "treeMilestones": [
+        {
+          "seconds": 2384,
+          "level": 2,
+          "coins": 431,
+          "food": 503,
+          "magic": 32.19,
+          "xp": 267.54,
+          "allies": 3,
+          "employees": 2,
+          "buildings": 8,
+          "zones": 4,
+          "partyLevels": [
+            2,
+            2,
+            2
+          ],
+          "stage": 4,
+          "clears": 3,
+          "aidsPerDay": 930,
+          "actions": {
+            "build": 5,
+            "upgrade": 14,
+            "roads": 0,
+            "land": 0,
+            "hires": 0,
+            "orders": 0,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 5984,
+          "level": 3,
+          "coins": 733,
+          "food": 1720,
+          "magic": 33.99,
+          "xp": 501.87,
+          "allies": 3,
+          "employees": 2,
+          "buildings": 10,
+          "zones": 4,
+          "partyLevels": [
+            3,
+            3,
+            3
+          ],
+          "stage": 5,
+          "clears": 4,
+          "aidsPerDay": 1480,
+          "actions": {
+            "build": 7,
+            "upgrade": 27,
+            "roads": 0,
+            "land": 0,
+            "hires": 0,
+            "orders": 0,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 9584,
+          "level": 4,
+          "coins": 2356,
+          "food": 2827,
+          "magic": 49.79,
+          "xp": 638.06,
+          "allies": 4,
+          "employees": 2,
+          "buildings": 12,
+          "zones": 4,
+          "partyLevels": [
+            5,
+            5,
+            5
+          ],
+          "stage": 5,
+          "clears": 4,
+          "aidsPerDay": 6070,
+          "actions": {
+            "build": 9,
+            "upgrade": 44,
+            "roads": 0,
+            "land": 0,
+            "hires": 0,
+            "orders": 0,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 12592,
+          "level": 5,
+          "coins": 11143,
+          "food": 4321,
+          "magic": 76.3,
+          "xp": 938.02,
+          "allies": 6,
+          "employees": 2,
+          "buildings": 16,
+          "zones": 4,
+          "partyLevels": [
+            6,
+            6,
+            6
+          ],
+          "stage": 9,
+          "clears": 8,
+          "aidsPerDay": 13430,
+          "actions": {
+            "build": 13,
+            "upgrade": 75,
+            "roads": 0,
+            "land": 0,
+            "hires": 0,
+            "orders": 0,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 15584,
+          "level": 6,
+          "coins": 12501,
+          "food": 6403,
+          "magic": 114.89,
+          "xp": 1235.66,
+          "allies": 7,
+          "employees": 2,
+          "buildings": 21,
+          "zones": 4,
+          "partyLevels": [
+            7,
+            7,
+            7
+          ],
+          "stage": 10,
+          "clears": 9,
+          "aidsPerDay": 14150,
+          "actions": {
+            "build": 18,
+            "upgrade": 120,
+            "roads": 0,
+            "land": 0,
+            "hires": 0,
+            "orders": 2,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 17984,
+          "level": 7,
+          "coins": 6235,
+          "food": 7967,
+          "magic": 139.38,
+          "xp": 1103.47,
+          "allies": 10,
+          "employees": 4,
+          "buildings": 23,
+          "zones": 4,
+          "partyLevels": [
+            8,
+            7,
+            7
+          ],
+          "stage": 10,
+          "clears": 9,
+          "aidsPerDay": 32060,
+          "actions": {
+            "build": 20,
+            "upgrade": 154,
+            "roads": 0,
+            "land": 0,
+            "hires": 2,
+            "orders": 3,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 20992,
+          "level": 8,
+          "coins": 23780,
+          "food": 8493,
+          "magic": 229.61,
+          "xp": 1065.94,
+          "allies": 17,
+          "employees": 5,
+          "buildings": 25,
+          "zones": 4,
+          "partyLevels": [
+            9,
+            8,
+            8
+          ],
+          "stage": 10,
+          "clears": 9,
+          "aidsPerDay": 35770,
+          "actions": {
+            "build": 22,
+            "upgrade": 192,
+            "roads": 7,
+            "land": 0,
+            "hires": 3,
+            "orders": 8,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 23984,
+          "level": 9,
+          "coins": 14239,
+          "food": 9962,
+          "magic": 275.76,
+          "xp": 703,
+          "allies": 19,
+          "employees": 6,
+          "buildings": 26,
+          "zones": 4,
+          "partyLevels": [
+            10,
+            9,
+            9
+          ],
+          "stage": 10,
+          "clears": 9,
+          "aidsPerDay": 27200,
+          "actions": {
+            "build": 23,
+            "upgrade": 225,
+            "roads": 9,
+            "land": 0,
+            "hires": 4,
+            "orders": 13,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 26384,
+          "level": 10,
+          "coins": 3065,
+          "food": 11422,
+          "magic": 292.44,
+          "xp": 138.9,
+          "allies": 21,
+          "employees": 6,
+          "buildings": 27,
+          "zones": 5,
+          "partyLevels": [
+            10,
+            10,
+            10
+          ],
+          "stage": 10,
+          "clears": 9,
+          "aidsPerDay": 106540,
+          "actions": {
+            "build": 24,
+            "upgrade": 260,
+            "roads": 38,
+            "land": 1,
+            "hires": 4,
+            "orders": 17,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 30592,
+          "level": 11,
+          "coins": 367707,
+          "food": 13079,
+          "magic": 359.92,
+          "xp": 30.46,
+          "allies": 23,
+          "employees": 7,
+          "buildings": 30,
+          "zones": 6,
+          "partyLevels": [
+            12,
+            11,
+            11
+          ],
+          "stage": 10,
+          "clears": 9,
+          "aidsPerDay": 45100,
+          "actions": {
+            "build": 27,
+            "upgrade": 319,
+            "roads": 40,
+            "land": 2,
+            "hires": 5,
+            "orders": 24,
+            "research": 1
+          }
+        },
+        {
+          "seconds": 39584,
+          "level": 12,
+          "coins": 1231906,
+          "food": 19262,
+          "magic": 151.81,
+          "xp": 73.1,
+          "allies": 25,
+          "employees": 7,
+          "buildings": 30,
+          "zones": 6,
+          "partyLevels": [
+            15,
+            13,
+            13
+          ],
+          "stage": 10,
+          "clears": 9,
+          "aidsPerDay": 66020,
+          "actions": {
+            "build": 27,
+            "upgrade": 348,
+            "roads": 40,
+            "land": 2,
+            "hires": 5,
+            "orders": 39,
+            "research": 9
+          }
+        },
+        {
+          "seconds": 47392,
+          "level": 13,
+          "coins": 2303866,
+          "food": 25080,
+          "magic": 594.72,
+          "xp": 70.35,
+          "allies": 27,
+          "employees": 8,
+          "buildings": 31,
+          "zones": 6,
+          "partyLevels": [
+            17,
+            15,
+            15
+          ],
+          "stage": 15,
+          "clears": 14,
+          "aidsPerDay": 189170,
+          "actions": {
+            "build": 28,
+            "upgrade": 390,
+            "roads": 40,
+            "land": 2,
+            "hires": 6,
+            "orders": 52,
+            "research": 10
+          }
+        },
+        {
+          "seconds": 56384,
+          "level": 14,
+          "coins": 5561105,
+          "food": 33387,
+          "magic": 1394.08,
+          "xp": 108.16,
+          "allies": 30,
+          "employees": 8,
+          "buildings": 33,
+          "zones": 6,
+          "partyLevels": [
+            19,
+            18,
+            17
+          ],
+          "stage": 15,
+          "clears": 14,
+          "aidsPerDay": 96900,
+          "actions": {
+            "build": 30,
+            "upgrade": 448,
+            "roads": 40,
+            "land": 2,
+            "hires": 6,
+            "orders": 67,
+            "research": 10
+          }
+        },
+        {
+          "seconds": 66592,
+          "level": 15,
+          "coins": 7613487,
+          "food": 44025,
+          "magic": 2712.27,
+          "xp": 103.94,
+          "allies": 32,
+          "employees": 8,
+          "buildings": 35,
+          "zones": 6,
+          "partyLevels": [
+            21,
+            20,
+            20
+          ],
+          "stage": 15,
+          "clears": 14,
+          "aidsPerDay": 327200,
+          "actions": {
+            "build": 32,
+            "upgrade": 510,
+            "roads": 40,
+            "land": 2,
+            "hires": 6,
+            "orders": 84,
+            "research": 10
+          }
+        },
+        {
+          "seconds": 76784,
+          "level": 16,
+          "coins": 14242216,
+          "food": 56607,
+          "magic": 3223.95,
+          "xp": 6.54,
+          "allies": 34,
+          "employees": 8,
+          "buildings": 37,
+          "zones": 6,
+          "partyLevels": [
+            24,
+            23,
+            23
+          ],
+          "stage": 15,
+          "clears": 14,
+          "aidsPerDay": 136660,
+          "actions": {
+            "build": 34,
+            "upgrade": 576,
+            "roads": 51,
+            "land": 2,
+            "hires": 6,
+            "orders": 101,
+            "research": 15
+          }
+        },
+        {
+          "seconds": 88784,
+          "level": 17,
+          "coins": 17957104,
+          "food": 73163,
+          "magic": 5024.46,
+          "xp": 19.25,
+          "allies": 36,
+          "employees": 8,
+          "buildings": 38,
+          "zones": 6,
+          "partyLevels": [
+            27,
+            26,
+            26
+          ],
+          "stage": 20,
+          "clears": 19,
+          "aidsPerDay": 360240,
+          "actions": {
+            "build": 35,
+            "upgrade": 629,
+            "roads": 51,
+            "land": 2,
+            "hires": 6,
+            "orders": 121,
+            "research": 15
+          }
+        },
+        {
+          "seconds": 101984,
+          "level": 18,
+          "coins": 27842460,
+          "food": 95204,
+          "magic": 7200.1,
+          "xp": 75.66,
+          "allies": 38,
+          "employees": 8,
+          "buildings": 40,
+          "zones": 6,
+          "partyLevels": [
+            29,
+            28,
+            28
+          ],
+          "stage": 20,
+          "clears": 19,
+          "aidsPerDay": 629760,
+          "actions": {
+            "build": 37,
+            "upgrade": 702,
+            "roads": 60,
+            "land": 2,
+            "hires": 6,
+            "orders": 143,
+            "research": 15
+          }
+        },
+        {
+          "seconds": 117584,
+          "level": 19,
+          "coins": 49510391,
+          "food": 119341,
+          "magic": 10000.19,
+          "xp": 25.02,
+          "allies": 40,
+          "employees": 8,
+          "buildings": 41,
+          "zones": 6,
+          "partyLevels": [
+            32,
+            31,
+            31
+          ],
+          "stage": 20,
+          "clears": 19,
+          "aidsPerDay": 568080,
+          "actions": {
+            "build": 38,
+            "upgrade": 760,
+            "roads": 62,
+            "land": 2,
+            "hires": 6,
+            "orders": 169,
+            "research": 15
+          }
+        },
+        {
+          "seconds": 133792,
+          "level": 20,
+          "coins": 69781917,
+          "food": 148476,
+          "magic": 13120.98,
+          "xp": 102.39,
+          "allies": 43,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            34,
+            34,
+            34
+          ],
+          "stage": 20,
+          "clears": 19,
+          "aidsPerDay": 256060,
+          "actions": {
+            "build": 40,
+            "upgrade": 840,
+            "roads": 62,
+            "land": 2,
+            "hires": 6,
+            "orders": 196,
+            "research": 15
+          }
+        }
+      ]
+    },
+    {
+      "seed": 23,
+      "sourceSha256": "49483fef1840aff6fd88fdf6383aa6aa2dc1e211dedd065e04a55f6871c7d17c",
+      "sourceResult": "progression-seed23-1.24.16.json",
+      "tree20Seconds": 131400,
+      "hours1x": 36.5,
+      "hours4xEquivalent": 9.125,
+      "treeMilestones": [
+        {
+          "seconds": 2992,
+          "level": 2,
+          "coins": 1911,
+          "food": 666,
+          "magic": 32.5,
+          "xp": 320.51,
+          "allies": 3,
+          "employees": 2,
+          "buildings": 8,
+          "zones": 4,
+          "partyLevels": [
+            2,
+            2,
+            2
+          ],
+          "stage": 4,
+          "clears": 3,
+          "aidsPerDay": 930,
+          "actions": {
+            "build": 5,
+            "upgrade": 14,
+            "roads": 0,
+            "land": 0,
+            "hires": 0,
+            "orders": 0,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 5984,
+          "level": 3,
+          "coins": 935,
+          "food": 1703,
+          "magic": 42.99,
+          "xp": 501.87,
+          "allies": 3,
+          "employees": 2,
+          "buildings": 10,
+          "zones": 4,
+          "partyLevels": [
+            3,
+            3,
+            3
+          ],
+          "stage": 5,
+          "clears": 4,
+          "aidsPerDay": 1480,
+          "actions": {
+            "build": 7,
+            "upgrade": 27,
+            "roads": 0,
+            "land": 0,
+            "hires": 0,
+            "orders": 0,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 8992,
+          "level": 4,
+          "coins": 532,
+          "food": 2648,
+          "magic": 62.5,
+          "xp": 588.21,
+          "allies": 4,
+          "employees": 2,
+          "buildings": 12,
+          "zones": 4,
+          "partyLevels": [
+            5,
+            4,
+            4
+          ],
+          "stage": 5,
+          "clears": 4,
+          "aidsPerDay": 6070,
+          "actions": {
+            "build": 9,
+            "upgrade": 44,
+            "roads": 0,
+            "land": 0,
+            "hires": 0,
+            "orders": 0,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 11984,
+          "level": 5,
+          "coins": 6567,
+          "food": 3997,
+          "magic": 66.99,
+          "xp": 760.03,
+          "allies": 5,
+          "employees": 2,
+          "buildings": 16,
+          "zones": 4,
+          "partyLevels": [
+            6,
+            5,
+            5
+          ],
+          "stage": 5,
+          "clears": 4,
+          "aidsPerDay": 13430,
+          "actions": {
+            "build": 13,
+            "upgrade": 75,
+            "roads": 0,
+            "land": 0,
+            "hires": 0,
+            "orders": 0,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 14992,
+          "level": 6,
+          "coins": 17520,
+          "food": 6147,
+          "magic": 100.66,
+          "xp": 1134.2,
+          "allies": 5,
+          "employees": 3,
+          "buildings": 21,
+          "zones": 4,
+          "partyLevels": [
+            7,
+            7,
+            7
+          ],
+          "stage": 8,
+          "clears": 7,
+          "aidsPerDay": 14150,
+          "actions": {
+            "build": 18,
+            "upgrade": 120,
+            "roads": 0,
+            "land": 0,
+            "hires": 1,
+            "orders": 1,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 17984,
+          "level": 7,
+          "coins": 28390,
+          "food": 8287,
+          "magic": 160.64,
+          "xp": 1133.4,
+          "allies": 11,
+          "employees": 4,
+          "buildings": 23,
+          "zones": 4,
+          "partyLevels": [
+            8,
+            7,
+            7
+          ],
+          "stage": 9,
+          "clears": 8,
+          "aidsPerDay": 32060,
+          "actions": {
+            "build": 20,
+            "upgrade": 154,
+            "roads": 0,
+            "land": 0,
+            "hires": 2,
+            "orders": 2,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 20992,
+          "level": 8,
+          "coins": 47006,
+          "food": 8886,
+          "magic": 240.01,
+          "xp": 1108.78,
+          "allies": 17,
+          "employees": 5,
+          "buildings": 25,
+          "zones": 4,
+          "partyLevels": [
+            9,
+            8,
+            8
+          ],
+          "stage": 10,
+          "clears": 9,
+          "aidsPerDay": 35770,
+          "actions": {
+            "build": 22,
+            "upgrade": 192,
+            "roads": 8,
+            "land": 0,
+            "hires": 3,
+            "orders": 6,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 23984,
+          "level": 9,
+          "coins": 35431,
+          "food": 10352,
+          "magic": 308.96,
+          "xp": 791.34,
+          "allies": 19,
+          "employees": 6,
+          "buildings": 26,
+          "zones": 4,
+          "partyLevels": [
+            10,
+            9,
+            9
+          ],
+          "stage": 10,
+          "clears": 9,
+          "aidsPerDay": 27200,
+          "actions": {
+            "build": 23,
+            "upgrade": 225,
+            "roads": 10,
+            "land": 0,
+            "hires": 4,
+            "orders": 11,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 26384,
+          "level": 10,
+          "coins": 28566,
+          "food": 11813,
+          "magic": 345.5,
+          "xp": 204.5,
+          "allies": 21,
+          "employees": 6,
+          "buildings": 27,
+          "zones": 5,
+          "partyLevels": [
+            11,
+            10,
+            10
+          ],
+          "stage": 10,
+          "clears": 9,
+          "aidsPerDay": 106540,
+          "actions": {
+            "build": 24,
+            "upgrade": 260,
+            "roads": 39,
+            "land": 1,
+            "hires": 4,
+            "orders": 15,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 29984,
+          "level": 11,
+          "coins": 161491,
+          "food": 13490,
+          "magic": 419.67,
+          "xp": 32.17,
+          "allies": 23,
+          "employees": 7,
+          "buildings": 30,
+          "zones": 6,
+          "partyLevels": [
+            12,
+            11,
+            11
+          ],
+          "stage": 10,
+          "clears": 9,
+          "aidsPerDay": 45100,
+          "actions": {
+            "build": 27,
+            "upgrade": 319,
+            "roads": 41,
+            "land": 2,
+            "hires": 5,
+            "orders": 21,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 39584,
+          "level": 12,
+          "coins": 1134672,
+          "food": 19484,
+          "magic": 75.34,
+          "xp": 71.3,
+          "allies": 25,
+          "employees": 7,
+          "buildings": 30,
+          "zones": 6,
+          "partyLevels": [
+            15,
+            13,
+            13
+          ],
+          "stage": 10,
+          "clears": 9,
+          "aidsPerDay": 66020,
+          "actions": {
+            "build": 27,
+            "upgrade": 348,
+            "roads": 41,
+            "land": 2,
+            "hires": 5,
+            "orders": 37,
+            "research": 10
+          }
+        },
+        {
+          "seconds": 47984,
+          "level": 13,
+          "coins": 2351934,
+          "food": 25846,
+          "magic": 703.94,
+          "xp": 66.03,
+          "allies": 27,
+          "employees": 8,
+          "buildings": 31,
+          "zones": 6,
+          "partyLevels": [
+            17,
+            15,
+            15
+          ],
+          "stage": 10,
+          "clears": 9,
+          "aidsPerDay": 189170,
+          "actions": {
+            "build": 28,
+            "upgrade": 390,
+            "roads": 41,
+            "land": 2,
+            "hires": 6,
+            "orders": 51,
+            "research": 10
+          }
+        },
+        {
+          "seconds": 55792,
+          "level": 14,
+          "coins": 4810174,
+          "food": 32834,
+          "magic": 1395.19,
+          "xp": 40.28,
+          "allies": 30,
+          "employees": 8,
+          "buildings": 33,
+          "zones": 6,
+          "partyLevels": [
+            19,
+            17,
+            17
+          ],
+          "stage": 15,
+          "clears": 14,
+          "aidsPerDay": 96900,
+          "actions": {
+            "build": 30,
+            "upgrade": 448,
+            "roads": 41,
+            "land": 2,
+            "hires": 6,
+            "orders": 64,
+            "research": 10
+          }
+        },
+        {
+          "seconds": 65392,
+          "level": 15,
+          "coins": 6750681,
+          "food": 42783,
+          "magic": 2586.35,
+          "xp": 36.8,
+          "allies": 32,
+          "employees": 8,
+          "buildings": 35,
+          "zones": 6,
+          "partyLevels": [
+            21,
+            20,
+            20
+          ],
+          "stage": 15,
+          "clears": 14,
+          "aidsPerDay": 327200,
+          "actions": {
+            "build": 32,
+            "upgrade": 510,
+            "roads": 41,
+            "land": 2,
+            "hires": 6,
+            "orders": 80,
+            "research": 10
+          }
+        },
+        {
+          "seconds": 76192,
+          "level": 16,
+          "coins": 13752838,
+          "food": 56378,
+          "magic": 3219.56,
+          "xp": 53.14,
+          "allies": 34,
+          "employees": 8,
+          "buildings": 37,
+          "zones": 6,
+          "partyLevels": [
+            24,
+            22,
+            22
+          ],
+          "stage": 15,
+          "clears": 14,
+          "aidsPerDay": 136660,
+          "actions": {
+            "build": 34,
+            "upgrade": 576,
+            "roads": 52,
+            "land": 2,
+            "hires": 6,
+            "orders": 98,
+            "research": 15
+          }
+        },
+        {
+          "seconds": 88192,
+          "level": 17,
+          "coins": 17596124,
+          "food": 73075,
+          "magic": 4977.33,
+          "xp": 65.85,
+          "allies": 36,
+          "employees": 8,
+          "buildings": 38,
+          "zones": 6,
+          "partyLevels": [
+            26,
+            25,
+            25
+          ],
+          "stage": 20,
+          "clears": 19,
+          "aidsPerDay": 360240,
+          "actions": {
+            "build": 35,
+            "upgrade": 629,
+            "roads": 52,
+            "land": 2,
+            "hires": 6,
+            "orders": 118,
+            "research": 15
+          }
+        },
+        {
+          "seconds": 101392,
+          "level": 18,
+          "coins": 27417120,
+          "food": 94957,
+          "magic": 7070.07,
+          "xp": 76.75,
+          "allies": 38,
+          "employees": 8,
+          "buildings": 40,
+          "zones": 6,
+          "partyLevels": [
+            29,
+            28,
+            28
+          ],
+          "stage": 20,
+          "clears": 19,
+          "aidsPerDay": 629760,
+          "actions": {
+            "build": 37,
+            "upgrade": 702,
+            "roads": 61,
+            "land": 2,
+            "hires": 6,
+            "orders": 140,
+            "research": 15
+          }
+        },
+        {
+          "seconds": 116384,
+          "level": 19,
+          "coins": 47817954,
+          "food": 119791,
+          "magic": 9722.2,
+          "xp": 46.81,
+          "allies": 40,
+          "employees": 8,
+          "buildings": 41,
+          "zones": 6,
+          "partyLevels": [
+            32,
+            31,
+            30
+          ],
+          "stage": 20,
+          "clears": 19,
+          "aidsPerDay": 568080,
+          "actions": {
+            "build": 38,
+            "upgrade": 760,
+            "roads": 63,
+            "land": 2,
+            "hires": 6,
+            "orders": 165,
+            "research": 15
+          }
+        },
+        {
+          "seconds": 131392,
+          "level": 20,
+          "coins": 66354484,
+          "food": 144609,
+          "magic": 12565.57,
+          "xp": 37.5,
+          "allies": 43,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            34,
+            33,
+            33
+          ],
+          "stage": 20,
+          "clears": 19,
+          "aidsPerDay": 256060,
+          "actions": {
+            "build": 40,
+            "upgrade": 840,
+            "roads": 63,
+            "land": 2,
+            "hires": 6,
+            "orders": 190,
+            "research": 15
+          }
+        }
+      ]
+    },
+    {
+      "seed": 91,
+      "sourceSha256": "49483fef1840aff6fd88fdf6383aa6aa2dc1e211dedd065e04a55f6871c7d17c",
+      "sourceResult": "progression-seed91-1.24.16.json",
+      "tree20Seconds": 131400,
+      "hours1x": 36.5,
+      "hours4xEquivalent": 9.125,
+      "treeMilestones": [
+        {
+          "seconds": 2384,
+          "level": 2,
+          "coins": 169,
+          "food": 505,
+          "magic": 18.19,
+          "xp": 249.34,
+          "allies": 3,
+          "employees": 2,
+          "buildings": 8,
+          "zones": 4,
+          "partyLevels": [
+            2,
+            1,
+            1
+          ],
+          "stage": 3,
+          "clears": 2,
+          "aidsPerDay": 930,
+          "actions": {
+            "build": 5,
+            "upgrade": 14,
+            "roads": 0,
+            "land": 0,
+            "hires": 0,
+            "orders": 0,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 5392,
+          "level": 3,
+          "coins": 299,
+          "food": 1533,
+          "magic": 33.7,
+          "xp": 450.29,
+          "allies": 3,
+          "employees": 2,
+          "buildings": 10,
+          "zones": 4,
+          "partyLevels": [
+            3,
+            3,
+            3
+          ],
+          "stage": 5,
+          "clears": 4,
+          "aidsPerDay": 1480,
+          "actions": {
+            "build": 7,
+            "upgrade": 27,
+            "roads": 0,
+            "land": 0,
+            "hires": 0,
+            "orders": 0,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 8992,
+          "level": 4,
+          "coins": 310,
+          "food": 2697,
+          "magic": 28.5,
+          "xp": 578.22,
+          "allies": 3,
+          "employees": 2,
+          "buildings": 12,
+          "zones": 4,
+          "partyLevels": [
+            5,
+            4,
+            4
+          ],
+          "stage": 5,
+          "clears": 4,
+          "aidsPerDay": 6070,
+          "actions": {
+            "build": 9,
+            "upgrade": 44,
+            "roads": 0,
+            "land": 0,
+            "hires": 0,
+            "orders": 0,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 11984,
+          "level": 5,
+          "coins": 4692,
+          "food": 4137,
+          "magic": 26.99,
+          "xp": 743.17,
+          "allies": 3,
+          "employees": 3,
+          "buildings": 16,
+          "zones": 4,
+          "partyLevels": [
+            6,
+            6,
+            5
+          ],
+          "stage": 5,
+          "clears": 4,
+          "aidsPerDay": 13430,
+          "actions": {
+            "build": 13,
+            "upgrade": 75,
+            "roads": 0,
+            "land": 0,
+            "hires": 1,
+            "orders": 0,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 14992,
+          "level": 6,
+          "coins": 16422,
+          "food": 6193,
+          "magic": 102.5,
+          "xp": 1163.06,
+          "allies": 6,
+          "employees": 4,
+          "buildings": 21,
+          "zones": 4,
+          "partyLevels": [
+            7,
+            7,
+            7
+          ],
+          "stage": 8,
+          "clears": 7,
+          "aidsPerDay": 14150,
+          "actions": {
+            "build": 18,
+            "upgrade": 120,
+            "roads": 0,
+            "land": 0,
+            "hires": 2,
+            "orders": 2,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 17984,
+          "level": 7,
+          "coins": 28629,
+          "food": 8179,
+          "magic": 194.14,
+          "xp": 1154.6,
+          "allies": 13,
+          "employees": 5,
+          "buildings": 23,
+          "zones": 4,
+          "partyLevels": [
+            8,
+            7,
+            7
+          ],
+          "stage": 9,
+          "clears": 8,
+          "aidsPerDay": 32060,
+          "actions": {
+            "build": 20,
+            "upgrade": 154,
+            "roads": 0,
+            "land": 0,
+            "hires": 3,
+            "orders": 3,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 20992,
+          "level": 8,
+          "coins": 47075,
+          "food": 8654,
+          "magic": 271.84,
+          "xp": 1085.16,
+          "allies": 17,
+          "employees": 5,
+          "buildings": 25,
+          "zones": 4,
+          "partyLevels": [
+            9,
+            8,
+            8
+          ],
+          "stage": 10,
+          "clears": 9,
+          "aidsPerDay": 35770,
+          "actions": {
+            "build": 22,
+            "upgrade": 192,
+            "roads": 7,
+            "land": 0,
+            "hires": 3,
+            "orders": 8,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 23984,
+          "level": 9,
+          "coins": 40424,
+          "food": 10099,
+          "magic": 338.84,
+          "xp": 722.22,
+          "allies": 19,
+          "employees": 6,
+          "buildings": 26,
+          "zones": 4,
+          "partyLevels": [
+            10,
+            9,
+            9
+          ],
+          "stage": 10,
+          "clears": 9,
+          "aidsPerDay": 27200,
+          "actions": {
+            "build": 23,
+            "upgrade": 225,
+            "roads": 9,
+            "land": 0,
+            "hires": 4,
+            "orders": 13,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 26384,
+          "level": 10,
+          "coins": 35544,
+          "food": 11550,
+          "magic": 369.58,
+          "xp": 180.88,
+          "allies": 21,
+          "employees": 6,
+          "buildings": 27,
+          "zones": 5,
+          "partyLevels": [
+            11,
+            10,
+            10
+          ],
+          "stage": 10,
+          "clears": 9,
+          "aidsPerDay": 106540,
+          "actions": {
+            "build": 24,
+            "upgrade": 260,
+            "roads": 38,
+            "land": 1,
+            "hires": 4,
+            "orders": 17,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 30592,
+          "level": 11,
+          "coins": 388523,
+          "food": 13268,
+          "magic": 432.83,
+          "xp": 72.44,
+          "allies": 23,
+          "employees": 7,
+          "buildings": 30,
+          "zones": 6,
+          "partyLevels": [
+            12,
+            11,
+            11
+          ],
+          "stage": 10,
+          "clears": 9,
+          "aidsPerDay": 45100,
+          "actions": {
+            "build": 27,
+            "upgrade": 319,
+            "roads": 40,
+            "land": 2,
+            "hires": 5,
+            "orders": 24,
+            "research": 1
+          }
+        },
+        {
+          "seconds": 38992,
+          "level": 12,
+          "coins": 1161276,
+          "food": 19041,
+          "magic": 68.94,
+          "xp": 74.84,
+          "allies": 25,
+          "employees": 7,
+          "buildings": 30,
+          "zones": 6,
+          "partyLevels": [
+            15,
+            13,
+            13
+          ],
+          "stage": 10,
+          "clears": 9,
+          "aidsPerDay": 66020,
+          "actions": {
+            "build": 27,
+            "upgrade": 348,
+            "roads": 40,
+            "land": 2,
+            "hires": 5,
+            "orders": 38,
+            "research": 10
+          }
+        },
+        {
+          "seconds": 46784,
+          "level": 13,
+          "coins": 2289406,
+          "food": 24777,
+          "magic": 639.67,
+          "xp": 2.06,
+          "allies": 27,
+          "employees": 8,
+          "buildings": 31,
+          "zones": 6,
+          "partyLevels": [
+            17,
+            15,
+            15
+          ],
+          "stage": 15,
+          "clears": 14,
+          "aidsPerDay": 189170,
+          "actions": {
+            "build": 28,
+            "upgrade": 390,
+            "roads": 40,
+            "land": 2,
+            "hires": 6,
+            "orders": 51,
+            "research": 10
+          }
+        },
+        {
+          "seconds": 55792,
+          "level": 14,
+          "coins": 5371169,
+          "food": 33264,
+          "magic": 1414.23,
+          "xp": 109.93,
+          "allies": 30,
+          "employees": 8,
+          "buildings": 33,
+          "zones": 6,
+          "partyLevels": [
+            19,
+            17,
+            17
+          ],
+          "stage": 15,
+          "clears": 14,
+          "aidsPerDay": 96900,
+          "actions": {
+            "build": 30,
+            "upgrade": 448,
+            "roads": 40,
+            "land": 2,
+            "hires": 6,
+            "orders": 66,
+            "research": 10
+          }
+        },
+        {
+          "seconds": 65392,
+          "level": 15,
+          "coins": 7282322,
+          "food": 43128,
+          "magic": 2629.01,
+          "xp": 83.71,
+          "allies": 32,
+          "employees": 8,
+          "buildings": 35,
+          "zones": 6,
+          "partyLevels": [
+            21,
+            20,
+            20
+          ],
+          "stage": 15,
+          "clears": 14,
+          "aidsPerDay": 327200,
+          "actions": {
+            "build": 32,
+            "upgrade": 510,
+            "roads": 40,
+            "land": 2,
+            "hires": 6,
+            "orders": 82,
+            "research": 10
+          }
+        },
+        {
+          "seconds": 75584,
+          "level": 16,
+          "coins": 13915424,
+          "food": 55937,
+          "magic": 3170.38,
+          "xp": 9.07,
+          "allies": 34,
+          "employees": 8,
+          "buildings": 37,
+          "zones": 6,
+          "partyLevels": [
+            24,
+            22,
+            22
+          ],
+          "stage": 15,
+          "clears": 14,
+          "aidsPerDay": 136660,
+          "actions": {
+            "build": 34,
+            "upgrade": 576,
+            "roads": 51,
+            "land": 2,
+            "hires": 6,
+            "orders": 99,
+            "research": 15
+          }
+        },
+        {
+          "seconds": 88784,
+          "level": 17,
+          "coins": 18066655,
+          "food": 74272,
+          "magic": 5189.43,
+          "xp": 45.99,
+          "allies": 36,
+          "employees": 8,
+          "buildings": 38,
+          "zones": 6,
+          "partyLevels": [
+            27,
+            25,
+            25
+          ],
+          "stage": 15,
+          "clears": 14,
+          "aidsPerDay": 360240,
+          "actions": {
+            "build": 35,
+            "upgrade": 629,
+            "roads": 51,
+            "land": 2,
+            "hires": 6,
+            "orders": 121,
+            "research": 15
+          }
+        },
+        {
+          "seconds": 100784,
+          "level": 18,
+          "coins": 26829837,
+          "food": 93838,
+          "magic": 7072.92,
+          "xp": 99.57,
+          "allies": 38,
+          "employees": 8,
+          "buildings": 40,
+          "zones": 6,
+          "partyLevels": [
+            29,
+            28,
+            28
+          ],
+          "stage": 20,
+          "clears": 19,
+          "aidsPerDay": 629760,
+          "actions": {
+            "build": 37,
+            "upgrade": 702,
+            "roads": 60,
+            "land": 2,
+            "hires": 6,
+            "orders": 141,
+            "research": 15
+          }
+        },
+        {
+          "seconds": 116384,
+          "level": 19,
+          "coins": 48494433,
+          "food": 119607,
+          "magic": 9910.32,
+          "xp": 94.43,
+          "allies": 40,
+          "employees": 8,
+          "buildings": 41,
+          "zones": 6,
+          "partyLevels": [
+            32,
+            31,
+            31
+          ],
+          "stage": 20,
+          "clears": 19,
+          "aidsPerDay": 568080,
+          "actions": {
+            "build": 38,
+            "upgrade": 760,
+            "roads": 62,
+            "land": 2,
+            "hires": 6,
+            "orders": 167,
+            "research": 15
+          }
+        },
+        {
+          "seconds": 131392,
+          "level": 20,
+          "coins": 66896843,
+          "food": 144634,
+          "magic": 12769.47,
+          "xp": 8.42,
+          "allies": 43,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            34,
+            33,
+            33
+          ],
+          "stage": 20,
+          "clears": 19,
+          "aidsPerDay": 256060,
+          "actions": {
+            "build": 40,
+            "upgrade": 840,
+            "roads": 62,
+            "land": 2,
+            "hires": 6,
+            "orders": 192,
+            "research": 15
+          }
+        }
+      ]
+    }
+  ],
+  "minSeconds": 131400,
+  "maxSeconds": 133800
+}

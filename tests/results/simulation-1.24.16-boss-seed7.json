@@ -1,0 +1,4740 @@
+{
+  "sourceSha256": "49483fef1840aff6fd88fdf6383aa6aa2dc1e211dedd065e04a55f6871c7d17c",
+  "generatedAt": "2026-11-22T06:10:47.837Z",
+  "runs": [
+    {
+      "seed": 7,
+      "version": "1.24.16",
+      "options": {
+        "visitMinutes": 10,
+        "maxHours": 200,
+        "training": false,
+        "bossTraining": true,
+        "orders": true,
+        "stepSeconds": 0.1,
+        "spatialMemoization": true,
+        "strategy": "Start free shop/ranch; automatic adventure; check facilities, tree, staff, research and earned charms at each visit; real movement and legal roads; no guaranteed rare monsters; after a frontier loss, use the latest cleared boss loop until the next check-in, then try forward progress again"
+      },
+      "tree20Seconds": 55200,
+      "stage50Seconds": 148849.2,
+      "treeMilestones": [
+        {
+          "seconds": 2384,
+          "level": 2,
+          "coins": 431,
+          "food": 503,
+          "magic": 32.19,
+          "xp": 267.54,
+          "allies": 3,
+          "employees": 2,
+          "buildings": 8,
+          "zones": 4,
+          "partyLevels": [
+            2,
+            2,
+            2
+          ],
+          "stage": 4,
+          "clears": 3,
+          "aidsPerDay": 930,
+          "actions": {
+            "build": 5,
+            "upgrade": 14,
+            "roads": 0,
+            "land": 0,
+            "hires": 0,
+            "orders": 0,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 5984,
+          "level": 3,
+          "coins": 733,
+          "food": 1720,
+          "magic": 33.99,
+          "xp": 501.87,
+          "allies": 3,
+          "employees": 2,
+          "buildings": 10,
+          "zones": 4,
+          "partyLevels": [
+            3,
+            3,
+            3
+          ],
+          "stage": 5,
+          "clears": 4,
+          "aidsPerDay": 1480,
+          "actions": {
+            "build": 7,
+            "upgrade": 27,
+            "roads": 0,
+            "land": 0,
+            "hires": 0,
+            "orders": 0,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 9584,
+          "level": 4,
+          "coins": 2356,
+          "food": 2827,
+          "magic": 49.79,
+          "xp": 638.06,
+          "allies": 4,
+          "employees": 2,
+          "buildings": 12,
+          "zones": 4,
+          "partyLevels": [
+            5,
+            5,
+            5
+          ],
+          "stage": 5,
+          "clears": 4,
+          "aidsPerDay": 6070,
+          "actions": {
+            "build": 9,
+            "upgrade": 44,
+            "roads": 0,
+            "land": 0,
+            "hires": 0,
+            "orders": 0,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 12592,
+          "level": 5,
+          "coins": 13033,
+          "food": 5205,
+          "magic": 335.3,
+          "xp": 3954.8,
+          "allies": 10,
+          "employees": 2,
+          "buildings": 16,
+          "zones": 4,
+          "partyLevels": [
+            11,
+            10,
+            10
+          ],
+          "stage": 10,
+          "clears": 57,
+          "aidsPerDay": 13430,
+          "actions": {
+            "build": 13,
+            "upgrade": 75,
+            "roads": 0,
+            "land": 0,
+            "hires": 0,
+            "orders": 0,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 14992,
+          "level": 6,
+          "coins": 2351,
+          "food": 8730,
+          "magic": 941.53,
+          "xp": 11491.01,
+          "allies": 12,
+          "employees": 3,
+          "buildings": 21,
+          "zones": 4,
+          "partyLevels": [
+            17,
+            17,
+            17
+          ],
+          "stage": 15,
+          "clears": 177,
+          "aidsPerDay": 14150,
+          "actions": {
+            "build": 18,
+            "upgrade": 120,
+            "roads": 0,
+            "land": 0,
+            "hires": 1,
+            "orders": 2,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 17984,
+          "level": 7,
+          "coins": 23421,
+          "food": 12201,
+          "magic": 1501.76,
+          "xp": 18009.86,
+          "allies": 14,
+          "employees": 3,
+          "buildings": 23,
+          "zones": 4,
+          "partyLevels": [
+            21,
+            21,
+            21
+          ],
+          "stage": 15,
+          "clears": 281,
+          "aidsPerDay": 32060,
+          "actions": {
+            "build": 20,
+            "upgrade": 154,
+            "roads": 0,
+            "land": 0,
+            "hires": 1,
+            "orders": 7,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 20992,
+          "level": 8,
+          "coins": 43151,
+          "food": 14902,
+          "magic": 2099.39,
+          "xp": 25030.89,
+          "allies": 17,
+          "employees": 4,
+          "buildings": 25,
+          "zones": 4,
+          "partyLevels": [
+            25,
+            25,
+            25
+          ],
+          "stage": 15,
+          "clears": 395,
+          "aidsPerDay": 35770,
+          "actions": {
+            "build": 22,
+            "upgrade": 192,
+            "roads": 7,
+            "land": 0,
+            "hires": 2,
+            "orders": 12,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 23984,
+          "level": 9,
+          "coins": 43664,
+          "food": 18786,
+          "magic": 2731.03,
+          "xp": 32143.6,
+          "allies": 19,
+          "employees": 6,
+          "buildings": 26,
+          "zones": 4,
+          "partyLevels": [
+            28,
+            28,
+            28
+          ],
+          "stage": 18,
+          "clears": 517,
+          "aidsPerDay": 27200,
+          "actions": {
+            "build": 23,
+            "upgrade": 225,
+            "roads": 9,
+            "land": 0,
+            "hires": 4,
+            "orders": 17,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 26384,
+          "level": 10,
+          "coins": 41799,
+          "food": 21747,
+          "magic": 3130.96,
+          "xp": 36354.41,
+          "allies": 21,
+          "employees": 6,
+          "buildings": 27,
+          "zones": 5,
+          "partyLevels": [
+            30,
+            30,
+            30
+          ],
+          "stage": 20,
+          "clears": 595,
+          "aidsPerDay": 106540,
+          "actions": {
+            "build": 24,
+            "upgrade": 260,
+            "roads": 38,
+            "land": 1,
+            "hires": 4,
+            "orders": 21,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 29984,
+          "level": 11,
+          "coins": 194617,
+          "food": 25878,
+          "magic": 3798.11,
+          "xp": 43699.33,
+          "allies": 23,
+          "employees": 7,
+          "buildings": 30,
+          "zones": 6,
+          "partyLevels": [
+            33,
+            32,
+            32
+          ],
+          "stage": 20,
+          "clears": 716,
+          "aidsPerDay": 45100,
+          "actions": {
+            "build": 27,
+            "upgrade": 319,
+            "roads": 40,
+            "land": 2,
+            "hires": 5,
+            "orders": 27,
+            "research": 0
+          }
+        },
+        {
+          "seconds": 31792,
+          "level": 12,
+          "coins": 65206,
+          "food": 27337,
+          "magic": 4016.45,
+          "xp": 46497.13,
+          "allies": 25,
+          "employees": 7,
+          "buildings": 30,
+          "zones": 6,
+          "partyLevels": [
+            34,
+            34,
+            34
+          ],
+          "stage": 20,
+          "clears": 780,
+          "aidsPerDay": 66020,
+          "actions": {
+            "build": 27,
+            "upgrade": 348,
+            "roads": 40,
+            "land": 2,
+            "hires": 5,
+            "orders": 30,
+            "research": 1
+          }
+        },
+        {
+          "seconds": 34192,
+          "level": 13,
+          "coins": 27948,
+          "food": 30311,
+          "magic": 4434.36,
+          "xp": 50807.86,
+          "allies": 27,
+          "employees": 8,
+          "buildings": 31,
+          "zones": 6,
+          "partyLevels": [
+            36,
+            35,
+            35
+          ],
+          "stage": 20,
+          "clears": 867,
+          "aidsPerDay": 189170,
+          "actions": {
+            "build": 28,
+            "upgrade": 390,
+            "roads": 40,
+            "land": 2,
+            "hires": 6,
+            "orders": 34,
+            "research": 1
+          }
+        },
+        {
+          "seconds": 37184,
+          "level": 14,
+          "coins": 62789,
+          "food": 34884,
+          "magic": 4947.61,
+          "xp": 56784.77,
+          "allies": 30,
+          "employees": 8,
+          "buildings": 33,
+          "zones": 6,
+          "partyLevels": [
+            38,
+            37,
+            37
+          ],
+          "stage": 20,
+          "clears": 979,
+          "aidsPerDay": 96900,
+          "actions": {
+            "build": 30,
+            "upgrade": 448,
+            "roads": 40,
+            "land": 2,
+            "hires": 6,
+            "orders": 39,
+            "research": 2
+          }
+        },
+        {
+          "seconds": 40192,
+          "level": 15,
+          "coins": 77764,
+          "food": 39454,
+          "magic": 5552.53,
+          "xp": 62611.54,
+          "allies": 32,
+          "employees": 8,
+          "buildings": 35,
+          "zones": 6,
+          "partyLevels": [
+            40,
+            39,
+            39
+          ],
+          "stage": 20,
+          "clears": 1093,
+          "aidsPerDay": 327200,
+          "actions": {
+            "build": 32,
+            "upgrade": 510,
+            "roads": 40,
+            "land": 2,
+            "hires": 6,
+            "orders": 44,
+            "research": 2
+          }
+        },
+        {
+          "seconds": 43792,
+          "level": 16,
+          "coins": 469119,
+          "food": 43811,
+          "magic": 6204.01,
+          "xp": 70071.95,
+          "allies": 34,
+          "employees": 8,
+          "buildings": 37,
+          "zones": 6,
+          "partyLevels": [
+            42,
+            42,
+            42
+          ],
+          "stage": 20,
+          "clears": 1234,
+          "aidsPerDay": 136660,
+          "actions": {
+            "build": 34,
+            "upgrade": 576,
+            "roads": 51,
+            "land": 2,
+            "hires": 6,
+            "orders": 50,
+            "research": 3
+          }
+        },
+        {
+          "seconds": 45584,
+          "level": 17,
+          "coins": 42421,
+          "food": 47010,
+          "magic": 6308.94,
+          "xp": 72595.57,
+          "allies": 36,
+          "employees": 8,
+          "buildings": 38,
+          "zones": 6,
+          "partyLevels": [
+            43,
+            43,
+            43
+          ],
+          "stage": 20,
+          "clears": 1307,
+          "aidsPerDay": 360240,
+          "actions": {
+            "build": 35,
+            "upgrade": 629,
+            "roads": 51,
+            "land": 2,
+            "hires": 6,
+            "orders": 53,
+            "research": 3
+          }
+        },
+        {
+          "seconds": 49184,
+          "level": 18,
+          "coins": 241038,
+          "food": 53584,
+          "magic": 6886.92,
+          "xp": 78938.28,
+          "allies": 38,
+          "employees": 8,
+          "buildings": 40,
+          "zones": 6,
+          "partyLevels": [
+            45,
+            45,
+            45
+          ],
+          "stage": 25,
+          "clears": 1439,
+          "aidsPerDay": 629760,
+          "actions": {
+            "build": 37,
+            "upgrade": 702,
+            "roads": 60,
+            "land": 2,
+            "hires": 6,
+            "orders": 59,
+            "research": 3
+          }
+        },
+        {
+          "seconds": 52192,
+          "level": 19,
+          "coins": 163718,
+          "food": 57593,
+          "magic": 7095.28,
+          "xp": 82099.22,
+          "allies": 40,
+          "employees": 8,
+          "buildings": 41,
+          "zones": 6,
+          "partyLevels": [
+            47,
+            46,
+            46
+          ],
+          "stage": 25,
+          "clears": 1526,
+          "aidsPerDay": 568080,
+          "actions": {
+            "build": 38,
+            "upgrade": 760,
+            "roads": 62,
+            "land": 2,
+            "hires": 6,
+            "orders": 64,
+            "research": 3
+          }
+        },
+        {
+          "seconds": 55184,
+          "level": 20,
+          "coins": 10541,
+          "food": 61890,
+          "magic": 7179.73,
+          "xp": 85310.96,
+          "allies": 43,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            48,
+            47,
+            47
+          ],
+          "stage": 25,
+          "clears": 1614,
+          "aidsPerDay": 256060,
+          "actions": {
+            "build": 40,
+            "upgrade": 840,
+            "roads": 62,
+            "land": 2,
+            "hires": 6,
+            "orders": 69,
+            "research": 3
+          }
+        }
+      ],
+      "stageMilestones": [
+        {
+          "seconds": 9,
+          "clearedStage": 1,
+          "label": "1-1",
+          "tree": 1,
+          "party": [
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 1,
+              "equip": false,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 1,
+              "equip": false,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            },
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 1,
+              "equip": false,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 90.2,
+          "clearedStage": 2,
+          "label": "1-2",
+          "tree": 1,
+          "party": [
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 1,
+              "equip": false,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 1,
+              "equip": false,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            },
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 1,
+              "equip": false,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 2271.3,
+          "clearedStage": 3,
+          "label": "1-3",
+          "tree": 1,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 2,
+              "equip": false,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 1,
+              "equip": false,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 1,
+              "equip": false,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 2505.3,
+          "clearedStage": 4,
+          "label": "1-4",
+          "tree": 2,
+          "party": [
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 2,
+              "equip": false,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 2,
+              "equip": false,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            },
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 2,
+              "equip": false,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 11133,
+          "clearedStage": 5,
+          "label": "1-5",
+          "tree": 4,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 6,
+              "equip": false,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 5,
+              "equip": false,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 5,
+              "equip": false,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 11417.4,
+          "clearedStage": 6,
+          "label": "2-1",
+          "tree": 4,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 6,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 5,
+              "equip": false,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 5,
+              "equip": false,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 11442.6,
+          "clearedStage": 7,
+          "label": "2-2",
+          "tree": 4,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 6,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 5,
+              "equip": false,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 5,
+              "equip": false,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 12031.2,
+          "clearedStage": 8,
+          "label": "2-3",
+          "tree": 4,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 9,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 8,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 8,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 12058.2,
+          "clearedStage": 9,
+          "label": "2-4",
+          "tree": 4,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 9,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 8,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 8,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 14437.8,
+          "clearedStage": 10,
+          "label": "2-5",
+          "tree": 5,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 17,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 16,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 16,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 14463,
+          "clearedStage": 11,
+          "label": "3-1",
+          "tree": 5,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 17,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 16,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 16,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 14488.2,
+          "clearedStage": 12,
+          "label": "3-2",
+          "tree": 5,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 17,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 16,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 16,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 14509.8,
+          "clearedStage": 13,
+          "label": "3-3",
+          "tree": 5,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 17,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 16,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 16,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 14536.8,
+          "clearedStage": 14,
+          "label": "3-4",
+          "tree": 5,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 17,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 16,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 16,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 22823.6,
+          "clearedStage": 15,
+          "label": "3-5",
+          "tree": 8,
+          "party": [
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 27,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 27,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            },
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 27,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 22845.2,
+          "clearedStage": 16,
+          "label": "4-1",
+          "tree": 8,
+          "party": [
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 27,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 27,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            },
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 27,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 22868.6,
+          "clearedStage": 17,
+          "label": "4-2",
+          "tree": 8,
+          "party": [
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 27,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 27,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            },
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 27,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 24036.8,
+          "clearedStage": 18,
+          "label": "4-3",
+          "tree": 9,
+          "party": [
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 28,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 28,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            },
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 28,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 24065.6,
+          "clearedStage": 19,
+          "label": "4-4",
+          "tree": 9,
+          "party": [
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 28,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 28,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            },
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 28,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 46826,
+          "clearedStage": 20,
+          "label": "4-5",
+          "tree": 17,
+          "party": [
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 44,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 44,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            },
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 44,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 46858.4,
+          "clearedStage": 21,
+          "label": "5-1",
+          "tree": 17,
+          "party": [
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 44,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 44,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            },
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 44,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 47418.2,
+          "clearedStage": 22,
+          "label": "5-2",
+          "tree": 17,
+          "party": [
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 44,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 44,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            },
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 44,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 47438,
+          "clearedStage": 23,
+          "label": "5-3",
+          "tree": 17,
+          "party": [
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 44,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 44,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            },
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 44,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 47459.6,
+          "clearedStage": 24,
+          "label": "5-4",
+          "tree": 17,
+          "party": [
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 44,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 44,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            },
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 44,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 114630.5,
+          "clearedStage": 25,
+          "label": "5-5",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 114648.5,
+          "clearedStage": 26,
+          "label": "6-1",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 114668.3,
+          "clearedStage": 27,
+          "label": "6-2",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 114691.7,
+          "clearedStage": 28,
+          "label": "6-3",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 114713.3,
+          "clearedStage": 29,
+          "label": "6-4",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 114734.9,
+          "clearedStage": 30,
+          "label": "6-5",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 114754.7,
+          "clearedStage": 31,
+          "label": "7-1",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 114776.3,
+          "clearedStage": 32,
+          "label": "7-2",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 114797.9,
+          "clearedStage": 33,
+          "label": "7-3",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 114826.7,
+          "clearedStage": 34,
+          "label": "7-4",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 114857.3,
+          "clearedStage": 35,
+          "label": "7-5",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 114878.9,
+          "clearedStage": 36,
+          "label": "8-1",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 114909.5,
+          "clearedStage": 37,
+          "label": "8-2",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 114941.9,
+          "clearedStage": 38,
+          "label": "8-3",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 115229.9,
+          "clearedStage": 39,
+          "label": "8-4",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 115264.1,
+          "clearedStage": 40,
+          "label": "8-5",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 115294.7,
+          "clearedStage": 41,
+          "label": "9-1",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 115325.3,
+          "clearedStage": 42,
+          "label": "9-2",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 115832.9,
+          "clearedStage": 43,
+          "label": "9-3",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 115863.5,
+          "clearedStage": 44,
+          "label": "9-4",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 71,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 70,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 145225.8,
+          "clearedStage": 45,
+          "label": "9-5",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 78,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 77,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 77,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 146430,
+          "clearedStage": 46,
+          "label": "10-1",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 78,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 77,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 77,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 146460.6,
+          "clearedStage": 47,
+          "label": "10-2",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 78,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 77,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 77,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 146491.2,
+          "clearedStage": 48,
+          "label": "10-3",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 78,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 77,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 77,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 147038.4,
+          "clearedStage": 49,
+          "label": "10-4",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 78,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 77,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 77,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        },
+        {
+          "seconds": 148849.2,
+          "clearedStage": 50,
+          "label": "10-5",
+          "tree": 20,
+          "party": [
+            {
+              "kind": 2,
+              "name": "ミズポン",
+              "level": 79,
+              "equip": true,
+              "iv": {
+                "hp": 47,
+                "attack": 86,
+                "defense": 36
+              }
+            },
+            {
+              "kind": 0,
+              "name": "モフリン",
+              "level": 78,
+              "equip": true,
+              "iv": {
+                "hp": 24,
+                "attack": 92,
+                "defense": 61
+              }
+            },
+            {
+              "kind": 1,
+              "name": "ピカピヨ",
+              "level": 78,
+              "equip": true,
+              "iv": {
+                "hp": 99,
+                "attack": 98,
+                "defense": 53
+              }
+            }
+          ]
+        }
+      ],
+      "periodic": [
+        {
+          "seconds": 3600,
+          "level": 2,
+          "coins": 68,
+          "food": 910.3241069173282,
+          "magic": 33.79,
+          "xp": 505.33,
+          "allies": 3,
+          "employees": 2,
+          "buildings": 9,
+          "zones": 4,
+          "partyLevels": [
+            2,
+            2,
+            2
+          ],
+          "stage": 5,
+          "clears": 4,
+          "aidsPerDay": 930,
+          "actions": {
+            "equip": 0,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 0
+          },
+          "maxLevel": 2,
+          "battle": {
+            "wins": 4,
+            "losses": 285,
+            "rounds": 1693
+          },
+          "goldPerDay": 1049,
+          "stock": 14,
+          "customers": 17,
+          "research": {
+            "battle": 0,
+            "guest": 0,
+            "farm": 0,
+            "train": 0,
+            "market": 0,
+            "quest": 0
+          }
+        },
+        {
+          "seconds": 7200,
+          "level": 3,
+          "coins": 237,
+          "food": 2157.745583922907,
+          "magic": 34.59,
+          "xp": 768.26,
+          "allies": 3,
+          "employees": 2,
+          "buildings": 11,
+          "zones": 4,
+          "partyLevels": [
+            4,
+            4,
+            4
+          ],
+          "stage": 5,
+          "clears": 4,
+          "aidsPerDay": 1480,
+          "actions": {
+            "equip": 0,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 0
+          },
+          "maxLevel": 4,
+          "battle": {
+            "wins": 4,
+            "losses": 538,
+            "rounds": 3439
+          },
+          "goldPerDay": 1721,
+          "stock": 50,
+          "customers": 34,
+          "research": {
+            "battle": 0,
+            "guest": 0,
+            "farm": 0,
+            "train": 0,
+            "market": 0,
+            "quest": 0
+          }
+        },
+        {
+          "seconds": 10800,
+          "level": 4,
+          "coins": 180,
+          "food": 3208.2442999566815,
+          "magic": 63.39,
+          "xp": 1064.63,
+          "allies": 4,
+          "employees": 2,
+          "buildings": 16,
+          "zones": 4,
+          "partyLevels": [
+            5,
+            5,
+            5
+          ],
+          "stage": 5,
+          "clears": 4,
+          "aidsPerDay": 6070,
+          "actions": {
+            "equip": 0,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 0
+          },
+          "maxLevel": 5,
+          "battle": {
+            "wins": 4,
+            "losses": 740,
+            "rounds": 5237
+          },
+          "goldPerDay": 6753,
+          "stock": 150,
+          "customers": 45,
+          "research": {
+            "battle": 0,
+            "guest": 0,
+            "farm": 0,
+            "train": 0,
+            "market": 0,
+            "quest": 0
+          }
+        },
+        {
+          "seconds": 14400,
+          "level": 5,
+          "coins": 680,
+          "food": 8128.443140877753,
+          "magic": 882.92,
+          "xp": 10979.42,
+          "allies": 12,
+          "employees": 3,
+          "buildings": 21,
+          "zones": 4,
+          "partyLevels": [
+            16,
+            16,
+            16
+          ],
+          "stage": 10,
+          "clears": 157,
+          "aidsPerDay": 13430,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 6
+          },
+          "maxLevel": 16,
+          "battle": {
+            "wins": 157,
+            "losses": 763,
+            "rounds": 6334
+          },
+          "goldPerDay": 17217,
+          "stock": 226,
+          "customers": 138,
+          "research": {
+            "battle": 0,
+            "guest": 0,
+            "farm": 0,
+            "train": 0,
+            "market": 0,
+            "quest": 0
+          }
+        },
+        {
+          "seconds": 18000,
+          "level": 7,
+          "coins": 1144,
+          "food": 12201.44174735033,
+          "magic": 1501.76,
+          "xp": 18126.86,
+          "allies": 14,
+          "employees": 3,
+          "buildings": 23,
+          "zones": 4,
+          "partyLevels": [
+            21,
+            21,
+            21
+          ],
+          "stage": 15,
+          "clears": 281,
+          "aidsPerDay": 32060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 12
+          },
+          "maxLevel": 21,
+          "battle": {
+            "wins": 281,
+            "losses": 769,
+            "rounds": 7717
+          },
+          "goldPerDay": 18816,
+          "stock": 397,
+          "customers": 255,
+          "research": {
+            "battle": 0,
+            "guest": 0,
+            "farm": 0,
+            "train": 0,
+            "market": 0,
+            "quest": 0
+          }
+        },
+        {
+          "seconds": 21600,
+          "level": 8,
+          "coins": 1439,
+          "food": 15562.760915029829,
+          "magic": 2241.18,
+          "xp": 26856.63,
+          "allies": 19,
+          "employees": 6,
+          "buildings": 26,
+          "zones": 4,
+          "partyLevels": [
+            26,
+            25,
+            25
+          ],
+          "stage": 15,
+          "clears": 419,
+          "aidsPerDay": 35770,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 18
+          },
+          "maxLevel": 26,
+          "battle": {
+            "wins": 419,
+            "losses": 775,
+            "rounds": 9030
+          },
+          "goldPerDay": 42635,
+          "stock": 638,
+          "customers": 387,
+          "research": {
+            "battle": 0,
+            "guest": 0,
+            "farm": 0,
+            "train": 0,
+            "market": 0,
+            "quest": 0
+          }
+        },
+        {
+          "seconds": 25200,
+          "level": 9,
+          "coins": 136,
+          "food": 20301.135960501942,
+          "magic": 2997.77,
+          "xp": 35099.89,
+          "allies": 21,
+          "employees": 6,
+          "buildings": 27,
+          "zones": 5,
+          "partyLevels": [
+            29,
+            29,
+            29
+          ],
+          "stage": 20,
+          "clears": 556,
+          "aidsPerDay": 27200,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 26
+          },
+          "maxLevel": 29,
+          "battle": {
+            "wins": 556,
+            "losses": 783,
+            "rounds": 10352
+          },
+          "goldPerDay": 33669,
+          "stock": 924,
+          "customers": 506,
+          "research": {
+            "battle": 0,
+            "guest": 0,
+            "farm": 0,
+            "train": 0,
+            "market": 0,
+            "quest": 0
+          }
+        },
+        {
+          "seconds": 28800,
+          "level": 10,
+          "coins": 3734,
+          "food": 24662.98629537704,
+          "magic": 3666.08,
+          "xp": 42504.55,
+          "allies": 23,
+          "employees": 7,
+          "buildings": 30,
+          "zones": 6,
+          "partyLevels": [
+            32,
+            32,
+            32
+          ],
+          "stage": 20,
+          "clears": 675,
+          "aidsPerDay": 106540,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 32
+          },
+          "maxLevel": 32,
+          "battle": {
+            "wins": 675,
+            "losses": 789,
+            "rounds": 11759
+          },
+          "goldPerDay": 115067,
+          "stock": 1453,
+          "customers": 623,
+          "research": {
+            "battle": 0,
+            "guest": 0,
+            "farm": 0,
+            "train": 0,
+            "market": 0,
+            "quest": 0
+          }
+        },
+        {
+          "seconds": 32400,
+          "level": 12,
+          "coins": 2687,
+          "food": 27892.394492798954,
+          "magic": 4169.75,
+          "xp": 48233.99,
+          "allies": 27,
+          "employees": 8,
+          "buildings": 30,
+          "zones": 6,
+          "partyLevels": [
+            34,
+            34,
+            34
+          ],
+          "stage": 20,
+          "clears": 802,
+          "aidsPerDay": 66020,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 38
+          },
+          "maxLevel": 34,
+          "battle": {
+            "wins": 802,
+            "losses": 795,
+            "rounds": 13129
+          },
+          "goldPerDay": 55586,
+          "stock": 3113,
+          "customers": 730,
+          "research": {
+            "battle": 0,
+            "guest": 0,
+            "farm": 0,
+            "train": 1,
+            "market": 0,
+            "quest": 0
+          }
+        },
+        {
+          "seconds": 36000,
+          "level": 13,
+          "coins": 3539,
+          "food": 33030.46442174177,
+          "magic": 4954.84,
+          "xp": 55974.34,
+          "allies": 30,
+          "employees": 8,
+          "buildings": 33,
+          "zones": 6,
+          "partyLevels": [
+            37,
+            37,
+            37
+          ],
+          "stage": 20,
+          "clears": 933,
+          "aidsPerDay": 189170,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 44
+          },
+          "maxLevel": 37,
+          "battle": {
+            "wins": 933,
+            "losses": 801,
+            "rounds": 14475
+          },
+          "goldPerDay": 205069,
+          "stock": 5382,
+          "customers": 863,
+          "research": {
+            "battle": 0,
+            "guest": 0,
+            "farm": 0,
+            "train": 1,
+            "market": 0,
+            "quest": 0
+          }
+        },
+        {
+          "seconds": 39600,
+          "level": 14,
+          "coins": 103743,
+          "food": 38529.82040520233,
+          "magic": 5703.18,
+          "xp": 63618.04,
+          "allies": 32,
+          "employees": 8,
+          "buildings": 35,
+          "zones": 6,
+          "partyLevels": [
+            39,
+            39,
+            39
+          ],
+          "stage": 20,
+          "clears": 1070,
+          "aidsPerDay": 96900,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 50
+          },
+          "maxLevel": 39,
+          "battle": {
+            "wins": 1070,
+            "losses": 807,
+            "rounds": 15797
+          },
+          "goldPerDay": 109364,
+          "stock": 8167,
+          "customers": 986,
+          "research": {
+            "battle": 0,
+            "guest": 0,
+            "farm": 0,
+            "train": 2,
+            "market": 0,
+            "quest": 0
+          }
+        },
+        {
+          "seconds": 43200,
+          "level": 15,
+          "coins": 130644,
+          "food": 42823.91380784278,
+          "magic": 6439.62,
+          "xp": 71237.22,
+          "allies": 34,
+          "employees": 8,
+          "buildings": 37,
+          "zones": 6,
+          "partyLevels": [
+            42,
+            41,
+            41
+          ],
+          "stage": 20,
+          "clears": 1210,
+          "aidsPerDay": 327200,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 56
+          },
+          "maxLevel": 42,
+          "battle": {
+            "wins": 1210,
+            "losses": 813,
+            "rounds": 17098
+          },
+          "goldPerDay": 346527,
+          "stock": 11945,
+          "customers": 1105,
+          "research": {
+            "battle": 0,
+            "guest": 0,
+            "farm": 0,
+            "train": 3,
+            "market": 0,
+            "quest": 0
+          }
+        },
+        {
+          "seconds": 46800,
+          "level": 17,
+          "coins": 138,
+          "food": 49327.84753831078,
+          "magic": 6756.01,
+          "xp": 76617.98,
+          "allies": 38,
+          "employees": 8,
+          "buildings": 40,
+          "zones": 6,
+          "partyLevels": [
+            44,
+            44,
+            44
+          ],
+          "stage": 20,
+          "clears": 1356,
+          "aidsPerDay": 360240,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 62
+          },
+          "maxLevel": 44,
+          "battle": {
+            "wins": 1356,
+            "losses": 819,
+            "rounds": 18373
+          },
+          "goldPerDay": 379910,
+          "stock": 15797,
+          "customers": 1233,
+          "research": {
+            "battle": 0,
+            "guest": 0,
+            "farm": 0,
+            "train": 3,
+            "market": 0,
+            "quest": 0
+          }
+        },
+        {
+          "seconds": 50400,
+          "level": 18,
+          "coins": 150321,
+          "food": 55464.224073435274,
+          "magic": 7297.13,
+          "xp": 81982.46,
+          "allies": 40,
+          "employees": 8,
+          "buildings": 41,
+          "zones": 6,
+          "partyLevels": [
+            46,
+            45,
+            45
+          ],
+          "stage": 25,
+          "clears": 1474,
+          "aidsPerDay": 629760,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 71
+          },
+          "maxLevel": 46,
+          "battle": {
+            "wins": 1474,
+            "losses": 828,
+            "rounds": 19788
+          },
+          "goldPerDay": 655773,
+          "stock": 20418,
+          "customers": 1346,
+          "research": {
+            "battle": 0,
+            "guest": 0,
+            "farm": 0,
+            "train": 3,
+            "market": 0,
+            "quest": 0
+          }
+        },
+        {
+          "seconds": 54000,
+          "level": 19,
+          "coins": 48032,
+          "food": 59714.6588932529,
+          "magic": 7743.3,
+          "xp": 86687.57,
+          "allies": 43,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            47,
+            47,
+            47
+          ],
+          "stage": 25,
+          "clears": 1579,
+          "aidsPerDay": 568080,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 77
+          },
+          "maxLevel": 47,
+          "battle": {
+            "wins": 1579,
+            "losses": 834,
+            "rounds": 21268
+          },
+          "goldPerDay": 595503,
+          "stock": 25175,
+          "customers": 1480,
+          "research": {
+            "battle": 0,
+            "guest": 0,
+            "farm": 0,
+            "train": 3,
+            "market": 0,
+            "quest": 0
+          }
+        },
+        {
+          "seconds": 57600,
+          "level": 20,
+          "coins": 1725713,
+          "food": 66394.54556331693,
+          "magic": 7537.8,
+          "xp": 90277.3,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            49,
+            48,
+            48
+          ],
+          "stage": 25,
+          "clears": 1687,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 83
+          },
+          "maxLevel": 49,
+          "battle": {
+            "wins": 1687,
+            "losses": 840,
+            "rounds": 22728
+          },
+          "goldPerDay": 282174,
+          "stock": 29738,
+          "customers": 1609,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 0,
+            "train": 3,
+            "market": 0,
+            "quest": 0
+          }
+        },
+        {
+          "seconds": 61200,
+          "level": 20,
+          "coins": 4346568,
+          "food": 72915.9437327334,
+          "magic": 8244.46,
+          "xp": 98424.95,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            51,
+            50,
+            50
+          ],
+          "stage": 25,
+          "clears": 1808,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 89
+          },
+          "maxLevel": 51,
+          "battle": {
+            "wins": 1808,
+            "losses": 846,
+            "rounds": 24124
+          },
+          "goldPerDay": 285518,
+          "stock": 35221,
+          "customers": 1733,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 0,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 64800,
+          "level": 20,
+          "coins": 7250193,
+          "food": 78662.22802258053,
+          "magic": 9360.11,
+          "xp": 106634.34,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            52,
+            52,
+            52
+          ],
+          "stage": 25,
+          "clears": 1930,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 95
+          },
+          "maxLevel": 52,
+          "battle": {
+            "wins": 1930,
+            "losses": 852,
+            "rounds": 25517
+          },
+          "goldPerDay": 310467,
+          "stock": 40154,
+          "customers": 1862,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 68400,
+          "level": 20,
+          "coins": 9919128,
+          "food": 88117.69980644982,
+          "magic": 10787.72,
+          "xp": 114960.74,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            54,
+            53,
+            53
+          ],
+          "stage": 25,
+          "clears": 2055,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 101
+          },
+          "maxLevel": 54,
+          "battle": {
+            "wins": 2055,
+            "losses": 858,
+            "rounds": 26891
+          },
+          "goldPerDay": 291982,
+          "stock": 45099,
+          "customers": 1996,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 72000,
+          "level": 20,
+          "coins": 12546978,
+          "food": 97147.96885698866,
+          "magic": 12210.14,
+          "xp": 123410.63,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            55,
+            55,
+            55
+          ],
+          "stage": 25,
+          "clears": 2182,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 107
+          },
+          "maxLevel": 55,
+          "battle": {
+            "wins": 2182,
+            "losses": 864,
+            "rounds": 28259
+          },
+          "goldPerDay": 290934,
+          "stock": 50408,
+          "customers": 2121,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 75600,
+          "level": 20,
+          "coins": 15421780,
+          "food": 103530.5893519264,
+          "magic": 13625.68,
+          "xp": 132052.28,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            57,
+            56,
+            56
+          ],
+          "stage": 25,
+          "clears": 2311,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 113
+          },
+          "maxLevel": 57,
+          "battle": {
+            "wins": 2311,
+            "losses": 870,
+            "rounds": 29618
+          },
+          "goldPerDay": 289437,
+          "stock": 55610,
+          "customers": 2246,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 79200,
+          "level": 20,
+          "coins": 18084510,
+          "food": 112925.9680836036,
+          "magic": 15072.33,
+          "xp": 140648.43,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            58,
+            57,
+            57
+          ],
+          "stage": 25,
+          "clears": 2440,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 119
+          },
+          "maxLevel": 58,
+          "battle": {
+            "wins": 2440,
+            "losses": 876,
+            "rounds": 30977
+          },
+          "goldPerDay": 311311,
+          "stock": 61127,
+          "customers": 2375,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 82800,
+          "level": 20,
+          "coins": 20720388,
+          "food": 122140.91186668418,
+          "magic": 16549.77,
+          "xp": 149537.07,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            59,
+            59,
+            59
+          ],
+          "stage": 25,
+          "clears": 2573,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 125
+          },
+          "maxLevel": 59,
+          "battle": {
+            "wins": 2573,
+            "losses": 882,
+            "rounds": 32316
+          },
+          "goldPerDay": 287330,
+          "stock": 66806,
+          "customers": 2489,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 86400,
+          "level": 20,
+          "coins": 23597026,
+          "food": 128496.92876100953,
+          "magic": 18034.02,
+          "xp": 158419.22,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            61,
+            60,
+            60
+          ],
+          "stage": 25,
+          "clears": 2707,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 131
+          },
+          "maxLevel": 61,
+          "battle": {
+            "wins": 2707,
+            "losses": 888,
+            "rounds": 33647
+          },
+          "goldPerDay": 302370,
+          "stock": 72051,
+          "customers": 2603,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 90000,
+          "level": 20,
+          "coins": 26252505,
+          "food": 138322.9271475917,
+          "magic": 19549.66,
+          "xp": 167532.11,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            62,
+            61,
+            61
+          ],
+          "stage": 25,
+          "clears": 2844,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 137
+          },
+          "maxLevel": 62,
+          "battle": {
+            "wins": 2844,
+            "losses": 894,
+            "rounds": 34973
+          },
+          "goldPerDay": 294322,
+          "stock": 77773,
+          "customers": 2726,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 93600,
+          "level": 20,
+          "coins": 29188758,
+          "food": 147399.00149182222,
+          "magic": 21060.22,
+          "xp": 176638.51,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            64,
+            63,
+            63
+          ],
+          "stage": 25,
+          "clears": 2982,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 143
+          },
+          "maxLevel": 64,
+          "battle": {
+            "wins": 2982,
+            "losses": 900,
+            "rounds": 36290
+          },
+          "goldPerDay": 298328,
+          "stock": 83173,
+          "customers": 2844,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 97200,
+          "level": 20,
+          "coins": 31837656,
+          "food": 154402.9701466061,
+          "magic": 22586.09,
+          "xp": 185790.4,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            65,
+            64,
+            64
+          ],
+          "stage": 25,
+          "clears": 3120,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 149
+          },
+          "maxLevel": 65,
+          "battle": {
+            "wins": 3120,
+            "losses": 906,
+            "rounds": 37607
+          },
+          "goldPerDay": 285910,
+          "stock": 88594,
+          "customers": 2968,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 100800,
+          "level": 20,
+          "coins": 34530109,
+          "food": 164138.02734193884,
+          "magic": 24143.42,
+          "xp": 195026.8,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            66,
+            65,
+            65
+          ],
+          "stage": 25,
+          "clears": 3259,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 155
+          },
+          "maxLevel": 66,
+          "battle": {
+            "wins": 3259,
+            "losses": 912,
+            "rounds": 38915
+          },
+          "goldPerDay": 296959,
+          "stock": 94113,
+          "customers": 3101,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 104400,
+          "level": 20,
+          "coins": 37475556,
+          "food": 173280.9268995445,
+          "magic": 25680.58,
+          "xp": 204279.44,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            67,
+            66,
+            66
+          ],
+          "stage": 25,
+          "clears": 3399,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 161
+          },
+          "maxLevel": 67,
+          "battle": {
+            "wins": 3399,
+            "losses": 918,
+            "rounds": 40216
+          },
+          "goldPerDay": 309966,
+          "stock": 99367,
+          "customers": 3220,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 108000,
+          "level": 20,
+          "coins": 40121364,
+          "food": 180252.96522990067,
+          "magic": 27278.98,
+          "xp": 213801.84,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            69,
+            68,
+            68
+          ],
+          "stage": 25,
+          "clears": 3543,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 167
+          },
+          "maxLevel": 69,
+          "battle": {
+            "wins": 3543,
+            "losses": 924,
+            "rounds": 41502
+          },
+          "goldPerDay": 289879,
+          "stock": 105249,
+          "customers": 3332,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 111600,
+          "level": 20,
+          "coins": 42853306,
+          "food": 190210.63091735088,
+          "magic": 28903.18,
+          "xp": 223408.73,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            70,
+            69,
+            69
+          ],
+          "stage": 25,
+          "clears": 3688,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 173
+          },
+          "maxLevel": 70,
+          "battle": {
+            "wins": 3688,
+            "losses": 930,
+            "rounds": 42778
+          },
+          "goldPerDay": 297028,
+          "stock": 110726,
+          "customers": 3468,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 115200,
+          "level": 20,
+          "coins": 45803558,
+          "food": 199370.1843283897,
+          "magic": 30438.81,
+          "xp": 232406.58,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            71,
+            70,
+            70
+          ],
+          "stage": 39,
+          "clears": 3832,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 179
+          },
+          "maxLevel": 71,
+          "battle": {
+            "wins": 3832,
+            "losses": 936,
+            "rounds": 44065
+          },
+          "goldPerDay": 320753,
+          "stock": 116249,
+          "customers": 3588,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 118800,
+          "level": 20,
+          "coins": 48487952,
+          "food": 205389.3170689827,
+          "magic": 31855.89,
+          "xp": 239319.22,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            72,
+            71,
+            71
+          ],
+          "stage": 45,
+          "clears": 3938,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 190
+          },
+          "maxLevel": 72,
+          "battle": {
+            "wins": 3938,
+            "losses": 947,
+            "rounds": 45537
+          },
+          "goldPerDay": 296903,
+          "stock": 122258,
+          "customers": 3716,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 122400,
+          "level": 20,
+          "coins": 51384516,
+          "food": 214540.47366658613,
+          "magic": 33257.09,
+          "xp": 246270.87,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            73,
+            72,
+            72
+          ],
+          "stage": 45,
+          "clears": 4040,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 196
+          },
+          "maxLevel": 73,
+          "battle": {
+            "wins": 4040,
+            "losses": 953,
+            "rounds": 47027
+          },
+          "goldPerDay": 299020,
+          "stock": 128156,
+          "customers": 3823,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 126000,
+          "level": 20,
+          "coins": 54070567,
+          "food": 223044.29095973572,
+          "magic": 34677.16,
+          "xp": 253222.51,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            73,
+            72,
+            72
+          ],
+          "stage": 45,
+          "clears": 4142,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 202
+          },
+          "maxLevel": 73,
+          "battle": {
+            "wins": 4142,
+            "losses": 959,
+            "rounds": 48517
+          },
+          "goldPerDay": 291013,
+          "stock": 133959,
+          "customers": 3940,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 129600,
+          "level": 20,
+          "coins": 56767869,
+          "food": 229537.47211653262,
+          "magic": 36105.63,
+          "xp": 260235.91,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            74,
+            73,
+            73
+          ],
+          "stage": 45,
+          "clears": 4245,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 208
+          },
+          "maxLevel": 74,
+          "battle": {
+            "wins": 4245,
+            "losses": 965,
+            "rounds": 50006
+          },
+          "goldPerDay": 294720,
+          "stock": 139865,
+          "customers": 4062,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 133200,
+          "level": 20,
+          "coins": 59718779,
+          "food": 238692.46248795014,
+          "magic": 37510.43,
+          "xp": 267395.55,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            75,
+            74,
+            74
+          ],
+          "stage": 45,
+          "clears": 4350,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 214
+          },
+          "maxLevel": 75,
+          "battle": {
+            "wins": 4350,
+            "losses": 971,
+            "rounds": 51481
+          },
+          "goldPerDay": 296578,
+          "stock": 145472,
+          "customers": 4187,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 136800,
+          "level": 20,
+          "coins": 62410307,
+          "food": 247378.77253560474,
+          "magic": 39000.96,
+          "xp": 274486.95,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            76,
+            75,
+            75
+          ],
+          "stage": 45,
+          "clears": 4455,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 220
+          },
+          "maxLevel": 76,
+          "battle": {
+            "wins": 4455,
+            "losses": 977,
+            "rounds": 52957
+          },
+          "goldPerDay": 293556,
+          "stock": 151535,
+          "customers": 4311,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 140400,
+          "level": 20,
+          "coins": 65140418,
+          "food": 253488.7733042915,
+          "magic": 40481.17,
+          "xp": 281770.09,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            77,
+            76,
+            76
+          ],
+          "stage": 45,
+          "clears": 4562,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 226
+          },
+          "maxLevel": 77,
+          "battle": {
+            "wins": 4562,
+            "losses": 983,
+            "rounds": 54425
+          },
+          "goldPerDay": 301884,
+          "stock": 157467,
+          "customers": 4439,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 144000,
+          "level": 20,
+          "coins": 68108558,
+          "food": 262533.51946804294,
+          "magic": 41958.94,
+          "xp": 288962.24,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            78,
+            77,
+            77
+          ],
+          "stage": 45,
+          "clears": 4669,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 232
+          },
+          "maxLevel": 78,
+          "battle": {
+            "wins": 4669,
+            "losses": 989,
+            "rounds": 55894
+          },
+          "goldPerDay": 306935,
+          "stock": 163481,
+          "customers": 4559,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        },
+        {
+          "seconds": 147600,
+          "level": 20,
+          "coins": 70843189,
+          "food": 271269.1259070331,
+          "magic": 43418.71,
+          "xp": 295924.93,
+          "allies": 45,
+          "employees": 8,
+          "buildings": 43,
+          "zones": 6,
+          "partyLevels": [
+            78,
+            77,
+            77
+          ],
+          "stage": 50,
+          "clears": 4774,
+          "aidsPerDay": 256060,
+          "actions": {
+            "equip": 3,
+            "train": 0,
+            "fruit": 0,
+            "bossSwitches": 242
+          },
+          "maxLevel": 78,
+          "battle": {
+            "wins": 4774,
+            "losses": 999,
+            "rounds": 57376
+          },
+          "goldPerDay": 300038,
+          "stock": 169538,
+          "customers": 4686,
+          "research": {
+            "battle": 3,
+            "guest": 0,
+            "farm": 3,
+            "train": 3,
+            "market": 3,
+            "quest": 3
+          }
+        }
+      ],
+      "final": {
+        "seconds": 148849.2,
+        "level": 20,
+        "coins": 71745991,
+        "food": 273447.4996464719,
+        "magic": 43940.71,
+        "xp": 298427.59,
+        "allies": 45,
+        "employees": 8,
+        "buildings": 43,
+        "zones": 6,
+        "partyLevels": [
+          79,
+          78,
+          78
+        ],
+        "stage": 51,
+        "clears": 4811,
+        "aidsPerDay": 256060,
+        "actions": {
+          "equip": 3,
+          "train": 0,
+          "fruit": 0,
+          "bossSwitches": 246
+        },
+        "maxLevel": 79,
+        "battle": {
+          "wins": 4811,
+          "losses": 1003,
+          "rounds": 57890
+        },
+        "goldPerDay": 295584,
+        "stock": 171652,
+        "customers": 4729,
+        "research": {
+          "battle": 3,
+          "guest": 0,
+          "farm": 3,
+          "train": 3,
+          "market": 3,
+          "quest": 3
+        }
+      },
+      "buildings": [
+        {
+          "type": "farm",
+          "level": 21,
+          "x": 3,
+          "y": 3
+        },
+        {
+          "type": "home",
+          "level": 21,
+          "x": 8,
+          "y": 3,
+          "facing": 3
+        },
+        {
+          "type": "worldtree",
+          "level": 20,
+          "x": 11,
+          "y": 13,
+          "facing": 1
+        },
+        {
+          "type": "shop",
+          "level": 21,
+          "x": 11,
+          "y": 8,
+          "facing": 1
+        },
+        {
+          "type": "ranch",
+          "level": 21,
+          "x": 8,
+          "y": 8,
+          "facing": 2
+        },
+        {
+          "type": "farm",
+          "level": 21,
+          "x": 11,
+          "y": 10,
+          "facing": 1
+        },
+        {
+          "type": "farm",
+          "level": 21,
+          "x": 8,
+          "y": 10,
+          "facing": 3
+        },
+        {
+          "type": "home",
+          "level": 21,
+          "x": 13,
+          "y": 8,
+          "facing": 2
+        },
+        {
+          "type": "school",
+          "level": 21,
+          "x": 11,
+          "y": 4,
+          "facing": 0
+        },
+        {
+          "type": "postOffice",
+          "level": 21,
+          "x": 8,
+          "y": 5,
+          "facing": 0
+        },
+        {
+          "type": "hut",
+          "level": 21,
+          "x": 7,
+          "y": 8,
+          "facing": 2
+        },
+        {
+          "type": "expeditionOffice",
+          "level": 21,
+          "x": 8,
+          "y": 12,
+          "facing": 3
+        },
+        {
+          "type": "park",
+          "level": 21,
+          "x": 15,
+          "y": 8,
+          "facing": 2
+        },
+        {
+          "type": "farm",
+          "level": 21,
+          "x": 6,
+          "y": 5,
+          "facing": 0
+        },
+        {
+          "type": "stall",
+          "level": 21,
+          "x": 6,
+          "y": 8,
+          "facing": 2
+        },
+        {
+          "type": "cafe",
+          "level": 21,
+          "x": 14,
+          "y": 5,
+          "facing": 0
+        },
+        {
+          "type": "home",
+          "level": 21,
+          "x": 4,
+          "y": 8,
+          "facing": 2
+        },
+        {
+          "type": "home",
+          "level": 21,
+          "x": 11,
+          "y": 2,
+          "facing": 1
+        },
+        {
+          "type": "lab",
+          "level": 21,
+          "x": 8,
+          "y": 14,
+          "facing": 2
+        },
+        {
+          "type": "guild212",
+          "level": 21,
+          "x": 16,
+          "y": 4,
+          "facing": 0
+        },
+        {
+          "type": "treasureMuseum213",
+          "level": 21,
+          "x": 4,
+          "y": 5,
+          "facing": 0
+        },
+        {
+          "type": "spring",
+          "level": 21,
+          "x": 7,
+          "y": 0,
+          "facing": 3
+        },
+        {
+          "type": "inn",
+          "level": 21,
+          "x": 0,
+          "y": 4,
+          "facing": 0
+        },
+        {
+          "type": "tower",
+          "level": 21,
+          "x": 4,
+          "y": 14,
+          "facing": 2
+        },
+        {
+          "type": "workshop",
+          "level": 21,
+          "x": 0,
+          "y": 12,
+          "facing": 3
+        },
+        {
+          "type": "clinic",
+          "level": 21,
+          "x": 13,
+          "y": 1,
+          "facing": 1
+        },
+        {
+          "type": "school",
+          "level": 21,
+          "x": 8,
+          "y": 17,
+          "facing": 3
+        },
+        {
+          "type": "shop",
+          "level": 21,
+          "x": 1,
+          "y": 9,
+          "facing": 3
+        },
+        {
+          "type": "palace",
+          "level": 21,
+          "x": 27,
+          "y": 8,
+          "facing": 1
+        },
+        {
+          "type": "ranch",
+          "level": 21,
+          "x": 19,
+          "y": 5,
+          "facing": 0
+        },
+        {
+          "type": "ranch",
+          "level": 21,
+          "x": 21,
+          "y": 8,
+          "facing": 0
+        },
+        {
+          "type": "shop",
+          "level": 21,
+          "x": 21,
+          "y": 6,
+          "facing": 1
+        },
+        {
+          "type": "greenhouse212",
+          "level": 21,
+          "x": 18,
+          "y": 16,
+          "facing": 0
+        },
+        {
+          "type": "school",
+          "level": 21,
+          "x": 23,
+          "y": 8,
+          "facing": 0
+        },
+        {
+          "type": "lab",
+          "level": 21,
+          "x": 25,
+          "y": 15,
+          "facing": 1
+        },
+        {
+          "type": "ranch",
+          "level": 21,
+          "x": 21,
+          "y": 15,
+          "facing": 3
+        },
+        {
+          "type": "gallery212",
+          "level": 21,
+          "x": 21,
+          "y": 3,
+          "facing": 0
+        },
+        {
+          "type": "shop",
+          "level": 21,
+          "x": 21,
+          "y": 17,
+          "facing": 0
+        },
+        {
+          "type": "tower",
+          "level": 21,
+          "x": 28,
+          "y": 14,
+          "facing": 0
+        },
+        {
+          "type": "greenhouse212",
+          "level": 21,
+          "x": 21,
+          "y": 0,
+          "facing": 3
+        },
+        {
+          "type": "sanctuary212",
+          "level": 21,
+          "x": 29,
+          "y": 3,
+          "facing": 1
+        },
+        {
+          "type": "shop",
+          "level": 21,
+          "x": 25,
+          "y": 4,
+          "facing": 0
+        },
+        {
+          "type": "gallery212",
+          "level": 21,
+          "x": 25,
+          "y": 0,
+          "facing": 1
+        }
+      ],
+      "unreachableEntrances": [],
+      "complete": true,
+      "wallSeconds": 188.772
+    }
+  ]
+}

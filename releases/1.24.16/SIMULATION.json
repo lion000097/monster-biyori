@@ -1,0 +1,386 @@
+{
+  "version": "1.24.16",
+  "generatedAt": "2026-11-22T06:22:57.609Z",
+  "verifiedSourceSha256": [
+    "49483fef1840aff6fd88fdf6383aa6aa2dc1e211dedd065e04a55f6871c7d17c"
+  ],
+  "timeUnit": "seconds of continuously visible 1x game operation from a fresh ranch",
+  "automatic": {
+    "seeds": [
+      7,
+      23,
+      91
+    ],
+    "stage50": {
+      "min": 612678.5,
+      "max": 765712.4,
+      "median": 699875.2,
+      "mean": 692755.3666666667
+    },
+    "tree20": {
+      "min": 131400,
+      "max": 133800,
+      "median": 131400,
+      "mean": 132200
+    }
+  },
+  "bossTraining": {
+    "seed": 7,
+    "stage50Seconds": 148849.2,
+    "tree20Seconds": 55200,
+    "actionPolicy": "Every 10 minutes attempt forward progression. After a defeat immediately switch to the latest cleared boss using the existing UI/functions. This requires additional player actions; the product has not acquired automatic fallback."
+  },
+  "assumptions": [
+    "Actual game animate at 100ms, not an invented reward table",
+    "No currency/experience/monsters granted; purchases and fights use shipped functions",
+    "Legal building placement and roads; earned charms equipped; no manual training or talent fruit use",
+    "World Tree and facility development stop when World Tree reaches Lv20",
+    "Roster uses the game default highest-level selection; natural hatching and rarity only",
+    "4x values divide simulation seconds by 4 only when checks occur at the same game-time points (2.5 min real checks instead of 10 min)",
+    "UI clicking time, hidden/offline/closed time not included",
+    "Observed samples, not guaranteed bounds or fastest possible completion"
+  ],
+  "trials": [
+    {
+      "seed": 7,
+      "mode": "automatic",
+      "sourceFile": "simulation-1.24.16-seed7.json",
+      "sourceSha256": "49483fef1840aff6fd88fdf6383aa6aa2dc1e211dedd065e04a55f6871c7d17c",
+      "tree20Seconds": 133800,
+      "stage50Seconds": 612678.5,
+      "finalParty": [
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 74,
+          "equip": true,
+          "iv": {
+            "hp": 47,
+            "attack": 86,
+            "defense": 36
+          }
+        },
+        {
+          "kind": 3,
+          "name": "コケリス",
+          "level": 74,
+          "equip": true,
+          "iv": {
+            "hp": 85,
+            "attack": 46,
+            "defense": 99
+          }
+        },
+        {
+          "kind": 32,
+          "name": "スヤスヤヘビ",
+          "level": 74,
+          "equip": true,
+          "iv": {
+            "hp": 7,
+            "attack": 24,
+            "defense": 41
+          }
+        }
+      ],
+      "final": {
+        "seconds": 612678.5,
+        "level": 20,
+        "coins": 437981403,
+        "food": 990907.9223556382,
+        "magic": 173725.49,
+        "xp": 86977.81,
+        "allies": 45,
+        "employees": 8,
+        "buildings": 43,
+        "zones": 6,
+        "partyLevels": [
+          74,
+          74,
+          74
+        ],
+        "stage": 51,
+        "clears": 50,
+        "aidsPerDay": 256060,
+        "actions": {
+          "equip": 5,
+          "train": 0,
+          "fruit": 0
+        },
+        "maxLevel": 74,
+        "battle": {
+          "wins": 50,
+          "losses": 27408,
+          "rounds": 312662
+        },
+        "goldPerDay": 296462,
+        "stock": 1001144,
+        "customers": 20488,
+        "research": {
+          "battle": 3,
+          "guest": 0,
+          "farm": 3,
+          "train": 3,
+          "market": 3,
+          "quest": 3
+        }
+      }
+    },
+    {
+      "seed": 23,
+      "mode": "automatic",
+      "sourceFile": "progression-seed23-1.24.16.json",
+      "sourceSha256": "49483fef1840aff6fd88fdf6383aa6aa2dc1e211dedd065e04a55f6871c7d17c",
+      "tree20Seconds": 131400,
+      "stage50Seconds": 699875.2,
+      "finalParty": [
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 79,
+          "equip": true,
+          "iv": {
+            "hp": 25,
+            "attack": 4,
+            "defense": 42
+          }
+        },
+        {
+          "kind": 0,
+          "name": "モフリン",
+          "level": 78,
+          "equip": true,
+          "iv": {
+            "hp": 33,
+            "attack": 21,
+            "defense": 91
+          }
+        },
+        {
+          "kind": 11,
+          "name": "キノコロ",
+          "level": 78,
+          "equip": true,
+          "iv": {
+            "hp": 73,
+            "attack": 60,
+            "defense": 13
+          }
+        }
+      ],
+      "final": {
+        "seconds": 699875.2,
+        "level": 20,
+        "coins": 505486733,
+        "food": 1158064.4126438417,
+        "magic": 207694.34,
+        "xp": 103331.41,
+        "allies": 45,
+        "employees": 8,
+        "buildings": 43,
+        "zones": 6,
+        "partyLevels": [
+          79,
+          78,
+          78
+        ],
+        "stage": 51,
+        "clears": 50,
+        "aidsPerDay": 256060,
+        "actions": {
+          "equip": 5,
+          "train": 0,
+          "fruit": 0
+        },
+        "maxLevel": 79,
+        "battle": {
+          "wins": 50,
+          "losses": 29707,
+          "rounds": 358804
+        },
+        "goldPerDay": 297910,
+        "stock": 1046041,
+        "customers": 23593,
+        "research": {
+          "battle": 3,
+          "guest": 0,
+          "farm": 3,
+          "train": 3,
+          "market": 3,
+          "quest": 3
+        }
+      }
+    },
+    {
+      "seed": 91,
+      "mode": "automatic",
+      "sourceFile": "progression-seed91-1.24.16.json",
+      "sourceSha256": "49483fef1840aff6fd88fdf6383aa6aa2dc1e211dedd065e04a55f6871c7d17c",
+      "tree20Seconds": 131400,
+      "stage50Seconds": 765712.4,
+      "finalParty": [
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 82,
+          "equip": true,
+          "iv": {
+            "hp": 56,
+            "attack": 34,
+            "defense": 41
+          }
+        },
+        {
+          "kind": 1,
+          "name": "ピカピヨ",
+          "level": 82,
+          "equip": true,
+          "iv": {
+            "hp": 70,
+            "attack": 99,
+            "defense": 69
+          }
+        },
+        {
+          "kind": 9,
+          "name": "タネポコ",
+          "level": 82,
+          "equip": true,
+          "iv": {
+            "hp": 40,
+            "attack": 34,
+            "defense": 6
+          }
+        }
+      ],
+      "final": {
+        "seconds": 765712.4,
+        "level": 20,
+        "coins": 557814693,
+        "food": 1275881.3294989013,
+        "magic": 235775.14,
+        "xp": 114749.13,
+        "allies": 45,
+        "employees": 8,
+        "buildings": 43,
+        "zones": 6,
+        "partyLevels": [
+          82,
+          82,
+          82
+        ],
+        "stage": 51,
+        "clears": 50,
+        "aidsPerDay": 256060,
+        "actions": {
+          "equip": 5,
+          "train": 0,
+          "fruit": 0
+        },
+        "maxLevel": 82,
+        "battle": {
+          "wins": 50,
+          "losses": 34676,
+          "rounds": 390411
+        },
+        "goldPerDay": 300412,
+        "stock": 1274159,
+        "customers": 25667,
+        "research": {
+          "battle": 3,
+          "guest": 0,
+          "farm": 3,
+          "train": 3,
+          "market": 3,
+          "quest": 3
+        }
+      }
+    },
+    {
+      "seed": 7,
+      "mode": "boss_training",
+      "sourceFile": "simulation-1.24.16-boss-seed7.json",
+      "sourceSha256": "49483fef1840aff6fd88fdf6383aa6aa2dc1e211dedd065e04a55f6871c7d17c",
+      "tree20Seconds": 55200,
+      "stage50Seconds": 148849.2,
+      "finalParty": [
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 79,
+          "equip": true,
+          "iv": {
+            "hp": 47,
+            "attack": 86,
+            "defense": 36
+          }
+        },
+        {
+          "kind": 0,
+          "name": "モフリン",
+          "level": 78,
+          "equip": true,
+          "iv": {
+            "hp": 24,
+            "attack": 92,
+            "defense": 61
+          }
+        },
+        {
+          "kind": 1,
+          "name": "ピカピヨ",
+          "level": 78,
+          "equip": true,
+          "iv": {
+            "hp": 99,
+            "attack": 98,
+            "defense": 53
+          }
+        }
+      ],
+      "final": {
+        "seconds": 148849.2,
+        "level": 20,
+        "coins": 71745991,
+        "food": 273447.4996464719,
+        "magic": 43940.71,
+        "xp": 298427.59,
+        "allies": 45,
+        "employees": 8,
+        "buildings": 43,
+        "zones": 6,
+        "partyLevels": [
+          79,
+          78,
+          78
+        ],
+        "stage": 51,
+        "clears": 4811,
+        "aidsPerDay": 256060,
+        "actions": {
+          "equip": 3,
+          "train": 0,
+          "fruit": 0,
+          "bossSwitches": 246
+        },
+        "maxLevel": 79,
+        "battle": {
+          "wins": 4811,
+          "losses": 1003,
+          "rounds": 57890
+        },
+        "goldPerDay": 295584,
+        "stock": 171652,
+        "customers": 4729,
+        "research": {
+          "battle": 3,
+          "guest": 0,
+          "farm": 3,
+          "train": 3,
+          "market": 3,
+          "quest": 3
+        }
+      }
+    }
+  ]
+}

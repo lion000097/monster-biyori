@@ -1,0 +1,737 @@
+{
+  "purpose": "Battle-only reachability diagnostic, not a clear-time estimate",
+  "conditions": {
+    "stage": 50,
+    "party": "initial species 0/1/2",
+    "level": 99,
+    "earnedEquipmentAssumed": true,
+    "battleResearch": 3,
+    "talentFruitUsed": 0,
+    "otherResearch": 0,
+    "initialTalentsAndTraits": "seeded natural rolls"
+  },
+  "wins": 10,
+  "total": 10,
+  "runs": [
+    {
+      "seed": 1,
+      "win": true,
+      "unfinished": false,
+      "rounds": 12,
+      "remainingPartyHp": 995,
+      "maxPartyHp": 3103,
+      "remainingEnemyHp": 0,
+      "enemies": [
+        {
+          "name": "星詠みの天鯨",
+          "hp": 11218,
+          "attack": 447
+        }
+      ],
+      "party": [
+        {
+          "kind": 0,
+          "name": "モフリン",
+          "level": 99,
+          "trait": "がんばりや",
+          "gift": "勇敢",
+          "equip": true,
+          "iv": {
+            "hp": 23,
+            "attack": 37,
+            "defense": 50
+          },
+          "stats": {
+            "hp": 961,
+            "attack": 1646,
+            "defense": 206
+          }
+        },
+        {
+          "kind": 1,
+          "name": "ピカピヨ",
+          "level": 99,
+          "trait": "おっとり",
+          "gift": "働きもの",
+          "equip": true,
+          "iv": {
+            "hp": 64,
+            "attack": 25,
+            "defense": 42
+          },
+          "stats": {
+            "hp": 1044,
+            "attack": 1606,
+            "defense": 203
+          }
+        },
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 99,
+          "trait": "きらめき",
+          "gift": "勉強家",
+          "equip": true,
+          "iv": {
+            "hp": 68,
+            "attack": 53,
+            "defense": 21
+          },
+          "stats": {
+            "hp": 1053,
+            "attack": 1700,
+            "defense": 194
+          }
+        }
+      ]
+    },
+    {
+      "seed": 7,
+      "win": true,
+      "unfinished": false,
+      "rounds": 10,
+      "remainingPartyHp": 1364,
+      "maxPartyHp": 3134,
+      "remainingEnemyHp": 0,
+      "enemies": [
+        {
+          "name": "星詠みの天鯨",
+          "hp": 11218,
+          "attack": 447
+        }
+      ],
+      "party": [
+        {
+          "kind": 0,
+          "name": "モフリン",
+          "level": 99,
+          "trait": "がんばりや",
+          "gift": "勇敢",
+          "equip": true,
+          "iv": {
+            "hp": 24,
+            "attack": 92,
+            "defense": 61
+          },
+          "stats": {
+            "hp": 963,
+            "attack": 1832,
+            "defense": 211
+          }
+        },
+        {
+          "kind": 1,
+          "name": "ピカピヨ",
+          "level": 99,
+          "trait": "きらめき",
+          "gift": "働きもの",
+          "equip": true,
+          "iv": {
+            "hp": 99,
+            "attack": 98,
+            "defense": 53
+          },
+          "stats": {
+            "hp": 1116,
+            "attack": 1852,
+            "defense": 207
+          }
+        },
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 99,
+          "trait": "がんばりや",
+          "gift": "勉強家",
+          "equip": true,
+          "iv": {
+            "hp": 47,
+            "attack": 86,
+            "defense": 36
+          },
+          "stats": {
+            "hp": 1010,
+            "attack": 1812,
+            "defense": 200
+          }
+        }
+      ]
+    },
+    {
+      "seed": 42,
+      "win": true,
+      "unfinished": false,
+      "rounds": 11,
+      "remainingPartyHp": 1332,
+      "maxPartyHp": 3231,
+      "remainingEnemyHp": 0,
+      "enemies": [
+        {
+          "name": "星詠みの天鯨",
+          "hp": 11218,
+          "attack": 447
+        }
+      ],
+      "party": [
+        {
+          "kind": 0,
+          "name": "モフリン",
+          "level": 99,
+          "trait": "のんびり",
+          "gift": "勇敢",
+          "equip": true,
+          "iv": {
+            "hp": 25,
+            "attack": 8,
+            "defense": 58
+          },
+          "stats": {
+            "hp": 965,
+            "attack": 1548,
+            "defense": 209
+          }
+        },
+        {
+          "kind": 1,
+          "name": "ピカピヨ",
+          "level": 99,
+          "trait": "のんびり",
+          "gift": "働きもの",
+          "equip": true,
+          "iv": {
+            "hp": 100,
+            "attack": 86,
+            "defense": 50
+          },
+          "stats": {
+            "hp": 1118,
+            "attack": 1812,
+            "defense": 206
+          }
+        },
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 99,
+          "trait": "がんばりや",
+          "gift": "勉強家",
+          "equip": true,
+          "iv": {
+            "hp": 93,
+            "attack": 89,
+            "defense": 55
+          },
+          "stats": {
+            "hp": 1103,
+            "attack": 1822,
+            "defense": 208
+          }
+        }
+      ]
+    },
+    {
+      "seed": 123,
+      "win": true,
+      "unfinished": false,
+      "rounds": 10,
+      "remainingPartyHp": 1272,
+      "maxPartyHp": 2999,
+      "remainingEnemyHp": 0,
+      "enemies": [
+        {
+          "name": "星詠みの天鯨",
+          "hp": 11218,
+          "attack": 447
+        }
+      ],
+      "party": [
+        {
+          "kind": 0,
+          "name": "モフリン",
+          "level": 99,
+          "trait": "がんばりや",
+          "gift": "勇敢",
+          "equip": true,
+          "iv": {
+            "hp": 28,
+            "attack": 43,
+            "defense": 3
+          },
+          "stats": {
+            "hp": 971,
+            "attack": 1666,
+            "defense": 187
+          }
+        },
+        {
+          "kind": 1,
+          "name": "ピカピヨ",
+          "level": 99,
+          "trait": "がんばりや",
+          "gift": "働きもの",
+          "equip": true,
+          "iv": {
+            "hp": 65,
+            "attack": 61,
+            "defense": 97
+          },
+          "stats": {
+            "hp": 1046,
+            "attack": 1727,
+            "defense": 225
+          }
+        },
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 99,
+          "trait": "まけずぎらい",
+          "gift": "勉強家",
+          "equip": true,
+          "iv": {
+            "hp": 11,
+            "attack": 72,
+            "defense": 53
+          },
+          "stats": {
+            "hp": 937,
+            "attack": 1764,
+            "defense": 207
+          }
+        }
+      ]
+    },
+    {
+      "seed": 987,
+      "win": true,
+      "unfinished": false,
+      "rounds": 11,
+      "remainingPartyHp": 1202,
+      "maxPartyHp": 2987,
+      "remainingEnemyHp": 0,
+      "enemies": [
+        {
+          "name": "星詠みの天鯨",
+          "hp": 11218,
+          "attack": 447
+        }
+      ],
+      "party": [
+        {
+          "kind": 0,
+          "name": "モフリン",
+          "level": 99,
+          "trait": "まけずぎらい",
+          "gift": "勇敢",
+          "equip": true,
+          "iv": {
+            "hp": 62,
+            "attack": 81,
+            "defense": 63
+          },
+          "stats": {
+            "hp": 1040,
+            "attack": 1795,
+            "defense": 211
+          }
+        },
+        {
+          "kind": 1,
+          "name": "ピカピヨ",
+          "level": 99,
+          "trait": "おっとり",
+          "gift": "働きもの",
+          "equip": true,
+          "iv": {
+            "hp": 28,
+            "attack": 63,
+            "defense": 65
+          },
+          "stats": {
+            "hp": 971,
+            "attack": 1734,
+            "defense": 212
+          }
+        },
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 99,
+          "trait": "きらめき",
+          "gift": "勉強家",
+          "equip": true,
+          "iv": {
+            "hp": 8,
+            "attack": 90,
+            "defense": 63
+          },
+          "stats": {
+            "hp": 931,
+            "attack": 1825,
+            "defense": 211
+          }
+        }
+      ]
+    },
+    {
+      "seed": 2026,
+      "win": true,
+      "unfinished": false,
+      "rounds": 12,
+      "remainingPartyHp": 941,
+      "maxPartyHp": 3054,
+      "remainingEnemyHp": 0,
+      "enemies": [
+        {
+          "name": "星詠みの天鯨",
+          "hp": 11218,
+          "attack": 447
+        }
+      ],
+      "party": [
+        {
+          "kind": 0,
+          "name": "モフリン",
+          "level": 99,
+          "trait": "がんばりや",
+          "gift": "勇敢",
+          "equip": true,
+          "iv": {
+            "hp": 2,
+            "attack": 4,
+            "defense": 3
+          },
+          "stats": {
+            "hp": 918,
+            "attack": 1535,
+            "defense": 187
+          }
+        },
+        {
+          "kind": 1,
+          "name": "ピカピヨ",
+          "level": 99,
+          "trait": "がんばりや",
+          "gift": "働きもの",
+          "equip": true,
+          "iv": {
+            "hp": 98,
+            "attack": 4,
+            "defense": 16
+          },
+          "stats": {
+            "hp": 1114,
+            "attack": 1535,
+            "defense": 192
+          }
+        },
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 99,
+          "trait": "おっとり",
+          "gift": "勉強家",
+          "equip": true,
+          "iv": {
+            "hp": 31,
+            "attack": 26,
+            "defense": 67
+          },
+          "stats": {
+            "hp": 977,
+            "attack": 1609,
+            "defense": 213
+          }
+        }
+      ]
+    },
+    {
+      "seed": 31415,
+      "win": true,
+      "unfinished": false,
+      "rounds": 10,
+      "remainingPartyHp": 1251,
+      "maxPartyHp": 3020,
+      "remainingEnemyHp": 0,
+      "enemies": [
+        {
+          "name": "星詠みの天鯨",
+          "hp": 11218,
+          "attack": 447
+        }
+      ],
+      "party": [
+        {
+          "kind": 0,
+          "name": "モフリン",
+          "level": 99,
+          "trait": "まけずぎらい",
+          "gift": "勇敢",
+          "equip": true,
+          "iv": {
+            "hp": 41,
+            "attack": 74,
+            "defense": 93
+          },
+          "stats": {
+            "hp": 998,
+            "attack": 1771,
+            "defense": 224
+          }
+        },
+        {
+          "kind": 1,
+          "name": "ピカピヨ",
+          "level": 99,
+          "trait": "のんびり",
+          "gift": "働きもの",
+          "equip": true,
+          "iv": {
+            "hp": 32,
+            "attack": 59,
+            "defense": 11
+          },
+          "stats": {
+            "hp": 979,
+            "attack": 1720,
+            "defense": 190
+          }
+        },
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 99,
+          "trait": "のんびり",
+          "gift": "勉強家",
+          "equip": true,
+          "iv": {
+            "hp": 41,
+            "attack": 86,
+            "defense": 2
+          },
+          "stats": {
+            "hp": 998,
+            "attack": 1812,
+            "defense": 186
+          }
+        }
+      ]
+    },
+    {
+      "seed": 65535,
+      "win": true,
+      "unfinished": false,
+      "rounds": 11,
+      "remainingPartyHp": 1240,
+      "maxPartyHp": 3034,
+      "remainingEnemyHp": 0,
+      "enemies": [
+        {
+          "name": "星詠みの天鯨",
+          "hp": 11218,
+          "attack": 447
+        }
+      ],
+      "party": [
+        {
+          "kind": 0,
+          "name": "モフリン",
+          "level": 99,
+          "trait": "がんばりや",
+          "gift": "勇敢",
+          "equip": true,
+          "iv": {
+            "hp": 64,
+            "attack": 55,
+            "defense": 17
+          },
+          "stats": {
+            "hp": 1044,
+            "attack": 1707,
+            "defense": 192
+          }
+        },
+        {
+          "kind": 1,
+          "name": "ピカピヨ",
+          "level": 99,
+          "trait": "きらめき",
+          "gift": "働きもの",
+          "equip": true,
+          "iv": {
+            "hp": 47,
+            "attack": 71,
+            "defense": 91
+          },
+          "stats": {
+            "hp": 1010,
+            "attack": 1761,
+            "defense": 223
+          }
+        },
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 99,
+          "trait": "のんびり",
+          "gift": "勉強家",
+          "equip": true,
+          "iv": {
+            "hp": 10,
+            "attack": 82,
+            "defense": 91
+          },
+          "stats": {
+            "hp": 935,
+            "attack": 1798,
+            "defense": 223
+          }
+        }
+      ]
+    },
+    {
+      "seed": 99991,
+      "win": true,
+      "unfinished": false,
+      "rounds": 11,
+      "remainingPartyHp": 1268,
+      "maxPartyHp": 3199,
+      "remainingEnemyHp": 0,
+      "enemies": [
+        {
+          "name": "星詠みの天鯨",
+          "hp": 11218,
+          "attack": 447
+        }
+      ],
+      "party": [
+        {
+          "kind": 0,
+          "name": "モフリン",
+          "level": 99,
+          "trait": "きらめき",
+          "gift": "勇敢",
+          "equip": true,
+          "iv": {
+            "hp": 99,
+            "attack": 84,
+            "defense": 48
+          },
+          "stats": {
+            "hp": 1116,
+            "attack": 1805,
+            "defense": 205
+          }
+        },
+        {
+          "kind": 1,
+          "name": "ピカピヨ",
+          "level": 99,
+          "trait": "おっとり",
+          "gift": "働きもの",
+          "equip": true,
+          "iv": {
+            "hp": 92,
+            "attack": 28,
+            "defense": 79
+          },
+          "stats": {
+            "hp": 1101,
+            "attack": 1616,
+            "defense": 218
+          }
+        },
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 99,
+          "trait": "おっとり",
+          "gift": "勉強家",
+          "equip": true,
+          "iv": {
+            "hp": 11,
+            "attack": 74,
+            "defense": 0
+          },
+          "stats": {
+            "hp": 937,
+            "attack": 1771,
+            "defense": 185
+          }
+        }
+      ]
+    },
+    {
+      "seed": 4294967295,
+      "win": true,
+      "unfinished": false,
+      "rounds": 12,
+      "remainingPartyHp": 821,
+      "maxPartyHp": 2957,
+      "remainingEnemyHp": 0,
+      "enemies": [
+        {
+          "name": "星詠みの天鯨",
+          "hp": 11218,
+          "attack": 447
+        }
+      ],
+      "party": [
+        {
+          "kind": 0,
+          "name": "モフリン",
+          "level": 99,
+          "trait": "のんびり",
+          "gift": "勇敢",
+          "equip": true,
+          "iv": {
+            "hp": 23,
+            "attack": 18,
+            "defense": 13
+          },
+          "stats": {
+            "hp": 961,
+            "attack": 1582,
+            "defense": 191
+          }
+        },
+        {
+          "kind": 1,
+          "name": "ピカピヨ",
+          "level": 99,
+          "trait": "おっとり",
+          "gift": "働きもの",
+          "equip": true,
+          "iv": {
+            "hp": 52,
+            "attack": 34,
+            "defense": 5
+          },
+          "stats": {
+            "hp": 1020,
+            "attack": 1636,
+            "defense": 187
+          }
+        },
+        {
+          "kind": 2,
+          "name": "ミズポン",
+          "level": 99,
+          "trait": "おっとり",
+          "gift": "勉強家",
+          "equip": true,
+          "iv": {
+            "hp": 8,
+            "attack": 76,
+            "defense": 84
+          },
+          "stats": {
+            "hp": 931,
+            "attack": 1778,
+            "defense": 220
+          }
+        }
+      ]
+    }
+  ]
+}

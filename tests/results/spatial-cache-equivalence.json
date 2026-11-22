@@ -1,0 +1,7 @@
+{
+  "seed": 7,
+  "seconds": 72000,
+  "result": "PASS",
+  "compared": "All partial checkpoint fields, RNG state, economy clocks, resource amounts, buildings/counts, battle stats, complete stage/tree milestones",
+  "same": true
+}
