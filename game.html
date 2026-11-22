@@ -1381,6 +1381,7 @@ function drawMapActor(o,monster,now) {
     ctx.fillStyle='#785846';ctx.fillRect(hand-3,top+12,6,7);
     ctx.fillStyle='#f7c99d';ctx.fillRect(hand-2,top+11,4,5);
   }
+  if(leafStop?.monster===o)drawRollingLeaf(leafStop);
   if(touch>.4&&pastime.leader){
     const pawX=Math.round(x+dx+chase.side*size*.39),pawY=top+Math.round(size*.66+chase.slope*4);
     ctx.fillStyle='#645648';ctx.fillRect(pawX-3,pawY,7,4);
@@ -1554,6 +1555,7 @@ function drawWorld(now){
   }else{
     paintGround(ctx,season,{minX,minY,maxX,maxY,left,top,right,bottom},objects);
   }
+  drawSeasonTracks();
   drawSummerFireflies(now,{minX,minY,maxX,maxY});
   if($('roadCheck').open)drawWorkRoad(now);
   for(const b of state.buildings){const m=buildingOf(b),r=plotImageRect(b,m);if(r.x+r.w<left||r.x>right||r.y+r.h<top||r.y>bottom)continue;
@@ -2835,7 +2837,7 @@ stepActors=function(dt){
         const p=randWalk();a.tx=p.x;a.ty=p.y;
       }
     }
-    if(!a.path.length||morningPoses.has(a)||greetings.has(a))continue;
+    if(!a.path.length||morningPoses.has(a)||greetings.has(a)||leafStop?.monster===a)continue;
     const next=a.path[0],nx=next?.[0],ny=next?.[1];
     if(!isVisitor){
       const cx=Math.round(a.x),cy=Math.round(a.y);
@@ -5766,6 +5768,65 @@ function seekMonster139(m) {
   m.act = phase === 'sleep' ? '💤 休み場所へ' : phase === 'eat' ? '🍎 朝ごはん' :
     phase === 'play' ? '🎾 あそびに' : '🐾 おさんぽ';
 }
+let seasonalRanch=null,leafStop=null,nextLeaf=3,footprints=[];
+let lastWinterStep=new WeakMap();
+function updateSeasonWalks(dt){
+  if(seasonalRanch!==state){
+    seasonalRanch=state;leafStop=null;nextLeaf=3;footprints=[];lastWinterStep=new WeakMap();
+  }
+  const season=seasonInfo().name;
+  if(season==='冬'){
+    for(const print of footprints)print.life-=dt;
+    footprints=footprints.filter(p=>p.life>0&&residentRoad(Math.round(p.x),Math.round(p.y)));
+    for(const m of state.monsters){
+      if(!m.path?.length||m.indoorRest||plotWalks.has(m)||!residentRoad(Math.round(m.x),Math.round(m.y))){
+        lastWinterStep.delete(m);continue;
+      }
+      const old=lastWinterStep.get(m),distance=old?Math.hypot(m.x-old.x,m.y-old.y):0;
+      if(old&&distance<.36)continue;
+      const side=old?-old.side:1;
+      lastWinterStep.set(m,{x:m.x,y:m.y,side});
+      if(old&&distance<1.5)footprints.push({x:m.x,y:m.y,side,life:6});
+    }
+    if(footprints.length>200)footprints.splice(0,footprints.length-200);
+  }else if(footprints.length){footprints=[];lastWinterStep=new WeakMap();}
+  if(season!=='秋'||state.hour<8||state.hour>=19){leafStop=null;return;}
+  if(leafStop){
+    const m=leafStop.monster;leafStop.time+=dt;
+    if(leafStop.time>=2.8||!state.monsters.includes(m)||!freeForPlay(m)||greetings.has(m)||
+       !residentRoad(...leafStop.from)||Math.hypot(m.x-leafStop.x,m.y-leafStop.y)>.3)leafStop=null;
+    return;
+  }
+  nextLeaf-=dt;if(nextLeaf>0)return;nextLeaf=3;
+  for(const m of state.monsters){
+    if(!freeForPlay(m)||morningPoses.has(m)||greetings.has(m))continue;
+    const sx=Math.round(m.x),sy=Math.round(m.y);
+    const roads=neighbors(sx,sy).filter(([x,y])=>residentRoad(x,y));
+    if(!roads.length)continue;
+    leafStop={monster:m,from:rnd(roads),x:m.x,y:m.y,time:0};
+    nextLeaf=12+Math.random()*12;break;
+  }
+}
+function drawSeasonTracks(){
+  ctx.save();
+  for(const p of footprints){
+    const pos=projectGround(p.x+.5,p.y+.5),x=Math.round(pos.x)+p.side*2,y=Math.round(pos.y);
+    ctx.globalAlpha=Math.min(.72,p.life/3);ctx.fillStyle='#829ba5';
+    ctx.fillRect(x-2,y,4,2);ctx.fillRect(x-2,y-2,1,1);ctx.fillRect(x,y-3,1,2);ctx.fillRect(x+2,y-2,1,1);
+  }
+  ctx.restore();
+}
+function drawRollingLeaf(play){
+  const a=projectGround(play.from[0]+.5,play.from[1]+.5),b=projectGround(play.x+.5,play.y+.5);
+  const t=Math.min(1,play.time/1.6),side=Math.sign(a.x-b.x)||1,roll=Math.sin(t*Math.PI*4);
+  const x=Math.round(a.x+(b.x+side*9-a.x)*t),y=Math.round(a.y+(b.y+2-a.y)*t-Math.abs(roll)*5);
+  ctx.fillStyle='#865a35';ctx.fillRect(x-3,y,7,2);ctx.fillRect(x+3,y-2,2,2);
+  ctx.fillStyle='#d88334';ctx.fillRect(x-3,y-2,6,3);ctx.fillStyle='#f4b64b';ctx.fillRect(x-2,y-3,3,2);
+  if(t===1){
+    ctx.fillStyle='#68584b';ctx.fillRect(x-side*3-3,y-4,7,4);
+    ctx.fillStyle='#eacda6';ctx.fillRect(x-side*3-2,y-4,5,3);
+  }
+}
 const greetings=new WeakMap();
 let nextGreeting=4;
 function updateGreetings(dt){
@@ -5786,7 +5847,7 @@ function updateGreetings(dt){
   if(nextGreeting>0||state.hour<8||state.hour>=19)return;
   nextGreeting=2.5;
   for(const monster of state.monsters){
-    if(!freeForPlay(monster)||morningPoses.has(monster)||greetings.has(monster))continue;
+    if(leafStop?.monster===monster||!freeForPlay(monster)||morningPoses.has(monster)||greetings.has(monster))continue;
     const worker=state.staff.find(w=>!greetings.has(w)&&!w.jobTask212&&!plotWalks.has(w)&&
       (monster.path?.length||w.path?.length)&&residentRoad(Math.round(w.x),Math.round(w.y))&&
       Math.hypot(w.x-monster.x,w.y-monster.y)<1.5);
@@ -5796,11 +5857,11 @@ function updateGreetings(dt){
   }
 }
 function updateMonsterWalks139(dt) {
-  updateGreetings(dt);
+  updateGreetings(dt);updateSeasonWalks(dt);
   let searches = 0;
   for (const m of state.monsters) {
     const motion=monsterWalkTimer139(m);if(motion.harvestBubble>0)motion.harvestBubble-=dt;
-    if(greetings.has(m))continue;
+    if(greetings.has(m)||leafStop?.monster===m)continue;
     const waking=morningPoses.get(m);
     if(waking){
       waking.time+=dt;
