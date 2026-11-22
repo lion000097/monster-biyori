@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><title>もんすたー日和 1.24.14 動作確認</title>
+<h1>ギルドの注文・牧場まつり・就寝の動作確認</h1>
+<button id="run">検証を開始</button><pre id="result" aria-live="polite"></pre>
+<script>
+'use strict';
+function installFixture(){
+ const check=(ok,label)=>{if(!ok)throw Error(label)};
+ const query=selector=>document.querySelector(selector);
+ const button=action=>query('[data-action="'+action+'"]');
+ const building=type=>state.buildings.find(b=>b.type===type);
+ const tabButton=which=>query('.tab[data-tab="'+which+'"]');
+ const setLevel=level=>{state.villageLv=state.worldTreeLevel=building('worldtree').level=level};
+ const site=(type,x,y,level=1,facing=0)=>{
+  const b={id:state.nextId++,type,x,y,level,facing};state.buildings.push(b);return b;
+ };
+ function seed(){
+  Object.assign(state,{speed:0,ranchName:'星の牧場',day:8,hour:16,coins:31000,food:240.5,magic:93,
+   treasures:[0,10,12],reserveRareMaterials:false,expeditionAuto213:false,exploreProgress:28.5});
+  setLevel(12);site('guild212',15,6,3).constructionPaid=7440;
+  site('treasureMuseum213',9,11,2).exhibits213=[0];
+  state.economy.ordersDone=3;state.economy.eventDay=8;state.economy.festival=true;
+  state.materialStock211[0]=95;state.materialSeen211=[0];
+  state.vipOrder211={id:0,qty:3,reward:450,fame:4,expires:12,visitor:'注文の旅人'};
+  state.bestiary.treasures=state.treasures;ensureMaterials211();save(true);
+ }
+ function snapshot(){
+  return JSON.stringify([state.ranchName,state.day,state.hour,state.coins,state.food,state.magic,state.stock,
+   state.monsters.map(m=>[m.id,m.name,m.kind,m.lv,m.xp]),state.staff.map(w=>[w.id,w.name,w.job,w.level]),
+   state.villageLv,state.villageXp,state.buildings.map(b=>[b.id,b.type,b.x,b.y,b.facing,b.level,b.exhibits213]),
+   state.paths,state.treasures,state.catalog,state.materialStock211,state.party,state.research,state.adventure,
+   state.exploreProgress,state.expeditionAuto213,state.vipOrder211,state.economy.eventDay,state.economy.ordersDone,
+   state.economy.festival,investedIn(building('guild212'))]);
+ }
+ function foodRates(){return Object.values(foodProduction).map(f=>f(3))}
+ function reserve(value){
+  if(value===null)delete state.reserveRareMaterials;else state.reserveRareMaterials=value;
+  save(true);
+ }
+ function reserveCheck(value){
+  tabButton('management').click();
+  check(state.reserveRareMaterials===value&&$('rareReserve').checked===value,'取り置き設定の継承 '+value);
+  check(!button('completeOrder')&&!button('treasureOrder')&&!button('festival'),'経営タブの移動済み操作');
+  check(query('[data-v211="deliver"]')&&!query('[data-v211="deliver"]').disabled,'旧レア旅人の素材依頼');
+ }
+ function prepareMap(){
+  const tree=building('worldtree');Object.assign(tree,{x:16,y:9});state.buildings=[tree];
+  state.guests=[];state.ponds=[];state.paths=[];state.clearedScenery=[];state.clearedPonds=[];state.removedDefaultPaths=[...DEFAULT_PATH_KEYS];
+  for(let x=0;x<23;x++)for(let y=0;y<16;y++){
+   const k=keyXY(x,y);state.clearedScenery.push(k);state.clearedPonds.push(k);
+   if(x<7||x>9||y<4||y>6)state.paths.push(k);
+  }
+  for(const w of state.staff)Object.assign(w,{x:4,y:9,path:[],jobTask212:null,jobTarget211:null});
+  for(const m of state.monsters)Object.assign(m,{x:3,y:11,path:[]});
+  cameraX=8-VW/2;cameraY=6-VH/2;zoom=1;limitCamera();renderUI(true);
+ }
+ function mapClick(x,y){
+  const a=mapScreenOrigin(),r=canvas.getBoundingClientRect(),p=projectGround(x,y);
+  onMapClick({clientX:r.left+(a.x+p.x*zoom)*r.width/(VW*T),clientY:r.top+(a.y+p.y*zoom)*r.height/(VH*T)});
+ }
+ function orders(){
+  check(initial().reserveRareMaterials,'新規牧場の初期設定');
+  prepareMap();state.quests=[];setLevel(4);tabButton('build').click();query('[data-facility-role="research"]').click();
+  const construct=()=>query('[data-action="build"][data-id="guild212"]');
+  check(construct().disabled,'世界樹Lv.4では未解放');
+  const before=state.coins,sequence=state.economy.ordersDone;completeOrder(sequence);deliverTreasureOrder(0);
+  check(state.coins===before&&state.economy.ordersDone===sequence,'ギルド未建設の納品を拒否');
+  setLevel(5);renderUI(true);check(!construct().disabled&&constructionCost('guild212')===1150,'Lv.5の建設費');
+  construct().click();mapClick(7.5,4.5);
+  const guild=building('guild212');check(guild&&state.coins===before-1150,'実際の建設と支払い');
+  tabButton('management').click();drawWorld(0);mapClick(8.5,5.5);
+  check(selectedBuilding===guild.id&&tab==='build'&&query('#guildOrders')&&query('#guildTreasureOrder'),'地図から両方の注文を開く');
+  const standard=currentMarketOrder(),upgradeButton=button('upgrade');
+  check(costUpgrade(guild)===1388&&upgradeButton.textContent.includes('1,388'),'初回強化費');
+  const gold=state.coins;upgradeButton.click();
+  const upgraded=currentMarketOrder();
+  check(guild.level===2&&state.coins===gold-1388&&upgraded.reward===Math.round(standard.reward*1.02),'強化料金と報酬の増加');
+  const funds=state.coins,food=state.food,stock=state.stock;
+  button('completeOrder').click();completeOrder(sequence);
+  check(state.coins===funds+upgraded.reward&&state.food===food-upgraded.food&&state.stock===stock-upgraded.stock&&
+   state.economy.ordersDone===sequence+1,'通常注文の資源・報酬・二重納品防止');
+  const museum=site('treasureMuseum213',12,9);museum.exhibits213=[0];renderUI(true);
+  check(currentTreasureOrder().id===0&&button('treasureOrder').disabled,'展示中の旧お宝を保護');
+  const pay=state.coins;deliverTreasureOrder(0);check(state.coins===pay,'在庫不足で報酬なし');
+  const originalRandom=Math.random;try{Math.random=()=>0;check(rewardTreasure(1,false)===0,'通常宝箱から同じお宝を獲得')}finally{Math.random=originalRandom}
+  renderUI(true);const special=currentTreasureOrder();check(special.available===1&&!button('treasureOrder').disabled,'重複入手分を納品可能');
+  button('treasureOrder').click();deliverTreasureOrder(0);
+  check(state.coins===pay+special.reward&&state.economy.ordersDone===sequence+1&&state.economy.treasureOrdersDone===1&&
+   treasureCopies(0)===1&&museumItems213(museum).includes(0)&&state.treasures.includes(0),'指定分だけ消費し図鑑・展示と通常注文を保持');
+  check(currentTreasureOrder().id===10&&treasureCopies(10)===1,'次の指定お宝と旧セーブの所持数');
+  button('treasureOrder').click();changeMuseum213(museum.id,10,true);
+  check(state.treasures.includes(10)&&treasureCopies(10)===0&&!museumItems213(museum).includes(10),'最後の1個を納品しても発見記録は残る');
+  site('expeditionOffice',12,4);state.expeditionArea213=0;state.expeditionAuto213=true;state.speed=1;
+  const rolls=[.99,.1,0];
+  try{Math.random=()=>rolls.shift()??.9;advanceExpedition(expeditionGoal213(state.expeditionArea213))}finally{Math.random=originalRandom}
+  check(treasureCopies(0)===2,'遠征帰還でも重複入手分を加算');state.speed=0;
+  check(save(true)&&load(),'納品を保存して再開');
+  check(state.economy.treasureOrdersDone===2&&currentTreasureOrder().id===3&&treasureCopies(10)===0&&treasureCopies(0)===2,'特別注文と在庫の再開');
+ }
+ function festival(){
+  const tree=building('worldtree');tabButton('management').click();query('.tree-summary [data-v193="festival"]').click();
+  check(selectedBuilding===tree.id&&button('festival').disabled,'世界樹への導線と旧セーブの当日開催履歴');
+  state.day++;const money=state.coins,food=state.food,fame=state.fame;
+  state.food=23;renderUI(true);check(button('festival').disabled,'祭りのごはん不足');
+  state.food=food;renderUI(true);button('festival').click();hostFestival();
+  check(state.coins===money-festivalCost()&&state.food===food-24&&state.fame>fame&&state.economy.festival&&button('festival').disabled,'1日1回の開催・費用・効果');
+  check(save(true)&&load(),'祭りを保存して再開');selectMapBuilding(building('worldtree'));
+  check(button('festival').disabled&&state.economy.eventDay===state.day,'再読込後の開催履歴');
+ }
+ function drawPeople(){
+  const people=new Set(),bubbles=[],icons=[];const draw=drawMapActor,bubble=drawMapBubble;
+  drawMapActor=(actor,...args)=>{people.add(actor);draw(actor,...args)};
+  drawMapBubble=(x,y,icon,now,id)=>{icons.push({icon,id});if(icon==='Zz')bubbles.push({x,y,id});bubble(x,y,icon,now,id)};
+  try{drawWorld(730)}finally{drawMapActor=draw;drawMapBubble=bubble}
+  return {people,bubbles,icons};
+ }
+ function until(test,label){
+  for(let i=0;i<1800&&!test();i++)stepActors(.05);
+  check(test(),label);
+ }
+ function sleepers(type,facing){
+  prepareMap();const room=site(type,7,4,1,facing);
+  for(let x=7;x<=9;x++)for(let y=4;y<=6;y++)if(!areaContains(room,x,y))state.paths.push(keyXY(x,y));
+  check(entranceRoads(room).length,'部屋の正面に道がある '+type);
+  state.monsters=[];state.party=[];state.guests=[];state.speed=1;state.hour=21;
+  state.staff=[makeStaff(state.nextId++,'explore',4,9),makeStaff(state.nextId++,'keeper',4,8)];
+  const originalRandom=Math.random;
+  try{Math.random=()=>.01;visitTick(false)}finally{Math.random=originalRandom}
+  const guest=state.guests[0];check(guest?.visitBuildingId===room.id,'夜の旅人が実際に宿泊先を選ぶ '+type);
+  tick(false);check(state.staff.every(w=>w.jobTarget211?.rest&&w.path.length),'夜に市民が道から部屋へ向かう');
+  const workers=state.staff.slice(),arriving=drawPeople();check(workers.every(w=>arriving.people.has(w)&&!w.indoorRest),'入室前に市民が見える');
+  until(()=>workers.every(w=>w.indoorRest),'2人が入室 '+type);
+  until(()=>guest.indoorRest,'外から来た旅人も入室 '+type);
+  const scene=drawPeople(),roof=plotImageRect(room),marker=scene.bubbles.filter(b=>b.id===room.id);
+  check(marker.length===1&&marker[0].x===Math.round(roof.x+roof.w/2)&&marker[0].y===Math.round(roof.y+roof.h*.21)&&
+   [guest,...workers].every(a=>!scene.people.has(a)),'3人が消えて屋根に吹き出し1個 '+type);
+  const cash=state.coins,person=guest.name,door=workers[0].facilityDoor.slice();state.speed=0;
+  check(save(true)&&load(),'就寝中のセーブを再読込');
+  const restored=state.guests.find(g=>g.name===person&&g.indoorRest),worker=state.staff[0];
+  check(restored&&state.staff.every(w=>w.indoorRest?.buildingId===room.id)&&state.coins===cash&&drawPeople().bubbles.length===1,'市民と旅人の就寝再開・二重精算なし');
+  state.speed=1;state.hour=6;until(()=>state.staff.every(w=>!w.jobTask212)&&!restored.indoorRest,'入口に戻る '+type);
+  const awake=drawPeople();
+  check(state.staff.every(w=>awake.people.has(w)&&!w.indoorRest&&w.work===0)&&!awake.bubbles.length&&
+   worker.x===door[0]&&worker.y===door[1],'朝に市民が再表示・仕事報酬なし');
+  if(type==='home'){
+   const keeper=state.staff[1];keeper.jobCooldown211=0;seek(keeper,'keeper');
+   until(()=>plotWalks.get(keeper)?.phase==='use','お世話係が昼の仕事を開始');
+   const work=drawPeople();
+   check(work.people.has(keeper)&&!keeper.indoorRest&&work.icons.some(i=>i.id===keeper.id&&i.icon==='💕')&&
+    !work.icons.some(i=>i.id===keeper.id&&i.icon==='💤'),'お世話はハート表示');
+  }
+ }
+ window.qa={ready:()=>villageSheetReady&&facilitySheetReady,seed,snapshot,foodRates,reserve,reserveCheck,orders,festival,sleepers};
+}
+async function verify(width,previous,current){
+ const prefix='qa12414_'+crypto.randomUUID()+'_';let frame;
+ async function open(html){
+  frame?.remove();frame=document.createElement('iframe');frame.width=width;frame.height=width===390?844:900;
+  const end='})();\n<\/script>';
+  frame.srcdoc=html.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0;')
+   .replace(end,()=> '('+installFixture.toString()+')();\n'+end);
+  const loaded=new Promise(resolve=>frame.onload=resolve);document.body.append(frame);await loaded;
+  const qa=frame.contentWindow.qa;
+  for(let i=0;qa&&!qa.ready()&&i<200;i++)await new Promise(r=>setTimeout(r,25));
+  if(!qa?.ready())throw Error('牧場の読み込み失敗');return qa;
+ }
+ try{
+  let q=await open(previous);q.seed();q=await open(previous);
+  const before=q.snapshot(),rates=q.foodRates();
+  q=await open(current);
+  if(q.snapshot()!==before)throw Error('1.24.13と資源・仲間・市民・施設・図鑑・旧注文・ギルド投資額の不一致');
+  if(!frame.contentDocument.title.includes('Ver.1.24.14')||frame.contentDocument.documentElement.scrollWidth>frame.contentWindow.innerWidth+1)throw Error('版番号または画面幅');
+  if(!q.foodRates().every((v,i)=>Math.abs(v-rates[i]*.9)<1e-8))throw Error('ごはんの減産率');
+  q.reserveCheck(false);q.reserve(null);q=await open(current);q.reserveCheck(true);
+  q.orders();q.festival();q.sleepers('home',0);q.sleepers('inn',2);
+  document.querySelector('#result').textContent+=width+'px 成功\n';
+ }finally{frame?.remove();for(const key of Object.keys(localStorage))if(key.startsWith(prefix))localStorage.removeItem(key)}
+}
+document.querySelector('#run').onclick=async({currentTarget})=>{
+ const result=document.querySelector('#result');result.textContent='';currentTarget.disabled=true;
+ try{
+  const pages=await Promise.all(['1.24.13','1.24.14'].map(async v=>{
+   const response=await fetch('../releases/'+v+'/game.html');if(!response.ok)throw Error(v);return response.text();
+  }));
+  for(const width of [1366,390])await verify(width,...pages);
+  result.textContent+='すべて成功';
+ }catch(e){result.textContent+='失敗 '+e.stack}finally{currentTarget.disabled=false}
+};
+</script></html>
