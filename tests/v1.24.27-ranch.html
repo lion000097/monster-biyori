@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8">
+<title>もんすたー日和 1.24.27 動作確認</title>
+<h1>お気に入りの場所・お祭りの準備・ホタルの動作確認</h1>
+<button id="run">検証を開始</button>
+<pre id="result" aria-live="polite"></pre>
+<div id="screens"></div>
+<script>
+'use strict';
+function activityProof(){
+(function(){
+const check=(ok,m)=>{if(!ok)throw Error(m)};
+const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+let from=1;
+function makeMap(weather,hour){
+ const save=JSON.parse(JSON.stringify(state));
+ let day=from;
+ while(weatherInfo(day).name!==weather&&day<from+300)day++;
+ check(day<from+300,'no weather '+weather);from=day+1;
+ state=save;
+ Object.assign(state,{buildings:[],staff:[],guests:[],monsters:[],party:[],zones:[0,1,4,5],paths:[],ponds:[],removedDefaultPaths:[...DEFAULT_PATH_KEYS],
+   clearedScenery:[],clearedPonds:[],speed:1,day,hour,villageLv:20,worldTreeLevel:20});
+ for(let x=MIN_X;x<W;x++)for(let y=MIN_Y;y<H;y++){state.clearedPonds.push(keyXY(x,y));state.clearedScenery.push(keyXY(x,y));}
+ state.economy.festival=false; stopWalkCamera(); hover=null; selectedBuilding=null; zoom=1;
+}
+const lot=(type,id,x,y,facing=0,level=1)=>{const b={type,id,x,y,facing,level};state.buildings.push(b);return b;};
+const roads=(x1,x2,y)=>{for(let x=x1;x<=x2;x++)state.paths.push(keyXY(x,y));};
+const frozen=(id,x,y)=>{const a=makeMonster(id,0,x,y);state.monsters.push(a);monsterWalkTimer139(a).wait=1000;return a;};
+const resources=()=>JSON.stringify([state.coins,state.food,state.magic,state.fame,state.talentFruit,state.stock,state.materialStock211,
+   state.treasures,state.treasureStock,state.economy,state.postcards,state.metrics,state.log,[...$('toasts').children].map(e=>e.textContent)]);
+const step=(dt=0.05,seconds=0.05,after=()=>{})=>{for(let n=0;n<Math.ceil(seconds/dt);n++){stepActors(dt);after(n);}};
+function observeMap(focus,now){
+ const calls=[],draw=drawMapActor;drawMapActor=(actor,...args)=>{calls.push(actor);return draw(actor,...args);};
+ try{
+  cameraX=focus.x-VW/2;cameraY=focus.y-VH/2;
+  drawWorld(now);
+ }finally{drawMapActor=draw;}
+ return calls;
+}
+const saveRuntime=()=>{
+ check(save(true),'saving during scene failed');
+ const s=JSON.parse(localStorage.getItem(SAVE_KEY));
+ check(!/(favoriteSpot127|festivalPrep127|firefl(?:y|ies)Gaze127)/.test(JSON.stringify(s)),'a passive animation leaked to the save');
+ return s;
+};
+const advance=(sec,fn)=>step(.05,sec,fn);
+const dayMatching=(predicate)=>{for(let d=1;d<380;d++)if(predicate(d))return d;throw Error('no matching day');};
+const sampleFrame=focus=>{const seen=observeMap(focus,500);return seen;};
+const idleStaff=(id,x,y)=>{const staff=makeStaff(id,'gather',x,y);state.staff.push(staff);staffPlanWait.set(staff,1000);return staff;};
+const clockCheck=()=>[state.day,state.hour,state.speed];
+window.qa127={
+ rear(){
+  let checked=0;
+  for(const [x,y,z] of [[4,4,1],[10,5,.78]]){
+   makeMap('晴れ',12);zoom=z;
+   const tree=lot('worldtree',540,x,y), actor=frozen(541,x-1,y+1);
+   for(let p=-1;p<=6;p++){
+    state.paths.push(keyXY(x-1,y+p),keyXY(x+6,y+p),keyXY(x+p,y-1),keyXY(x+p,y+6));
+   }
+   cameraX=x+2-VW/2;cameraY=y+2-VH/2;
+   function order(msg,want){
+    const paintActor=drawMapActor,paintLot=drawLot,events=[];
+    drawMapActor=(a,...args)=>{if(a===actor)events.push('actor');return paintActor(a,...args);};
+    drawLot=(b,...args)=>{if(b===tree)events.push('tree');return paintLot(b,...args);};
+    try{drawWorld(160);}
+    finally{drawMapActor=paintActor;drawLot=paintLot;}
+    check(same(events,want),msg+' '+JSON.stringify([tree.facing,x,y,actor.x,actor.y,events]));
+    checked++;
+   }
+   for(let dir=0;dir<4;dir++){
+    tree.facing=dir;tree.level=dir%2?1:5;
+    for(const [ox,oy] of [[-1,2],[2,-1],[ -1,3.25],[3.25,-1]]){
+     Object.assign(actor,{x:x+ox,y:y+oy});
+     check(residentRoad(Math.round(actor.x),Math.round(actor.y)),'occlusion regression uses a real road');
+     order('rear crossing actor should sort behind the Tree', ['actor','tree']);
+    }
+    for(const [ox,oy] of [[6,3],[3,6]]){
+     Object.assign(actor,{x:x+ox,y:y+oy});
+     order('front roads should remain visible', ['tree','actor']);
+    }
+    const door=frontPoint('worldtree',x,y,dir,.5,.5).map(Math.floor);
+    Object.assign(actor,{x:door[0],y:door[1]});
+    if(dir===0||dir===3)order('front-facing gate apron visible', ['tree','actor']);
+    const visit=beginPlotWalk(actor,tree,door,2);
+    check(visit,'real gate route failed to start');
+    const rearGate=dir===1||dir===2;
+    order('dedicated visit on entrance road should still respect rear canopy',rearGate?['actor','tree']:['tree','actor']);
+    for(let i=0;i<150&&plotWalks.get(actor)?.phase!=='use';i++)stepPlotWalk(actor,tree,door,.05,2);
+    check(plotWalks.get(actor)?.phase==='use'&&!actor.indoorRest,'World Tree courtyard must remain a visible outdoor visit');
+    order('real courtyard visit should sort over the Tree base',['tree','actor']);
+    let seenRearExit=false;
+    for(let i=0;i<260&&plotWalks.has(actor);i++){
+     stepPlotWalk(actor,tree,door,.05,2);
+     if(rearGate&&!seenRearExit&&plotWalks.get(actor)?.phase==='exit'&&(actor.x+.5<x||actor.y+.5<y)){
+      seenRearExit=true;
+      order('returning visitor recedes behind leaves before fully exiting',['actor','tree']);
+     }
+    }
+    check(!rearGate||seenRearExit,'rear retreat needed outside-while-still-in-exit route sample');
+    check(!plotWalks.has(actor)&&actor.x===door[0]&&actor.y===door[1],'courtyard visit must return to original door');
+   }
+  }
+  return ['World Tree rear crossing render order across all four facings; front roads and courtyard stay visible, route still returns ('+checked+' real canvas draw-order checks)'];
+ },
+ favorite(){
+  const scenario=(afterRain=false)=>{
+   makeMap('晴れ',8);roads(2,16,7);roads(2,16,8);
+   lot('home',510,5,5);lot('worldtree',509,10,1,0,20);
+   state.day=dayMatching(d=>d>1&&weatherInfo(d).name==='晴れ'&&(weatherInfo(d-1).name==='雨')===afterRain);
+   const actor=frozen(511,6,7),fav=favoriteSpot127(actor);
+   check(Array.isArray(fav)&&residentRoad(...fav),'favorite point is not on an existing usable road');
+   Object.assign(actor,{x:fav[0],y:fav[1]});
+   return {actor,fav};
+  };
+  const {actor,fav}=scenario();
+  const coords=[actor.x,actor.y],before=resources(),at=clockCheck(),path=actor.path;
+  let played=0,playing=false,rendered=false,serial=false;
+  advance(15,()=>{
+   const visual=favoriteSpotVisual127(actor);
+   if(visual){
+    check(visual.kind==='stretch','clear morning favorite must stretch and not peek');
+    if(!playing)played++;
+    if(!rendered)rendered=sampleFrame(actor).includes(actor);
+    if(!serial){saveRuntime();serial=true;}
+   }
+   playing=!!visual;
+  });
+  check(played===1&&rendered&&serial&&!playing,'stretch did not render once and release actor: '+[played,rendered,serial,playing]);
+  check(same(coords,[actor.x,actor.y])&&actor.path===path&&before===resources()&&same(at,clockCheck()),'favorite animation changes state other than transient drawing');
+  state.day++;check(same(favoriteSpot127(actor),fav),'same layout/id changed favorite across days');
+  const frozenCopy=JSON.parse(JSON.stringify(actor));
+  check(same(favoriteSpot127(frozenCopy),fav),'same-id rehydrated actor got a different favorite spot');
+  check(save(true)&&load(),'favorite save round trip');
+  const again=state.monsters.find(m=>m.id===actor.id);
+  check(again&&same(favoriteSpot127(again),fav)&&!favoriteSpotVisual127(again),'favorite save roundtrip changed spot or restored a stale pose');
+  const wet=scenario(true),rainDay=postRainDay();
+  let point=null;
+  for(let x=3;x<=15;x++)for(let y=7;y<=8;y++)if(!rainPuddleAt(x,y,rainDay)&&neighbors(x,y).some(xy=>residentRoad(...xy)&&rainPuddleAt(...xy,rainDay)))point=[x,y];
+  check(point&&rainDay>0,'real previous-day rain did not produce adjacent dry/wet roads for testing');
+  Object.assign(wet.actor,{x:point[0],y:point[1]});state.hour=11;
+  const stash=resources(),wetPath=wet.actor.path;
+  let peeks=0,active=false,drew=false,target;
+  advance(15,()=>{
+   const look=favoriteSpotVisual127(wet.actor);
+   if(look){
+    check(look.kind==='puddle'&&same(look.pt,point)&&rainPuddleAt(...look.puddle,rainDay)&&!rainPuddleAt(...point,rainDay),'puddle peek stood on puddle or used fake wet tile');
+    if(!active){peeks++;target=look.puddle;}
+    if(!drew){drew=sampleFrame(wet.actor).includes(wet.actor);saveRuntime();}
+   }
+   active=!!look;
+  });
+  check(peeks===1&&drew&&!active&&stash===resources()&&same(point,[wet.actor.x,wet.actor.y])&&wet.actor.path===wetPath,'puddle peek absent, duplicated, hidden or mutates real state');
+  state.hour=14;check(!favoriteSpotVisual127(wet.actor),'peeking continued after puddles evaporate');
+  state.paths=state.paths.filter(k=>k!==keyXY(...target));
+  for(const blocked of ['rain','night','pause','busy','far']){
+   const test=scenario();
+   if(blocked==='rain')state.day=dayMatching(d=>weatherInfo(d).name==='雨');
+   if(blocked==='night')state.hour=22;
+   if(blocked==='pause')state.speed=0;
+   if(blocked==='busy')test.actor.path=[[12,7],[13,7]];
+   if(blocked==='far'){test.actor.x=15;test.actor.y=8;}
+   advance(blocked==='busy'?.2:1,()=>check(!favoriteSpotVisual127(test.actor),'favorite triggers despite '+blocked));
+  }
+  return ['stable favorite by real saved monster ID/day/reload, sunny stretch visible once, and no route/reward changes',
+   'existing rain puddle examined from adjacent dry road once; no route, movement or economy side effects'];
+ },
+ festival(){
+  const setup=(hour=10,weather='晴れ')=>{
+   makeMap(weather,hour);roads(2,14,8);
+   if(weather==='晴れ')state.day=dayMatching(d=>d>1&&weatherInfo(d).name==='晴れ'&&weatherInfo(d-1).name!=='雨');
+   const tree=lot('worldtree',520,6,2),worker=idleStaff(521,6,8),helper=frozen(522,7,8);
+   state.coins=1e5;state.food=1e5;state.economy.eventDay=0;state.economy.festival=false;
+   check(entranceRoads(tree).some(x=>same(x,[6,8])),'world tree setup needs a connected gate');
+   return {tree,worker,helper};
+  };
+  let {tree,worker,helper}=setup();
+  const before=resources(),coords=[worker.x,worker.y,helper.x,helper.y],path=[worker.path,helper.path];
+  let was=false,count=0,rendered=false,saved=false;
+  advance(15,()=>{
+   const view=festivalPrepVisual127();
+   if(view&&festivalPrepActor127(worker)==='worker'){
+    if(!was)count++;
+    check(view.tree===tree&&view.worker===worker&&view.helper===helper&&festivalPrepActor127(helper)==='helper','wrong staff/monster linked to prepared festival');
+    if(!rendered&&view.flags>0){
+     const draw=drawFestivalPrep127,stamps=[];
+     drawFestivalPrep127=function(scene){if(scene?.flags>0)stamps.push(scene.flags);return draw.call(this,scene);};
+     try{const actors=sampleFrame(worker);rendered=actors.includes(worker)&&actors.includes(helper)&&stamps.length===1;}
+     finally{drawFestivalPrep127=draw;}
+    }
+    if(!saved){saveRuntime();saved=true;}
+   }
+   was=!!view&&festivalPrepActor127(worker)==='worker';
+  });
+  check(count===1&&rendered&&saved&&!was&&festivalPrepVisual127()?.flags===4,'festival prep missing, duplicated, still working or fails to retain completed flags');
+  check(resources()===before&&same(coords,[worker.x,worker.y,helper.x,helper.y])&&worker.path===path[0]&&helper.path===path[1],'festival prep awarded/charged resources or changed normal movement');
+  for(const blocked of ['poor','held','rain','night','pause','busy','no-gate']){
+   ({tree,worker,helper}=setup(blocked==='night'?22:10,blocked==='rain'?'雨':'晴れ'));
+   if(blocked==='poor')state.coins=0;
+   if(blocked==='held')state.economy.eventDay=state.day;
+   if(blocked==='pause')state.speed=0;
+   if(blocked==='busy')worker.path=[[5,8],[4,8]];
+   if(blocked==='no-gate')state.paths=state.paths.filter(k=>!['6,8','7,8','8,8','9,8','10,8','11,8'].includes(k));
+   advance(blocked==='busy'?.15:1,()=>check(!festivalPrepVisual127(),'festival prep ran despite '+blocked));
+  }
+  ({tree,worker,helper}=setup());
+  worker.x=4;helper.x=5;advance(.1);
+  check(festivalPrepActor127(worker)==='worker'&&festivalPrepActor127(helper)==='helper'&&festivalPrepVisual127()?.gate.some(xy=>same(xy,[6,8])),'two-step connected festival shoulder not supported');
+  ({tree,worker,helper}=setup());advance(.1);check(festivalPrepVisual127(),'cancel fixture did not begin');
+  selectedBuilding=tree.id;
+  const coins=state.coins,food=state.food,cost=festivalCost();
+  hostFestival();
+  check(state.economy.festival&&state.economy.eventDay===state.day&&state.coins===coins-cost&&state.food===food-24,'old real festival button function changed its economics or no longer hosts');
+  check(!festivalPrepVisual127(),'live festival did not immediately take precedence');
+  ({tree,worker,helper}=setup());
+  state.day=dayMatching(d=>d>1&&weatherInfo(d).name==='晴れ'&&weatherInfo(d-1).name!=='雨');
+  const helperId=Array.from({length:150},(_,i)=>600+i).find(id=>{const pt=favoriteSpot127({id});return pt&&ranchRoadRoute124(helper,pt,2)!==null;});
+  check(helperId,'cannot set the festival helper on its personal favorite road');
+  helper.id=helperId;
+  let helped=false,stretched=false;
+  advance(12,()=>{
+   const helping=festivalPrepActor127(helper)==='helper',favorite=favoriteSpotVisual127(helper);
+   check(!(helping&&favorite),'festival helping and favorite stretch both started on same monster');
+   helped||=helping;stretched||=favorite?.kind==='stretch';
+  });
+  check(helped&&stretched,'a festival helper did not return to normal idle routine afterward');
+  return ['existing manual-festival context triggers flag prep with citizen and nearby helper, once without changed economy/routing',
+   'festival context respects affordability/roads/weather/time; regular festival costs preserved; helping never overlaps a personal stretch'];
+ },
+ fireflies(){
+  const setup=(hour=19)=>{
+   makeMap('晴れ',hour);state.day=1;roads(2,10,7);
+   return frozen(531,5,7);
+  };
+  let actor=setup(),old=resources(),point=[actor.x,actor.y],route=actor.path;
+  let count=0,playing=false,drew=false,saved=false;
+  advance(18,()=>{
+   const scene=fireflyWatcher127(actor);
+   if(scene){
+    if(!playing)count++;
+    check(scene.monster===actor&&ranchDistance124(scene.from,scene.grass)===1&&fireflyGrass127(...scene.grass),'watcher takes a wrong/off-road or blocked target');
+    if(!drew&&scene.elapsed>.7){
+     const draw=drawFireflyWatch127,frames=[];
+     drawFireflyWatch127=function(...args){frames.push(1);return draw.apply(this,args);};
+     try{drew=sampleFrame(actor).includes(actor)&&frames.length===1;}
+     finally{drawFireflyWatch127=draw;}
+    }
+    if(!saved){saveRuntime();saved=true;}
+   }
+   playing=!!scene;
+  });
+  check(count===1&&drew&&saved&&!playing,'firefly scene absent, repeated or not rendered: '+[count,drew,saved,playing]);
+  check(resources()===old&&same(point,[actor.x,actor.y])&&actor.path===route,'fireflies changed real state');
+  for(const bad of ['day','sleep','pause','rain','winter','no-grass','busy','star']){
+   actor=setup(bad==='day'?12:bad==='sleep'?21:19);
+   if(bad==='pause')state.speed=0;
+   if(bad==='rain')state.day=dayMatching(d=>weatherInfo(d).name==='雨');
+   if(bad==='winter')state.day=dayMatching(d=>seasonInfo(d).name==='冬'&&weatherInfo(d).name==='晴れ');
+   if(bad==='no-grass')for(const xy of neighbors(5,7))if(!isPath(...xy))state.ponds.push(keyXY(...xy));
+   if(bad==='busy')actor.path=[[7,7],[8,7]];
+   const stellar=shootingStarFrame;
+   try{
+    if(bad==='star')shootingStarFrame=()=>({level:1,progress:.5});
+    if(bad==='star')stepFireflyWatch127(.05);else advance(bad==='busy'?.15:.9,()=>check(!fireflyWatcher127(actor),'firefly scene played due to '+bad));
+    check(!fireflyWatcher127(actor),'firefly watch did not yield to '+bad);
+   }finally{shootingStarFrame=stellar;}
+  }
+  actor=setup();advance(.1);const active=fireflyWatcher127(actor);
+  check(active,'no fireflies to test map/assignment cancellation');
+  state.paths.push(keyXY(...active.grass));check(!fireflyWatcher127(actor),'paving target left active fireflies');
+  state.paths.pop();actor.ranchTarget200=1;check(!fireflyWatcher127(actor),'new assignment did not stop watching');
+  return ['night grass-side fireflies and visible watcher once per night, transient render only, no movement/reward',
+   'fireflies avoid rain/winter/sleep and existing star scene, require grass and stop immediately for paving or work'];
+ }
+};
+})();
+
+}
+const check=(ok,msg)=>{if(!ok)throw Error(msg);};
+async function textFile(url){const r=await fetch(url,{cache:'no-store'}); if(!r.ok)throw Error(url+' '+r.status);return r.text();}
+async function run(){
+ const out=document.querySelector('#result'),mount=document.querySelector('#screens');
+ const log=text=>out.textContent+=text+'\n';
+ out.textContent='';
+ const prefix='v12427_qa_'+crypto.randomUUID()+'_';
+ try{
+ const [oldSource,current,previous]=await Promise.all([textFile('../releases/1.24.26/game.html'),textFile('../game.html'),textFile('v1.24.21-ranch.html')]);
+ const previousHook=previous.slice(previous.indexOf('function fixture()'),previous.indexOf('function compareYards('));
+ async function open(source,width){
+   const f=document.createElement('iframe');f.title='検証用牧場';f.width=width;f.height=width===390?844:900;
+   const end='})();\n<\/script>';
+   f.srcdoc=source.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0; window.confirm=()=>true;')
+    .replace(end,()=>previousHook+'\nfixture();\n('+activityProof.toString()+')();\n'+end);
+   const ready=new Promise((resolve,reject)=>{f.onload=resolve;f.onerror=reject;});
+   mount.append(f);await ready;
+   const w=f.contentWindow;
+   for(let i=0;i<250&&!w.qa?.ready();i++)await new Promise(r=>setTimeout(r,20));
+   check(w.qa?.ready(),'画像の読み込み');return {w,f};
+ }
+ for(const width of [1366,390]){
+   const seed=await open(oldSource,width);seed.w.qa.seed();seed.f.remove();
+   const old=await open(oldSource,width),snapshot=old.w.qa.snapshot();
+   const update=await open(current,width);
+   check(update.w.document.title.includes('1.24.27'),'ゲームの版番号');
+   check(update.w.qa.snapshot()===snapshot,'1.24.26セーブの引き継ぎ');
+   check(width!==390||update.w.document.documentElement.scrollWidth<=391,'スマートフォン幅');
+   log(width+'px: 旧セーブ互換・画面幅');
+   for(const part of ['rear','favorite','festival','fireflies'])for(const result of update.w.qa127[part](old.w.qa127))log('✓ '+result);
+   old.f.remove();update.f.remove();
+   for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);
+ }
+ log('すべて成功');
+ }finally{mount.replaceChildren();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);}
+}
+document.querySelector('#run').onclick=async({currentTarget:button})=>{
+ button.disabled=true;try{await run();}catch(e){document.querySelector('#result').textContent+='失敗 '+e.stack;}finally{button.disabled=false;}
+};
+</script></html>

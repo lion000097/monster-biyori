@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>もんすたー日和 Ver.1.24.26 | まもの牧場シミュレーション</title>
+<title>もんすたー日和 Ver.1.24.27 | まもの牧場シミュレーション</title>
 <style>
 :root{--ink:#263d42;--muted:#74878a;--mint:#2d978a;--mint-dark:#20796f;--cream:#fffdf6;--bg:#e9f0e5;--line:#dae5db;--yellow:#f4ba54;--red:#e77969;--shadow:0 5px 0 #cddbd2,0 12px 28px #18372d15}
 *{box-sizing:border-box}body{margin:0;color:var(--ink);background:radial-gradient(ellipse at 50% -100px,#f8faed 0%,#e6eee5 85%);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;font-size:13px;-webkit-font-smoothing:antialiased}button,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.43}.app{max-width:1650px;margin:auto;padding:18px 18px 22px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}.brand{display:flex;align-items:center;gap:12px}.brand-badge{height:51px;width:51px;background:#344c53;box-shadow:inset 0 -5px #1d343a,0 5px #bacbc0;border:3px solid #fff5df;border-radius:12px;display:grid;place-items:center;font-size:27px;transform:rotate(-3deg)}.brand small{font-size:10px;letter-spacing:.24em;font-weight:900;color:#729187;display:block}.brand h1{font-size:23px;letter-spacing:.02em;line-height:1.1;margin:3px 0 0;font-weight:950}.top-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.clock{font-size:13px;color:#54736a;font-weight:900;background:#d8e9dc;border:1px solid #c3dccb;border-radius:10px;padding:12px 14px}.button{border:1px solid #cfddd1;background:var(--cream);padding:10px 12px;border-radius:10px;color:#365c57;font-weight:900;box-shadow:0 3px 0 #d2dfd6;transition:transform .1s,background .1s}.button:hover:not(:disabled){background:#f3faf2;transform:translateY(-1px)}.button:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #d2dfd6}.button.primary{background:#26988b;border-color:#1b8077;color:white;box-shadow:0 3px 0 #176b63}.button.primary:hover:not(:disabled){background:#178879}.button.warn{color:#c36455}.speed-group{display:flex;background:#dde9de;border-radius:10px;padding:4px;gap:3px}.speed-group button{background:transparent;border:0;border-radius:7px;color:#648178;font-size:12px;font-weight:900;padding:7px 10px}.speed-group button.on{color:white;background:#365c57;box-shadow:0 2px 0 #25443f}.layout{display:grid;grid-template-columns:238px minmax(480px,1fr) 300px;gap:16px;align-items:start}.panel{border:1px solid #dfebe0;background:#fffef8;border-radius:15px;box-shadow:var(--shadow);overflow:hidden}.panel-heading{padding:15px 16px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px}.panel-heading h2{font-size:13px;margin:0;font-weight:950}.subtext{color:#8aa097;font-size:11px;font-weight:700}.side-left,.side-right{display:flex;flex-direction:column;gap:16px}.resources{padding:0 14px 12px}.resource{display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-bottom:1px dashed #e4eee5}.resource:last-child{border-bottom:0}.resource-label{display:flex;align-items:center;gap:9px;color:#5f7874;font-weight:800}.resource-icon{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:16px}.ri-money{background:#fff0c4}.ri-food{background:#e6f5d8}.ri-stock{background:#f9e9d9}.ri-magic{background:#e9e8ff}.ri-fame{background:#ffe9dc}.resource-value{font-size:17px;font-weight:950;letter-spacing:-.03em;font-variant-numeric:tabular-nums}.resource small{font-size:10px;color:#95aaa0}.progress-section{padding:0 15px 16px}.progress-top{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#67827b;font-weight:800;margin:8px 0}.progress-track{height:9px;background:#e7ede5;border-radius:10px;overflow:hidden;border:1px solid #d8e6dc}.progress-bar{height:100%;background:linear-gradient(90deg,#81cbaa,#35a28d);border-radius:10px;transition:width .3s}.quests{padding:0 12px 13px}.quest{background:#f6f9f0;border:1px solid #e6eddd;border-radius:10px;padding:11px 11px 9px;margin:6px 0}.quest-title{display:flex;align-items:center;justify-content:space-between;gap:7px;font-size:11px;font-weight:900}.quest-title span:last-child{color:#3f9783;font-size:10px;white-space:nowrap}.quest .progress-track{margin:8px 0 4px;height:6px}.quest-bottom{color:#8da397;display:flex;justify-content:space-between;font-size:10px;font-weight:700}.tip-box{padding:14px 15px;background:#fef9ec;color:#806f4e;font-size:11px;line-height:1.75;border-top:1px solid #f0ebd8}.tip-box strong{color:#a6793b}.world-shell{padding:12px}.world-header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 5px 12px}.world-title{font-size:15px;font-weight:950}.world-title small{display:block;color:#9caf9c;font-size:10px;letter-spacing:.08em;margin-top:3px}.world-badges{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.world-tag{background:#e8f3e9;color:#568475;font-size:10px;font-weight:900;padding:6px 9px;border-radius:7px}.world-tag.gold{background:#fff1d5;color:#a98445}.canvas-frame{position:relative;border-radius:9px;overflow:hidden;border:4px solid #f3f4dc;outline:1px solid #d9e1c5;background:#8ecb78;box-shadow:inset 0 0 0 4px #fff;line-height:0}#game{width:100%;height:auto;display:block;image-rendering:pixelated;cursor:grab;touch-action:none;user-select:none}#game:active{cursor:grabbing}#battleCanvas{display:block;width:100%;height:auto;image-rendering:pixelated;aspect-ratio:1200/318}.battle-scene{background:#e7f3eb;border:3px solid #fbf5d6;border-radius:11px;overflow:hidden;box-shadow:inset 0 0 0 2px #a7cdb1}.battle-caption{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:9px 0 8px;color:#537d6d;font-weight:900;font-size:11px}.battle-caption strong{font-size:12px;color:#2f6c5d}.camera-toolbar{display:flex;align-items:center;justify-content:space-between;gap:5px;background:#f5f8ed;border:1px solid #e3ead8;border-radius:9px;padding:6px 7px;margin:0 3px 9px;flex-wrap:wrap;font-weight:900;font-size:11px;color:#6d8e7d}.camera-toolbar .camera-buttons{display:flex;align-items:center;gap:5px}.camera-toolbar button{border:1px solid #c9ded0;border-radius:7px;background:#fffefa;color:#38675b;padding:5px 11px;font-size:13px;font-weight:950;cursor:pointer}.camera-toolbar button:hover{background:#def2df}.battle-stats{font-size:10px;padding:6px 10px;color:#678e7b;line-height:1.5;background:#f6f8ec}.relocate-hint{background:#f0f1ff;border:1px solid #d0d6fa;color:#6566a1}.facility-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.facility-actions button{font-size:11px}.mini-instruction{font-size:10px;color:#859b8e}.canvas-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 4px 0;gap:8px;flex-wrap:wrap;font-size:11px;color:#8b9f97;font-weight:700}.building-mode{display:none;background:#fff2c6;border:1px solid #f0d78b;color:#9b7826;border-radius:9px;padding:9px 11px;line-height:1.5;margin-top:10px;font-weight:900;font-size:12px}.building-mode.active{display:flex;align-items:center;justify-content:space-between;gap:10px}.game-log{padding:0 14px 14px;max-height:200px;overflow:auto}.log-entry{display:flex;gap:9px;padding:9px 1px;border-bottom:1px dashed #e6ebe3;font-size:11px;line-height:1.45;color:#617971}.log-entry:last-child{border-bottom:0}.log-time{white-space:nowrap;font-size:10px;color:#a1b2a7;font-weight:800}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:10px 10px 0}.tab{background:#eff3ec;color:#78938a;border:0;padding:10px 0;border-radius:8px 8px 6px 6px;font-size:11px;font-weight:950}.tab.on{background:#2c8f82;color:white}.tab-body{padding:12px;min-height:445px;max-height:690px;overflow:auto}.help{font-size:11px;color:#8ca095;line-height:1.6;margin:3px 2px 10px}.build-option,.entity-row,.research-option{border:1px solid #e2e9de;background:#fcfdf7;border-radius:11px;padding:10px;margin-bottom:8px;transition:background .15s,border-color .15s}.build-option:hover{border-color:#b3d7c1}.build-option.selected{border-color:#4ba98f;background:#e9f7e9}.option-header{display:flex;align-items:center;gap:10px}.building-icon{width:45px;height:45px;flex:none;background:#eaf2dd;border:1px solid #e0ead5;display:grid;place-items:center;font-size:24px;border-radius:9px}.option-info{flex:1;min-width:0}.option-name{font-size:12px;font-weight:950}.option-desc{font-size:10px;line-height:1.55;color:#91a39a;margin-top:4px}.option-bottom{display:flex;gap:6px;align-items:center;justify-content:space-between;margin-top:9px}.price{font-size:11px;font-weight:950;color:#b17b30}.price-food{color:#539b5b}.small-button{border:0;background:#318f80;color:white;padding:7px 10px;border-radius:7px;font-weight:900;font-size:11px}.small-button.secondary{background:#e5ede4;color:#5c8374}.small-button:disabled{background:#e8e8e1;color:#a7afa6}.locked{opacity:.63}.locked .small-button{background:#f0eee5;color:#8e948a}.section-label{display:flex;justify-content:space-between;align-items:center;color:#617f73;font-weight:950;font-size:11px;margin:12px 1px 9px}.entity-row{padding:10px;display:flex;gap:10px;align-items:center}.monster-avatar{width:48px;height:48px;image-rendering:pixelated;background:#e5f4e9;border:1px solid #d1e8db;border-radius:9px;flex:none}.entity-info{flex:1;min-width:0}.entity-name{display:flex;align-items:center;justify-content:space-between;font-weight:950;font-size:12px;gap:4px}.entity-sub{color:#869b8f;font-weight:800;font-size:10px;margin-top:4px}.tiny-track{height:5px;border-radius:5px;background:#e6ebde;margin-top:7px;overflow:hidden}.tiny-track div{height:100%;background:#7fc8a6;border-radius:5px}.entity-row.highlighted{border-color:#46aa92;background:#effaf0}.pill{display:inline-block;font-weight:900;color:#6d887b;background:#eff2e9;padding:4px 6px;border-radius:5px;font-size:10px}.info-card{border-radius:11px;background:#eaf5ed;border:1px solid #d4e9db;padding:12px;margin-bottom:10px;line-height:1.6;font-size:11px;color:#58786b}.info-card strong{color:#287e70}.wide-button{width:100%;border:none;border-radius:10px;background:#309487;color:#fff;font-weight:950;padding:12px 9px;margin:5px 0 10px;box-shadow:0 3px 0 #1c7369}.wide-button:disabled{box-shadow:none;background:#d7e1d8;color:#9faea6}.big-count{font-size:22px;font-weight:950;color:#2e796e}.staff-select{appearance:auto;background:#edf5e9;border:1px solid #d6e4d7;border-radius:6px;padding:5px;font-size:10px;font-weight:900;color:#477c6b;max-width:118px}.research-option{margin-bottom:9px}.research-header{display:flex;align-items:center;justify-content:space-between;gap:5px;font-weight:950}.research-level{font-size:10px;color:#80a091}.research-desc{font-size:10px;color:#7f978b;line-height:1.65;margin:7px 0}.research-bottom{display:flex;justify-content:space-between;align-items:center;gap:7px}.empty{text-align:center;padding:28px 8px;font-size:11px;color:#98a8a0;line-height:1.75}.footer{font-size:10px;color:#91a59a;text-align:center;margin-top:17px}.toast-area{position:fixed;right:25px;bottom:20px;display:flex;flex-direction:column;gap:8px;z-index:999;pointer-events:none}.toast{background:#2d5752;color:white;border:2px solid #c9ebd0;border-radius:10px;padding:11px 15px;box-shadow:0 7px 22px #132b2355;font-weight:900;max-width:330px;animation:slidein .2s ease-out;line-height:1.5}.toast.error{background:#9f6453;border-color:#ffdfcc}.toast.success{background:#2d826d}.toast.fade{opacity:0;transform:translateY(9px);transition:all .3s}@keyframes slidein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.modal-wrap{display:none;position:fixed;inset:0;background:#112b2a91;z-index:1000;padding:20px;align-items:center;justify-content:center}.modal-wrap.show{display:flex}.modal{width:min(540px,100%);background:#fffef7;border-radius:18px;border:4px solid #e7eedf;padding:22px;box-shadow:0 15px 70px #09211b66;max-height:90vh;overflow:auto}.modal h2{margin:0 0 12px;font-size:20px}.modal p{color:#6f8880;line-height:1.85;font-size:13px}.modal .cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}.modal .cols div{padding:11px;border-radius:9px;background:#f1f6ec;font-size:11px;line-height:1.65}.modal .close-row{display:flex;justify-content:flex-end;gap:8px;margin-top:17px}.chip{font-size:10px;font-weight:900;padding:4px 7px;background:#edf6e6;border-radius:5px;color:#5a9169}.pixel-icon{font-family:monospace}@media(max-width:1240px){.layout{grid-template-columns:210px minmax(400px,1fr) 273px;gap:11px}.app{padding:12px}.panel-heading{padding:13px 12px 9px}}@media(max-width:1040px){.layout{grid-template-columns:minmax(0,1fr) 295px}.side-left{grid-column:1 / -1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.side-left .panel:last-child{grid-column:auto}}@media(max-width:710px){.app{padding:9px}.layout{display:flex;flex-direction:column}.layout>*{width:100%}.side-left{display:grid;grid-template-columns:1fr}.top{align-items:flex-start}.top-right{gap:5px}.clock{padding:10px}.brand h1{font-size:19px}.tabs .tab{font-size:12px}.tab-body{max-height:none;min-height:250px}}
@@ -347,7 +347,7 @@ html.monster-detail-open{overflow:hidden}
 </div>
 <div class="side-right"><section class="panel"><div class="tabs" role="tablist"><button class="tab" data-tab="management">📊 経営</button><button class="tab on" data-tab="build">🏠 施設</button><button class="tab" data-tab="monster">🐾 仲間</button><button class="tab" data-tab="staff">🧑‍🌾 市民</button><button class="tab" data-tab="research">✨ 研究</button><button class="tab" data-tab="adventure">⚔️ 冒険</button><button class="tab" data-tab="bestiary">📚 図鑑</button></div><div class="tab-body" id="tabBody"></div></section><section class="panel"><div class="panel-heading"><h2>🌱 今日のひとこと</h2></div><div class="tip-box" style="background:transparent;border:0" id="dailyTip">新しい施設を建てると、できることが増えるよ。</div></section></div>
 </main>
-<footer class="footer">© もんすたー日和 Ver.1.24.26 — 牧場の寄り道</footer>
+<footer class="footer">© もんすたー日和 Ver.1.24.27 — 牧場の小さな習慣</footer>
 </div>
 <div class="toast-area" id="toasts" aria-live="polite"></div>
 <div class="modal-wrap" id="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal" id="modalContent"></div></div>
@@ -431,7 +431,7 @@ function toggleBossLoop(stage) {
   if(!state.battle){selectedBattleStage=stage;startAdventure();}
   else{save(true);renderUI(true);}
 }
-const GAME_APP_VERSION='1.24.26';
+const GAME_APP_VERSION='1.24.27';
 const MIN_MAP_ZOOM=.15, MAX_MAP_ZOOM=2.8;
 const W=44,H=30,T=32,VW=22,VH=15,ZONE_W=11,ZONE_H=10,MIN_X=-22,MIN_Y=-20,SAVE_KEY='monster_biyori_save_v1';
 const $=id=>document.getElementById(id);
@@ -1389,6 +1389,161 @@ function activePostRainHop(m){
   return hop&&hop.elapsed<postRainHopTime&&postRainDay()===hop.day&&postRainCanHop(m)&&
     residentRoad(hop.x,hop.y)?hop:null;
 }
+// .27: deterministic personal roadside spots, never movement destinations.
+const favoriteMoments127=new WeakMap();
+let favoriteLayout127=null,favoritePoll127=0;
+const favoriteHomeKinds127=new Set(['home','hut','inn','bench211']);
+const morningFavorite127=()=>state.hour>=7&&state.hour<11&&weatherInfo().name==='晴れ';
+const puddleFavorite127=()=>state.hour>=6&&state.hour<14&&postRainDay()>0;
+function favoriteSites127(){
+ const anchors=state.buildings.filter(b=>favoriteHomeKinds127.has(b.type)||b.type==='worldtree');
+ const sig=JSON.stringify([state.paths,state.removedDefaultPaths,state.zones,state.ponds,state.clearedPonds,state.clearedScenery,
+  state.buildings.map(b=>[b.id,b.type,b.x,b.y,validFacing(b.facing)] )]);
+ if(favoriteLayout127?.ranch===state&&favoriteLayout127.sig===sig)return favoriteLayout127;
+ const usable=p=>residentRoad(...p)&&neighbors(...p).some(q=>residentRoad(...q));
+ const prefer=anchors.filter(b=>favoriteHomeKinds127.has(b.type));
+ const roadAround=(site)=>{
+  const {w,h}=buildingOf(site);
+  const rows=new Map();
+  const add=p=>{if(usable(p))rows.set(keyXY(...p),p)};
+  for(const door of entranceRoads(site)){
+   add(door);
+   for(const p of neighbors(...door))add(p);
+  }
+  if(!rows.size){
+   for(let x=site.x-1;x<=site.x+w;x++){
+    add([x,site.y-1]);add([x,site.y+h]);
+   }
+   for(let y=site.y;y<site.y+h;y++){
+    add([site.x-1,y]);add([site.x+w,y]);
+   }
+  }
+  const apron=[...rows.values()];
+  // Pick personal points on well-used branches near the same landmark, not
+  // a remote edge of the approach. The anchor still does not set a route.
+  let front=apron;
+  for(let depth=0;depth<3;depth++){
+   const branch=new Map();
+   for(const p of front)for(const q of neighbors(...p)){
+    if(usable(q)&&!rows.has(keyXY(...q))){add(q);branch.set(keyXY(...q),q);}
+   }
+   front=[...branch.values()];
+  }
+  const score=p=>neighbors(...p).filter(q=>residentRoad(...q)).length*3-
+    Math.min(16,Math.abs(p[0]-10)+Math.abs(p[1]-7))*.82;
+  return [...rows.values()].sort((a,b)=>score(b)-score(a)||a[0]-b[0]||a[1]-b[1]).slice(0,4);
+
+ };
+ const groups=source=>source.map(site=>({site,spots:roadAround(site)})).filter(g=>g.spots.length)
+  .sort((a,b)=>a.site.x-b.site.x||a.site.y-b.site.y||a.site.id-b.site.id);
+ let picks=groups(prefer);
+ if(!picks.length)picks=groups(anchors.filter(b=>b.type==='worldtree'));
+ if(!picks.length){
+  const keys=new Set([...DEFAULT_PATH_KEYS,...state.paths]);
+  const points=[...keys].map(key=>key.split(',').map(Number)).filter(usable);
+  points.sort((a,b)=>(Math.abs(a[0]-10)+Math.abs(a[1]-7))-(Math.abs(b[0]-10)+Math.abs(b[1]-7))||a[0]-b[0]||a[1]-b[1]);
+  if(points.length)picks=[{site:null,spots:points.slice(0,18)}];
+ }
+ return favoriteLayout127={ranch:state,sig,picks};
+}
+function favoriteSpot127(actor,layout=favoriteSites127()){
+ const {picks}=layout;
+ if(!picks.length)return null;
+ const id=Number(actor.id)>>>0;
+ const group=picks[(Math.imul(id^0x72843f81,2654435761)>>>0)%picks.length];
+ return group.spots[(Math.imul(id^0xb1769b07,2246822519)>>>0)%group.spots.length];
+}
+function favoriteIdle127(a){
+ return ranchMonsterFree124(a)&&!welcomeVisual125(a)&&!ranchDuskSceneActive124()&&
+   !windHatHas126(a)&&!snackShareByActor126.has(a)&&!treeConcertListener(a)&&festivalPrepActor127(a)!=='helper';
+}
+function favoriteMomentValid127(actor,p){
+ if(p.ranch!==state||p.day!==state.day||p.elapsed>=p.duration||!state.monsters.includes(actor)||
+    !ranchAt124(actor,p.pt)||!favoriteIdle127(actor))return false;
+ if(p.kind==='stretch')return morningFavorite127()&&neighbors(...p.pt).some(q=>residentRoad(...q));
+ return puddleFavorite127()&&residentRoad(...p.puddle)&&rainPuddleAt(...p.puddle,postRainDay());
+}
+function favoriteSpotVisual127(actor){
+ const p=favoriteMoments127.get(actor)?.scene;
+ return p&&favoriteMomentValid127(actor,p)?p:null;
+}
+function stepFavoriteSpots127(dt){
+ if(state.speed<=0||!(dt>0))return;
+ const morning=morningFavorite127(),rain=puddleFavorite127();
+ if(!morning&&!rain)return;
+ favoritePoll127-=dt;
+ const check=favoritePoll127<=0;
+ if(check)favoritePoll127=.39;
+ const layout=check&&morning?favoriteSites127():null;
+ for(const actor of state.monsters){
+  let note=favoriteMoments127.get(actor);
+  if(note?.ranch!==state||note.day!==state.day){
+   note={ranch:state,day:state.day,stretch:false,puddle:false,scene:null};
+   favoriteMoments127.set(actor,note);
+  }
+  if(note.scene){
+   note.scene.elapsed+=dt;
+   if(favoriteSpotVisual127(actor))continue;
+   note.scene=null;
+  }
+  if(!check||note.stretch&&note.puddle||!favoriteIdle127(actor))continue;
+  const pt=ranchTile124(actor);
+  if(!ranchAt124(actor,pt))continue;
+  const wait=monsterWalkTimers139.get(actor)?.wait;
+  if(wait!==undefined&&wait<.9)continue;
+  if(rain&&!note.puddle&&!rainPuddleAt(...pt,postRainDay())){
+   const wet=neighbors(...pt).find(q=>residentRoad(...q)&&rainPuddleAt(...q,postRainDay()));
+   if(wet){
+    note.puddle=true;
+    note.scene={ranch:state,day:state.day,kind:'puddle',elapsed:0,duration:2.12,pt,puddle:wet};
+    continue;
+   }
+  }
+  if(layout&&!note.stretch){
+   const preferred=favoriteSpot127(actor,layout);
+   // The preferred point follows the same neighborhood if the actor's
+   // ordinary walk stops within two connected road tiles rather than on the exact point.
+   if(preferred&&ranchRoadRoute124(actor,preferred,2)!==null){
+    note.stretch=true;
+    note.scene={ranch:state,day:state.day,kind:'stretch',elapsed:0,duration:2.18,pt};
+   }
+  }
+ }
+}
+function favoritePose127(p,size){
+ if(p.kind==='stretch'){
+  const breath=Math.sin(Math.PI*clamp((p.elapsed-.12)/1.32,0,1));
+  return {dx:0,height:Math.round(size+breath*7),dy:-Math.round(breath*2)};
+ }
+ const reach=Math.sin(Math.PI*clamp(p.elapsed/1.82,0,1));
+ const toward=Math.sign((p.puddle[0]-p.pt[0])-(p.puddle[1]-p.pt[1]));
+ return {dx:toward*Math.round(reach*4),height:Math.round(size-reach*4),dy:Math.round(reach*3),toward};
+}
+function drawFavoriteMoment127(p,x,foot,size,top){
+ const t=p.elapsed,pix=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),w,h);};
+ if(p.kind==='stretch'&&t>.26&&t<1.4){
+  const arc=Math.sin(Math.PI*clamp((t-.26)/1.14,0,1));
+  const y=top+8-3*arc;
+  // Little golden pixel accents echo morning light, no UI pop-up.
+  for(const s of [-1,1]){
+   const px=x+s*(Math.round(size*.39)+3);
+   pix('#8a7544',px-1,y-2,3,3);pix('#a88945',px-2,y-1,5,1);
+   pix('#f7eab1',px,y-3,1,5);pix('#ffeabb',px-2,y-1,5,1);
+   pix('#e8ca7e',px+s*4,y+7,2,1);pix('#fff2bd',px+s*4,y+6,1,1);
+  }
+ }else if(p.kind==='puddle'&&t>.35&&t<1.92){
+  const pool=projectGround(p.puddle[0]+.5,p.puddle[1]+.5),cx=Math.round(pool.x),cy=Math.round(pool.y);
+  const swell=(t-.35)/1.57;
+  const w=3+Math.floor(swell*7);
+  ctx.save();ctx.globalAlpha*=postRainAlpha()*.9;
+  pix('#689eaf',cx-w,cy-1,w*2+1,3);
+  pix('#afdcda',cx-w+2,cy-1,w*2-3,1);
+  pix('#e0f2e5',cx-Math.round(w*.6),cy-2,Math.max(2,w-3),1);
+  pix('#a8cfd3',cx+Math.round(w*.4),cy+1,Math.max(2,w-4),1);
+  ctx.restore();
+ }
+}
+
 function drawBorderPost(x,y,g=ctx) {
   const p=projectGround(x,y);g.fillStyle='#906949';g.fillRect(p.x-2,p.y-6,4,7);g.fillStyle='#e2ba7e';g.fillRect(p.x-2,p.y-7,3,2);
 }
@@ -1743,6 +1898,169 @@ function drawTreeSketch126(ctx,sketch,x,top){
   ctx.drawImage(art,0,0);ctx.restore();
 }
 
+// Existing festival starts only with the player's button; this is an optional
+// morning decoration vignette at a gate, not a reservation or a work shift.
+let festivalPrep127=null,festivalPrepRanch127=null,festivalPrepDay127=-1,festivalPrepPoll127=0;
+const festivalPrepLength127=3.65;
+function festivalPrepWindow127(){
+  return state.hour>=8&&state.hour<12&&state.economy&&!state.economy.festival&&
+    state.economy.eventDay!==state.day&&state.coins>=festivalCost()&&state.food>=24&&ranchClearWeather124();
+}
+function festivalPrepWorkerIdle127(w){
+  return !w.path?.length&&!w.indoorRest&&!w.expeditionVisit&&!w.jobTask212&&!w.jobTarget211&&
+    !plotWalks.has(w)&&!greetings.has(w)&&!ranchActors124.has(w)&&!hatSceneVisual126(w);
+}
+function festivalPrepHelperIdle127(m){
+  return !!(ranchMonsterFree124(m)&&!welcomeVisual125(m)&&!hatSceneVisual126(m)&&
+    !activePostRainHop(m)&&!snackShareVisual126(m));
+}
+function festivalPrepAt127(a,tile){return Math.hypot(a.x-tile[0],a.y-tile[1])<.22;}
+function festivalPrepLive127(s){
+  return s?.ranch===state&&s.day===state.day&&festivalPrepWindow127()&&state.buildings.includes(s.tree)&&
+    s.tree.x===s.x&&s.tree.y===s.y&&validFacing(s.tree.facing)===s.facing&&
+    s.gate.every(([x,y])=>residentRoad(x,y)&&onWorldTreeGateRoad(s.tree,x+.5,y+.5));
+}
+function festivalPrepVisual127(){
+  const s=festivalPrep127;
+  return festivalPrepLive127(s)?s:null;
+}
+function festivalPrepActor127(a){
+  const s=festivalPrepVisual127();
+  if(!s||s.elapsed>=festivalPrepLength127)return null;
+  if(s.worker===a&&state.staff.includes(a)&&festivalPrepWorkerIdle127(a)&&residentRoad(...s.tiles[0])&&festivalPrepAt127(a,s.tiles[0]))return 'worker';
+  if(s.helper===a&&state.monsters.includes(a)&&festivalPrepHelperIdle127(a)&&festivalPrepAt127(a,s.tiles[1]))return 'helper';
+  return null;
+}
+function festivalPrepLocate127(tree){
+  const facing=validFacing(tree.facing),axis=facing%2?1:0,roads=entranceRoads(tree);
+  const validPairs=roads.flatMap(a=>roads.filter(b=>Math.abs(a[axis]-b[axis])===1).map(b=>[a,b]));
+  if(!validPairs.length)return null;
+  const spots=[];
+  for(const worker of state.staff){
+    if(!festivalPrepWorkerIdle127(worker))continue;
+    const tile=ranchTile124(worker);
+    if(!festivalPrepAt127(worker,tile)||!residentRoad(...tile))continue;
+    // A quiet shoulder is useful too, provided the apron is connected by
+    // at most two real road steps. Existing travel is never redirected.
+    const range=new Map();
+    for(const [a] of validPairs){
+      const key=a.join(',');
+      if(range.has(key))continue;
+      const d=Math.abs(a[0]-tile[0])+Math.abs(a[1]-tile[1]);
+      if(d>2){range.set(key,Infinity);continue;}
+      const route=d?pathTo(tile[0],tile[1],a[0],a[1],true):[];
+      range.set(key,!d?0:route.length&&route.length<=2?route.length:Infinity);
+    }
+    const nearby=new Map();
+    for(const m of state.monsters){
+      const mt=ranchTile124(m),dist=Math.abs(mt[0]-tile[0])+Math.abs(mt[1]-tile[1]);
+      if(dist!==1||!festivalPrepAt127(m,mt)||!festivalPrepHelperIdle127(m))continue;
+      nearby.set(mt.join(','),m);
+    }
+    const gate=validPairs.filter(([a])=>range.get(a.join(','))<Infinity)
+      .sort(([a,b],[c,d])=>range.get(a.join(','))-range.get(c.join(',')) ||
+        Number(nearby.has(d.join(',')))-Number(nearby.has(b.join(','))))[0];
+    if(!gate)continue;
+    const key=gate[0].join(',');
+    const helper=nearby.get(gate[1].join(','))||[...nearby.values()][0]||null;
+    const helperTile=helper?ranchTile124(helper):gate[1];
+    spots.push({worker,helper,gate,tiles:[tile,helperTile],score:range.get(key)*2+(helper?0:1)});
+  }
+  spots.sort((a,b)=>a.score-b.score);
+  return spots[0]||null;
+}
+function stepFestivalPrep127(dt){
+  if(festivalPrepRanch127!==state){festivalPrepRanch127=state;festivalPrepDay127=-1;festivalPrepPoll127=0;festivalPrep127=null;}
+  if(festivalPrep127&&!festivalPrepLive127(festivalPrep127)){festivalPrep127=null;}
+  if(state.speed<=0||!festivalPrepWindow127())return;
+  if(festivalPrep127){
+    const s=festivalPrep127;
+    if(s.elapsed>=festivalPrepLength127)return;
+    if(festivalPrepActor127(s.worker)!=='worker'){
+      // Never keep the actor from an activity or finish their work for them.
+      // Already installed flags may stay for the rest of the preparation window.
+      if(s.flags===0){festivalPrep127=null;return;}
+      s.elapsed=festivalPrepLength127;return;
+    }
+    s.elapsed=Math.min(festivalPrepLength127,s.elapsed+dt);
+    s.flags=Math.max(s.flags,Math.min(4,Math.floor((s.elapsed+.21)/.80)));
+    return;
+  }
+  if(festivalPrepDay127===state.day)return;
+  festivalPrepPoll127-=dt;
+  if(festivalPrepPoll127>0)return;
+  festivalPrepPoll127=.55;
+  const tree=state.buildings.find(b=>b.type==='worldtree'),spot=tree&&festivalPrepLocate127(tree);
+  if(!spot)return;
+  festivalPrep127={...spot,ranch:state,day:state.day,tree,x:tree.x,y:tree.y,facing:validFacing(tree.facing),elapsed:0,flags:0};
+  festivalPrepDay127=state.day;
+}
+const festivalPrepPixelCache127=new Map();
+function festivalPrepArt127(kind,frame=0){
+  const key=kind+'/'+frame;
+  if(festivalPrepPixelCache127.has(key))return festivalPrepPixelCache127.get(key);
+  const art=pixelSprite(20,56,g=>{
+    const p=(c,x,y,w=1,h=1)=>{g.fillStyle=c;g.fillRect(x,y,w,h);};
+    if(kind==='pole'){
+      p('#4d4232',8,2,4,49);p('#795438',9,4,2,46);p('#b77d47',9,5,1,41);
+      p('#594f3a',5,48,10,5);p('#817154',7,47,6,5);p('#b6a276',7,48,3,2);p('#493b2c',7,52,6,1);
+      p('#553d33',7,1,6,5);p('#ad7546',8,1,4,4);p('#f1c786',9,1,2,2);
+      p('#624638',8,7,5,3);p('#d2ad73',9,7,3,1);p('#a57c50',8,9,4,1);
+      p('#e4ae68',9,14,1,4);p('#c79156',10,25,1,3);p('#9a6b43',9,32,1,5);
+    }else if(kind==='flag'){
+      const [ink,mid,light,satin]=[
+        ['#693c41','#cb4f4f','#ed7968','#ffc0a0'],
+        ['#735336','#c19440','#f0c15b','#fae5a8'],
+        ['#345451','#368779','#69bca5','#b1eac5'],
+        ['#5d4966','#9572a0','#bf97ba','#e7c1cb']
+      ][frame];
+      p(ink,2,1,9,2);p(ink,2,3,8,2);p(ink,3,5,6,2);p(ink,4,7,4,2);p(ink,5,9,2);
+      p(mid,3,2,7,2);p(mid,4,4,5,2);p(mid,5,6,3,2);p(light,3,2,1,2);p(light,4,4,1,2);
+      p(light,5,6,1,1);p(satin,4,2,4,1);p(light,6,3,2,1);
+      p(ink,3,0,1,2);p(ink,9,0,1,2);p('#f8dfaa',4,0,4,1);
+    }else{
+      // Roll of warm cloth and a reaching hand / paw.
+      p('#554035',1,8,15,5);p('#954a4b',2,7,13,5);p('#c86a5c',3,7,11,3);
+      p('#ef9d80',4,7,8,1);p('#783f3e',3,10,10,2);p('#f3b290',3,8,3,2);
+      p('#a77b51',14,8,2,4);p('#f2c787',15,9,2,2);
+      const y=kind==='hand'?(frame?5:9):8;
+      const shade=kind==='hand'?'#ce966d':'#b5a78e',light=kind==='hand'?'#f5c7a2':'#f1dbb5';
+      p('#51473b',10,y,5,4);p(shade,11,y,4,3);p(light,11,y,3,2);p(light,15,y+1,2,1);
+    }
+  });
+  festivalPrepPixelCache127.set(key,art);
+  return art;
+}
+function festivalPrepPosts127(s){
+  const outward=[[0,1],[-1,0],[0,-1],[1,0]][s.facing];
+  const a=s.gate[0],b=s.gate[1],dx=b[0]-a[0],dy=b[1]-a[1];
+  return [projectGround(a[0]+.5-dx*.35+outward[0]*.68,a[1]+.5-dy*.35+outward[1]*.68),
+          projectGround(b[0]+.5+dx*.35+outward[0]*.68,b[1]+.5+dy*.35+outward[1]*.68)];
+}
+function drawFestivalPrep127(s){
+  const [a,b]=festivalPrepPosts127(s),pole=festivalPrepArt127('pole');
+  const put=(img,x,y)=>ctx.drawImage(img,Math.round(x),Math.round(y));
+  const point=t=>[a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t-49+Math.sin(t*Math.PI)*4];
+  put(pole,a.x-10,a.y-55);put(pole,b.x-10,b.y-55);
+  const reach=s.flags===4?1:Math.max(0,s.flags/4+.11);
+  for(let i=0;i<=Math.floor(Math.abs(b.x-a.x)*reach);i++){
+    const [x,y]=point(i/Math.abs(b.x-a.x));ctx.fillStyle='#6e543b';ctx.fillRect(Math.round(x),Math.round(y),1,1);
+    if(i%4!==3){ctx.fillStyle='#d1a769';ctx.fillRect(Math.round(x),Math.round(y)-1,1,1);}
+  }
+  for(let i=0;i<s.flags;i++){
+    const [x,y]=point(.14+i*.24);
+    put(festivalPrepArt127('flag',[0,2,1,3][i]),x-6,y-1);
+  }
+}
+function drawFestivalPrepActor127(role,x,top,size,foot){
+  const s=festivalPrep127;
+  const side=Math.sign((s.tiles[1][0]-s.tiles[1][1])-(s.tiles[0][0]-s.tiles[0][1]))||1;
+  const flip=(role==='worker'?side:-side)<0;
+  const img=festivalPrepArt127(role==='worker'?'hand':'paw',Math.floor(s.elapsed*6)%2);
+  ctx.save();ctx.translate(Math.round(x+(flip?-1:1)*Math.round(size*.26)),Math.round(role==='worker'?top+13:foot-size*.42));
+  if(flip)ctx.scale(-1,1);ctx.drawImage(img,0,0);ctx.restore();
+}
+
 function drawMapActor(o,monster,now,star=null,origin=null) {
   const pos=projectGround(o.x+.5,o.y+.5),x=Math.round(pos.x),foot=Math.round(pos.y+4);
   const phase=now/350+(o.bob||0),size=monster?(SPECIES[o.kind]?.large?56:o.lv>=15?42:o.lv>=7?38:35):36;
@@ -1800,10 +2118,16 @@ function drawMapActor(o,monster,now,star=null,origin=null) {
     if(kind==='sniff'){dx+=side*Math.round(4*Math.sin(Math.PI*Math.min(1,elapsed/2.1)));dy=2;}
     if(kind==='kindle'){height=Math.round(size*.87);dx+=side*2;dy=1;}
   }
+  const fireflyWatch=monster?fireflyWatcher127(o):null;
+  if(fireflyWatch){const eye=fireflyWatchPose127(fireflyWatch);dx+=eye.dx;dy+=eye.dy;}
   const windHat=hatSceneVisual126(o);
   if(windHat)dy-=windHatLift126(o,windHat);
   const postRainHop=monster&&activePostRainHop(o);
   if(postRainHop)dy-=Math.round(10*Math.sin(Math.PI*postRainHop.elapsed/postRainHopTime));
+  const favorite=monster&&!pastime&&!visit&&!ranchScene&&!snack&&!windHat&&!welcome&&!wake&&!postRainHop?
+    favoriteSpotVisual127(o):null;
+  const favoritePose=favorite?favoritePose127(favorite,size):null;
+  if(favoritePose){dx+=favoritePose.dx;dy=favoritePose.dy;height=favoritePose.height;}
   const treeSketch=!monster?treeSketchVisual126(o):null;
   if(treeSketch)dy=treeSketch.pose==='look'?0:1;
   const concertPlayer=!monster&&treeConcert?.guest===o;
@@ -1817,7 +2141,7 @@ function drawMapActor(o,monster,now,star=null,origin=null) {
   ctx.fillStyle='#294f4b3a';ctx.fillRect(x+(awningPose?.dx||0)-Math.round(size*.26),foot+(awningPose?.dy||0)-2,Math.round(size*.52),3);
   const ranchFacing=ranchScene?.target?Math.sign((ranchScene.target.x-ranchScene.target.y)-(o.x-o.y)):0;
   const flipped=!!(greeting?facingFriend<0:ranchScene?ranchFacing<0:treeSketch?treeSketch.side<0:
-    welcome?welcomeSide<0:windHat?windHatSide126(o,windHat)<0:snackSide<0);
+    welcome?welcomeSide<0:windHat?windHatSide126(o,windHat)<0:snack?snackSide<0:fireflyWatch?fireflyWatch.side<0:favoritePose?.toward<0);
   if(flipped){
     ctx.save();ctx.translate(left+size,top);ctx.scale(-1,1);ctx.drawImage(art,0,0,size,height);ctx.restore();
   }else ctx.drawImage(art,left,top,size,height);
@@ -1829,6 +2153,8 @@ function drawMapActor(o,monster,now,star=null,origin=null) {
   if(leafStop?.monster===o)drawRollingLeaf(leafStop);
   if(concertPlayer)drawTreeConcertFlute(x,top,now,o.id);
   if(treeSketch)drawTreeSketch126(ctx,treeSketch,x+dx,top);
+  const festivalRole=festivalPrepActor127(o);
+  if(festivalRole)drawFestivalPrepActor127(festivalRole,x+dx,top,size,foot);
   if(ranchScene)drawRanchActivity124(ranchScene,x+dx,foot,size,top,now,o.id);
   if(welcome)drawExpeditionWelcome125(welcome,welcomeSide,x+dx,foot,size,top);
   if(snack)drawSnackShare126(snack,snackSide,x+dx,foot,size,top);
@@ -1841,6 +2167,7 @@ function drawMapActor(o,monster,now,star=null,origin=null) {
   if(awningPose?.gesture)drawAwningInvite125(awningPose,x+dx,top,size);
   if(windHat&&o===windHat.owner)drawWindHat126(windHat);
   if(pastime?.action==='splash'&&pastime.phase==='rest'&&pastime.elapsed<.75)drawPuddleSplash(x,foot-2,pastime.elapsed);
+  if(favorite)drawFavoriteMoment127(favorite,x+dx,foot,size,top);
   if(postRainHop&&postRainHop.elapsed>.2){
     const p=projectGround(postRainHop.x+.5,postRainHop.y+.5);
     ctx.save();ctx.globalAlpha*=postRainAlpha();
@@ -1857,7 +2184,7 @@ function drawMapActor(o,monster,now,star=null,origin=null) {
     let playIcon=greeting&&greeting.time>1.4?'♪':wake?(wake.time>1.1&&wake.trait==='おっとり'?'Zz':'☀'):rainIcon||(napping?'💤':duskSitting&&pastime.leader?'♪':null);
     if(chase)playIcon=pastime.leader?'♪':chase.phase==='headStart'?'！':chase.phase==='run'?'🐾':null;
     const icon=playIcon||(visit&&visit.remaining!==null?facilityActivities[visit.site.type][0]:timer.harvestBubble>0?'📦':null);
-    if(icon){drawMapBubble(x+(awningPose?.dx||0),top-(o.shiny?17:8),icon,now,o.id)}else if(!ranchScene&&!welcome&&!snack&&!windHat){
+    if(icon){drawMapBubble(x+(awningPose?.dx||0),top-(o.shiny?17:8),icon,now,o.id)}else if(!ranchScene&&!welcome&&!snack&&!windHat&&!favorite&&!fireflyWatch){
       const activity=o.phase213||phase213(state.hour);if(activity!=='work'&&!(activity==='sleep'&&visit&&usesSleepingRoom(o,visit.site))){ctx.font='13px sans-serif';ctx.fillText(activity==='sleep'?'💤':activity==='eat'?'🍎':'🎾',x-7,top-2+Math.sin(now/500+o.id)*1.6)}
     }
   }else if(o.jobTask212&&!o.jobTarget211?.rest){
@@ -1918,6 +2245,83 @@ function drawMorningRainbow(){
   ctx.save();ctx.globalAlpha=.67*Math.sin(morning*Math.PI);
   ctx.drawImage(rainbowArt,VW*T-230,17,208,88);ctx.restore();
 }
+// A short firefly watch on the verge. The watcher never leaves its road tile or
+// acquires an activity/task; normal movement immediately takes precedence.
+let fireflyWatch127=null;
+const fireflyWatchLength127=4.4;
+function fireflyWatchWindow127(){
+ const season=seasonInfo().name,weather=weatherInfo().name;
+ return (state.hour===19||state.hour===20)&&season!=='冬'&&(weather==='晴れ'||weather==='くもり')&&!shootingStarFrame();
+}
+function fireflyGrass127(x,y){
+ return unlocked(x,y)&&!isPath(x,y)&&!isPond(x,y)&&!sceneryAt(x,y)&&!getBuildingAt(x,y);
+}
+function fireflyWatchEligible127(m){
+ return ranchMonsterFree124(m)&&!treeConcertListener(m)&&!welcomeVisual125(m)&&
+  !windHatHas126(m)&&!snackShareByActor126.has(m);
+}
+function fireflyWatchFrame127(){
+ const f=fireflyWatch127?.scene;
+ if(!f||f.ranch!==state||f.day!==state.day||f.elapsed>=fireflyWatchLength127||
+  !fireflyWatchWindow127()||!state.monsters.includes(f.monster)||
+  !ranchAt124(f.monster,f.from)||!fireflyGrass127(...f.grass)||!fireflyWatchEligible127(f.monster))return null;
+ return f;
+}
+function fireflyWatcher127(m){
+ const scene=fireflyWatch127?.scene;
+ return scene?.monster===m?fireflyWatchFrame127():null;
+}
+function stepFireflyWatch127(dt){
+ if(!(dt>0)||state.speed<=0)return;
+ if(fireflyWatch127?.ranch!==state||fireflyWatch127.day!==state.day)
+  fireflyWatch127={ranch:state,day:state.day,used:false,poll:0,scene:null};
+ const r=fireflyWatch127;
+ if(r.scene){r.scene.elapsed+=dt;if(!fireflyWatchFrame127())r.scene=null;}
+ if(r.used||!fireflyWatchWindow127())return;
+ r.poll-=dt;if(r.poll>0)return;r.poll=.9;
+ let best=null;
+ for(const monster of state.monsters){
+  if(!fireflyWatchEligible127(monster))continue;
+  const wait=monsterWalkTimers139.get(monster)?.wait;
+  if(wait!=null&&wait<1.9)continue; // Leave time for the first visible twinkle.
+  const from=ranchTile124(monster);
+  if(!ranchAt124(monster,from))continue;
+  for(const grass of neighbors(...from)){
+   if(!fireflyGrass127(...grass))continue;
+   const side=Math.sign(grass[0]-grass[1]-from[0]+from[1]);
+   const score=hash(grass[0]+state.day*3,grass[1]+(monster.id||0))+(grass[0]+grass[1]>from[0]+from[1]?.25:0);
+   if(!best||score>best.score)best={monster,from,grass,side,score};
+  }
+ }
+ if(best){r.scene={...best,ranch:state,day:state.day,elapsed:0};r.used=true;}
+}
+function fireflyWatchPose127(f){
+ const t=f.elapsed;
+ return {dx:Math.round(f.side*(1.6+.9*Math.sin(t*3.7))),
+  dy:-Math.round(Math.max(0,1+1.5*Math.sin(t*3.7+.7))),side:f.side};
+}
+function drawFireflyWatch127(bounds){
+ const f=fireflyWatchFrame127();
+ if(!f)return;
+ const [x,y]=f.grass;
+ if(x<bounds.minX||x>bounds.maxX||y<bounds.minY||y>bounds.maxY)return;
+ const p=projectGround(x+.5,y+.5),t=f.elapsed;
+ const fade=clamp(Math.min(t/.5,(fireflyWatchLength127-t)/.65),0,1);
+ ctx.save();
+ for(let i=0;i<4;i++){
+  const phase=t*(i%2?3.1:2.6)+i*2.15;
+  const glow=fade*(.73+.27*Math.sin(phase+1));
+  if(glow<.14)continue;
+  const px=Math.round(p.x+(i-1.5)*6+Math.sin(phase)*5);
+  const py=Math.round(p.y-9-i*3+Math.cos(phase*.68)*4);
+  ctx.globalAlpha=glow*.32;ctx.fillStyle='#c9ea78';ctx.fillRect(px-2,py-2,6,6);
+  ctx.globalAlpha=glow*.55;ctx.fillRect(px-1,py-1,4,4);
+  ctx.globalAlpha=glow;ctx.fillStyle='#fff8af';ctx.fillRect(px,py,2,2);
+  if(glow>.48){ctx.globalAlpha=fade;ctx.fillStyle='#fffcd7';ctx.fillRect(px,py,1,1);}
+ }
+ ctx.restore();
+}
+
 function drawSummerFireflies(now,bounds){
   if(seasonInfo().name!=='夏'||(state.hour>=5&&state.hour<19)||weatherInfo().name==='雨')return;
   ctx.save();
@@ -2113,6 +2517,7 @@ function drawWorld(now){
   drawPostRainPuddles({minX,minY,maxX,maxY,left,top,right,bottom});
   drawSeasonTracks();
   drawSummerFireflies(now,{minX,minY,maxX,maxY});
+  drawFireflyWatch127({minX,minY,maxX,maxY});
   if($('roadCheck').open)drawWorkRoad(now);
   let visibleTree=null;
   for(const b of state.buildings){const m=buildingOf(b),r=plotImageRect(b,m);if(r.x+r.w<left||r.x>right||r.y+r.h<top||r.y>bottom)continue;
@@ -2128,18 +2533,19 @@ function drawWorld(now){
     if(visit?.phase==='use'&&(o.indoorRest||o.expeditionVisit)){
       occupiedRooms.set(visit.site,o.indoorRest?'Zz':'🧭');continue;
     }
-    const p=projectGround(o.x+.5,o.y+.5);if(p.x<left-40||p.x>right+40||p.y<top-24||p.y>bottom+65)continue;
-    let depth=o.x+o.y+1;
-    if(visit){
-      // The World Tree's paving and crown share one sprite. Its outdoor visitors
-      // need the same layer for the whole walk, including the gate and return.
-      const behind=visit.site.type!=='worldtree'&&(visit.facing===1||visit.facing===2);
+    const x=o.x+.5,y=o.y+.5,p=projectGround(x,y);if(p.x<left-40||p.x>right+40||p.y<top-24||p.y>bottom+65)continue;
+    let depth=x+y;
+    if(visit&&visit.site.type!=='worldtree'){
+      const behind=visit.facing===1||visit.facing===2;
       depth=behind?Math.min(depth,visit.depth-.01):Math.max(depth,visit.depth+.01);
-    }else if(visibleTree&&(worldTreeCourtyardContains(visibleTree,o.x+.5,o.y+.5)||onWorldTreeGateRoad(visibleTree,o.x+.5,o.y+.5))){
-      const {w,h}=buildingOf(visibleTree);
-      depth=Math.max(depth,visibleTree.x+visibleTree.y+(w+h)/2+.01);
     }
+    if(visibleTree)depth=worldTreeActorDepth127(visibleTree,x,y,depth,visit?.site===visibleTree);
     objects.push({depth,draw:()=>drawMapActor(o,monster,now,shootingStar,origin)});
+  }
+  const preparation=visibleTree&&festivalPrepVisual127();
+  if(preparation?.tree===visibleTree){
+    const [pa,pb]=festivalPrepPosts127(preparation),{w,h}=buildingOf(visibleTree);
+    objects.push({depth:Math.max((pa.y+pb.y)/T-.03,visibleTree.x+visibleTree.y+(w+h)/2+.005),draw:()=>drawFestivalPrep127(preparation)});
   }
   const lightNow=performance.now();
   for(const home of state.buildings){
@@ -7353,7 +7759,9 @@ stepActors=function(dt){
  if(state.speed>0){
   stepTreeConcert(dt);
   stepTreeSketch126(dt);
+  stepFestivalPrep127(dt);
   stepRanchScenes124(dt);
+  stepFireflyWatch127(dt);
   stepWindHat126(dt);
   updateMonsterWalks139(dt);
   let planned=0;
@@ -7367,6 +7775,7 @@ stepActors=function(dt){
  }
  stepSnackShare126(dt);
  stepExpeditionWelcomes125(dt);
+ stepFavoriteSpots127(dt);
  oldStep213(dt);
  for(const a of [...state.monsters,...state.staff]){
   if(!a.path?.length){a.prevPos213=null;a.stall213=0;continue}
@@ -9658,6 +10067,19 @@ function onWorldTreeGateRoad(tree,x,y){
   const along=dir%2?dy:dx, length=dir%2?h:w;
   const outside=[dy-h,-dx,-dy,dx-w][dir];
   return along>=0&&along<length&&outside>=0&&outside<=1;
+}
+function worldTreeActorDepth127(tree,x,y,depth,visiting=false){
+ const {w,h}=buildingOf(tree),dx=x-tree.x,dy=y-tree.y;
+ const treeDepth=tree.x+tree.y+(w+h)/2,dir=validFacing(tree.facing);
+ // The rear edges are fixed in screen space, regardless of the gate's facing.
+ // Near either rear wall, a high x+y alone does not put an actor in front.
+ const rear=dx>=-3&&dy>=-3&&((dx<0&&dy<h)||(dy<0&&dx<w));
+ if(rear)return Math.min(depth,treeDepth-.01);
+ // The tree's pavers and crown are one sprite. Retain the foreground courtyard
+ // layer once a visitor steps inside and on the two screen-facing gate roads.
+ if(worldTreeCourtyardContains(tree,x,y)||(visiting&&dx>=0&&dx<=w&&dy>=0&&dy<=h)||
+    ((dir===0||dir===3)&&onWorldTreeGateRoad(tree,x,y)))return Math.max(depth,treeDepth+.01);
+ return depth;
 }
 function worldTreeCourtyardPoint(site,dir){
  const {w,h}=buildingOf(site),right=dir===2||dir===3;
