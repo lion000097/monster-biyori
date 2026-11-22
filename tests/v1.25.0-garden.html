@@ -24,11 +24,13 @@ function fixture(){
 
 
  function ready(){return !!(state&&facilitySheetReady&&villageSheetReady&&lionReady);}
- window.qa250={seed,snapshot,ready};
+ const bathArt=()=>[0,1,2,3].map(d=>ranchFrame130('onsen130',d,0).toDataURL());
+ window.qa250={seed,snapshot,ready,bathArt};
  if(GAME_APP_VERSION!=='1.25.0')return;
  (function(){
 const check=(v,msg)=>{if(!v)throw Error(msg);};
-const types=['mushroom250','birdbath250','lantern250','roseArch250','acorn250'];
+const types=['mushroom250','birdbath250','roseArch250','acorn250'];
+const unlocks=[1,2,4,5];
 const original=JSON.stringify(state);
 const fresh=(day=1)=>{
  state=JSON.parse(original);
@@ -66,11 +68,11 @@ const stateOfGoods=()=>JSON.stringify([state.coins,state.stock,state.food,state.
 function placement(){
  const log=[];
  for(const [i,t] of types.entries()){
-  fresh();level(Math.max(1,i));tab='build';facilityRole='tourism';renderUI(true);
+  fresh();const unlock=unlocks[i];level(Math.max(1,unlock-1));tab='build';facilityRole='tourism';renderUI(true);
   const card=()=>$('tabBody').querySelector('[data-action="build"][data-id="'+t+'"]');
   check(card()&&card().closest('.build-option').textContent.includes(B[t].name),'施設一覧 '+t);
   if(i>0){const balance=state.coins;check(card().disabled,'未解放の建設ボタン '+t);place(t,8,8);check(!getBuildingAt(8,8)&&balance===state.coins,'解放前の建設 '+t);}
-  level(i+1);renderUI(true);check(!card().disabled,'解放Lv '+t);
+  level(unlock);renderUI(true);check(!card().disabled,'解放Lv '+t);
   card().click();check(buildMode===t,'建設ボタン '+t);
   const cost=constructionCost(t),balance=state.coins;
   putTerrain('stone',8,8);const b=prop(t);
@@ -83,9 +85,36 @@ function placement(){
   check(save(true)&&load(),'保存・再読込 '+t);
   const after=state.buildings.find(v=>v.id===id);check(after?.type===t&&after.facing===3&&after.x===6&&isPath(6,6),'新装飾の保存 '+t);
   recoverBuilding(id);check(!getBuildingAt(6,6)&&isPath(6,6),'回収後の床 '+t);
-  log.push(B[t].name+' Lv.'+(i+1));
+  log.push(B[t].name+' Lv.'+unlock);
  }
  return log.join('、');
+}
+function fourDirections(){
+ check(!B.lantern250&&!document.querySelector('[data-id="lantern250"]'),'撤回したランタンが建設候補に出ない');
+ for(const type of types){
+  for(const direction of [0,1,2,3]){
+   fresh();tab='build';facilityRole='tourism';renderUI(true);
+   const card=$('tabBody').querySelector('[data-action="build"][data-id="'+type+'"]');
+   check(card.closest('.build-option').textContent.includes('世界樹 Lv.'+B[type].unlock),'建設一覧の解放Lv '+type);
+   card.click();renderFacingPicker();
+   const images=facingButtons.map(c=>c.canvas.toDataURL());
+   check(new Set(images).size===4,'向き選択の別々のサムネイル '+type);
+   const button=facingButtons.find(c=>c.direction===direction).button;
+   button.click();check(facingSelection().direction===direction&&button.getAttribute('aria-pressed')==='true','向き選択 '+type+direction);
+   if(direction===1||direction===3)putTerrain('road',8,8);
+   const lot=prop(type),id=lot.id;
+   check(lot.facing===direction,'新規設置の向き '+type+direction);
+   check(save(true)&&load(),'方向を保存 '+direction);
+   const loaded=state.buildings.find(b=>b.id===id);
+   check(loaded?.type===type&&loaded.facing===direction,'再読込した向き '+type+direction);
+  }
+ }
+ fresh();const coins=state.coins;
+ const preview=JSON.parse(JSON.stringify(state));
+ preview.buildings.push({type:'lantern250',id:8600,x:9,y:8,facing:2,level:1,constructionPaid:211});
+ check(installSave138(JSON.stringify(preview),'テスト読込'),'試作セーブを読み込む');
+ check(state.coins===coins+211&&!state.buildings.some(b=>b.type==='lantern250'),'ランタンを回収し支払額を返還');
+ check(save(true)&&load()&&state.coins===coins+211,'再読み込み時の二重返金防止');
 }
 function passage(){
  fresh();row(8,5,11);road(8,7);prop('farm',8,6-1); // sole frontage at y=7
@@ -103,7 +132,7 @@ function passage(){
  walker.x=5;walker.y=8;walker.path=route;
  for(let i=0;i<240&&walker.path.length;i++)walkPlotLeg(walker,walker.path,.05);
  check(walker.x===11&&walker.y===8,'アーチ通過完了');
- check(!canBuild(8,8,null,true,'lantern250'),'アーチと他の建物は重ならない');
+ check(!canBuild(8,8,null,true,'birdbath250'),'アーチと他の建物は重ならない');
 }
 function visits(){
  fresh();row(9,5,11);const b=prop('birdbath250'),m=friend(8,9),other=friend(9,9,1,6414);
@@ -139,17 +168,11 @@ function rendering(){
  for(const [day,visible] of [[1,true],[8,false],[15,true],[22,false]]){
   state.day=day;check((count(sample(()=>drawRoseFall250(arch,r,2600)))>0)===visible,'四季の花びらと赤い葉 '+day);
  }
- const lamp=prop('lantern250',8,10);
- state.hour=12;const day=spriteBuildingV161(lamp.type,1,0);
- check(count(sample(()=>drawGardenLanternGround250(lamp),plotImageRect(lamp)))===0,'昼の花柄ガラス');
- state.hour=22;const night=spriteBuildingV161(lamp.type,1,0);
- check(day!==night&&count(sample(()=>drawGardenLanternGround250(lamp),plotImageRect(lamp)))>0,'夜の光と花の影');
- check(plotImageRect(lamp).h<plotImageRect({type:'lamp211',x:8,y:10}).h,'街灯より小さな明かり');
  fresh(15);row(9,5,11);prop('acorn250');friend(8,9);step(3);drawWorld(3000);drawBattle(3000);
- return '四季、昼夜、描画、一時停止';
+ return '春の花びら・秋の葉、描画、一時停止';
 }
 
- Object.assign(window.qa250,{placement,passage,visits,rendering});
+ Object.assign(window.qa250,{placement,fourDirections,passage,visits,rendering});
  })();
 }
 const out=document.querySelector('#result'),mount=document.querySelector('#screens');
@@ -175,13 +198,16 @@ document.querySelector('#run').onclick=async({currentTarget:button})=>{
   }
   for(const width of [1366,390]){
     clear();const seed=await open(prior,width);seed.w.qa250.seed();seed.f.remove();
-    const old=await open(prior,width);const snapshot=old.w.qa250.snapshot();old.f.remove();
+    const old=await open(prior,width);const snapshot=old.w.qa250.snapshot(),oldBath=old.w.qa250.bathArt();old.f.remove();
     const current=await open(latest,width);
     check(current.w.document.title.includes('1.25.0'),'ゲームの版番号');
     check(current.w.qa250.snapshot()===snapshot,'1.24.31セーブの引き継ぎ');
     check(width!==390||current.w.document.documentElement.scrollWidth<=391,'スマートフォン幅');
-    log(width+'px 旧セーブの引き継ぎ');
+    const bath=current.w.qa250.bathArt();
+    check(bath.length===4&&bath.every((v,i)=>(v===oldBath[i])===(i===0||i===3)),'露天風呂の引き継ぎ');
+    log(width+'px 旧セーブの引き継ぎ、露天風呂の4方向');
     log(width+'px 建設・解放・保存 '+current.w.qa250.placement());
+    current.w.qa250.fourDirections();log(width+'px 16通りの向き選択・設置・保存、試作ランタンの引き継ぎ');
     current.w.qa250.passage();log(width+'px アーチ通行・最後の入口保護');
     current.w.qa250.visits();log(width+'px 小鳥、着席、秋の屋台と経済');
     log(width+'px '+current.w.qa250.rendering());
