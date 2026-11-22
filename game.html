@@ -830,7 +830,7 @@ const fed=state.food>=demand;
 state.food=Math.max(0,state.food-demand);
 const xpBoost=researchMultiplier('train');
 for(let m of state.monsters){m.happy=clamp(m.happy+(fed?.08:-.65)+park*.14,4,100);m.bond=clamp(m.bond+.03+park*.02,0,100);m.xp+=(.39+.38*Math.sqrt(school))*(m.happy/110+.35)*xpBoost*(.72+m.energy/280)*.35*(m.gift212===3?1.20:1);m.produce+=(m.happy>30?1:.55)*.65*(state.hour>=21||state.hour<6?.12:1);if(state.hour>=6&&state.hour<21&&m.produce>=Math.max(4,10-(m.lv>=7?1:0))){m.produce=Math.max(4,10-(m.lv>=7?1:0));ranchProduction200(m,!!silent);if(!silent&&chance(.015))swirls.push({x:m.x*T+16,y:m.y*T,life:1.15,text:'✦'})}let need=monsterLevelNeed135(m.lv);if(m.xp>=need){m.xp-=need;m.lv++;state.metrics.level++;state.fame+=.5+Math.floor(m.lv/12)*.5;m.happy=clamp(m.happy+5,0,100);if(!silent)message(`⬆️ ${m.name}が Lv.${m.lv} に！ 牧場の評判アップ！`)}}
-for(let s of state.staff){if(!silent&&(!s.path||!s.path.length)&&chance(.5)){seek(s,s.job);s.act=s.jobTask212?'作業中':JOBS[s.job].label+'中'}}
+for(let s of state.staff){if(!silent&&(!s.path||!s.path.length)&&chance(.5)){seek(s,s.job);if(s.job!=='explore')s.act=s.jobTask212?'作業中':JOBS[s.job].label+'中'}}
 // Sale happens only on guest arrival.
 // No automatic sales: shop money is credited at customer checkout.
 
@@ -1018,7 +1018,7 @@ for(const el of body.querySelectorAll('[data-avatar]')){
   const m=state.monsters.find(m=>m.id===Number(el.dataset.mid));paintPortrait(el,spriteMonsterHD(m.kind,!!m.shiny));
 }
 }else if(tab==='staff'){
-let cost=210+state.staff.length*105;let html=`<div class="info-card"><strong>🧑‍🌾 市民のお仕事</strong><br>仕事を選ぶだけで勝手に移動して働くよ。探検担当は自動遠征を早め、仕事を終えると${Math.round(STAFF_EGG_RATE139*100)}%でたまごを発見。見つけたうち${(STAFF_SPECIAL_RATE139*100).toFixed(1)}%は「色違いのたまご」だよ。<br><span class="big-count">${state.staff.length}</span> / ${staffLimit()} 人<br>世界樹Lv.${state.villageLv}の市民枠は${staffLimit()}人。次のレベルで${monsterTreeLimit135(state.villageLv+1)}人まで雇えるよ。${state.staff.length>staffLimit()?' 今いる市民は引き続き働けるよ。':''}<br><button type="button" class="help-topic-link" id="staffHelpLink" data-help-topic="staff" aria-haspopup="dialog">役職の説明を見る</button></div><button class="wide-button" data-action="hire" ${state.staff.length>=staffLimit()||state.coins<cost?'disabled':''}>🧑‍🌾 新しく雇う（${num(cost)}G）</button>`;
+let cost=210+state.staff.length*105;let html=`<div class="info-card"><strong>🧑‍🌾 市民のお仕事</strong><br>仕事を選ぶだけで勝手に移動して働くよ。探検担当は遠征所（世界樹Lv.3）から出発し、自動遠征を早めるよ。帰還時に${Math.round(STAFF_EGG_RATE139*100)}%でたまごを発見。見つけたうち${(STAFF_SPECIAL_RATE139*100).toFixed(1)}%は「色違いのたまご」だよ。<br><span class="big-count">${state.staff.length}</span> / ${staffLimit()} 人<br>世界樹Lv.${state.villageLv}の市民枠は${staffLimit()}人。次のレベルで${monsterTreeLimit135(state.villageLv+1)}人まで雇えるよ。${state.staff.length>staffLimit()?' 今いる市民は引き続き働けるよ。':''}<br><button type="button" class="help-topic-link" id="staffHelpLink" data-help-topic="staff" aria-haspopup="dialog">役職の説明を見る</button></div><button class="wide-button" data-action="hire" ${state.staff.length>=staffLimit()||state.coins<cost?'disabled':''}>🧑‍🌾 新しく雇う（${num(cost)}G）</button>`;
 for(let s of state.staff)html+=`<div class="entity-row"><canvas class="monster-avatar" width="64" height="64" data-staff-sprite="${s.id}"></canvas><div class="entity-info"><div class="entity-name"><span>${esc(s.name)} <span class="citizen-sex">${genderLabel(s.gender)}</span></span><span class="pill">Lv.${s.level||1}</span></div><div class="entity-sub">${JOBS[s.job]?.hint||''}<br>仕事XP ${s.level>=99?'MAX':Math.floor(s.workXp||0)+' / '+staffLevelNeed(s.level||1)}<br>熟練 ${Math.round((s.mastery||{})[s.job]||0)} / 疲労 ${Math.round(s.fatigue||0)}% / やる気 ${Math.round(s.morale||80)}%</div><button type="button" class="help-topic-link" data-road-worker="${s.id}">仕事場までの道を見る</button></div><select aria-label="${esc(s.name)}の担当" class="staff-select" data-staff="${s.id}">${Object.entries(JOBS).map(([key,j])=>`<option value="${key}" ${s.job===key?'selected':''}>${j.icon} ${j.label}</option>`).join('')}</select></div>`;
 html+=`<div class="info-card">💰 毎日の人件費：${staffWages()}G<br>🎯 おすすめ：必要な仕事に合わせて担当を変えられるよ。</div>`;body.innerHTML=html;for(let el of body.querySelectorAll('[data-staff-sprite]')){const w=state.staff.find(s=>s.id===+el.dataset.staffSprite);if(w)paintPortrait(el,citizenArt(w))};
 }else if(tab==='research'){
@@ -1424,6 +1424,12 @@ function drawMapBubble(x,y,icon,now,id){
     ctx.fillStyle='#78b8c9';ctx.fillRect(cx-3,cy-4,7,2);ctx.fillRect(cx-5,cy-2,11,2);ctx.fillRect(cx-6,cy,13,1);
     ctx.fillStyle='#4f91a7';ctx.fillRect(cx-5,cy+1,3,1);ctx.fillRect(cx-1,cy+1,3,1);ctx.fillRect(cx+3,cy+1,3,1);
     ctx.fillStyle='#cce9e6';ctx.fillRect(cx-3,cy-2,4,1);
+  }else if(icon==='🧭'){
+    ctx.fillStyle='#765438';ctx.fillRect(cx-4,cy-6,9,13);ctx.fillRect(cx-6,cy-4,13,9);
+    ctx.fillStyle='#ebc477';ctx.fillRect(cx-3,cy-5,7,11);ctx.fillRect(cx-5,cy-3,11,7);
+    ctx.fillStyle='#fff1c9';ctx.fillRect(cx-3,cy-3,7,7);
+    ctx.fillStyle='#36747b';ctx.fillRect(cx-3,cy+2,2,2);ctx.fillRect(cx-2,cy,3,2);
+    ctx.fillStyle='#b14e3e';ctx.fillRect(cx,cy-1,2,2);ctx.fillRect(cx+1,cy-3,2,2);
   }else if(icon==='Zz'){
     ctx.fillStyle='#575d92';
     ctx.fillRect(cx-7,cy-1,5,1);ctx.fillRect(cx-4,cy,1,1);ctx.fillRect(cx-5,cy+1,1,1);
@@ -1546,7 +1552,7 @@ function drawWorld(now){
   const corners=[[left,top],[right,top],[left,bottom],[right,bottom]].map(([x,y])=>unprojectGround(x,y));
   const minX=Math.max(MIN_X,Math.floor(Math.min(...corners.map(p=>p.x)))-2),minY=Math.max(MIN_Y,Math.floor(Math.min(...corners.map(p=>p.y)))-2);
   const maxX=Math.min(W,Math.ceil(Math.max(...corners.map(p=>p.x)))+3),maxY=Math.min(H,Math.ceil(Math.max(...corners.map(p=>p.y)))+3);
-  const season=seasonInfo().name,objects=[],occupiedBedrooms=new Set();mapPickItems=[];
+  const season=seasonInfo().name,objects=[],occupiedRooms=new Map();mapPickItems=[];
   ctx.save();ctx.translate(origin.x,origin.y);ctx.scale(zoom,zoom);
   if(zoom<.6){
     const overview=overviewGround(season);
@@ -1566,7 +1572,9 @@ function drawWorld(now){
   }
   for(const [source,monster] of [[state.monsters,true],[state.staff,false],[state.guests,false]])for(const o of source){
     const visit=plotWalks.get(o);
-    if(o.indoorRest&&visit?.phase==='use'){occupiedBedrooms.add(visit.site);continue;}
+    if(visit?.phase==='use'&&(o.indoorRest||o.expeditionVisit)){
+      occupiedRooms.set(visit.site,o.indoorRest?'Zz':'🧭');continue;
+    }
     const p=projectGround(o.x+.5,o.y+.5);if(p.x<left-40||p.x>right+40||p.y<top-24||p.y>bottom+65)continue;
     let depth=o.x+o.y+1;
     if(visit){
@@ -1583,10 +1591,10 @@ function drawWorld(now){
   }
   objects.sort((a,b)=>a.depth-b.depth).forEach(item=>item.draw());
   if(selected&&!moveMode)drawGateMarker(selected,selected.facing);
-  for(const site of occupiedBedrooms){
+  for(const [site,icon] of occupiedRooms){
     if(!state.buildings.includes(site))continue;
     const roof=plotImageRect(site);
-    drawMapBubble(Math.round(roof.x+roof.w/2),Math.round(roof.y+roof.h*.21),'Zz',now,site.id);
+    drawMapBubble(Math.round(roof.x+roof.w/2),Math.round(roof.y+roof.h*.21),icon,now,site.id);
   }
   for(const effect of swirls){const p=projectGround(effect.x/T,effect.y/T+.5);ctx.globalAlpha=clamp(effect.life,0,1);ctx.font='bold 15px sans-serif';ctx.fillStyle='#fff1b2';ctx.fillText(effect.text,p.x,p.y-14*(1-effect.life))}ctx.globalAlpha=1;
   ctx.restore();drawMapWeather(now);
@@ -1640,7 +1648,7 @@ canvas.addEventListener('wheel', event => {
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.tab;renderUI(true)}));
 document.querySelectorAll('[data-speed]').forEach(b=>b.addEventListener('click',()=>{state.speed=+b.dataset.speed;document.querySelectorAll('[data-speed]').forEach(el=>el.classList.toggle('on',el===b));renderUI(true)}));
 document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const action=b.dataset.action,id=b.dataset.id;if(action==='build'){terrainMode=null;if(buildMode===id)buildMode=null;else{moveMode=null;clearMode=false;buildMode=id;placementFacing=0;selectedBuilding=null;selectedMonster=null;toast(`🔨 ${B[id].name}を建てる位置を選ぼう`)}renderUI(true)}else if(action==='cancelBuild'){buildMode=null;renderUI(true)}else if(action==='moveBuilding')startMoving(+id);else if(action==='cancelMove')cancelMoving();else if(action==='toggleClear'){terrainMode=null;toggleClearMode()}else if(action==='recoverBuilding')recoverBuilding(+id);else if(action==='zoomIn')setZoom(zoom*1.2);else if(action==='zoomOut')setZoom(zoom/1.2);else if(action==='zoomReset')setZoom(1);else if(action==='showAdventure'){tab='adventure';renderUI(true);$('tabBody').scrollTop=0}else if(action==='upgrade')upgrade(+id);else if(action==='egg')buyEgg();else if(action==='hire')hire();else if(action==='research')doResearch(id);else if(action==='selectMonster')openMonsterDetails(+id,b);else if(action==='export')exportSave();else if(action==='reset')reset();else if(action==='import')$('importInput').click();else if(action==='pan'){const d={left:[-11,0],right:[11,0],up:[0,-10],down:[0,10]}[id];if(d)cameraMove(...d)}else if(action==='walkCamera')startWalkCamera(+id);else if(action==='centerMap'){stopWalkCamera();cameraX=VW/2-VW/(2*zoom);cameraY=VH/2-VH/(2*zoom);limitCamera();renderUI(false)}else if(action==='adventureStart')startAdventure();else if(action==='adventureAuto'){state.adventure.auto=!state.adventure.auto;state.adventure.cooldown=0;message(state.adventure.auto?'🔁 自動冒険を始めるよ！':'⏹️ 自動冒険を停止したよ。');renderUI(true);save(true)}else if(action==='atlas'){atlasCategory=id;renderUI(true)}else if(action==='showManagement'){tab='management';renderUI(true)}else if(action==='completeOrder')completeOrder();else if(action==='festival')hostFestival();else if(action==='trainMonster')trainMonster(+id);else if(action==='equipCharm')equipCharm(+id);else if(action==='toggleParty')toggleParty(+id)});
-document.addEventListener('pointerdown',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('focusin',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('change',e=>{if(e.target.matches('.staff-select[data-staff]')){let s=state.staff.find(o=>o.id===+e.target.dataset.staff);if(s&&JOBS[e.target.value]){s.job=e.target.value;s.path=[];message(`🧑‍🌾 ${s.name}の担当が「${JOBS[s.job].label}」になったよ。`,'success');save(true)}inputLock=false;renderUI(true)}if(e.target.id==='importInput')importSave(e.target.files[0])});document.addEventListener('focusout',e=>{if(e.target.matches('.staff-select'))inputLock=false});
+document.addEventListener('pointerdown',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('focusin',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('change',e=>{if(e.target.matches('.staff-select[data-staff]')){let s=state.staff.find(o=>o.id===+e.target.dataset.staff);if(s&&JOBS[e.target.value]){if(s.job!==e.target.value&&(s.job==='explore'||e.target.value==='explore')){cancelPlotWalk(s);s.jobTarget211=null;s.jobTask212=null;s.jobCooldown211=0;s.act='待機中'}s.job=e.target.value;s.path=[];if(s.job==='explore')seek(s,s.job);message(`🧑‍🌾 ${s.name}の担当が「${JOBS[s.job].label}」になったよ。`,'success');save(true)}inputLock=false;renderUI(true)}if(e.target.id==='importInput')importSave(e.target.files[0])});document.addEventListener('focusout',e=>{if(e.target.matches('.staff-select'))inputLock=false});
 const helpTopics = {staff:'市民の役職', tree:'世界樹の成長XP', basics:'基本とセーブ'};
 let helpOpener;
 let monsterDetails=null;
@@ -1710,7 +1718,7 @@ function staffHelp() {
     ['gather', B.farm.name + '・' + B.greenhouse212.name, '仲間が食べるごはんを収穫するよ。温室農園を建てるとそちらで働き、収穫量も増えるよ。'],
     ['sell', B.shop.name, '接客の準備をすると、しばらくの間、そのお店で旅人が素材を買う値段が上がるよ。売る素材は仲間が素材牧場で生産するよ。'],
     ['study', B.lab.name, '作業を終えるたびにキラキラを集めるよ。キラキラは「研究」での強化や世界樹を育てるときに使うよ。'],
-    ['explore', B.worldtree.name + '・' + B.guild212.name, '自動遠征の進む速さが1人につき8%上がるよ（3人で最大24%）。仕事場で作業を終えると遠征がさらに進むよ。冒険者ギルドを建てると、そこで働くよ。']
+    ['explore', B.expeditionOffice.name, '世界樹Lv.3で建てられる遠征所から毎回出発するよ。探検中は屋根の方位磁針が目印。担当1人につき自動遠征が8%速くなり（最大24%）、帰還すると遠征がさらに進むよ。冒険者ギルドがあると帰還時の成果が増えるよ。']
   ];
   const rows = roles.map(([job,site,description]) => `
     <div class="guide-job">
@@ -2757,7 +2765,7 @@ function nearestFree191(x,y){
 function moveActorsOutOfWalls191(){
   for(const a of [...(state.monsters||[]),...(state.staff||[]),...(state.guests||[])]){
     const visit=plotWalks.get(a);
-    if(a.indoorRest&&visit&&state.buildings.includes(visit.site)&&plotUsable(visit))continue;
+    if((a.indoorRest||a.expeditionVisit)&&visit&&state.buildings.includes(visit.site)&&plotUsable(visit))continue;
     cancelPlotWalk(a);
     if((state.guests||[]).includes(a)&&a.fromOutside101&&(!a.entered211||a.phase212==='leave')&&!unlocked(Math.round(a.x),Math.round(a.y)))continue;
     a.path=[];
@@ -4231,7 +4239,7 @@ function materialGallery211(){
  <div class="treasure-grid material-grid">${cards}</div></div>`;
 }
 function workplaceType211(job){
- return {keeper:'home',gather:'farm',sell:'shop',study:'lab',explore:'worldtree'}[job]||null;
+ return {keeper:'home',gather:'farm',sell:'shop',study:'lab',explore:'expeditionOffice'}[job]||null;
 }
 const seekOld211=seek;
 seek=function(actor,job){
@@ -4248,7 +4256,7 @@ seek=function(actor,job){
    actor.act='🚶 '+B[b.type].name+'へ移動';return;
   }
  }
- actor.act='仕事場が必要';
+ actor.act=job==='explore'?(sites.length?'遠征所までの道を待っている':'遠征所の建設待ち'):'仕事場が必要';
 };
 function workAtSite211(w,b){
  let foundEgg=null;
@@ -4266,7 +4274,8 @@ function workAtSite211(w,b){
   const amount=(.35+b.level*.09)*power;state.magic+=amount;w.act='🔮 研究 +'+Math.round(amount);
  }else if(w.job==='explore'){
   if(state.expeditionAuto213&&state.speed>0){
-   const progress=(.42+Math.min(30,w.level||1)*.035)*power+(b.type==='guild212'?.15+.035*b.level:0);
+   const guildLevel=state.buildings.reduce((best,site)=>site.type==='guild212'?Math.max(best,site.level):best,0);
+   const progress=(.42+Math.min(30,w.level||1)*.035)*power+(guildLevel ? .15+.035*guildLevel : 0);
    advanceExpedition(progress);w.act='🧭 探検支援 +'+progress.toFixed(1);
   }else w.act='🧭 たまごを探索';
   if(state.speed>0)foundEgg=findEgg139('staff',STAFF_EGG_RATE139);
@@ -4536,24 +4545,33 @@ function repairVIP212(){
  if(!Number.isFinite(o.expires)||o.expires<state.day)o.expires=state.day+7;
 }
 // Staff visibly work for a few real seconds on the map before receiving rewards.
+const staffWorkSeconds=3.1;
 function beginStaffWork212(w,b){
  if(w.jobTask212)return;
- w.jobTask212={id:b.id,job:w.job,duration:3.1,remaining:3.1};
+ w.jobTask212={id:b.id,job:w.job,duration:staffWorkSeconds,remaining:staffWorkSeconds};
  w.act=B[b.type].name+'の入口へ';
 }
 function progressStaffWork212(dt){
  for(const w of state.staff){
   const task=w.jobTask212;if(!task)continue;
   const building=state.buildings.find(b=>b.id===task.id);
-  if(!building||task.job!==w.job||!w.jobTarget211?.goal){
+  const exploring=w.job==='explore';
+  if(!building||task.job!==w.job||!w.jobTarget211?.goal||(exploring&&building.type!=='expeditionOffice')){
    cancelPlotWalk(w);w.jobTask212=null;w.jobTarget211=null;w.path=[];continue;
   }
-  const phase=stepPlotWalk(w,building,w.jobTarget211.goal,dt,task.duration,
-   ()=>{w.act='🔨 '+JOBS[w.job].label+'作業中'});
+  const phase=stepPlotWalk(w,building,w.jobTarget211.goal,dt,task.duration,()=>{
+   if(exploring){
+    w.expeditionVisit={buildingId:building.id,remaining:task.duration};
+    w.act='🧭 探検中';
+   }else w.act='🔨 '+JOBS[w.job].label+'作業中';
+  },()=>{if(exploring)w.act='🧭 遠征所に帰還';});
   if(phase==='cancelled'){w.jobTask212=null;w.jobTarget211=null;continue;}
-  if(phase==='done'){w.jobTask212=null;workAtSite211(w,building);}
-  else task.remaining=plotWalks.get(w).remaining;
-
+  if(phase==='done'){
+   delete w.expeditionVisit;w.jobTask212=null;workAtSite211(w,building);
+  }else{
+   task.remaining=plotWalks.get(w).remaining;
+   if(w.expeditionVisit)w.expeditionVisit.remaining=task.remaining;
+  }
  }
 }
 // Visitor movement is deliberately managed separately from v1.9's actor
@@ -4732,14 +4750,13 @@ stepActors=function(dt){
 };
 // Extra facilities to make world-tree growth beyond 10 meaningful.
 Object.assign(B,{
- guild212:{name:'冒険者ギルド',icon:'🛡️',cost:6200,unlock:11,w:3,h:3,pixel:96,desc:'探検職員が集う冒険の拠点',effect:'🧭 探検職員の成果アップ'},
+ guild212:{name:'冒険者ギルド',icon:'🛡️',cost:6200,unlock:11,w:3,h:3,pixel:96,desc:'遠征所の探検係を支援するギルド。',effect:'🧭 遠征所から帰還した探検係の成果アップ'},
  greenhouse212:{name:'温室農園',icon:'🌱',cost:7900,unlock:13,w:3,h:3,pixel:96,desc:'天候に左右されにくい農園',effect:'🍎 安定した食料生産'},
  gallery212:{name:'素材博物館',icon:'🏛️',cost:10800,unlock:15,w:3,h:3,pixel:96,desc:'珍しい素材を展示する施設',effect:'🌟 評判アップ・観光客増加'},
  sanctuary212:{name:'精霊の森',icon:'🌲',cost:16500,unlock:18,w:4,h:4,pixel:128,desc:'モンスターを癒やす神聖な森',effect:'💕 ごきげん上昇・素材収穫アップ'}
 });
 const staffWorkBefore212=workplaceType211;
 workplaceType211=function(job){
- if(job==='explore'&&state.buildings.some(b=>b.type==='guild212'))return 'guild212';
  if(job==='gather'&&state.buildings.some(b=>b.type==='greenhouse212'))return 'greenhouse212';
  return staffWorkBefore212(job);
 };
@@ -4889,7 +4906,11 @@ load=function(){
  if(ok){
   ensureMonsterGifts212();
   repairVIP212();
-  for(const w of state.staff){w.jobTask212=null;w.jobTarget211=null;w.path=[]}
+  for(const w of state.staff){
+   w.jobTask212=null;w.jobTarget211=null;w.path=[];
+   if(w.expeditionVisit)resumeExpeditionVisit(w);
+   else if(w.job==='explore')w.act='探検の準備中';
+  }
   for(const m of state.monsters){
    m.ranchTarget200=null;m.ranchGoal200=null;m.path=[];
    if(m.indoorRest){
@@ -7295,7 +7316,8 @@ function buildingUpgradePreview(building) {
       note = '生産個数は仲間の種類・レベル・特技と端数の丸めで決まります。';
       break;
     case 'guild212':
-      local('探検担当の仕事1回の遠征加算',n => .15+.035*n,'pt');
+      local('探検係の帰還1回の支援量',n => .15+.035*n,'pt');
+      note = '複数のギルドがあるときは、最も高いLv.の支援量を使います。';
       break;
     case 'greenhouse212':
       ranch('温室のごはん'+time,foodProduction.greenhouse,'個');
@@ -7545,6 +7567,7 @@ function cancelPlotWalk(actor){
   if(actor.indoorRest){
     delete actor.indoorRest;actor.act=actor.kind!==undefined?'🐾 おさんぽ':'観光中';
   }
+  if(actor.expeditionVisit){delete actor.expeditionVisit;actor.act='待機中';}
   plotWalks.delete(actor);delete actor.facilityDoor;
 }
 function usesSleepingRoom(actor,site){
@@ -7569,6 +7592,20 @@ function resumeIndoorRest(actor,duration){
   }else{actor.visitGoal=door;actor.route212=[];}
   [actor.x,actor.y]=walk.points.at(-1);walk.points=[];walk.phase='use';
   enterIndoorRest(actor,walk);return true;
+}
+function resumeExpeditionVisit(worker){
+  const {buildingId,remaining}=worker.expeditionVisit;
+  delete worker.expeditionVisit;worker.act='待機中';
+  if(worker.job!=='explore'||!Number.isFinite(remaining)||remaining<0||remaining>staffWorkSeconds)return;
+  const site=state.buildings.find(b=>b.id===buildingId&&b.type==='expeditionOffice');
+  const door=[worker.x,worker.y],walk=site&&beginPlotWalk(worker,site,door,remaining);
+  if(!walk)return;
+  worker.jobTarget211={id:buildingId,job:'explore',goal:door};
+  beginStaffWork212(worker,site);worker.jobTask212.remaining=remaining;
+  [worker.x,worker.y]=walk.points.at(-1);walk.points=[];
+  walk.phase=remaining>0?'use':'exit';
+  worker.expeditionVisit={buildingId,remaining};
+  worker.act=remaining>0?'🧭 探検中':'🧭 遠征所に帰還';
 }
 function plotItinerary(site,door,stopAtGate=false){
   const dir=validFacing(site.facing),{w,h}=buildingOf(site),length=dir%2?h:w;
@@ -7598,7 +7635,8 @@ function walkPlotLeg(actor,points,dt){
 function beginPlotWalk(actor,site,door,seconds){
   if(!door||!entranceRoads(site).some(([x,y])=>x===door[0]&&y===door[1])||
      Math.hypot(actor.x-door[0],actor.y-door[1])>.31)return null;
-  const bedroom=usesSleepingRoom(actor,site),points=plotItinerary(site,door,bedroom),{w,h}=buildingOf(site);
+  const bedroom=usesSleepingRoom(actor,site),exploring=actor.job==='explore'&&site.type==='expeditionOffice';
+  const points=plotItinerary(site,door,bedroom||exploring),{w,h}=buildingOf(site);
   const v={site,x:site.x,y:site.y,facing:validFacing(site.facing),door:[...door],depth:site.x+site.y+(w+h)/2,
     points:points.slice(),out:points.slice(0,-1).reverse().concat([[...door]]),phase:'enter',remaining:seconds,bedroom};
   plotWalks.set(actor,v);actor.facilityDoor=[...door];return v;
