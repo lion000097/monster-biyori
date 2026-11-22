@@ -70,6 +70,7 @@ window.qaRoadOptional131=()=>{
  check(isPath(6,7),'ordinary farm keeps its last frontage road');
  return 'lamp/vane isolated builds, all turns, move, saves, last-road removal, floor paint/erase, no overlap; ordinary buildings still guarded';
 };
+ const site=type=>state.buildings.find(b=>b.type===type);
  function add(type,x,y,level=1){const b={id:state.nextId++,type,x,y,level,facing:0};state.buildings.push(b);return b;}
  function level(n){state.villageLv=state.worldTreeLevel=site('worldtree').level=n;}
  function seed(){
