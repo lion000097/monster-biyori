@@ -41,7 +41,8 @@ function launchTrip(isDraft,witness=true,discovery=true){
  check(entranceRoads(office).some(p=>same(p,[6,7])),'expedition front road fixture');
  w.jobTarget211={id:office.id,job:'explore',goal:[6,7]};
  beginStaffWork212(w,office);
- let indoors=false,seen=false,returnedAt=0,snapshot=null;
+ const from=[state.coins,state.food,state.magic,state.fame,state.talentFruit,state.stock,state.metrics.explore,state.expeditionCounts213[0]||0];
+ let indoors=false,seen=false,returnedAt=0,snapshot=null,reward=null;
  for(let i=0;i<520;i++){
   stepActors(.05);
   const welcome=isDraft?welcomeVisual125(w):null;
@@ -52,22 +53,23 @@ function launchTrip(isDraft,witness=true,discovery=true){
   }
   if(indoors&&!w.jobTask212){
    returnedAt=i;snapshot=resources();
+   reward=[[state.coins,state.food,state.magic,state.fame,state.talentFruit,state.stock,state.metrics.explore,state.expeditionCounts213[0]||0].map((v,k)=>v-from[k]), state.exploreProgress, state.treasures, state.treasureStock, w.work, w.workXp];
    check(!w.expeditionVisit&&!plotWalks.has(w) && entranceRoads(office).some(p=>Math.hypot(w.x-p[0],w.y-p[1])<.1),
    'expedition welcome started before the worker returned to the facade road');
    break;
   }
  }
  check(indoors&&snapshot,'real staff expedition did not return from office');
- return {w,m,office,returnedAt,snapshot};
+ return {w,m,office,returnedAt,snapshot,reward};
 }
 window.qa125={
  tripBaseline:()=>launchTrip(false),
  expedition(old){
   const fixtureState=JSON.stringify(state);
   const prior=old.tripBaseline();
-  const {w,m,returnedAt,snapshot}=launchTrip(true);
+  const {w,m,returnedAt,snapshot,reward}=launchTrip(true);
   const view=welcomeVisual125(w), witness=welcomeVisual125(m);
-  check(returnedAt===prior.returnedAt&&snapshot===prior.snapshot,'new scene changed actual expedition return time/reward');
+  check(returnedAt===prior.returnedAt&&same(reward,prior.reward),'actual expedition return/reward differs: '+JSON.stringify({returnedAt,priorReturn:prior.returnedAt,reward,priorReward:prior.reward}));
   check(view?.role==='returner'&&state.treasures.length===2&&view.scene.treasure===state.treasures[1]&&witness?.role==='witness','eligible welcome lacks returner, visible witness, or actual returned treasure '+JSON.stringify([view?.role,view?.scene?.treasure,witness?.role,state.treasures,state.exploreProgress,state.expeditionAuto213,w.act]));
   const visible=observeMap(w,120);
   check(visible.includes(w)&&visible.includes(m),'returned explorer and witness are not both drawn');
