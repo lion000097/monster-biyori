@@ -1,0 +1,160 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><title>もんすたー日和 1.24.22 動作確認</title>
+<h1>世界樹の出入り・庭の小物・セーブ引き継ぎ</h1>
+<button id="run">検証を開始</button><pre id="result" aria-live="polite"></pre>
+<div id="screens"></div><script>
+'use strict';
+function gameChecks() {
+  Object.assign(window.qa, {
+    decoded: () => facilitySheetReady && villageSheetReady && treeDecorationReady && lionReady && expeditionOfficeSheet.naturalWidth > 0,
+    lots: () => Object.keys(facilityFrames).concat(['worldtree1', 'worldtree5', 'worldtree8']),
+    strip(name) {
+      const tree = name.startsWith('worldtree'), type = tree ? 'worldtree' : name;
+      const level = tree ? Number(name.slice(9)) : 1;
+      const before = JSON.stringify(state);
+      const directions = [0, 1, 2, 3].map(d => spriteBuildingV161(type, level, d));
+      const size = directions[0].width;
+      const image = document.createElement('canvas');
+      image.width = size * 4;
+      image.height = size;
+      const paint = image.getContext('2d');
+      directions.forEach((art, d) => {
+        if (art !== spriteBuildingV161(type, level, d)) throw Error('画像キャッシュ '+name+'/'+d);
+        paint.drawImage(art, d * size, 0);
+      });
+      if (JSON.stringify(state) !== before) throw Error('描画でセーブ状態が変化');
+      return image;
+    },
+    walkGates() {
+      const tree = state.buildings.find(b => b.type === 'worldtree');
+      Object.assign(tree, {x:5,y:5});
+      state.buildings = [tree]; state.zones=[0,1,4,5]; state.ponds=[]; state.removedDefaultPaths=[...DEFAULT_PATH_KEYS];
+      state.speed=0; state.hour=13;
+      zoom=.75; cameraX=8-VW/(2*zoom); cameraY=8-VH/(2*zoom); limitCamera();
+      const monster=makeMonster(101,0,5,5), worker=makeStaff(102,'keeper',5,5);
+      const guest={id:103,name:'旅人',x:5,y:5,bob:0,act:'散歩',path:[]};
+      const actors=[monster,worker,guest];
+      state.monsters=[monster]; state.staff=[worker]; state.guests=[guest]; state.party=[];
+      const lot=drawLot, drawActor=drawMapActor, image=ctx.drawImage, order=[];
+      let active=null, frames=0, pictures=0;
+      drawLot=function(site,...args) {
+        const result=lot(site,...args);
+        if(site===tree) order.push('tree');
+        return result;
+      };
+      drawMapActor=function(actor,...args) {
+        active=actor;
+        try {return drawActor(actor,...args);} finally {active=null;}
+      };
+      ctx.drawImage=function(...args) {
+        if(active){order.push(active.id);pictures++;}
+        return image.apply(this,args);
+      };
+      function render(facing,phase) {
+        order.length=0; drawWorld(700); frames++;
+        for(const actor of actors) {
+          if(order.indexOf('tree')<0 || order.indexOf(actor.id)<=order.indexOf('tree'))
+            throw Error('世界樹の前に姿が描かれない '+[facing,phase,actor.id,order].join('/'));
+        }
+      }
+      try {
+        for(let facing=0;facing<4;facing++) {
+          tree.facing=facing;
+          for(const fraction of [1/12,.5,11/12]) {
+            const door=frontPoint('worldtree',tree.x,tree.y,facing,fraction,.5).map(Math.floor);
+            state.paths=[keyXY(...door)]; state.clearedScenery=state.paths.slice(); state.clearedPonds=state.paths.slice();
+            for(const a of actors) Object.assign(a,{x:door[0],y:door[1]});
+            render(facing,'road');
+            for(const a of actors) if(!beginPlotWalk(a,tree,door,.3)) throw Error('入場できない');
+            const phases=new Set();
+            for(let step=0;step<200&&plotWalks.has(monster);step++) {
+              const phase=plotWalks.get(monster).phase;
+              phases.add(phase);render(facing,phase);
+              for(const a of actors) stepPlotWalk(a,tree,door,.10,.3);
+            }
+            if(phases.size!==3||actors.some(a=>plotWalks.has(a)||a.x!==door[0]||a.y!==door[1]))
+              throw Error('往復未完了 '+facing);
+            render(facing,'back on road');
+          }
+        }
+      } finally {drawLot=lot;drawMapActor=drawActor;ctx.drawImage=image;}
+      return {routes:36,frames,pictures};
+    }
+  });
+}
+
+const yards=new Set(['palace','tower','sanctuary212','school','park','lab','spring','inn','workshop','clinic',
+  'guild212','greenhouse212','gallery212','treasureMuseum213','hut','stall','ranch','flowerbed211','lamp211',
+  'fountain211','worldtree1','worldtree5','worldtree8']);
+function compare(oldGame,newGame) {
+  let checked=0,changed=0;
+  for(const name of newGame.lots()){
+    const first=oldGame.strip(name),last=newGame.strip(name),s=first.height;
+    if(last.width!==first.width||last.height!==s)throw Error('寸法 '+name);
+    const compact=['hut','stall','flowerbed211','lamp211'].includes(name);
+    const a=first.getContext('2d').getImageData(0,0,4*s,s).data,b=last.getContext('2d').getImageData(0,0,4*s,s).data;
+    for(let d=0;d<4;d++){
+      let count=0;
+      for(let y=0;y<s;y++)for(let x=0;x<s;x++){
+        const i=(y*s*4+d*s+x)*4;
+        if(a[i+3]!==b[i+3])throw Error('透明輪郭 '+name+'/'+d);
+        if(a[i]===b[i]&&a[i+1]===b[i+1]&&a[i+2]===b[i+2])continue;
+        const sideYard=compact&&y>=s*.39&&(x<s*.29||x>s*.70);
+        if(y<s*.50&&!sideYard)throw Error('建物上部へのはみ出し '+name+'/'+d);
+        count++;
+      }
+      const hidden=d===1&&['hut','stall','flowerbed211','lamp211'].includes(name);
+      if((count>0)!==(yards.has(name)&&!hidden)||count>=s*s*.055)throw Error('庭の差分 '+name+'/'+d+' '+count);
+      checked++;if(count)changed++;
+    }
+  }
+  return {checked,changed};
+}
+async function run() {
+  const report=document.querySelector('#result'),frames=[],prefix='v12422_qa_'+crypto.randomUUID()+'_';
+  report.textContent='';
+  const log=line=>report.textContent+=line+'\n';
+  const check=(ok,msg)=>{if(!ok)throw Error(msg)};
+  try{
+    const [oldHTML,newHTML,oldQA]=await Promise.all(['../releases/1.24.21/game.html','../releases/1.24.22/game.html','v1.24.21-ranch.html'].map(async path=>{
+      const r=await fetch(path);if(!r.ok)throw Error(path+' '+r.status);return r.text();
+    }));
+    const fixture=oldQA.slice(oldQA.indexOf('function fixture()'),oldQA.indexOf('function compareYards('));
+    check(fixture.startsWith('function fixture()'),'前版のセーブ検証を読込');
+    async function open(src,width) {
+      const frame=document.createElement('iframe');
+      frame.title='テスト用牧場';frame.width=width;frame.height=width===390?844:900;
+      const marker='})();\n<\/script>';
+      frame.srcdoc=src.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0;')
+        .replace(marker,()=>fixture+'\nfixture();('+gameChecks.toString()+')();\n'+marker);
+      frames.push(frame);
+      const ready=new Promise(r=>frame.onload=r);document.querySelector('#screens').append(frame);await ready;
+      const q=frame.contentWindow.qa;
+      for(let i=0;i<200&&!q?.decoded();i++) await new Promise(r=>setTimeout(r,25));
+      check(q?.decoded(),'ゲーム画像の読込');
+      return {q,frame};
+    }
+    const first=await open(oldHTML,1366);first.q.seed();first.frame.remove();
+    const old=await open(oldHTML,1366),saved=old.q.snapshot(),current=await open(newHTML,1366);
+    check(current.q.snapshot()===saved,'1.24.21からの引き継ぎ');
+    check(current.frame.contentDocument.title.includes('1.24.22'),'版番号');
+    const {checked,changed}=compare(old.q,current.q);
+    log('施設画像 '+checked+'枚の透明輪郭・寸法が一致。庭の差分 '+changed+'枚。');
+    old.frame.remove();
+    current.frame.contentDocument.querySelector('#saveBtn').click();current.frame.remove();
+    const reloaded=await open(newHTML,390);
+    check(reloaded.q.snapshot()===saved,'更新後の保存と再読み込み');
+    check(reloaded.frame.contentDocument.documentElement.scrollWidth<=391,'スマートフォンの横幅');
+    log('1.24.21セーブの引き継ぎ・再保存・再読込が成功。');
+    await new Promise(r=>setTimeout(r,30));
+    const trace=reloaded.q.walkGates();
+    log('世界樹の4方向、仲間・市民・旅人の'+trace.routes+'経路。'+trace.frames+'フレームで描画順を確認。');
+    reloaded.q.starterTreeRoad();reloaded.q.overnightHome();
+    log('正面の道とハウスでの就寝を確認。すべて成功');
+  }catch(error){log('失敗 '+error.stack);throw error;}
+  finally{for(const f of frames)f.remove();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);}
+}
+document.querySelector('#run').onclick=async({currentTarget})=>{
+  currentTarget.disabled=true;
+  try{await run();}catch{}finally{currentTarget.disabled=false;}
+};
+</script></html>
