@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><title>もんすたー日和 1.25.2　しぐさの動作確認</title>
+<h1>どんぐりの屋台と道の向き</h1>
+<button id="run">検証を開始</button>
+<pre id="result" aria-live="polite"></pre>
+<figure id="comparison" hidden><img alt="道に並べたどんぐりの屋台の4方向" style="max-width:100%;height:auto"><figcaption><a download="RANCH-SCENES-PREVIEW.png">4方向の画像を保存</a></figcaption></figure>
+<div id="mount"></div>
+<script>
+'use strict';
+function gardenFixture(){
+  const original=JSON.stringify(state);
+  const check=(ok,label)=>{if(!ok)throw Error(label);};
+  const ready=()=>state&&facilitySheetReady&&villageSheetReady&&lionReady&&colorIndices;
+  function step(seconds){
+    for(let i=0;i<Math.round(seconds/.05);i++){tickAccum+=.05/16;stepActors(.05);}
+  }
+  function scene(type,front=true,facing=0){
+    state=JSON.parse(original);
+    Object.assign(state,{day:type==='acorn250'?15:1,hour:14,speed:1,coins:250000,
+      villageLv:8,worldTreeLevel:8,zones:[0,1,4,5],nextId:7400,paths:[],ponds:[],
+      buildings:[{type:'worldtree',id:4300,x:15,y:1,level:8,facing:0}],
+      monsters:[],staff:[],guests:[],party:[],stoneTiles:{},removedDefaultPaths:[...DEFAULT_PATH_KEYS],
+      clearedPonds:[],clearedScenery:[]});
+    for(let x=0;x<22;x++)for(let y=0;y<18;y++){
+      state.clearedPonds.push(keyXY(x,y));state.clearedScenery.push(keyXY(x,y));
+    }
+    const y=front?9:7;
+    for(let x=5;x<=12;x++)state.paths.push(keyXY(x,y));
+    tickAccum=0;placementFacing=facing;buildMode=null;moveMode=null;selectedBuilding=null;selectedMonster=null;hover=null;
+    stopWalkCamera();state.economy.festival=false;
+    place(type,8,8);const site=getBuildingAt(8,8);check(site?.type===type&&site.facing===facing,'施設の設置');
+    selectedBuilding=null;buildMode=null;
+    const actor=makeMonster(6413,type==='acorn250'?shirogaoKind:SPECIES.findIndex(s=>s.id==='tsuki'),8,y);
+    state.monsters.push(actor);actor.path=[];actor.lv=1;actor.phase213=phase213(state.hour);
+    monsterWalkTimer139(actor).wait=50;
+    step(3.1);const visit=ranchSceneVisual124(actor);
+    check(visit?.phase==='use'&&visit.kind===(type==='acorn250'?'browseNuts':'mushroomSit'),'自動でしぐさを開始');
+    return {actor,visit,site};
+  }
+  function photo(facing,frame){
+    const {site}=scene('acorn250',true,facing);
+    state.monsters=[];
+    state.paths=[];
+    for(let i=4;i<=12;i++)state.paths.push(facing%2?keyXY(8,i):keyXY(i,8));
+    const focus=unprojectGround(0,projectGround(8.5,8.5).y-11);zoom=1.2;
+    cameraX=focus.x-VW/(2*zoom);cameraY=focus.y-VH/(2*zoom);
+    drawWorld(2100);frame.width=300;frame.height=205;
+    frame.getContext('2d').drawImage(canvas,Math.round(canvas.width/2-150),Math.round(canvas.height/2-102),300,205,0,0,300,205);
+    return frame;
+  }
+  function saveDuringRest(){
+    scene('mushroom250');
+    for(let i=0;i<4;i++)state.buildings.push({type:'acorn250',id:8000+i,x:2+i,y:4,level:1,facing:i});
+    state.speed=0;state.ranchName='屋台の庭';save(true);
+  }
+  function signature(){
+    return JSON.stringify([state.ranchName,state.day,state.hour,state.food,state.coins,state.villageLv,
+      state.paths,state.stoneTiles,state.buildings.map(b=>[b.id,b.type,b.x,b.y,b.facing,b.level]),
+      state.monsters.map(m=>[m.id,m.kind,m.lv,m.x,m.y]),state.treasureStock]);
+  }
+  function saveCheck(expected){
+    check(signature()===expected,'旧版で保存した牧場の引き継ぎ');
+    check(state.monsters[0].act==='🐾 おさんぽ','以前の一時的なしぐさを終了');
+    check(save(true)&&load()&&signature()===expected,'再保存と再読み込み');
+  }
+  function actorFrame(actor){
+    const p=projectGround(actor.x+.5,actor.y+.5),ox=96-Math.round(p.x),oy=100-Math.round(p.y);
+    ctx.save();ctx.setTransform(1,0,0,1,ox,oy);ctx.imageSmoothingEnabled=false;
+    ctx.clearRect(-ox,-oy,192,192);mapPickItems=[];drawMapActor(actor,true,3100);ctx.restore();
+    const item=mapPickItems.find(v=>v.monster===actor);check(item,'牧場にモンスターを描画');
+    const r=item.rect,x=Math.round(ox+r.x),y=Math.round(oy+r.y);
+    const portrait=document.createElement('canvas');portrait.width=r.w;portrait.height=r.h;
+    const g=portrait.getContext('2d');g.imageSmoothingEnabled=false;
+    if(item.flipped){g.translate(r.w,0);g.scale(-1,1);}
+    g.drawImage(item.art,0,0,r.w,r.h);
+    const reference=g.getImageData(0,0,r.w,r.h).data,actual=ctx.getImageData(x,y,r.w,r.h).data;
+    for(let i=3;i<reference.length;i+=4){
+      if(reference[i]!==255)continue;
+      check(actual[i]===255&&actual[i-1]===reference[i-1]&&actual[i-2]===reference[i-2]&&actual[i-3]===reference[i-3],
+        '体と口の原画 '+SPECIES[actor.kind].name+' '+i);
+    }
+    return {frame:actual,flipped:item.flipped,rect:r};
+  }
+  function nuts(){
+    const realDraw=drawLooseAcorn250;let points=[];
+    drawLooseAcorn250=(x,y)=>{points.push([x,y]);realDraw(x,y);};
+    try{
+      const kinds=[shirogaoKind,SPECIES.findIndex(s=>s.id==='tsuki'),SPECIES.findIndex(s=>s.large)];
+      for(const facing of [0,1,2,3])for(const front of [true,false]){
+        const {actor,visit,site}=scene('acorn250',front,facing);
+        const goods=JSON.stringify([state.coins,state.food,state.materialStock211,state.shopStats211]);
+        for(const kind of kinds)for(const shiny of [false,true]){
+          actor.kind=kind;actor.shiny=shiny;
+          for(const t of [.65,1.4,2.8,4.3,5.15]){
+            visit.elapsed=t;points=[];drawGardenCrate250(site);const sample=actorFrame(actor);
+            check(points.length===1,'木箱・手元に見える実は1つ');
+            check(sample.flipped===!front,'屋台を向く');
+            const [px,py]=points[0],r=sample.rect;
+            if(t===2.8){
+              const edge=front?px-(r.x+r.w/2):(r.x+r.w/2)-px;
+              check(edge>0&&py>=r.y+r.h*.58&&py<r.y+r.h,'前足の側に持つ');
+            }else if(t===.65||t===5.15){
+              const [bx,by]=gardenNutPoint250(site);check(px===bx&&py===by,'同じ木箱の位置へ返却');
+            }
+          }
+        }
+        step(1.2);check(!ranchSceneVisual124(actor),'木の実を返して終了');
+        check(JSON.stringify([state.coins,state.food,state.materialStock211,state.shopStats211])===goods,'売上と在庫');
+      }
+    }finally{drawLooseAcorn250=realDraw;}
+  }
+  function seat(){
+    for(const front of [true,false]){
+      const {actor,visit}=scene('mushroom250',front);
+      check(actor.act==='きのこの腰かけでひと休み'&&!B.mushroom250.desc.includes('ぶらぶら'),'施設説明と行動名');
+      for(const kind of [shirogaoKind,SPECIES.findIndex(s=>s.id==='tsuki')])for(const shiny of [false,true]){
+        actor.kind=kind;actor.shiny=shiny;
+        let first=null;
+        for(const t of [1.1,1.7,2.65,3.9,5.0]){
+          visit.elapsed=t;check(gardenSeatWeight250(visit)===1,'着席中');
+          const frame=actorFrame(actor).frame;
+          if(first)check(frame.every((v,i)=>v===first[i]),'着席中の足と体は静止');
+          else first=frame;
+        }
+      }
+      visit.elapsed=5.8;check(gardenSeatWeight250(visit)<1,'降り始める');step(.6);
+      check(!ranchSceneVisual124(actor),'腰かけから降りる');
+    }
+  }
+  window.qa251={ready,photo,saveDuringRest,signature,saveCheck,nuts,seat};
+}
+const run=document.getElementById('run'),out=document.getElementById('result'),mount=document.getElementById('mount');
+function showGallery(qa){
+  const poster=document.createElement('canvas');poster.width=660;poster.height=538;
+  const g=poster.getContext('2d');g.fillStyle='#faf6e9';g.fillRect(0,0,660,538);
+  g.fillStyle='#283c32';g.font='bold 23px sans-serif';g.fillText('どんぐりの屋台　1.25.2',20,34);
+  for(let i=0;i<4;i++){
+    const x=20+i%2*320,y=62+Math.floor(i/2)*235;
+    g.font='bold 15px sans-serif';g.fillText(['下向き','左向き','上向き','右向き'][i],x,y);
+    g.drawImage(qa.photo(i,document.createElement('canvas')),x,y+7);
+  }
+  const url=poster.toDataURL('image/png'),figure=document.getElementById('comparison');
+  figure.querySelector('img').src=url;figure.querySelector('a').href=url;figure.hidden=false;
+}
+run.onclick=async()=>{
+  run.disabled=true;out.textContent='';
+  document.getElementById('comparison').hidden=true;
+  const write=s=>out.textContent+=s+'\n';
+  const prefix='v1252_qa_'+crypto.randomUUID()+'_';
+  const clear=()=>{for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);};
+  async function source(v){const r=await fetch('../releases/'+v+'/game.html',{cache:'no-store'});if(!r.ok)throw Error(r.status+' '+v);return r.text();}
+  async function open(html,width){
+    const f=document.createElement('iframe');f.title='検証用の牧場';f.width=width;f.height=width===390?844:900;
+    const end='})();\n<\/script>';
+    if(html.split(end).length!==2)throw Error('ゲームの初期化');
+    f.srcdoc=html.replaceAll('monster_biyori_',prefix)
+      .replace('<script>','<script>window.requestAnimationFrame=()=>0;window.confirm=()=>true;')
+      .replace(end,()=>gardenFixture.toString()+'\ngardenFixture();\n'+end);
+    const loaded=new Promise(resolve=>f.onload=resolve);mount.append(f);await loaded;
+    const qa=f.contentWindow.qa251;
+    for(let i=0;i<250&&!qa?.ready();i++)await new Promise(resolve=>setTimeout(resolve,20));
+    if(!qa?.ready())throw Error('仲間の原画を読み込めません');
+    return {qa,frame:f};
+  }
+  try{
+    const [prior,current]=await Promise.all([source('1.25.1'),source('1.25.2')]);
+    for(const width of [1366,390]){
+      clear();const old=await open(prior,width);
+      old.qa.saveDuringRest();const sig=old.qa.signature();old.frame.remove();
+      const game=await open(current,width);game.qa.saveCheck(sig);write(width+'px　1.25.1の着席中セーブを引き継ぎ・再保存');
+      game.qa.nuts();write(width+'px　どんぐりの4方向・左右・通常色と色違い、口元の原画と返却');
+      game.qa.seat();write(width+'px　きのこに着席・静止・退席');
+      if(width===1366)showGallery(game.qa);
+      game.frame.remove();
+    }
+    write('すべて成功');
+  }catch(e){write('失敗　'+e.message);}finally{mount.replaceChildren();clear();run.disabled=false;}
+};
+</script></html>
