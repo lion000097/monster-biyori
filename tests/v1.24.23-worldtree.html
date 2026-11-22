@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<title>もんすたー日和 1.24.23 世界樹の小物の確認</title>
+<h1>世界樹の看板・花壇・水鉢</h1>
+<button id="run">検証を開始</button>
+<pre id="result" aria-live="polite"></pre>
+<div id="screens"></div>
+<script>
+'use strict';
+function treeProof() {
+  window.tree23 = {
+    frame: (level, dir) => spriteBuildingV161('worldtree', level, dir),
+    map() {
+      const tree = state.buildings.find(b => b.type === 'worldtree');
+      Object.assign(tree, {x:4, y:4, level:1, facing:1});
+      Object.assign(state, {buildings:[tree], staff:[], guests:[], monsters:[], party:[], zones:[0,1,4,5],
+        day:1, hour:12, speed:0, worldTreeLevel:1, villageLv:1, paths:[], ponds:[], removedDefaultPaths:[...DEFAULT_PATH_KEYS]});
+      while (weatherInfo().name !== '晴れ') state.day++;
+      state.economy.festival = false;
+      state.clearedScenery = [];
+      for (let x=MIN_X; x<W; x++) for (let y=MIN_Y; y<H; y++) state.clearedScenery.push(keyXY(x,y));
+      state.clearedPonds = state.clearedScenery.slice();
+      stopWalkCamera();
+      selectedBuilding = null; hover = null; zoom = 1;
+      cameraX = tree.x+1.5-VW/2; cameraY = tree.y+1.5-VH/2;
+      drawWorld(100);
+      const rect = plotImageRect(tree), origin = mapScreenOrigin();
+      const scale = canvas.width/(VW*T);
+      return pixelSprite(384,384,g => g.drawImage(canvas,
+        Math.round((rect.x+origin.x)*scale), Math.round((rect.y+origin.y)*scale),
+        Math.round(rect.w*scale), Math.round(rect.h*scale), 0,0,384,384));
+    }
+  };
+}
+// Sprite anchors. The taller signs sit inside the fence; keep the former anchors to bound all changed pixels.
+const previousSigns = {'1/1':[66,255], '1/3':[317,257], '5/1':[67,255]};
+const positions = [
+  [1,0,'planter',253,287],[1,0,'sign',190,318],
+  [1,1,'sign',71,268],[1,1,'planter',127,283],[1,1,'basin',275,282],
+  [1,2,'basin',149,300],[1,2,'planter',260,284],
+  [1,3,'planter',129,286],[1,3,'sign',312,267],
+  [5,1,'sign',69,264],[5,3,'planter',130,289]
+];
+const feet = {sign:17, planter:17, basin:7};
+const check = (ok, label) => { if (!ok) throw Error(label); };
+const pixels = c => c.getContext('2d').getImageData(0,0,c.width,c.height);
+function verifyProp(art, before, stamp, pos) {
+  const [level,dir,kind,cx,cy] = pos, mirror = dir === 1 || dir === 2;
+  const left = cx-(mirror?Math.ceil(stamp.width/2):Math.floor(stamp.width/2)), top = cy+feet[kind]-stamp.height;
+  let opaque=0, changed=0;
+  for (let y=0; y<stamp.height; y++) for (let x=0; x<stamp.width; x++) {
+    const i=(y*stamp.width+x)*4;
+    if (stamp.data[i+3] !== 255) continue;
+    const j=((top+y)*art.width+left+(mirror?stamp.width-1-x:x))*4;
+    opaque++;
+    for (let channel=0; channel<3; channel++) {
+      check(art.data[j+channel] === stamp.data[i+channel], '新版の原画と表示の不一致 '+[level,dir,kind,x,y]);
+    }
+    if (before.data[j]!==art.data[j] || before.data[j+1]!==art.data[j+1] || before.data[j+2]!==art.data[j+2]) changed++;
+  }
+  check(opaque>350 && changed>opaque*.85,'前版の図柄が残っている '+[level,dir,kind]);
+}
+function checkFrames(oldGame,newGame,stamps) {
+  let count=0;
+  for (const level of [1,5,8,20]) for (let dir=0; dir<4; dir++) {
+    const before=pixels(oldGame.frame(level,dir)), after=pixels(newGame.frame(level,dir));
+    const targets=positions.filter(([l,d])=>l===level && d===dir);
+    for (const row of targets) { verifyProp(after,before,stamps[row[2]],row); count++; }
+    const anchors=targets.map(([,,kind,cx,cy])=>[cx,cy]);
+    const oldSign=previousSigns[[level,dir].join('/')];
+    if(oldSign)anchors.push(oldSign);
+    const {width,height}=after;
+    for(let y=0;y<height;y++) for(let x=0;x<width;x++){
+      const i=(y*width+x)*4, a=before.data,b=after.data;
+      if (a[i]===b[i] && a[i+1]===b[i+1] && a[i+2]===b[i+2] && a[i+3]===b[i+3]) continue;
+      check(a[i+3]===b[i+3] && anchors.some(([cx,cy])=>Math.abs(x-cx)<=27 && y>=cy-26 && y<=cy+24),
+        '対象の小物以外に変更 '+[level,dir,x,y]);
+    }
+  }
+  check(count===11,'設置箇所数');
+  return count;
+}
+async function textFile(url) {const r=await fetch(url); if(!r.ok)throw Error(url+' '+r.status);return r.text();}
+async function loadStamps(){
+  const stamps={};
+  await Promise.all(Object.keys(feet).map(async kind=>{
+    const image=new Image();image.src='../releases/1.24.23/props/'+kind+'.png';
+    await image.decode();
+    const c=document.createElement('canvas');c.width=image.naturalWidth;c.height=image.naturalHeight;
+    c.getContext('2d').drawImage(image,0,0);stamps[kind]=pixels(c);
+  }));
+  return stamps;
+}
+async function run(){
+  const out=document.querySelector('#result'),mount=document.querySelector('#screens');
+  out.textContent=''; const log=text=>out.textContent+=text+'\n';
+  const prefix='v12423_qa_'+crypto.randomUUID()+'_';
+  try{
+    const [oldSource,newSource,oldChecks,previousChecks,stamps]=await Promise.all([
+      textFile('../releases/1.24.22/game.html'),textFile('../releases/1.24.23/game.html'),
+      textFile('v1.24.21-ranch.html'),textFile('v1.24.22-ranch.html'),loadStamps()
+    ]);
+    const fixture=oldChecks.slice(oldChecks.indexOf('function fixture()'),oldChecks.indexOf('function compareYards('));
+    const gates=previousChecks.slice(previousChecks.indexOf('function gameChecks()'),previousChecks.indexOf('const yards='));
+    async function open(source,width){
+      const f=document.createElement('iframe');f.width=width;f.height=width===390?844:900;f.title='検証用牧場';
+      const end='})();\n<\/script>';
+      f.srcdoc=source.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0;')
+        .replace(end,()=>fixture+'\nfixture();\n'+gates+'\ngameChecks();('+treeProof.toString()+')();\n'+end);
+      const ready=new Promise(resolve=>f.onload=resolve);mount.append(f);await ready;
+      const w=f.contentWindow;for(let i=0;i<250 && !w.qa?.decoded();i++)await new Promise(r=>setTimeout(r,20));
+      check(w.qa?.decoded(),'画像の読み込み');return {w,f};
+    }
+    const seed=await open(oldSource,1366);seed.w.qa.seed();seed.f.remove();
+    const old=await open(oldSource,1366), snapshot=old.w.qa.snapshot(), current=await open(newSource,1366);
+    check(current.w.qa.snapshot()===snapshot,'1.24.22セーブの引き継ぎ');
+    check(current.w.document.title.includes('1.24.23'),'ゲームの版番号');
+    current.w.document.querySelector('#saveBtn').click();
+    log('世界樹の各成長段階と4方向を比較。原画と一致した設置箇所 '+checkFrames(old.w.tree23,current.w.tree23,stamps)+'。');
+    const mapBefore=pixels(old.w.tree23.map());
+    const checkMap=w=>{const map=pixels(w.tree23.map()); for(const p of positions.filter(([l,d])=>l===1&&d===1))verifyProp(map,mapBefore,stamps[p[2]],p);};
+    // Mapping mutates the test farm. Open the saved state before the map fixtures are removed.
+    const mobile=await open(newSource,390);
+    check(mobile.w.qa.snapshot()===snapshot && mobile.w.document.documentElement.scrollWidth<=391,'再保存後の読み込みとスマートフォン幅');
+    checkMap(current.w);checkMap(mobile.w);
+    log('1366px・390pxともに牧場マップ上の看板・花壇・水鉢が原画と一致。旧セーブの再保存・再読み込み成功。');
+    mobile.w.qa.starterTreeRoad();const trace=mobile.w.qa.walkGates();
+    log('世界樹の出入り '+trace.routes+' 経路を確認。すべて成功');
+  }finally{mount.replaceChildren();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);}
+}
+document.querySelector('#run').onclick=async({currentTarget:button})=>{
+  button.disabled=true;try{await run();}catch(e){document.querySelector('#result').textContent+='失敗 '+e.stack;}finally{button.disabled=false;}
+};
+</script></html>
