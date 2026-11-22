@@ -1,0 +1,52 @@
+name: 1.24.12 browser verification
+on:
+  push:
+    branches: [qa/1.24.12-browser-2]
+permissions:
+  contents: read
+jobs:
+  ranch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            tests
+            releases/1.24.11
+            releases/1.24.12
+      - name: Check save compatibility and seasonal ranch scenes in Chrome
+        shell: python
+        run: |
+          import functools, http.server, json, shutil, subprocess, threading, time, urllib.request
+          handler=functools.partial(http.server.SimpleHTTPRequestHandler,directory='.')
+          server=http.server.ThreadingHTTPServer(('127.0.0.1',0),handler)
+          threading.Thread(target=server.serve_forever,daemon=True).start()
+          driver=subprocess.Popen(['chromedriver','--port=9515'])
+          base='http://127.0.0.1:9515'
+          def call(method, path, data=None):
+              body=None if data is None else json.dumps(data).encode()
+              req=urllib.request.Request(base+path,data=body,method=method,headers={'Content-Type':'application/json'})
+              with urllib.request.urlopen(req, timeout=70) as r: return json.load(r)['value']
+          try:
+              for i in range(80):
+                  try: call('GET','/status');break
+                  except OSError: time.sleep(.25)
+              opts={'binary':shutil.which('google-chrome'),'args':['--headless=new','--no-sandbox','--disable-dev-shm-usage','--window-size=1450,1000']}
+              caps={'browserName':'chrome','goog:chromeOptions':opts}
+              session=call('POST','/session',{'capabilities':{'alwaysMatch':caps}})['sessionId']
+              prefix='/session/'+session
+              call('POST',prefix+'/url',{'url':'http://127.0.0.1:%s/tests/v1.24.12-ranch.html'%server.server_port})
+              def script(js): return call('POST',prefix+'/execute/sync',{'script':js,'args':[]})
+              script("document.getElementById('run').click()")
+              for i in range(150):
+                  result=script("return document.getElementById('result').innerText")
+                  if '失敗' in result or 'すべて成功' in result: break
+                  time.sleep(.5)
+              print(result,flush=True)
+              assert all(x in result for x in ['1366px 成功','390px 成功','すべて成功']),result
+              call('DELETE',prefix)
+          finally:
+              driver.terminate()
+              server.shutdown()
