@@ -756,7 +756,7 @@ function rank(){const a=[{v:0,n:'みならい'},{v:60,n:'あたらしい村'},{v
 function message(msg,kind){if(!state)return;state.log.unshift({t:`${state.day}日目`,msg});if(state.log.length>35)state.log.length=35;if(kind)toast(msg,kind)}
 function toast(msg,kind=''){const e=document.createElement('div');e.className='toast '+kind;e.textContent=msg;$('toasts').appendChild(e);setTimeout(()=>{e.classList.add('fade');setTimeout(()=>e.remove(),330)},3200)}
 // Use the same yields in the game clock, citizen jobs and facility upgrade panel.
-const FOOD_PRODUCTION_RATE = .9;
+const FOOD_PRODUCTION_RATE = .81;
 const foodProduction = {
   field: level => .78*Math.pow(level,.84)*researchMultiplier('farm')*
     seasonInfo().food*weatherInfo().food*FOOD_PRODUCTION_RATE,
