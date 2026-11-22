@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>もんすたー日和 Ver.1.24.17 | まもの牧場シミュレーション</title>
+<title>もんすたー日和 Ver.1.24.18 | まもの牧場シミュレーション</title>
 <style>
 :root{--ink:#263d42;--muted:#74878a;--mint:#2d978a;--mint-dark:#20796f;--cream:#fffdf6;--bg:#e9f0e5;--line:#dae5db;--yellow:#f4ba54;--red:#e77969;--shadow:0 5px 0 #cddbd2,0 12px 28px #18372d15}
 *{box-sizing:border-box}body{margin:0;color:var(--ink);background:radial-gradient(ellipse at 50% -100px,#f8faed 0%,#e6eee5 85%);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;font-size:13px;-webkit-font-smoothing:antialiased}button,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.43}.app{max-width:1650px;margin:auto;padding:18px 18px 22px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}.brand{display:flex;align-items:center;gap:12px}.brand-badge{height:51px;width:51px;background:#344c53;box-shadow:inset 0 -5px #1d343a,0 5px #bacbc0;border:3px solid #fff5df;border-radius:12px;display:grid;place-items:center;font-size:27px;transform:rotate(-3deg)}.brand small{font-size:10px;letter-spacing:.24em;font-weight:900;color:#729187;display:block}.brand h1{font-size:23px;letter-spacing:.02em;line-height:1.1;margin:3px 0 0;font-weight:950}.top-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.clock{font-size:13px;color:#54736a;font-weight:900;background:#d8e9dc;border:1px solid #c3dccb;border-radius:10px;padding:12px 14px}.button{border:1px solid #cfddd1;background:var(--cream);padding:10px 12px;border-radius:10px;color:#365c57;font-weight:900;box-shadow:0 3px 0 #d2dfd6;transition:transform .1s,background .1s}.button:hover:not(:disabled){background:#f3faf2;transform:translateY(-1px)}.button:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #d2dfd6}.button.primary{background:#26988b;border-color:#1b8077;color:white;box-shadow:0 3px 0 #176b63}.button.primary:hover:not(:disabled){background:#178879}.button.warn{color:#c36455}.speed-group{display:flex;background:#dde9de;border-radius:10px;padding:4px;gap:3px}.speed-group button{background:transparent;border:0;border-radius:7px;color:#648178;font-size:12px;font-weight:900;padding:7px 10px}.speed-group button.on{color:white;background:#365c57;box-shadow:0 2px 0 #25443f}.layout{display:grid;grid-template-columns:238px minmax(480px,1fr) 300px;gap:16px;align-items:start}.panel{border:1px solid #dfebe0;background:#fffef8;border-radius:15px;box-shadow:var(--shadow);overflow:hidden}.panel-heading{padding:15px 16px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px}.panel-heading h2{font-size:13px;margin:0;font-weight:950}.subtext{color:#8aa097;font-size:11px;font-weight:700}.side-left,.side-right{display:flex;flex-direction:column;gap:16px}.resources{padding:0 14px 12px}.resource{display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-bottom:1px dashed #e4eee5}.resource:last-child{border-bottom:0}.resource-label{display:flex;align-items:center;gap:9px;color:#5f7874;font-weight:800}.resource-icon{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:16px}.ri-money{background:#fff0c4}.ri-food{background:#e6f5d8}.ri-stock{background:#f9e9d9}.ri-magic{background:#e9e8ff}.ri-fame{background:#ffe9dc}.resource-value{font-size:17px;font-weight:950;letter-spacing:-.03em;font-variant-numeric:tabular-nums}.resource small{font-size:10px;color:#95aaa0}.progress-section{padding:0 15px 16px}.progress-top{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#67827b;font-weight:800;margin:8px 0}.progress-track{height:9px;background:#e7ede5;border-radius:10px;overflow:hidden;border:1px solid #d8e6dc}.progress-bar{height:100%;background:linear-gradient(90deg,#81cbaa,#35a28d);border-radius:10px;transition:width .3s}.quests{padding:0 12px 13px}.quest{background:#f6f9f0;border:1px solid #e6eddd;border-radius:10px;padding:11px 11px 9px;margin:6px 0}.quest-title{display:flex;align-items:center;justify-content:space-between;gap:7px;font-size:11px;font-weight:900}.quest-title span:last-child{color:#3f9783;font-size:10px;white-space:nowrap}.quest .progress-track{margin:8px 0 4px;height:6px}.quest-bottom{color:#8da397;display:flex;justify-content:space-between;font-size:10px;font-weight:700}.tip-box{padding:14px 15px;background:#fef9ec;color:#806f4e;font-size:11px;line-height:1.75;border-top:1px solid #f0ebd8}.tip-box strong{color:#a6793b}.world-shell{padding:12px}.world-header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 5px 12px}.world-title{font-size:15px;font-weight:950}.world-title small{display:block;color:#9caf9c;font-size:10px;letter-spacing:.08em;margin-top:3px}.world-badges{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.world-tag{background:#e8f3e9;color:#568475;font-size:10px;font-weight:900;padding:6px 9px;border-radius:7px}.world-tag.gold{background:#fff1d5;color:#a98445}.canvas-frame{position:relative;border-radius:9px;overflow:hidden;border:4px solid #f3f4dc;outline:1px solid #d9e1c5;background:#8ecb78;box-shadow:inset 0 0 0 4px #fff;line-height:0}#game{width:100%;height:auto;display:block;image-rendering:pixelated;cursor:grab;touch-action:none;user-select:none}#game:active{cursor:grabbing}#battleCanvas{display:block;width:100%;height:auto;image-rendering:pixelated;aspect-ratio:1200/318}.battle-scene{background:#e7f3eb;border:3px solid #fbf5d6;border-radius:11px;overflow:hidden;box-shadow:inset 0 0 0 2px #a7cdb1}.battle-caption{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:9px 0 8px;color:#537d6d;font-weight:900;font-size:11px}.battle-caption strong{font-size:12px;color:#2f6c5d}.camera-toolbar{display:flex;align-items:center;justify-content:space-between;gap:5px;background:#f5f8ed;border:1px solid #e3ead8;border-radius:9px;padding:6px 7px;margin:0 3px 9px;flex-wrap:wrap;font-weight:900;font-size:11px;color:#6d8e7d}.camera-toolbar .camera-buttons{display:flex;align-items:center;gap:5px}.camera-toolbar button{border:1px solid #c9ded0;border-radius:7px;background:#fffefa;color:#38675b;padding:5px 11px;font-size:13px;font-weight:950;cursor:pointer}.camera-toolbar button:hover{background:#def2df}.battle-stats{font-size:10px;padding:6px 10px;color:#678e7b;line-height:1.5;background:#f6f8ec}.relocate-hint{background:#f0f1ff;border:1px solid #d0d6fa;color:#6566a1}.facility-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.facility-actions button{font-size:11px}.mini-instruction{font-size:10px;color:#859b8e}.canvas-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 4px 0;gap:8px;flex-wrap:wrap;font-size:11px;color:#8b9f97;font-weight:700}.building-mode{display:none;background:#fff2c6;border:1px solid #f0d78b;color:#9b7826;border-radius:9px;padding:9px 11px;line-height:1.5;margin-top:10px;font-weight:900;font-size:12px}.building-mode.active{display:flex;align-items:center;justify-content:space-between;gap:10px}.game-log{padding:0 14px 14px;max-height:200px;overflow:auto}.log-entry{display:flex;gap:9px;padding:9px 1px;border-bottom:1px dashed #e6ebe3;font-size:11px;line-height:1.45;color:#617971}.log-entry:last-child{border-bottom:0}.log-time{white-space:nowrap;font-size:10px;color:#a1b2a7;font-weight:800}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:10px 10px 0}.tab{background:#eff3ec;color:#78938a;border:0;padding:10px 0;border-radius:8px 8px 6px 6px;font-size:11px;font-weight:950}.tab.on{background:#2c8f82;color:white}.tab-body{padding:12px;min-height:445px;max-height:690px;overflow:auto}.help{font-size:11px;color:#8ca095;line-height:1.6;margin:3px 2px 10px}.build-option,.entity-row,.research-option{border:1px solid #e2e9de;background:#fcfdf7;border-radius:11px;padding:10px;margin-bottom:8px;transition:background .15s,border-color .15s}.build-option:hover{border-color:#b3d7c1}.build-option.selected{border-color:#4ba98f;background:#e9f7e9}.option-header{display:flex;align-items:center;gap:10px}.building-icon{width:45px;height:45px;flex:none;background:#eaf2dd;border:1px solid #e0ead5;display:grid;place-items:center;font-size:24px;border-radius:9px}.option-info{flex:1;min-width:0}.option-name{font-size:12px;font-weight:950}.option-desc{font-size:10px;line-height:1.55;color:#91a39a;margin-top:4px}.option-bottom{display:flex;gap:6px;align-items:center;justify-content:space-between;margin-top:9px}.price{font-size:11px;font-weight:950;color:#b17b30}.price-food{color:#539b5b}.small-button{border:0;background:#318f80;color:white;padding:7px 10px;border-radius:7px;font-weight:900;font-size:11px}.small-button.secondary{background:#e5ede4;color:#5c8374}.small-button:disabled{background:#e8e8e1;color:#a7afa6}.locked{opacity:.63}.locked .small-button{background:#f0eee5;color:#8e948a}.section-label{display:flex;justify-content:space-between;align-items:center;color:#617f73;font-weight:950;font-size:11px;margin:12px 1px 9px}.entity-row{padding:10px;display:flex;gap:10px;align-items:center}.monster-avatar{width:48px;height:48px;image-rendering:pixelated;background:#e5f4e9;border:1px solid #d1e8db;border-radius:9px;flex:none}.entity-info{flex:1;min-width:0}.entity-name{display:flex;align-items:center;justify-content:space-between;font-weight:950;font-size:12px;gap:4px}.entity-sub{color:#869b8f;font-weight:800;font-size:10px;margin-top:4px}.tiny-track{height:5px;border-radius:5px;background:#e6ebde;margin-top:7px;overflow:hidden}.tiny-track div{height:100%;background:#7fc8a6;border-radius:5px}.entity-row.highlighted{border-color:#46aa92;background:#effaf0}.pill{display:inline-block;font-weight:900;color:#6d887b;background:#eff2e9;padding:4px 6px;border-radius:5px;font-size:10px}.info-card{border-radius:11px;background:#eaf5ed;border:1px solid #d4e9db;padding:12px;margin-bottom:10px;line-height:1.6;font-size:11px;color:#58786b}.info-card strong{color:#287e70}.wide-button{width:100%;border:none;border-radius:10px;background:#309487;color:#fff;font-weight:950;padding:12px 9px;margin:5px 0 10px;box-shadow:0 3px 0 #1c7369}.wide-button:disabled{box-shadow:none;background:#d7e1d8;color:#9faea6}.big-count{font-size:22px;font-weight:950;color:#2e796e}.staff-select{appearance:auto;background:#edf5e9;border:1px solid #d6e4d7;border-radius:6px;padding:5px;font-size:10px;font-weight:900;color:#477c6b;max-width:118px}.research-option{margin-bottom:9px}.research-header{display:flex;align-items:center;justify-content:space-between;gap:5px;font-weight:950}.research-level{font-size:10px;color:#80a091}.research-desc{font-size:10px;color:#7f978b;line-height:1.65;margin:7px 0}.research-bottom{display:flex;justify-content:space-between;align-items:center;gap:7px}.empty{text-align:center;padding:28px 8px;font-size:11px;color:#98a8a0;line-height:1.75}.footer{font-size:10px;color:#91a59a;text-align:center;margin-top:17px}.toast-area{position:fixed;right:25px;bottom:20px;display:flex;flex-direction:column;gap:8px;z-index:999;pointer-events:none}.toast{background:#2d5752;color:white;border:2px solid #c9ebd0;border-radius:10px;padding:11px 15px;box-shadow:0 7px 22px #132b2355;font-weight:900;max-width:330px;animation:slidein .2s ease-out;line-height:1.5}.toast.error{background:#9f6453;border-color:#ffdfcc}.toast.success{background:#2d826d}.toast.fade{opacity:0;transform:translateY(9px);transition:all .3s}@keyframes slidein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.modal-wrap{display:none;position:fixed;inset:0;background:#112b2a91;z-index:1000;padding:20px;align-items:center;justify-content:center}.modal-wrap.show{display:flex}.modal{width:min(540px,100%);background:#fffef7;border-radius:18px;border:4px solid #e7eedf;padding:22px;box-shadow:0 15px 70px #09211b66;max-height:90vh;overflow:auto}.modal h2{margin:0 0 12px;font-size:20px}.modal p{color:#6f8880;line-height:1.85;font-size:13px}.modal .cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}.modal .cols div{padding:11px;border-radius:9px;background:#f1f6ec;font-size:11px;line-height:1.65}.modal .close-row{display:flex;justify-content:flex-end;gap:8px;margin-top:17px}.chip{font-size:10px;font-weight:900;padding:4px 7px;background:#edf6e6;border-radius:5px;color:#5a9169}.pixel-icon{font-family:monospace}@media(max-width:1240px){.layout{grid-template-columns:210px minmax(400px,1fr) 273px;gap:11px}.app{padding:12px}.panel-heading{padding:13px 12px 9px}}@media(max-width:1040px){.layout{grid-template-columns:minmax(0,1fr) 295px}.side-left{grid-column:1 / -1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.side-left .panel:last-child{grid-column:auto}}@media(max-width:710px){.app{padding:9px}.layout{display:flex;flex-direction:column}.layout>*{width:100%}.side-left{display:grid;grid-template-columns:1fr}.top{align-items:flex-start}.top-right{gap:5px}.clock{padding:10px}.brand h1{font-size:19px}.tabs .tab{font-size:12px}.tab-body{max-height:none;min-height:250px}}
@@ -347,7 +347,7 @@ html.monster-detail-open{overflow:hidden}
 </div>
 <div class="side-right"><section class="panel"><div class="tabs" role="tablist"><button class="tab" data-tab="management">📊 経営</button><button class="tab on" data-tab="build">🏠 施設</button><button class="tab" data-tab="monster">🐾 仲間</button><button class="tab" data-tab="staff">🧑‍🌾 市民</button><button class="tab" data-tab="research">✨ 研究</button><button class="tab" data-tab="adventure">⚔️ 冒険</button><button class="tab" data-tab="bestiary">📚 図鑑</button></div><div class="tab-body" id="tabBody"></div></section><section class="panel"><div class="panel-heading"><h2>🌱 今日のひとこと</h2></div><div class="tip-box" style="background:transparent;border:0" id="dailyTip">新しい施設を建てると、できることが増えるよ。</div></section></div>
 </main>
-<footer class="footer">© もんすたー日和 Ver.1.24.17 — 牧場の小さな一日</footer>
+<footer class="footer">© もんすたー日和 Ver.1.24.18 — 世界樹の小さな演奏会</footer>
 </div>
 <div class="toast-area" id="toasts" aria-live="polite"></div>
 <div class="modal-wrap" id="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal" id="modalContent"></div></div>
@@ -431,7 +431,7 @@ function toggleBossLoop(stage) {
   if(!state.battle){selectedBattleStage=stage;startAdventure();}
   else{save(true);renderUI(true);}
 }
-const GAME_APP_VERSION='1.24.17';
+const GAME_APP_VERSION='1.24.18';
 const MIN_MAP_ZOOM=.15, MAX_MAP_ZOOM=2.8;
 const W=44,H=30,T=32,VW=22,VH=15,ZONE_W=11,ZONE_H=10,MIN_X=-22,MIN_Y=-20,SAVE_KEY='monster_biyori_save_v1';
 const $=id=>document.getElementById(id);
@@ -1450,6 +1450,49 @@ function homeLightOpacity(b,now,occupied){
   else if(!target&&progress===1)homeLights.delete(b);
   return opacity;
 }
+// A small decoration on a sill that has no permanent flower box, in the
+// four original 128px house frames (down, left, up, right).
+const homeSillAnchors=[[107,78],[105,77],[107,78],[21,76]];
+const homeSillArtCache=new Map();
+function homeSillArt(season){
+  if(!['春','夏','秋','冬'].includes(season))return null;
+  if(homeSillArtCache.has(season))return homeSillArtCache.get(season);
+  const art=pixelSprite(12,14,g=>{
+    const p=(color,x,y,w=1,h=1)=>{g.fillStyle=color;g.fillRect(x,y,w,h);};
+    if(season==='春'){
+      p('#39594b',2,6,8,4);p('#679565',1,6,3,2);p('#8bb56e',3,5,2,3);p('#679565',7,5,3,3);
+      p('#bf5a71',2,3,4,3);p('#ef9ba4',3,2,2,4);p('#ffd9b5',3,4);p('#cf6880',7,2,4,3);p('#ffb9b5',8,1,2,4);p('#fff0ba',8,3);
+      p('#744632',1,8,10,3);p('#96583c',2,11,8,2);p('#d99059',2,8,8);p('#b47148',2,10,6,2);
+    }else if(season==='夏'){
+      p('#555447',5,0,1,3);p('#447080',3,3,5,1);p('#447080',2,4,7,4);
+      p('#65acbf',3,4,5,3);p('#bbded6',4,4,1,2);p('#cdf3e1',3,7,5);
+      p('#806b5d',5,8,1,3);p('#c46471',5,10,3,4);p('#ed9f9e',5,10,1,3);p('#ffd19f',6,11);
+    }else if(season==='秋'){
+      p('#744932',1,9,10,3);p('#98663f',2,11,8,2);p('#d09a5b',2,9,8);
+      p('#a9623d',2,6,4,3);p('#c48148',3,6,2,2);p('#624633',2,4,4,2);p('#98734a',3,4,2);p('#624633',4,3);
+      p('#884d38',7,6,4,3);p('#ba774c',8,5,2,3);p('#e5af75',8,7,2);
+      p('#d4a465',3,11);p('#d4a465',5,11);p('#d4a465',7,11);
+    }else{
+      p('#5c4d4a',5,2,2,2);p('#61544c',3,4,6,2);p('#957862',2,6,8,5);p('#f5bf71',4,6,4,4);
+      p('#ffe5ab',5,7,2,2);p('#5c4d4a',2,6,1,6);p('#5c4d4a',9,6,1,6);p('#5c4d4a',2,11,8,2);
+      p('#a8c6c4',3,4,6);p('#e0e8d7',4,4,3);
+    }
+  });
+  homeSillArtCache.set(season,art);
+  return art;
+}
+function drawHomeSill(rect,facing,season){
+  const art=homeSillArt(season);
+  if(!art)return;
+  const direction=validFacing(facing),[x,y]=homeSillAnchors[direction];
+  // The chime hangs beside, rather than in front of, the window.
+  const summer=season==='夏',mirror=direction===3;
+  const sx=rect.w/128,sy=rect.h/128,px=x+(summer?(mirror?-7:7):0),py=y-(summer?19:11);
+  if(mirror){
+    ctx.save();ctx.translate(rect.x+(px+6)*sx,rect.y+py*sy);ctx.scale(-1,1);
+    ctx.drawImage(art,0,0,12*sx,14*sy);ctx.restore();
+  }else ctx.drawImage(art,rect.x+(px-6)*sx,rect.y+py*sy,12*sx,14*sy);
+}
 function drawLot(b,facing,level,preview=false,homeOpacity=0) {
   if(!facilitySheetReady)return;
   const m=buildingOf(b),rect=plotImageRect(b,m);
@@ -1462,6 +1505,7 @@ function drawLot(b,facing,level,preview=false,homeOpacity=0) {
       ctx.drawImage(lights,rect.x,rect.y,rect.w,rect.h);
       if(b.type==='home')ctx.restore();
     }
+    if(b.type==='home')drawHomeSill(rect,facing,seasonInfo().name);
     mapPickItems.push({building:b,art,rect});
   }
 }
@@ -1481,7 +1525,7 @@ function drawGateMarker(b,facing) {
   ctx.fillStyle='#485642';ctx.fillRect(-2,-5,5,6);for(let j=0;j<5;j++)ctx.fillRect(-4+j,j-1,9-2*j,1);
   ctx.fillStyle='#ffe17d';ctx.fillRect(-1,-4,3,5);for(let j=0;j<3;j++)ctx.fillRect(-2+j,j,5-2*j,1);ctx.restore();
 }
-function drawMapActor(o,monster,now) {
+function drawMapActor(o,monster,now,star=null,origin=null) {
   const pos=projectGround(o.x+.5,o.y+.5),x=Math.round(pos.x),foot=Math.round(pos.y+4);
   const phase=now/350+(o.bob||0),size=monster?(SPECIES[o.kind]?.large?56:o.lv>=15?42:o.lv>=7?38:35):36;
   const timer=monster?monsterWalkTimer139(o):null,visit=timer?.visit,pastime=timer?.pastime;
@@ -1523,6 +1567,13 @@ function drawMapActor(o,monster,now) {
   }
   const postRainHop=monster&&activePostRainHop(o);
   if(postRainHop)dy-=Math.round(10*Math.sin(Math.PI*postRainHop.elapsed/postRainHopTime));
+  const concertPlayer=!monster&&treeConcert?.guest===o;
+  if(concertPlayer){height=Math.round(size*.88);dy=0;}
+  if(monster&&!pastime&&!visit&&!greeting&&!wake&&!postRainHop&&treeConcertListener(o)){
+    dy-=Math.round(2*Math.max(0,Math.sin(treeConcert.elapsed*7+o.id)));
+  }
+  const starLook=monster&&origin?shootingStarLook(o,timer,star,origin.x+x*zoom):0;
+  if(starLook)height+=Math.round(starLook*3);
   const left=Math.round(x-size/2)+dx,top=foot-height+dy,art=monster?spriteMonsterHD(o.kind,!!o.shiny):citizenArt(o);
   ctx.fillStyle='#294f4b3a';ctx.fillRect(x-Math.round(size*.26),foot-2,Math.round(size*.52),3);
   if(greeting&&facingFriend<0){
@@ -1534,6 +1585,7 @@ function drawMapActor(o,monster,now) {
     ctx.fillStyle='#f7c99d';ctx.fillRect(hand-2,top+11,4,5);
   }
   if(leafStop?.monster===o)drawRollingLeaf(leafStop);
+  if(concertPlayer)drawTreeConcertFlute(x,top,now,o.id);
   if(touch>.4&&pastime.leader){
     const pawX=Math.round(x+dx+chase.side*size*.39),pawY=top+Math.round(size*.66+chase.slope*4);
     ctx.fillStyle='#645648';ctx.fillRect(pawX-3,pawY,7,4);
@@ -1636,10 +1688,45 @@ function drawSummerFireflies(now,bounds){
   }
   ctx.restore();
 }
-function drawMapWeather(now){
+// A rare one-per-night window, from the existing paused game clock and day hash.
+// Neither the camera nor the behavior RNG influences the timing.
+function shootingStarFrame(){
+  if(state.hour!==20||weatherInfo().name!=='晴れ'||hash(state.day+234,917)>.36)return null;
+  const start=.14+hash(state.day+317,452)*.27;
+  const t=(tickAccum-start)/.30;
+  if(t<0||t>=1)return null;
+  const width=VW*T,height=VH*T,dir=hash(state.day+36,923)<.5?-1:1;
+  const x=width*(.45+hash(state.day+924,53)*.1)+dir*(t-.5)*width*.36;
+  const y=height*(.095+t*.175);
+  return {x,y,dir,t,alpha:Math.min(1,t*12,(1-t)*5)};
+}
+function shootingStarLook(m,timer,star,screenX){
+  if(!star||star.t<.19||star.t>.96||Math.abs(screenX-star.x)>VW*T*.29||
+    m.indoorRest||m.ranchTarget200||m.path?.length||timer?.visit||
+    (timer?.pastime&&timer.pastime.kind!=='duskSit')||plotWalks.has(m)||greetings.has(m))return 0;
+  return Math.sin(Math.PI*(star.t-.19)/.77);
+}
+function drawShootingStar(star){
+  if(!star)return;
+  const {x,y,dir,alpha}=star;
+  ctx.save();
+  for(let i=0;i<15;i++){
+    const k=1-i/15;
+    ctx.globalAlpha=k*k*alpha;
+    ctx.fillStyle=i<5?'#fff2c6':'#b4dbff';
+    const size=i<4?3:2;
+    ctx.fillRect(Math.round(x-dir*i*4),Math.round(y-i*1.55),size+2,size);
+  }
+  ctx.globalAlpha=alpha;ctx.fillStyle='#fffceb';
+  ctx.fillRect(Math.round(x)-3,Math.round(y)+1,10,2);
+  ctx.fillRect(Math.round(x)+1,Math.round(y)-3,2,10);
+  ctx.restore();
+}
+function drawMapWeather(now,star=null){
   const width=VW*T,height=VH*T;
   drawMorningRainbow();
   if(state.hour>=19||state.hour<6){ctx.fillStyle='rgba(28,49,99,.15)';ctx.fillRect(0,0,width,height);ctx.fillStyle='#fffbd88a';for(let i=0;i<7;i++)ctx.fillRect((i*137+59)%width,(i*67+35)%height,2,2)}
+  drawShootingStar(star);
   if(state.economy?.festival)for(let i=0;i<35;i++){ctx.fillStyle=['#f4b2ac','#fff1a6','#a2e0de'][i%3];ctx.fillRect((i*179+now/22)%width,(i*107+now/35)%height,3,3)}
   const kind=weatherInfo().name;if(kind==='雨'||kind==='雪'){
     ctx.fillStyle=kind==='雨'?'#cce6ed99':'#fffefbc0';for(let i=0;i<80;i++)ctx.fillRect((i*179+now/(kind==='雨'?9:27))%width,(i*107+now/(kind==='雨'?11:42))%height,kind==='雨'?1:3,kind==='雨'?8:3);
@@ -1708,6 +1795,7 @@ function drawWorld(now){
   updateWalkCamera();
   ctx.setTransform(3,0,0,3,0,0);ctx.imageSmoothingEnabled=false;ctx.fillStyle='#a7cad1';ctx.fillRect(0,0,VW*T,VH*T);
   const origin=mapScreenOrigin(),left=-origin.x/zoom,top=-origin.y/zoom,right=(VW*T-origin.x)/zoom,bottom=(VH*T-origin.y)/zoom;
+  const shootingStar=shootingStarFrame();
   const corners=[[left,top],[right,top],[left,bottom],[right,bottom]].map(([x,y])=>unprojectGround(x,y));
   const minX=Math.max(MIN_X,Math.floor(Math.min(...corners.map(p=>p.x)))-2),minY=Math.max(MIN_Y,Math.floor(Math.min(...corners.map(p=>p.y)))-2);
   const maxX=Math.min(W,Math.ceil(Math.max(...corners.map(p=>p.x)))+3),maxY=Math.min(H,Math.ceil(Math.max(...corners.map(p=>p.y)))+3);
@@ -1742,7 +1830,7 @@ function drawWorld(now){
       const farGate=visit.facing===1||visit.facing===2;
       depth=farGate?Math.min(depth,visit.depth-.01):Math.max(depth,visit.depth+.01);
     }
-    objects.push({depth,draw:()=>drawMapActor(o,monster,now)});
+    objects.push({depth,draw:()=>drawMapActor(o,monster,now,shootingStar,origin)});
   }
   const lightNow=performance.now();
   for(const home of state.buildings){
@@ -1763,7 +1851,7 @@ function drawWorld(now){
     drawMapBubble(Math.round(roof.x+roof.w/2),Math.round(roof.y+roof.h*.21),icon,now,site.id);
   }
   for(const effect of swirls){const p=projectGround(effect.x/T,effect.y/T+.5);ctx.globalAlpha=clamp(effect.life,0,1);ctx.font='bold 15px sans-serif';ctx.fillStyle='#fff1b2';ctx.fillText(effect.text,p.x,p.y-14*(1-effect.life))}ctx.globalAlpha=1;
-  ctx.restore();drawMapWeather(now);
+  ctx.restore();drawMapWeather(now,shootingStar);
   ctx.save();ctx.translate(origin.x,origin.y);ctx.scale(zoom,zoom);drawMapCursor();ctx.restore();positionBuildingMenu();
 }
 
@@ -4860,7 +4948,51 @@ function finishGuestVisit(g){
  }
  beginReturn212(g);
 }
+// A returning traveler briefly plays by the tree, after finishing their visit.
+let treeConcertRanch=null,treeConcertDay=-1,treeConcert=null;
+const treeConcertLength=8;
+function treeConcertWindow(){
+ const weather=weatherInfo().name;
+ return state.hour>=17&&state.hour<20&&(weather==='晴れ'||weather==='くもり');
+}
+function treeConcertNear(g,tree){
+ const {w,h}=buildingOf(tree);
+ const dx=Math.max(tree.x-g.x-.5,g.x+.5-tree.x-w,0);
+ const dy=Math.max(tree.y-g.y-.5,g.y+.5-tree.y-h,0);
+ return Math.hypot(dx,dy)<=4;
+}
+function treeConcertGuest(g){
+ return !!(g.arrived211&&g.phase212==='leave'&&!g.gone212&&!g.indoorRest&&!plotWalks.has(g)&&
+  residentRoad(Math.round(g.x),Math.round(g.y)));
+}
+function stepTreeConcert(dt){
+ if(treeConcertRanch!==state){treeConcertRanch=state;treeConcertDay=-1;treeConcert=null;}
+ if(!treeConcertWindow()){treeConcert=null;return;}
+ if(treeConcert){
+  treeConcert.elapsed+=dt;
+  if(treeConcert.elapsed>=treeConcertLength||!state.buildings.includes(treeConcert.tree)||
+    !state.guests.includes(treeConcert.guest)||!treeConcertGuest(treeConcert.guest)||
+    !treeConcertNear(treeConcert.guest,treeConcert.tree))treeConcert=null;
+  return;
+ }
+ if(treeConcertDay===state.day)return;
+ const tree=state.buildings.find(b=>b.type==='worldtree');
+ const guest=tree&&state.guests.find(g=>treeConcertGuest(g)&&treeConcertNear(g,tree));
+ if(guest){treeConcert={tree,guest,elapsed:0};treeConcertDay=state.day;}
+}
+function treeConcertListener(m){
+ const g=treeConcert?.guest;
+ return !!(g&&!m.indoorRest&&!m.ranchTarget200&&!m.path?.length&&
+  !monsterWalkTimer139(m).needsRanch&&Math.hypot(m.x-g.x,m.y-g.y)<=2.5);
+}
+function drawTreeConcertFlute(x,top,now,id){
+ ctx.fillStyle='#583e39';ctx.fillRect(x+2,top+15,14,4);
+ ctx.fillStyle='#edbf72';ctx.fillRect(x+3,top+15,12,2);
+ ctx.fillStyle='#8f6349';ctx.fillRect(x+8,top+15,1,1);ctx.fillRect(x+11,top+15,1,1);
+ drawMapBubble(x+5,top-8,treeConcert.elapsed%2>=1?'♫':'♪',now,id);
+}
 function animateGuest212(g,dt){
+ if(treeConcert?.guest===g)return;
  setupGuest212(g);
  const shop=state.buildings.find(b=>b.id===g.shopId200&&b.type==='shop');
  if(g.phase212==='arrive'){
@@ -6177,6 +6309,7 @@ tick=function(silent=false){
 const oldStep213=stepActors;
 stepActors=function(dt){
  if(state.speed>0){
+  stepTreeConcert(dt);
   updateMonsterWalks139(dt);
   let planned=0;
   for(const w of state.staff){
@@ -6206,6 +6339,7 @@ stepActors=function(dt){
  }
  for(const g of state.guests){
   if(!['arrive','leave'].includes(g.phase212))continue;
+  if(treeConcert?.guest===g)continue;
   const p=g.prevPos213||[g.x,g.y];
   g.stall213=Math.hypot(g.x-p[0],g.y-p[1])<Math.max(.0001,dt*.10)?(g.stall213||0)+dt:0;
   g.prevPos213=[g.x,g.y];if(g.stall213<6)continue;
