@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>もんすたー日和 Ver.1.24.23 | まもの牧場シミュレーション</title>
+<title>もんすたー日和 Ver.1.24.24 | まもの牧場シミュレーション</title>
 <style>
 :root{--ink:#263d42;--muted:#74878a;--mint:#2d978a;--mint-dark:#20796f;--cream:#fffdf6;--bg:#e9f0e5;--line:#dae5db;--yellow:#f4ba54;--red:#e77969;--shadow:0 5px 0 #cddbd2,0 12px 28px #18372d15}
 *{box-sizing:border-box}body{margin:0;color:var(--ink);background:radial-gradient(ellipse at 50% -100px,#f8faed 0%,#e6eee5 85%);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;font-size:13px;-webkit-font-smoothing:antialiased}button,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.43}.app{max-width:1650px;margin:auto;padding:18px 18px 22px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}.brand{display:flex;align-items:center;gap:12px}.brand-badge{height:51px;width:51px;background:#344c53;box-shadow:inset 0 -5px #1d343a,0 5px #bacbc0;border:3px solid #fff5df;border-radius:12px;display:grid;place-items:center;font-size:27px;transform:rotate(-3deg)}.brand small{font-size:10px;letter-spacing:.24em;font-weight:900;color:#729187;display:block}.brand h1{font-size:23px;letter-spacing:.02em;line-height:1.1;margin:3px 0 0;font-weight:950}.top-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.clock{font-size:13px;color:#54736a;font-weight:900;background:#d8e9dc;border:1px solid #c3dccb;border-radius:10px;padding:12px 14px}.button{border:1px solid #cfddd1;background:var(--cream);padding:10px 12px;border-radius:10px;color:#365c57;font-weight:900;box-shadow:0 3px 0 #d2dfd6;transition:transform .1s,background .1s}.button:hover:not(:disabled){background:#f3faf2;transform:translateY(-1px)}.button:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #d2dfd6}.button.primary{background:#26988b;border-color:#1b8077;color:white;box-shadow:0 3px 0 #176b63}.button.primary:hover:not(:disabled){background:#178879}.button.warn{color:#c36455}.speed-group{display:flex;background:#dde9de;border-radius:10px;padding:4px;gap:3px}.speed-group button{background:transparent;border:0;border-radius:7px;color:#648178;font-size:12px;font-weight:900;padding:7px 10px}.speed-group button.on{color:white;background:#365c57;box-shadow:0 2px 0 #25443f}.layout{display:grid;grid-template-columns:238px minmax(480px,1fr) 300px;gap:16px;align-items:start}.panel{border:1px solid #dfebe0;background:#fffef8;border-radius:15px;box-shadow:var(--shadow);overflow:hidden}.panel-heading{padding:15px 16px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px}.panel-heading h2{font-size:13px;margin:0;font-weight:950}.subtext{color:#8aa097;font-size:11px;font-weight:700}.side-left,.side-right{display:flex;flex-direction:column;gap:16px}.resources{padding:0 14px 12px}.resource{display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-bottom:1px dashed #e4eee5}.resource:last-child{border-bottom:0}.resource-label{display:flex;align-items:center;gap:9px;color:#5f7874;font-weight:800}.resource-icon{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:16px}.ri-money{background:#fff0c4}.ri-food{background:#e6f5d8}.ri-stock{background:#f9e9d9}.ri-magic{background:#e9e8ff}.ri-fame{background:#ffe9dc}.resource-value{font-size:17px;font-weight:950;letter-spacing:-.03em;font-variant-numeric:tabular-nums}.resource small{font-size:10px;color:#95aaa0}.progress-section{padding:0 15px 16px}.progress-top{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#67827b;font-weight:800;margin:8px 0}.progress-track{height:9px;background:#e7ede5;border-radius:10px;overflow:hidden;border:1px solid #d8e6dc}.progress-bar{height:100%;background:linear-gradient(90deg,#81cbaa,#35a28d);border-radius:10px;transition:width .3s}.quests{padding:0 12px 13px}.quest{background:#f6f9f0;border:1px solid #e6eddd;border-radius:10px;padding:11px 11px 9px;margin:6px 0}.quest-title{display:flex;align-items:center;justify-content:space-between;gap:7px;font-size:11px;font-weight:900}.quest-title span:last-child{color:#3f9783;font-size:10px;white-space:nowrap}.quest .progress-track{margin:8px 0 4px;height:6px}.quest-bottom{color:#8da397;display:flex;justify-content:space-between;font-size:10px;font-weight:700}.tip-box{padding:14px 15px;background:#fef9ec;color:#806f4e;font-size:11px;line-height:1.75;border-top:1px solid #f0ebd8}.tip-box strong{color:#a6793b}.world-shell{padding:12px}.world-header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 5px 12px}.world-title{font-size:15px;font-weight:950}.world-title small{display:block;color:#9caf9c;font-size:10px;letter-spacing:.08em;margin-top:3px}.world-badges{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.world-tag{background:#e8f3e9;color:#568475;font-size:10px;font-weight:900;padding:6px 9px;border-radius:7px}.world-tag.gold{background:#fff1d5;color:#a98445}.canvas-frame{position:relative;border-radius:9px;overflow:hidden;border:4px solid #f3f4dc;outline:1px solid #d9e1c5;background:#8ecb78;box-shadow:inset 0 0 0 4px #fff;line-height:0}#game{width:100%;height:auto;display:block;image-rendering:pixelated;cursor:grab;touch-action:none;user-select:none}#game:active{cursor:grabbing}#battleCanvas{display:block;width:100%;height:auto;image-rendering:pixelated;aspect-ratio:1200/318}.battle-scene{background:#e7f3eb;border:3px solid #fbf5d6;border-radius:11px;overflow:hidden;box-shadow:inset 0 0 0 2px #a7cdb1}.battle-caption{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:9px 0 8px;color:#537d6d;font-weight:900;font-size:11px}.battle-caption strong{font-size:12px;color:#2f6c5d}.camera-toolbar{display:flex;align-items:center;justify-content:space-between;gap:5px;background:#f5f8ed;border:1px solid #e3ead8;border-radius:9px;padding:6px 7px;margin:0 3px 9px;flex-wrap:wrap;font-weight:900;font-size:11px;color:#6d8e7d}.camera-toolbar .camera-buttons{display:flex;align-items:center;gap:5px}.camera-toolbar button{border:1px solid #c9ded0;border-radius:7px;background:#fffefa;color:#38675b;padding:5px 11px;font-size:13px;font-weight:950;cursor:pointer}.camera-toolbar button:hover{background:#def2df}.battle-stats{font-size:10px;padding:6px 10px;color:#678e7b;line-height:1.5;background:#f6f8ec}.relocate-hint{background:#f0f1ff;border:1px solid #d0d6fa;color:#6566a1}.facility-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.facility-actions button{font-size:11px}.mini-instruction{font-size:10px;color:#859b8e}.canvas-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 4px 0;gap:8px;flex-wrap:wrap;font-size:11px;color:#8b9f97;font-weight:700}.building-mode{display:none;background:#fff2c6;border:1px solid #f0d78b;color:#9b7826;border-radius:9px;padding:9px 11px;line-height:1.5;margin-top:10px;font-weight:900;font-size:12px}.building-mode.active{display:flex;align-items:center;justify-content:space-between;gap:10px}.game-log{padding:0 14px 14px;max-height:200px;overflow:auto}.log-entry{display:flex;gap:9px;padding:9px 1px;border-bottom:1px dashed #e6ebe3;font-size:11px;line-height:1.45;color:#617971}.log-entry:last-child{border-bottom:0}.log-time{white-space:nowrap;font-size:10px;color:#a1b2a7;font-weight:800}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:10px 10px 0}.tab{background:#eff3ec;color:#78938a;border:0;padding:10px 0;border-radius:8px 8px 6px 6px;font-size:11px;font-weight:950}.tab.on{background:#2c8f82;color:white}.tab-body{padding:12px;min-height:445px;max-height:690px;overflow:auto}.help{font-size:11px;color:#8ca095;line-height:1.6;margin:3px 2px 10px}.build-option,.entity-row,.research-option{border:1px solid #e2e9de;background:#fcfdf7;border-radius:11px;padding:10px;margin-bottom:8px;transition:background .15s,border-color .15s}.build-option:hover{border-color:#b3d7c1}.build-option.selected{border-color:#4ba98f;background:#e9f7e9}.option-header{display:flex;align-items:center;gap:10px}.building-icon{width:45px;height:45px;flex:none;background:#eaf2dd;border:1px solid #e0ead5;display:grid;place-items:center;font-size:24px;border-radius:9px}.option-info{flex:1;min-width:0}.option-name{font-size:12px;font-weight:950}.option-desc{font-size:10px;line-height:1.55;color:#91a39a;margin-top:4px}.option-bottom{display:flex;gap:6px;align-items:center;justify-content:space-between;margin-top:9px}.price{font-size:11px;font-weight:950;color:#b17b30}.price-food{color:#539b5b}.small-button{border:0;background:#318f80;color:white;padding:7px 10px;border-radius:7px;font-weight:900;font-size:11px}.small-button.secondary{background:#e5ede4;color:#5c8374}.small-button:disabled{background:#e8e8e1;color:#a7afa6}.locked{opacity:.63}.locked .small-button{background:#f0eee5;color:#8e948a}.section-label{display:flex;justify-content:space-between;align-items:center;color:#617f73;font-weight:950;font-size:11px;margin:12px 1px 9px}.entity-row{padding:10px;display:flex;gap:10px;align-items:center}.monster-avatar{width:48px;height:48px;image-rendering:pixelated;background:#e5f4e9;border:1px solid #d1e8db;border-radius:9px;flex:none}.entity-info{flex:1;min-width:0}.entity-name{display:flex;align-items:center;justify-content:space-between;font-weight:950;font-size:12px;gap:4px}.entity-sub{color:#869b8f;font-weight:800;font-size:10px;margin-top:4px}.tiny-track{height:5px;border-radius:5px;background:#e6ebde;margin-top:7px;overflow:hidden}.tiny-track div{height:100%;background:#7fc8a6;border-radius:5px}.entity-row.highlighted{border-color:#46aa92;background:#effaf0}.pill{display:inline-block;font-weight:900;color:#6d887b;background:#eff2e9;padding:4px 6px;border-radius:5px;font-size:10px}.info-card{border-radius:11px;background:#eaf5ed;border:1px solid #d4e9db;padding:12px;margin-bottom:10px;line-height:1.6;font-size:11px;color:#58786b}.info-card strong{color:#287e70}.wide-button{width:100%;border:none;border-radius:10px;background:#309487;color:#fff;font-weight:950;padding:12px 9px;margin:5px 0 10px;box-shadow:0 3px 0 #1c7369}.wide-button:disabled{box-shadow:none;background:#d7e1d8;color:#9faea6}.big-count{font-size:22px;font-weight:950;color:#2e796e}.staff-select{appearance:auto;background:#edf5e9;border:1px solid #d6e4d7;border-radius:6px;padding:5px;font-size:10px;font-weight:900;color:#477c6b;max-width:118px}.research-option{margin-bottom:9px}.research-header{display:flex;align-items:center;justify-content:space-between;gap:5px;font-weight:950}.research-level{font-size:10px;color:#80a091}.research-desc{font-size:10px;color:#7f978b;line-height:1.65;margin:7px 0}.research-bottom{display:flex;justify-content:space-between;align-items:center;gap:7px}.empty{text-align:center;padding:28px 8px;font-size:11px;color:#98a8a0;line-height:1.75}.footer{font-size:10px;color:#91a59a;text-align:center;margin-top:17px}.toast-area{position:fixed;right:25px;bottom:20px;display:flex;flex-direction:column;gap:8px;z-index:999;pointer-events:none}.toast{background:#2d5752;color:white;border:2px solid #c9ebd0;border-radius:10px;padding:11px 15px;box-shadow:0 7px 22px #132b2355;font-weight:900;max-width:330px;animation:slidein .2s ease-out;line-height:1.5}.toast.error{background:#9f6453;border-color:#ffdfcc}.toast.success{background:#2d826d}.toast.fade{opacity:0;transform:translateY(9px);transition:all .3s}@keyframes slidein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.modal-wrap{display:none;position:fixed;inset:0;background:#112b2a91;z-index:1000;padding:20px;align-items:center;justify-content:center}.modal-wrap.show{display:flex}.modal{width:min(540px,100%);background:#fffef7;border-radius:18px;border:4px solid #e7eedf;padding:22px;box-shadow:0 15px 70px #09211b66;max-height:90vh;overflow:auto}.modal h2{margin:0 0 12px;font-size:20px}.modal p{color:#6f8880;line-height:1.85;font-size:13px}.modal .cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}.modal .cols div{padding:11px;border-radius:9px;background:#f1f6ec;font-size:11px;line-height:1.65}.modal .close-row{display:flex;justify-content:flex-end;gap:8px;margin-top:17px}.chip{font-size:10px;font-weight:900;padding:4px 7px;background:#edf6e6;border-radius:5px;color:#5a9169}.pixel-icon{font-family:monospace}@media(max-width:1240px){.layout{grid-template-columns:210px minmax(400px,1fr) 273px;gap:11px}.app{padding:12px}.panel-heading{padding:13px 12px 9px}}@media(max-width:1040px){.layout{grid-template-columns:minmax(0,1fr) 295px}.side-left{grid-column:1 / -1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.side-left .panel:last-child{grid-column:auto}}@media(max-width:710px){.app{padding:9px}.layout{display:flex;flex-direction:column}.layout>*{width:100%}.side-left{display:grid;grid-template-columns:1fr}.top{align-items:flex-start}.top-right{gap:5px}.clock{padding:10px}.brand h1{font-size:19px}.tabs .tab{font-size:12px}.tab-body{max-height:none;min-height:250px}}
@@ -347,7 +347,7 @@ html.monster-detail-open{overflow:hidden}
 </div>
 <div class="side-right"><section class="panel"><div class="tabs" role="tablist"><button class="tab" data-tab="management">📊 経営</button><button class="tab on" data-tab="build">🏠 施設</button><button class="tab" data-tab="monster">🐾 仲間</button><button class="tab" data-tab="staff">🧑‍🌾 市民</button><button class="tab" data-tab="research">✨ 研究</button><button class="tab" data-tab="adventure">⚔️ 冒険</button><button class="tab" data-tab="bestiary">📚 図鑑</button></div><div class="tab-body" id="tabBody"></div></section><section class="panel"><div class="panel-heading"><h2>🌱 今日のひとこと</h2></div><div class="tip-box" style="background:transparent;border:0" id="dailyTip">新しい施設を建てると、できることが増えるよ。</div></section></div>
 </main>
-<footer class="footer">© もんすたー日和 Ver.1.24.23 — 世界樹の看板・花壇・水鉢</footer>
+<footer class="footer">© もんすたー日和 Ver.1.24.24 — 牧場の小さな暮らし</footer>
 </div>
 <div class="toast-area" id="toasts" aria-live="polite"></div>
 <div class="modal-wrap" id="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal" id="modalContent"></div></div>
@@ -359,7 +359,7 @@ const facilityRoles = {
   trade: {name:'商売・宿泊', types:['shop','cafe','stall','inn']},
   care: {name:'育成・休養', types:['home','school','spring','hut','clinic','park','bench211','sanctuary212']},
   research: {name:'研究・冒険', types:['lab','expeditionOffice','guild212','worldtree']},
-  tourism: {name:'観光・装飾', types:['palace','tower','gallery212','treasureMuseum213','relicStand','postOffice','flowerbed211','bench211','lamp211','fountain211','park']}
+  tourism: {name:'観光・装飾', types:['palace','tower','gallery212','treasureMuseum213','relicStand','postOffice','flowerbed211','campfire124','bench211','lamp211','fountain211','park']}
 };
 let facilityRole = 'all';
 function roleIncludes(type) {
@@ -431,7 +431,7 @@ function toggleBossLoop(stage) {
   if(!state.battle){selectedBattleStage=stage;startAdventure();}
   else{save(true);renderUI(true);}
 }
-const GAME_APP_VERSION='1.24.23';
+const GAME_APP_VERSION='1.24.24';
 const MIN_MAP_ZOOM=.15, MAX_MAP_ZOOM=2.8;
 const W=44,H=30,T=32,VW=22,VH=15,ZONE_W=11,ZONE_H=10,MIN_X=-22,MIN_Y=-20,SAVE_KEY='monster_biyori_save_v1';
 const $=id=>document.getElementById(id);
@@ -1365,7 +1365,7 @@ function drawPostRainPuddles(bounds){
 function postRainCanHop(m){
   const timer=monsterWalkTimers139.get(m);
   return !m.indoorRest&&!m.ranchTarget200&&!timer?.visit&&!timer?.pastime&&
-    !plotWalks.has(m)&&!greetings.has(m)&&!morningPoses.has(m);
+    !plotWalks.has(m)&&!greetings.has(m)&&!morningPoses.has(m)&&!ranchActors124.has(m);
 }
 function stepPostRainHops(dt){
   const day=postRainDay();
@@ -1493,10 +1493,12 @@ function drawHomeSill(rect,facing,season){
     ctx.drawImage(art,0,0,12*sx,14*sy);ctx.restore();
   }else ctx.drawImage(art,rect.x+(px-6)*sx,rect.y+py*sy,12*sx,14*sy);
 }
-function drawLot(b,facing,level,preview=false,homeOpacity=0) {
+function drawLot(b,facing,level,preview=false,homeOpacity=0,now=0) {
   if(!facilitySheetReady)return;
   const m=buildingOf(b),rect=plotImageRect(b,m);
-  const art=b.type==='relicStand'&&!preview?standArt(level,validFacing(facing),displayedRelic(b)):spriteBuildingV161(b.type,level,facing);
+  const lit=b.type==='campfire124'&&!preview&&typeof campfireLit124==='function'&&campfireLit124(b);
+  const art=lit?passiveCampfireSprite124(true,state.speed>0?Math.floor(now/172)%4:0,facing):
+    b.type==='relicStand'&&!preview?standArt(level,validFacing(facing),displayedRelic(b)):spriteBuildingV161(b.type,level,facing);
   ctx.drawImage(art,rect.x,rect.y,rect.w,rect.h);
   if(!preview){
     const lights=b.type==='home'?(homeOpacity>0&&bedroomWindowMask(art,b)):eveningWindows(art,b);
@@ -1565,18 +1567,29 @@ function drawMapActor(o,monster,now,star=null,origin=null) {
     dx+=facingFriend*2;
     if(monster&&greeting.time>.85)dy-=Math.round(Math.sin(Math.PI*clamp((greeting.time-.85)/.65,0,1))*8);
   }
+  const ranchScene=ranchSceneVisual124(o);
+  if(ranchScene?.phase==='use'){
+    const {kind,target,elapsed}=ranchScene;
+    const side=Math.sign((target.x-target.y)-(o.x-o.y))||1;
+    if(kind==='warm'){height=Math.round(size*.86);dy=0;}
+    if(kind==='water'){dx+=side;dy=0;}
+    if(kind==='sniff'){dx+=side*Math.round(4*Math.sin(Math.PI*Math.min(1,elapsed/2.1)));dy=2;}
+    if(kind==='kindle'){height=Math.round(size*.87);dx+=side*2;dy=1;}
+  }
   const postRainHop=monster&&activePostRainHop(o);
   if(postRainHop)dy-=Math.round(10*Math.sin(Math.PI*postRainHop.elapsed/postRainHopTime));
   const concertPlayer=!monster&&treeConcert?.guest===o;
   if(concertPlayer){height=Math.round(size*.88);dy=0;}
-  if(monster&&!pastime&&!visit&&!greeting&&!wake&&!postRainHop&&treeConcertListener(o)){
+  if(monster&&!ranchScene&&!pastime&&!visit&&!greeting&&!wake&&!postRainHop&&treeConcertListener(o)){
     dy-=Math.round(2*Math.max(0,Math.sin(treeConcert.elapsed*7+o.id)));
   }
-  const starLook=monster&&origin?shootingStarLook(o,timer,star,origin.x+x*zoom):0;
+  const starLook=monster&&!ranchScene&&origin?shootingStarLook(o,timer,star,origin.x+x*zoom):0;
   if(starLook)height+=Math.round(starLook*3);
   const left=Math.round(x-size/2)+dx,top=foot-height+dy,art=monster?spriteMonsterHD(o.kind,!!o.shiny):citizenArt(o);
   ctx.fillStyle='#294f4b3a';ctx.fillRect(x-Math.round(size*.26),foot-2,Math.round(size*.52),3);
-  if(greeting&&facingFriend<0){
+  const ranchFacing=ranchScene?.target?Math.sign((ranchScene.target.x-ranchScene.target.y)-(o.x-o.y)):0;
+  const flipped=!!(greeting?facingFriend<0:ranchScene&&ranchFacing<0);
+  if(flipped){
     ctx.save();ctx.translate(left+size,top);ctx.scale(-1,1);ctx.drawImage(art,0,0,size,height);ctx.restore();
   }else ctx.drawImage(art,left,top,size,height);
   if(greeting&&!monster&&greeting.time<1.15){
@@ -1586,6 +1599,7 @@ function drawMapActor(o,monster,now,star=null,origin=null) {
   }
   if(leafStop?.monster===o)drawRollingLeaf(leafStop);
   if(concertPlayer)drawTreeConcertFlute(x,top,now,o.id);
+  if(ranchScene)drawRanchActivity124(ranchScene,x+dx,foot,size,top,now,o.id);
   if(touch>.4&&pastime.leader){
     const pawX=Math.round(x+dx+chase.side*size*.39),pawY=top+Math.round(size*.66+chase.slope*4);
     ctx.fillStyle='#645648';ctx.fillRect(pawX-3,pawY,7,4);
@@ -1599,7 +1613,7 @@ function drawMapActor(o,monster,now,star=null,origin=null) {
     drawPuddleSplash(p.x,p.y,(postRainHop.elapsed-.2)*(.75/(postRainHopTime-.2)));
     ctx.restore();
   }
-  if(monster)mapPickItems.push({monster:o,art,flipped:!!greeting&&facingFriend<0,rect:{x:left,y:top,w:size,h:height}});
+  if(monster)mapPickItems.push({monster:o,art,flipped,rect:{x:left,y:top,w:size,h:height}});
   if(monster){
     if(o.shiny){ctx.fillStyle='#503977';ctx.fillRect(x-16,top-9,33,9);ctx.fillStyle='#fff173';ctx.font='bold 8px monospace';ctx.fillText('★ RARE',x-14,top-2)}
     if(o.lv>=10){ctx.fillStyle='#fff1a5';ctx.font='bold 11px sans-serif';ctx.fillText(o.lv>=25?'✦✦':'✦',left+size-5,top+9)}
@@ -1609,7 +1623,7 @@ function drawMapActor(o,monster,now,star=null,origin=null) {
     let playIcon=greeting&&greeting.time>1.4?'♪':wake?(wake.time>1.1&&wake.trait==='おっとり'?'Zz':'☀'):rainIcon||(napping?'💤':duskSitting&&pastime.leader?'♪':null);
     if(chase)playIcon=pastime.leader?'♪':chase.phase==='headStart'?'！':chase.phase==='run'?'🐾':null;
     const icon=playIcon||(visit&&visit.remaining!==null?facilityActivities[visit.site.type][0]:timer.harvestBubble>0?'📦':null);
-    if(icon){drawMapBubble(x,top-(o.shiny?17:8),icon,now,o.id)}else{
+    if(icon){drawMapBubble(x,top-(o.shiny?17:8),icon,now,o.id)}else if(!ranchScene){
       const activity=o.phase213||phase213(state.hour);if(activity!=='work'&&!(activity==='sleep'&&visit&&usesSleepingRoom(o,visit.site))){ctx.font='13px sans-serif';ctx.fillText(activity==='sleep'?'💤':activity==='eat'?'🍎':'🎾',x-7,top-2+Math.sin(now/500+o.id)*1.6)}
     }
   }else if(o.jobTask212&&!o.jobTarget211?.rest){
@@ -1816,7 +1830,7 @@ function drawWorld(now){
   for(const b of state.buildings){const m=buildingOf(b),r=plotImageRect(b,m);if(r.x+r.w<left||r.x>right||r.y+r.h<top||r.y>bottom)continue;
     if(b.type==='worldtree')visibleTree=b;
     objects.push({depth:b.x+b.y+(m.w+m.h)/2,draw(){
-      drawLot(b,b.facing,b.level,false,litHomes.get(b));
+      drawLot(b,b.facing,b.level,false,litHomes.get(b),now);
       if(b.type==='workshop'&&Math.sin(now/400+b.id)>.45){const pos=projectGround(b.x+m.w*.55,b.y+m.h*.53);ctx.fillStyle='#fff2ab';ctx.fillRect(pos.x+2,pos.y-m.h*12,3,3)}
     }});
   }
@@ -3548,6 +3562,7 @@ upgrade=function(id){
   const b=state.buildings.find(v=>v.id===id);
   if(!b)return;
   if(b.type==='worldtree')return growWorldTree193();
+  if(b.type==='campfire124')return;
   if(b.level>=facilityLevelCap193()){
     return toast('世界樹Lv.'+state.villageLv+'での施設強化はLv.'+facilityLevelCap193()+'まで','error');
   }
@@ -4429,16 +4444,18 @@ const MATERIALS211=[
 const materialPools139 = {};
 MATERIALS211.forEach((item,id)=>(materialPools139[item[3]]??=[]).push(id));
 const RARE_GUESTS211=['💎 宝石収集家','🎩 王都の貴族','🧙 星の大魔導士','👑 幻の商人'];
-const DECOR211={flowerbed211:2,bench211:3,lamp211:4,fountain211:12};
+const DECOR211={flowerbed211:2,bench211:3,lamp211:4,fountain211:12,campfire124:0};
+const isTownDecor=type=>Object.hasOwn(DECOR211,type);
 Object.assign(B,{
- flowerbed211:{name:'お花畑',icon:'🌷',cost:75,unlock:1,w:1,h:1,pixel:32,desc:'花で街を彩る',effect:'🌸 人気度 +2'},
+ flowerbed211:{name:'お花畑',icon:'🌷',cost:75,unlock:1,w:1,h:1,pixel:32,desc:'晴れた朝、仲間が水やりや花の香りを楽しむことがあるよ',effect:'🌸 人気度 +2'},
+ campfire124:{name:'焚き火',icon:'🔥',cost:100,unlock:1,w:1,h:1,pixel:64,desc:'夕方、仲間が火をつけて暖まることがあるよ。薪の補充は不要',effect:'眺めるための装飾'},
  bench211:{name:'木のベンチ',icon:'🪑',cost:145,unlock:2,w:1,h:1,pixel:32,desc:'旅人の休憩所',effect:'🌸 人気度 +3'},
  lamp211:{name:'星あかり街灯',icon:'🏮',cost:240,unlock:3,w:1,h:1,pixel:32,desc:'街をやさしく照らす',effect:'🌸 人気度 +4'},
  fountain211:{name:'虹の噴水',icon:'⛲',cost:750,unlock:5,w:2,h:2,pixel:64,desc:'人気の観光名所',effect:'🌸 人気度 +12'}
 });
 function townPopularity211(){return state?.buildings?.reduce((a,b)=>a+(DECOR211[b.type]||0)*(1+Math.max(0,b.level-1)*.25),0)||0}
 const countCap211=facilityCountCap193;
-facilityCountCap193=function(type,lv=state.villageLv){return DECOR211[type]?Math.min(90,3+2*lv):countCap211(type,lv)};
+facilityCountCap193=function(type,lv=state.villageLv){return isTownDecor(type)?Math.min(90,3+2*lv):countCap211(type,lv)};
 function ensureMaterials211(save=state){
  if(!save)return;
  if(!Array.isArray(save.materialStock211)){
@@ -5145,7 +5162,7 @@ function treeRequirements193(nextLevel){
  const level=nextLevel-1,cap=facilityLevelCap193(level);
  const counts=new Map(treeMilestones(nextLevel).map(r=>[r.type,r.count]));
  return Object.entries(B)
-  .filter(([type,spec])=>type!=='worldtree'&&type!=='relicStand'&&!DECOR211[type]&&spec.unlock<=level)
+  .filter(([type,spec])=>type!=='worldtree'&&type!=='relicStand'&&!isTownDecor(type)&&spec.unlock<=level)
   .map(([type,spec])=>({type,count:counts.get(type)||1,minLevel:cap,label:spec.name+' Lv.'+cap}));
 }
 const thresholdPrev212=villageThreshold;
@@ -5903,6 +5920,285 @@ function startMorningPose(m){
   const trait=TRAITS[m.trait]?.name;
   morningPoses.set(m,{time:0,duration:trait==='おっとり'?3.4:trait==='がんばりや'?1.15:2,trait});
 }
+// 1.24.24: quiet ranch scenes. Timers, props in hand and temporary routes are
+// presentation only; the layout, ordinary coordinates and real jobs still save.
+let ranchRoutines124=null;
+const ranchActors124=new WeakMap();
+const ranchSceneSeconds124={water:3.4,sniff:2.1,kindle:1.35,warm:5.4};
+const ranchClearWeather124=()=>['晴れ','くもり'].includes(weatherInfo().name);
+const ranchFireTime124=()=>state.hour>=17&&state.hour<21&&ranchClearWeather124();
+const ranchFlowerTime124=()=>state.hour>=7&&state.hour<10&&weatherInfo().name==='晴れ';
+const ranchMailTime124=()=>state.hour>=10&&state.hour<16;
+const ranchTile124=a=>[Math.round(a.x),Math.round(a.y)];
+const ranchAt124=(a,p)=>Math.hypot(a.x-p[0],a.y-p[1])<.075;
+const ranchDistance124=(a,b)=>Math.abs(a[0]-b[0])+Math.abs(a[1]-b[1]);
+function ranchSceneVisual124(actor){
+ const active=ranchActors124.get(actor);
+ if(active?.ranch!==state||active.day!==state.day||
+    (active.site&&!ranchSiteExisting124(active)))return null;
+ if(active.kind==='mailReceive'){
+  const post=active.post;
+  return post.phase==='chat'?{kind:'mailReceive',phase:post.phase,elapsed:post.elapsed,target:post.actor}:null;
+ }
+ return active;
+}
+function campfireLit124(b){
+ const fire=ranchRoutines124?.fire;
+ return !!(b?.type==='campfire124'&&ranchRoutines124?.ranch===state&&ranchRoutines124.day===state.day&&
+  fire?.site===b&&ranchSiteExisting124(fire)&&ranchFireTime124());
+}
+function ranchRoadRoute124(actor,goal,maxHops){
+ const start=ranchTile124(actor);
+ if(!residentRoad(...start)||!residentRoad(...goal)||ranchDistance124(start,goal)>maxHops)return null;
+ const first=ranchAt124(actor,start)?[]:[start];
+ const queue=[{point:start,route:first,hops:0}],seen=new Set([keyXY(...start)]);
+ for(let i=0;i<queue.length;i++){
+  const q=queue[i];
+  if(ranchDistance124(q.point,goal)===0)return q.route;
+  if(q.hops>=maxHops)continue;
+  for(const p of neighbors(...q.point)){
+   const key=keyXY(...p);
+   if(seen.has(key)||!residentRoad(...p))continue;
+   seen.add(key);queue.push({point:p,route:[...q.route,p],hops:q.hops+1});
+  }
+ }
+ return null;
+}
+function ranchSiteRoads124(site){
+ return neighbors(site.x,site.y).filter(p=>residentRoad(...p)); // 1×1 decorations
+}
+function ranchMonsterFree124(m){
+ return !ranchActors124.has(m)&&!m.path?.length&&!m.indoorRest&&!morningPoses.has(m)&&
+  !greetings.has(m)&&leafStop?.monster!==m&&!activePostRainHop(m)&&freeForPlay(m);
+}
+function ranchWorkerFree124(w){
+ return !ranchActors124.has(w)&&!w.path?.length&&!w.jobTarget211&&!w.jobTask212&&!w.indoorRest&&
+  !w.expeditionVisit&&!plotWalks.has(w)&&!greetings.has(w)&&residentRoad(...ranchTile124(w));
+}
+function ranchWeatherAndCalendar124(kind){
+ return kind==='water'||kind==='sniff'?ranchFlowerTime124():
+  kind==='warm'||kind==='kindle'?ranchFireTime124():ranchMailTime124();
+}
+function ranchSiteExisting124(entry){
+ const site=entry.site;
+ return state.buildings.includes(site)&&site.x===entry.siteX&&site.y===entry.siteY&&
+  validFacing(site.facing)===entry.facing;
+}
+function ranchSiteEntry124(site){
+ return {site,siteX:site.x,siteY:site.y,facing:validFacing(site.facing)};
+}
+function ranchDuskBusy124(){
+ return !!treeConcert||state.monsters.some(m=>monsterWalkTimers139.get(m)?.pastime?.kind==='duskSit');
+}
+function ranchDuskSceneActive124(){
+ return ranchRoutines124?.ranch===state&&ranchRoutines124.active.some(a=>a.kind==='kindle'||a.kind==='warm');
+}
+function ranchSetPath124(active,goal,route){
+ active.goal=goal;
+ active.route=route;
+ // JSON.stringify(state) is also used by export and backups: never keep a
+ // route to a scene that will not exist when reopening a ranch.
+ Object.defineProperty(route,'toJSON',{value:()=>[]});
+ active.actor.path=route;
+}
+function ranchRoadOpen124(point,except){
+ return ![...state.monsters,...state.staff,...state.guests].some(a=>a!==except&&!a.indoorRest&&
+  (ranchDistance124(point,ranchTile124(a))===0||ranchActors124.get(a)?.goal?.every((v,i)=>v===point[i])));
+}
+function ranchNearby124(kind,sites,maxHops){
+ let best=null;
+ for(const actor of state.monsters){
+  if(!ranchMonsterFree124(actor)||(kind==='warm'&&(ranchRoutines124.igniter===actor||ranchRoutines124.warmed.has(actor))))continue;
+  const start=ranchTile124(actor);
+  for(const site of sites){
+   if(ranchDistance124(start,[site.x,site.y])>maxHops+1)continue;
+   for(const goal of ranchSiteRoads124(site)){
+    if(!ranchRoadOpen124(goal,actor))continue;
+    const route=ranchRoadRoute124(actor,goal,maxHops);
+    if(!route)continue;
+    const score=route.length+(kind==='sniff'&&ranchRoutines124.wateredBy===actor?10:0)+(((state.day+Math.abs(actor.id||0)+Math.abs(site.id||0))%7)*.07);
+    if(!best||score<best.score)best={actor,site,goal,route,score};
+   }
+  }
+ }
+ return best;
+}
+function startRanchDecorScene124(kind,sites,maxHops){
+ const found=ranchNearby124(kind,sites,maxHops);
+ if(!found)return false;
+ const {actor,site,goal,route}=found;
+ const active={ranch:state,day:state.day,kind,phase:'approach',elapsed:0,total:0,actor,target:site,...ranchSiteEntry124(site)};
+ ranchActors124.set(actor,active);ranchSetPath124(active,goal,route);
+ ranchRoutines124.active.push(active);
+ return true;
+}
+function startRanchMail124(){
+ let best=null;
+ for(const site of state.buildings){
+  if(site.type!=='postOffice')continue;
+  for(const door of entranceRoads(site)){
+   for(const actor of state.staff){
+    if(!ranchWorkerFree124(actor)||!ranchRoadOpen124(door,actor))continue;
+    const toOffice=ranchRoadRoute124(actor,door,4);
+    if(!toOffice)continue;
+    for(const recipient of state.monsters){
+     if(!ranchMonsterFree124(recipient))continue;
+     const waitAt=ranchTile124(recipient);
+     if(!ranchAt124(recipient,waitAt)||ranchDistance124(waitAt,door)>7)continue;
+     for(const goal of neighbors(...waitAt)){
+      if(ranchDistance124(door,goal)<1||!ranchRoadOpen124(goal,actor))continue;
+      const route=ranchRoadRoute124({x:door[0],y:door[1]},goal,6);
+      if(!route)continue;
+      const score=route.length+toOffice.length+(actor.jobCooldown211>0?0:1);
+      if(!best||score<best.score)best={site,actor,recipient,door,goal,waitAt,toOffice,score};
+     }
+    }
+   }
+  }
+ }
+ if(!best)return false;
+ const {site,actor,recipient,door,goal,waitAt,toOffice}=best;
+ const active={ranch:state,day:state.day,kind:'mail',phase:'office',elapsed:0,total:0,actor,
+  recipient,waitAt,door,deliveryGoal:goal,job:actor.job,target:site,...ranchSiteEntry124(site)};
+ ranchActors124.set(actor,active);
+ ranchActors124.set(recipient,{ranch:state,day:state.day,kind:'mailReceive',post:active,...ranchSiteEntry124(site)});
+ ranchSetPath124(active,door,toOffice);
+ ranchRoutines124.active.push(active);return true;
+}
+function endRanchScene124(active){
+ ranchActors124.delete(active.actor);
+ if(active.recipient&&ranchActors124.get(active.recipient)?.post===active)ranchActors124.delete(active.recipient);
+ if(active.actor.path===active.route)active.actor.path=[];
+}
+function ranchMonsterCanContinue124(m){
+ const timer=monsterWalkTimers139.get(m);
+ return state.monsters.includes(m)&&!m.ranchTarget200&&!m.indoorRest&&!timer?.visit&&!timer?.pastime&&!timer?.needsRanch&&
+  !plotWalks.has(m)&&!greetings.has(m)&&!morningPoses.has(m)&&leafStop?.monster!==m&&residentRoad(...ranchTile124(m));
+}
+function advanceRanchDecor124(a,dt){
+ const m=a.actor;
+ if(!ranchMonsterCanContinue124(m)||!ranchSiteRoads124(a.site).some(p=>ranchDistance124(p,a.goal)===0)||
+    ((a.kind==='kindle'||a.kind==='warm')&&ranchDuskBusy124())||
+    (a.kind==='warm'&&!campfireLit124(a.site)))return false;
+ if(a.phase==='approach'){
+  if(m.path?.length)return true;
+  if(!ranchAt124(m,a.goal))return false;
+  a.phase='use';a.elapsed=0;
+  if(a.kind==='water')ranchRoutines124.wateredBy=m;
+  if(a.kind==='warm')ranchRoutines124.warmed.add(m);
+  return true;
+ }
+ if(!ranchAt124(m,a.goal))return false;
+ if(a.kind==='kindle'&&a.elapsed>=.85&&!ranchRoutines124.fire){
+  ranchRoutines124.fire=ranchSiteEntry124(a.site);ranchRoutines124.igniter=m;
+  ranchRoutines124.nextWarm=.22;
+ }
+ return a.elapsed<ranchSceneSeconds124[a.kind];
+}
+function advanceRanchMail124(a){
+ const {actor:w,recipient:m}=a;
+ if(!state.staff.includes(w)||w.job!==a.job||w.jobTask212||w.jobTarget211||w.indoorRest||
+    w.expeditionVisit||greetings.has(w)||plotWalks.has(w)||!residentRoad(...ranchTile124(w))||
+    !entranceRoads(a.site).some(p=>ranchDistance124(p,a.door)===0))return false;
+ if(a.phase!=='return'&&(!ranchMonsterCanContinue124(m)||m.path?.length||!ranchAt124(m,a.waitAt)))return false;
+ if(w.path?.length)return true;
+ if(!ranchAt124(w,a.goal))return false;
+ if(a.phase==='office'){
+  // Hold briefly at the threshold to pick up the letter.
+  if(a.elapsed<.55)return true;
+  const route=ranchRoadRoute124(w,a.deliveryGoal,6);
+  if(!route||!ranchRoadOpen124(a.deliveryGoal,w))return false;
+  a.phase='delivery';a.elapsed=0;a.target=m;
+  ranchSetPath124(a,a.deliveryGoal,route);return true;
+ }
+ if(a.phase==='delivery'){
+  a.phase='chat';a.elapsed=0;return true;
+ }
+ if(a.phase==='chat'){
+  if(a.elapsed<2.6)return true;
+  ranchActors124.delete(m);
+  const route=ranchRoadRoute124(w,a.door,6);
+  if(!route)return false;
+  a.phase='return';a.elapsed=0;a.target=a.site;
+  ranchSetPath124(a,a.door,route);return true;
+ }
+ return false;
+}
+function stepRanchScenes124(dt){
+ if(dt<=0||state.speed<=0)return;
+ let r=ranchRoutines124;
+ if(r?.ranch!==state||r.day!==state.day){
+  for(const a of r?.active||[])endRanchScene124(a);
+  r=ranchRoutines124={ranch:state,day:state.day,active:[],poll:0,fire:null,warmed:new Set(),nextWarm:0,
+   watered:false,sniffed:false,kindled:false,posted:false,wateredBy:null};
+ }
+ if(r.fire&&(!ranchFireTime124()||!ranchSiteExisting124(r.fire)))r.fire=null;
+ for(let i=r.active.length-1;i>=0;i--){
+  const a=r.active[i];
+  a.total+=dt;a.elapsed+=dt;
+  if(a.total<24&&ranchWeatherAndCalendar124(a.kind)&&ranchSiteExisting124(a)&&residentRoad(...a.goal)&&
+    (!a.actor.path?.length||a.actor.path===a.route)&&
+    (a.kind==='mail'?advanceRanchMail124(a):advanceRanchDecor124(a,dt)))continue;
+  endRanchScene124(a);r.active.splice(i,1);
+ }
+ r.poll-=dt;r.nextWarm-=dt;
+ if(r.poll>0)return;
+ r.poll=.65;
+ if(ranchFlowerTime124()){
+  const beds=state.buildings.filter(b=>b.type==='flowerbed211');
+  if(!r.watered&&startRanchDecorScene124('water',beds,4))r.watered=true;
+  else if(r.wateredBy&&!r.sniffed&&state.day%3!==0&&!r.active.some(a=>a.kind==='water')&&
+     startRanchDecorScene124('sniff',beds,3))r.sniffed=true;
+ }else if(ranchFireTime124()&&!ranchDuskBusy124()){
+  if(!r.kindled&&startRanchDecorScene124('kindle',state.buildings.filter(b=>b.type==='campfire124'),5))r.kindled=true;
+  else if(r.fire&&r.nextWarm<=0&&r.warmed.size+r.active.filter(a=>a.kind==='warm'&&a.phase==='approach').length<2&&
+     startRanchDecorScene124('warm',[r.fire.site],4))r.nextWarm=1.4;
+ }else if(ranchMailTime124()&&!r.posted&&startRanchMail124())r.posted=true;
+}
+function drawRanchActivity124(active,x,foot,size,top,now,id){
+ const {phase,kind,elapsed,target}=active;
+ if(!target)return;
+ const aim=projectGround(target.x+.5,target.y+.5),sx=Math.round(aim.x),side=Math.sign(sx-x)||1;
+ const p=(c,xx,yy,w,h)=>{ctx.fillStyle=c;ctx.fillRect(Math.round(xx),Math.round(yy),w,h);};
+ const accessory=(k,px,py)=>{
+  if(typeof drawRanchAccessory124==='function')drawRanchAccessory124(ctx,k,px,py,-side);
+ };
+ const cue=(c,c2)=>{
+  p(c,x-7,top-7,5,2);p(c2,x,top-9,4,2);p(c,x+6,top-7,3,2);
+ };
+ if(kind==='water'){
+  const handX=x+Math.round(size*.30)*side,handY=foot-11;
+  if(phase==='use'||phase==='approach')accessory('can',handX,handY);
+  if(phase==='use'){
+   const endY=Math.round(aim.y)-5,spout=handX+6*side;
+   for(let j=0;j<8;j++){
+    const t=(elapsed*1.55+j/8)%1,v=1-t;
+    const xx=spout*v+sx*t,yy=(handY-1)*v+endY*t-9*Math.sin(t*Math.PI);
+    p(j%2?'#81bfc8':'#def3df',xx,yy,t>.75?1:2,1+t*2|0);
+   }
+  }
+ }else if(kind==='sniff'&&phase==='use'){
+  if(elapsed>.35)for(let i=0;i<3;i++){
+   const y=foot-17-Math.floor((elapsed*6+i*4)%12),xx=x+side*(Math.round(size*.34)+i*2);
+   p(i%2?'#f5ce8f':'#f2b9bd',xx,y,2,2);p('#fff3c7',xx,y-1,1,1);
+  }
+ }else if(kind==='kindle'&&phase==='use'&&elapsed<1){
+  const spread=elapsed/.95,ox=x+(sx-x)*.7,oy=foot+(aim.y-foot)*.7-5;
+  for(let i=0;i<4;i++)p(i%2?'#e39552':'#ffd18a',ox+(i-1.5)*spread*6,oy-spread*(7+i%3*4),2,2);
+ }else if(kind==='warm'&&phase==='use'){
+  p('#8c5a44',x+side*Math.round(size*.31)-2,foot-11,4,3);
+  p('#edbc84',x+side*Math.round(size*.31)-2,foot-12,3,2);
+ }else if(kind==='mail'){
+  accessory('satchel',x-side*(size*.30),foot-12);
+  if(phase==='chat'&&elapsed<1.25){
+   const t=clamp(elapsed/1.05,0,1),hand=x+side*size*.28;
+   accessory('envelope',hand+(sx-hand)*t,foot-13+(aim.y+4-foot)*t-7*Math.sin(t*Math.PI));
+  }else if(phase==='chat')cue('#77a581','#e5c48e');
+ }else if(kind==='mailReceive'&&phase==='chat'&&elapsed>=1.15){
+  cue('#c8866e','#e5c48e');
+ }
+}
+
 const monsterWalkTimers139 = new WeakMap();
 function monsterWalkTimer139(m) {
   let timer = monsterWalkTimers139.get(m);
@@ -5967,7 +6263,7 @@ function advanceFacilityVisit(m,dt){
 }
 function freeForPlay(m){
  const timer=monsterWalkTimer139(m);
- return !timer.visit&&!timer.pastime&&!timer.needsRanch&&!m.ranchTarget200&&
+ return !ranchActors124.has(m)&&!timer.visit&&!timer.pastime&&!timer.needsRanch&&!m.ranchTarget200&&
   !plotWalks.has(m)&&residentRoad(Math.round(m.x),Math.round(m.y));
 }
 const rainActivities={leap:'🐾 水たまりをひと跳び',splash:'💧 水たまりに飛び込み中',shelter:'☂ 軒先で雨宿り'};
@@ -6053,7 +6349,7 @@ function duskSitAvailable(m){
  return freeForPlay(m)&&!m.path?.length&&!m.indoorRest&&!greetings.has(m)&&!morningPoses.has(m)&&leafStop?.monster!==m;
 }
 function startDuskSit(m,timer){
- if(!duskSitWindow()||!duskSitAvailable(m))return false;
+ if(!duskSitWindow()||ranchDuskSceneActive124()||!duskSitAvailable(m))return false;
  if(duskSitRanch!==state){duskSitRanch=state;duskSitDay=-1;}
  if(duskSitDay===state.day)return false;
  const x=Math.round(m.x),y=Math.round(m.y);
@@ -6263,7 +6559,7 @@ function updateGreetings(dt){
   nextGreeting=2.5;
   for(const monster of state.monsters){
     if(leafStop?.monster===monster||!freeForPlay(monster)||morningPoses.has(monster)||greetings.has(monster))continue;
-    const worker=state.staff.find(w=>!greetings.has(w)&&!w.jobTask212&&!plotWalks.has(w)&&
+    const worker=state.staff.find(w=>!ranchActors124.has(w)&&!greetings.has(w)&&!w.jobTask212&&!plotWalks.has(w)&&
       (monster.path?.length||w.path?.length)&&residentRoad(Math.round(w.x),Math.round(w.y))&&
       Math.hypot(w.x-monster.x,w.y-monster.y)<1.5);
     if(!worker)continue;
@@ -6276,7 +6572,7 @@ function updateMonsterWalks139(dt) {
   let searches = 0;
   for (const m of state.monsters) {
     const motion=monsterWalkTimer139(m);if(motion.harvestBubble>0)motion.harvestBubble-=dt;
-    if(greetings.has(m)||leafStop?.monster===m)continue;
+    if(ranchActors124.has(m)||greetings.has(m)||leafStop?.monster===m)continue;
     const waking=morningPoses.get(m);
     if(waking){
       waking.time+=dt;
@@ -6322,10 +6618,11 @@ const oldStep213=stepActors;
 stepActors=function(dt){
  if(state.speed>0){
   stepTreeConcert(dt);
+  stepRanchScenes124(dt);
   updateMonsterWalks139(dt);
   let planned=0;
   for(const w of state.staff){
-   if(w.jobTask212||w.jobTarget211||w.path?.length||plotWalks.has(w)||greetings.has(w))continue;
+   if(ranchActors124.has(w)||w.jobTask212||w.jobTarget211||w.path?.length||plotWalks.has(w)||greetings.has(w))continue;
    const wait=(staffPlanWait.get(w)??(1+(w.id%4)*.45))-dt;
    staffPlanWait.set(w,wait);
    if(wait>0||planned>=2)continue;
@@ -7140,9 +7437,182 @@ function decorateCompactLot(base,type,direction){
 }
 
 
+// もんすたー日和 1.24.24 passive activity art.
+// Uses the existing pixelSprite(w,h,draw) helper. All geometry is nearest-neighbor,
+// build-sprite anchor is the normal 1×1 plotImageRect; hand props are 16×16.
+const passiveArtCache124=new Map();
+function passivePixels124(g){
+ const p=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(x,y,w,h)};
+ const poly=(pts,c)=>{
+   const lo=Math.min(...pts.map(([x,y])=>y)),hi=Math.max(...pts.map(([x,y])=>y));
+   for(let y=lo;y<hi;y++){
+     const row=y+.5, cuts=[];
+     for(let i=0;i<pts.length;i++){
+       const [x0,y0]=pts[i],[x1,y1]=pts[(i+1)%pts.length];
+       if((row>=y0&&row<y1)||(row>=y1&&row<y0))cuts.push(x0+(row-y0)*(x1-x0)/(y1-y0));
+     }
+     cuts.sort((a,b)=>a-b);
+     for(let i=0;i+1<cuts.length;i+=2){const a=Math.ceil(cuts[i]-.5),b=Math.ceil(cuts[i+1]-.5);if(b>a)p(a,y,b-a,1,c);}
+   }
+ };
+ return {p,poly};
+}
+function passiveDiamond124(poly,hi,mid,deep){
+ poly([[2,37],[32,22],[62,37],[62,39],[32,54],[2,39]],deep);
+ poly([[3,37],[32,23],[61,37],[32,52]],mid);
+ poly([[5,37],[32,24],[58,37],[32,50]],hi);
+}
+function passiveFlowerbedSprite124(facing=0){
+ facing=((facing|0)%4+4)%4;
+ const key='flowerbed'+facing;
+ if(passiveArtCache124.has(key))return passiveArtCache124.get(key);
+ const art=pixelSprite(64,64,g=>{
+   const {p,poly}=passivePixels124(g);
+   passiveDiamond124(poly,'#bbac79','#8c875f','#675840');
+   for(const [x,y,w] of [[12,38,4],[16,42,3],[47,42,3],[50,37,3],[32,48,3],[34,47,3],[20,45,2],[28,48,2]])p(x,y,w,1,'#d7bc84');
+   // Raised timber planter. Hand-cut miters and banded boards are visible on both faces.
+   poly([[9,32],[32,20],[55,32],[55,40],[32,52],[9,40]],'#553e32');
+   poly([[10,33],[32,44],[32,50],[10,39]],'#bd8755');
+   poly([[32,44],[54,33],[54,39],[32,50]],'#935f43');
+   poly([[10,35],[32,46],[32,47],[10,36]],'#845337');
+   poly([[32,46],[54,35],[54,36],[32,47]],'#6e4938');
+   poly([[10,37],[32,48],[32,49],[10,38]],'#e5a865');
+   poly([[32,48],[54,37],[54,38],[32,49]],'#b77e4f');
+   poly([[9,31],[32,19],[55,31],[32,43]],'#654733');
+   poly([[10,31],[32,20],[54,31],[32,42]],'#e0aa68');
+   poly([[13,31],[32,22],[51,31],[32,40]],'#794e36');
+   poly([[14,31],[32,23],[50,31],[32,39]],'#4c3a31');
+   poly([[16,31],[32,24],[48,31],[32,38]],'#66503b');
+   poly([[13,32],[32,41],[32,42],[13,33]],'#f4bd7c');
+   poly([[32,41],[52,31],[52,32],[32,42]],'#c1824e');
+   // Corner braces and pegs make the planter feel built, not painted flat on the map.
+   for(const [x,y] of [[10,33],[31,44],[53,33]]){
+     p(x,y,2,7,'#654838');p(x,y,1,6,'#9e6945');p(x,y+1,1,1,'#f1bd79');p(x,y+4,1,1,'#c68d57');
+   }
+   for(const [x,y] of [[14,37],[20,40],[26,43],[35,43],[42,40],[49,36]]){p(x,y,2,1,'#d19b60');p(x+1,y+1,1,1,'#80533d');}
+   const blooms=[
+     ['#783651','#af4974','#e57290','#fdb0aa','#fff0c0'],
+     ['#975135','#cd703b','#f6ab44','#ffd978','#fff3be'],
+     ['#523e79','#7651a3','#a77adb','#dbc1fc','#fff0c9'],
+     ['#873a3e','#b85452','#ec7a58','#ffb981','#fff0af']
+   ];
+   const clusters=[[26,27,5],[33,25,8],[40,28,6],[20,31,5],[28,33,7],[36,32,6],[44,33,5],[27,36,5],[36,37,6]];
+   // Stepped plant leaves and a stem on every bloom give vertical depth.
+   for(let i=0;i<clusters.length;i++){
+     const [x,y,h]=clusters[i], b=blooms[(i+(facing===1?1:facing===2?2:facing===3?3:0))%4],t=y-h-1;
+     p(x,y-h,2,h+1,'#34513b');p(x,y-h,1,h,'#77914b');
+     poly([[x,y-1],[x-2,y-1],[x-5,y-4],[x-3,y-5],[x,y-3]],'#365f44');
+     p(x-4,y-4,2,1,'#76a152');p(x-3,y-3,2,1,'#5b8749');
+     poly([[x+1,y-1],[x+1,y-3],[x+4,y-6],[x+6,y-5],[x+4,y-2]],'#4d7442');
+     p(x+3,y-5,2,1,'#95b957');p(x+4,y-4,1,1,'#6e994c');
+     poly([[x-4,t],[x-2,t-3],[x+2,t-3],[x+4,t],[x+3,t+3],[x,t+4],[x-3,t+2]],b[0]);
+     poly([[x-3,t],[x-1,t-2],[x+2,t-2],[x+3,t],[x+2,t+2],[x,t+3],[x-2,t+2]],b[1]);
+     p(x-2,t-1,3,2,b[2]);p(x-1,t-2,2,1,b[3]);p(x+1,t,2,1,b[2]);p(x-1,t,2,1,b[4]);p(x,t+1,1,1,b[3]);
+   }
+   // Facings carry an unmistakable little gardener's label at the corresponding side.
+   const [x,y]=[[41,43],[21,42],[46,36],[15,35]][facing];
+   p(x,y-4,1,5,'#574335');p(x-2,y-5,6,3,'#6b4d39');p(x-2,y-5,5,2,'#cda274');p(x-1,y-5,3,1,'#efd398');
+
+ });
+ passiveArtCache124.set(key,art);return art;
+}
+function passiveCampfireSprite124(lit=false,frame=0,facing=0){
+ frame=lit?((frame|0)%4+4)%4:0;facing=((facing|0)%4+4)%4;
+ const key='campfire'+Number(lit)+','+frame+','+facing;
+ if(passiveArtCache124.has(key))return passiveArtCache124.get(key);
+ const art=pixelSprite(64,64,g=>{
+   const {p,poly}=passivePixels124(g);
+   passiveDiamond124(poly,'#b4a181','#96846d','#695848');
+   poly([[12,35],[32,25],[52,35],[52,40],[32,50],[12,40]],'#655348');
+   poly([[13,36],[32,27],[51,36],[32,47]],'#827063');
+   poly([[17,35],[32,29],[47,35],[47,38],[32,44],[17,38]],'#5b5049');
+   poly([[19,36],[32,31],[45,36],[32,42]],'#3f3732');
+   // Deep gray shadows separate each chiseled stone; upper-left warm field colors.
+   const rocks=[[19,34],[24,31],[31,29],[38,31],[44,34],[45,39],[39,43],[31,46],[24,43],[17,39]];
+   for(let i=0;i<rocks.length;i++){
+     const [x,y]=rocks[i];
+     poly([[x-4,y-1],[x-1,y-4],[x+2,y-4],[x+5,y-1],[x+5,y+2],[x+2,y+4],[x-2,y+4],[x-4,y+1]],'#58534c');
+     poly([[x-3,y-1],[x-1,y-3],[x+2,y-3],[x+4,y-1],[x+2,y+1],[x-2,y+1]],i<5?'#aba78e':'#c7b899');
+     poly([[x-3,y],[x+2,y+1],[x+4,y-1],[x+4,y+1],[x+2,y+3],[x-2,y+3]],i<5?'#75695b':'#8b7b67');
+     p(x-1,y-2,2,1,'#d7c6a0');if(i%3===0)p(x+1,y+1,2,1,'#9e886c');
+   }
+   // The crossed fuel wood remains visibly distinct from the darker charcoal.
+   poly([[21,34],[24,31],[42,38],[42,41],[39,43],[21,36]],'#47332a');
+   poly([[22,34],[24,32],[41,38],[39,40]],lit?'#986244':'#a4754c');
+   poly([[39,39],[41,38],[41,41],[39,42],[37,41],[37,39]],'#d5a067');
+   p(39,39,1,2,'#806245');p(25,34,2,1,'#cc925b');p(30,36,2,1,'#c68c5b');
+   poly([[39,32],[42,34],[42,37],[26,43],[22,41],[22,38]],'#4f352a');
+   poly([[39,33],[41,34],[39,36],[24,41],[23,39]],lit?'#ad7149':'#bb8656');
+   poly([[23,38],[26,39],[26,41],[24,42],[22,41],[22,39]],'#d7a36d');
+   p(24,39,1,2,'#946741');p(27,38,4,1,'#d99c5c');p(34,35,3,1,'#d39e5e');
+   if(lit){
+     // Four coordinated silhouettes, not an opacity flicker. Paler center and independent sparks.
+     const tongues=[
+       [[22,37],[23,30],[27,24],[28,16],[32,20],[34,13],[37,21],[38,28],[42,32],[42,37],[38,40],[27,41]],
+       [[22,37],[24,31],[25,26],[30,23],[31,14],[35,17],[37,23],[39,17],[39,27],[43,33],[42,38],[36,41],[27,40]],
+       [[22,37],[23,32],[26,28],[25,21],[30,24],[31,19],[31,14],[35,12],[35,19],[39,24],[39,29],[42,34],[40,39],[31,41]],
+       [[23,37],[24,31],[28,28],[28,22],[33,18],[34,13],[36,19],[36,24],[40,22],[39,28],[43,34],[42,37],[37,40],[28,41]]
+     ];
+     poly(tongues[frame],'#ad5141');
+     poly([[24,36],[26,31],[27+frame%2,26],[30,27],[31+frame%2,19+frame%3],[34,22],[36,28],[38,26],[39,32],[41,35],[38,39],[28,40]],'#ed8349');
+     poly([[27,36],[29,32],[30+frame%2,26],[33,28],[34+frame%2,23],[36,29],[35,33],[39,34],[37,38],[32,40]],'#ffc75c');
+     poly([[30,37],[31,33],[33,32],[34,27+frame%3],[35,33],[36,35],[35,38],[32,39]],'#ffec9e');
+     for(const [x,y,s] of [[[25,19,1],[39,13,1],[34,7,2]],[[28,18,1],[38,11,2],[33,5,1]],[[24,17,1],[41,15,1],[32,8,2]],[[27,16,2],[40,13,1],[33,6,1]]][frame]){
+       p(x,y,s,1,'#ca773f');p(x,y,s,1,s===2?'#ffe59a':'#ffb65e');if(s===2)p(x,y+1,1,1,'#f7b05a');
+     }
+     p(28,39,2,1,'#f89954');p(35,39,2,1,'#f89954');
+   }
+   // Three stones with curved chips near the non-interaction edge.
+   const [ox,oy]=[[49,43],[16,42],[43,29],[20,33]][facing];
+   p(ox,oy,3,1,'#64594d');p(ox,oy-1,2,1,'#d5bb9b');
+ });
+ passiveArtCache124.set(key,art);return art;
+}
+function passiveHandPropSprite124(kind,flip=false){
+ if(!['can','postbag','envelope'].includes(kind))return null;
+ const key=kind+Number(!!flip);
+ if(passiveArtCache124.has(key))return passiveArtCache124.get(key);
+ const art=pixelSprite(16,16,g=>{
+   const {p,poly}=passivePixels124(g);
+   g.save();if(flip){g.translate(16,0);g.scale(-1,1);}
+   if(kind==='can'){
+     poly([[5,7],[6,5],[11,5],[13,7],[13,13],[10,15],[6,14],[4,12]],'#3f504e');
+     poly([[5,8],[8,6],[12,7],[12,12],[10,14],[6,13]],'#639687');
+     poly([[6,7],[8,6],[11,6],[12,7],[10,8],[7,8]],'#b5cbb1');
+     p(6,9,2,3,'#a1c2a7');p(10,10,2,3,'#487b73');
+     p(8,4,2,1,'#44594f');p(7,3,5,1,'#4d5d50');p(11,4,2,2,'#455d53');p(8,3,3,1,'#92a98b');
+     poly([[5,10],[3,10],[1,6],[2,4],[3,4],[6,8]],'#3b5553');p(2,5,2,1,'#7cb2a7');p(4,8,2,1,'#76aaa1');
+     p(1,4,2,1,'#a9c2b2');p(0,6,1,1,'#7fb9c0');
+   }else if(kind==='postbag'){
+     poly([[3,7],[6,5],[10,4],[14,6],[15,12],[13,15],[5,15],[2,12]],'#524039');
+     poly([[3,8],[7,6],[13,6],[14,11],[13,14],[5,14],[3,12]],'#a97951');
+     poly([[3,8],[6,6],[13,6],[12,10],[8,12],[4,11]],'#cf9e65');
+     p(6,7,4,1,'#edd197');p(8,10,2,2,'#6b5749');p(8,10,2,1,'#e9b574');
+     p(6,4,2,2,'#8f674a');p(7,3,5,1,'#76523f');p(12,4,1,2,'#76523f');
+   }else{
+     poly([[2,6],[11,4],[15,7],[13,13],[5,15],[2,13]],'#69534b');
+     poly([[3,7],[11,5],[14,7],[12,12],[5,14],[3,12]],'#e8c99b');
+     poly([[4,7],[11,6],[13,7],[10,10],[8,11],[5,9]],'#fff1c8');
+     p(8,10,2,2,'#ac5363');p(8,10,1,1,'#ed8c84');
+   }
+   g.restore();
+ });
+ passiveArtCache124.set(key,art);return art;
+}
+// Accessory x/y denote sprite center; fixed 12px gives a visible hand prop without
+// obscuring faces. side < 0 flips; side >= 0 faces (spout at the left).
+function drawRanchAccessory124(ctx,kind,x,y,side=1){
+ const art=passiveHandPropSprite124(kind==='satchel'?'postbag':kind,side<0);
+ if(!art)return false;
+ ctx.drawImage(art,Math.round(x)-6,Math.round(y)-6,12,12);
+ return true;
+}
+
 const previousFacilityArt = spriteBuildingV161;
 spriteBuildingV161 = function(type, level = 1, facing = 0) {
   const direction = validFacing(facing);
+  if (type === 'flowerbed211') return passiveFlowerbedSprite124(direction);
+  if (type === 'campfire124') return passiveCampfireSprite124(false,0,direction);
   if (type === 'worldtree') {
     const frame = worldTreeFrames[level >= 8 ? 2 : level >= 5 ? 1 : 0];
     const tree = villageSprite(frame, 0, facilitySheet, direction);
@@ -8072,6 +8542,7 @@ function buildingUpgradePreview(building) {
   function local(label, calc, unit) { compare(label,calc(level),calc(next),unit); }
   function ranch(label, calc, unit) { compare(label,calc(total),calc(total+1),unit); }
   const time = '／ゲーム内1時間';
+  if(type==='campfire124')return '<p>夕方の焚き火は、強化や薪の補充がいらない装飾です。</p>';
   if (DECOR211[type]) {
     local('この装飾の人気度',n => DECOR211[type]*(1+(n-1)*.25),'pt');
     note = '街の人気度は旅人の来訪率と、珍しいお客さんの出現率に影響します。';
@@ -8917,6 +9388,8 @@ function renderBuildingMenu(target){
   if(isTree){
     const cost=treeCost193(state.villageLv),ready=state.villageXp>=villageThreshold(state.villageLv)&&state.coins>=cost.coins&&state.magic>=cost.magic&&treeRequirementStatus193(state.villageLv+1).every(r=>r.ok);
     primary='<button type="button" data-v193="grow" '+(ready?'':'disabled')+'>世界樹を成長</button>';
+  }else if(b.type==='campfire124'){
+    primary='';
   }else{
     primary='<button type="button" data-action="upgrade" data-id="'+b.id+'" '+(atCap||state.coins<price?'disabled':'')+'>'+ (atCap?'強化上限 Lv.'+cap:'強化 '+num(price)+'G')+'</button>';
   }
@@ -8940,7 +9413,7 @@ function renderBuildingMenu(target){
       updateMenuHTML(body,html);
     }
   }else if(body.childElementCount){body.replaceChildren();body.menuHTML=null;}
-  const effects=$('buildingEffects');effects.querySelector('summary').textContent=isTree?'成長条件':'強化の効果';
+  const effects=$('buildingEffects');effects.querySelector('summary').textContent=isTree?'成長条件':b.type==='campfire124'?'焚き火について':'強化の効果';
   if(effects.open){
     const list=isTree?treeRequirementStatus193(state.villageLv+1).map(r=>'<li>'+esc(r.label)+'　'+r.value+'/'+r.need+'軒</li>').join(''):'';
     const extra=b.type==='shop'?'<p>売上 '+num(b.sales211||0)+'G ・ '+Math.floor(b.units211||0)+'個販売</p>':'';

@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8">
+<title>もんすたー日和 1.24.24 動作確認</title>
+<h1>花壇・焚き火・郵便配達の動作確認</h1>
+<button id="run">検証を開始</button>
+<pre id="result" aria-live="polite"></pre>
+<div id="screens"></div>
+<script>
+'use strict';
+function activityProof(){
+(function(){
+const check=(v,m)=>{if(!v)throw Error(m);};
+const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const roadMap=()=>{
+  Object.assign(state,{buildings:[],staff:[],guests:[],monsters:[],party:[],zones:[0,1,4,5],paths:[],ponds:[],removedDefaultPaths:[...DEFAULT_PATH_KEYS],clearedScenery:[],clearedPonds:[],speed:1,day:1,hour:8,villageLv:20,worldTreeLevel:20});
+  for(let x=MIN_X;x<W;x++)for(let y=MIN_Y;y<H;y++){state.clearedPonds.push(keyXY(x,y));state.clearedScenery.push(keyXY(x,y));}
+};
+window.qa124={
+ placement(){
+  roadMap();state.coins=1e6; placementFacing=0;
+  state.paths=['4,5','7,5','9,5','4,7','7,7'];
+  place('flowerbed211',4,4);place('campfire124',7,4);place('campfire124',9,4);
+  const flower=state.buildings.find(b=>b.type==='flowerbed211'),[fire,spare]=state.buildings.filter(b=>b.type==='campfire124');
+  check(flower&&fire&&spare,'placement via game handler failed');
+  check(getBuildingAt(4,4)===flower && !getBuildingAt(4,5),'flowerbed must be 1×1');
+  check(getBuildingAt(7,4)===fire && !getBuildingAt(7,5),'campfire must be 1×1');
+  startMoving(fire.id);moveBuilding(7,6);
+  check(!getBuildingAt(7,4)&&getBuildingAt(7,6)===fire,'moved fire must retain ID and free the previous plot');
+  startMoving(flower.id);moveBuilding(4,6);
+  check(!getBuildingAt(4,4)&&getBuildingAt(4,6)===flower,'moved flowers must retain ID and free the previous plot');
+  recoverBuilding(spare.id);check(!getBuildingAt(9,4),'recovered fire still blocks terrain');
+  check(save(true),'save moved decor');
+  return 'place/move/recover decor using actual game handlers';
+ },
+ art(){
+  const frame=c=>c.getContext('2d').getImageData(0,0,c.width,c.height).data;
+  const changed=(a,b)=>{check(a.length===b.length,'sprite dimensions shifted');let count=0;for(let i=0;i<a.length;i+=4)if(a[i]!==b[i]||a[i+1]!==b[i+1]||a[i+2]!==b[i+2]||a[i+3]!==b[i+3])count++;return count;};
+  const arrangements=[];
+  for(let dir=0;dir<4;dir++){
+    const flower=frame(spriteBuildingV161('flowerbed211',1,dir));
+    check([...flower].filter((n,i)=>i%4===3&&n>0).length>256,'flowerbed drawing missing details');
+    arrangements.push(flower);
+    const fire=frame(spriteBuildingV161('campfire124',1,dir)), first=frame(passiveCampfireSprite124(true,0,dir));
+    check(changed(fire,first)>120,'the lit fire is not visibly distinct');
+    check(changed(first,frame(passiveCampfireSprite124(true,1,dir)))>10,'flame frames are static');
+  }
+  check(arrangements.slice(1).every(next=>changed(next,arrangements[0])>10),'a flowerbed facing is not visually rotated');
+  return 'visible flowerbed facings, distinct campfire on/off and animated flame pixels';
+ },
+ persistence(){
+  const flowers=state.buildings.filter(b=>b.type==='flowerbed211'),fires=state.buildings.filter(b=>b.type==='campfire124');
+  check(flowers.length===1&&flowers[0].x===4&&flowers[0].y===6 && fires.length===1&&fires[0].x===7&&fires[0].y===6, 'save reload must preserve both new placements and removed campfire');
+  check(!getBuildingAt(4,4)&&!getBuildingAt(7,4)&&!getBuildingAt(9,4),'old plot/removed plot revived after reload');
+  return 'save/reopen moved decor and removed decor';
+ },
+ activities(){
+  const results=[];
+  check(typeof stepRanchScenes124==='function'&&typeof ranchSceneVisual124==='function','scene hooks missing');
+  const decor=(type,x,y,facing=0)=>{const b={id:state.nextId++,type,x,y,level:1,facing};state.buildings.push(b);return b;};
+  const dayFor=(weather,start=state.day+1)=>{for(let d=start;d<start+300;d++)if(weatherInfo(d).name===weather)return d;throw Error('No weather '+weather);};
+  let nextDay=1;
+  const setup=(hour,type,weather='晴れ')=>{
+    roadMap();state.day=dayFor(weather,nextDay);nextDay=state.day+1;state.hour=hour;
+    for(let x=2;x<=12;x++)state.paths.push(keyXY(x,7));
+    const lot=decor(type,6,type==='postOffice'?5:6);
+    const citizen=makeStaff(state.nextId++,'gather',lot.x-3,7);
+    const monster=makeMonster(state.nextId++,0,lot.x+3,7);
+    state.staff=[citizen];state.monsters=[monster];
+    staffPlanWait.set(citizen,1000); monsterWalkTimer139(monster).wait=1000;
+    return {lot,citizen,monster};
+  };
+  const economy=()=>{
+    const {coins,food,magic,fame,talentFruit,stock,materialStock211,treasureStock,economy,postcards,metrics,log}=state;
+    return JSON.stringify({coins,food,magic,fame,talentFruit,stock,materialStock211,treasureStock,economy,postcards,metrics,log,toasts:[...$('toasts').children].map(e=>e.textContent)});
+  };
+  const run=(seconds,actors,cb=()=>{})=>{
+    const status=new Map(actors.map(a=>[a,[]]));
+    for(let n=0;n<seconds*20;n++){
+      stepActors(.05);
+      cb(n);
+      for(const a of actors){
+        const phase=ranchSceneVisual124(a);
+        if(phase)check(Number.isFinite(a.x)&&Number.isFinite(a.y),'invalid actor position');
+        const tag=phase?.kind ? phase.kind+'/'+phase.phase : '-';
+        if(status.get(a).at(-1)!==tag)status.get(a).push(tag);
+      }
+    }
+    return status;
+  };
+  const only=(seq,s)=>seq.filter(v=>v===s).length;
+  function rendered(actor){
+    const calls=[],draw=drawMapActor;drawMapActor=(a,...args)=>{calls.push(a);return draw(a,...args);};
+    try{
+      stopWalkCamera();hover=null;selectedBuilding=null;zoom=1;
+      cameraX=actor.x-VW/2;cameraY=actor.y-VH/2;
+      drawWorld(100);
+    }finally{drawMapActor=draw;}
+    check(calls.includes(actor),'outdoor scene participant is hidden');
+  }
+  {
+    const {lot,monster}=setup(8,'flowerbed211');
+    if(state.day%3===0){state.day=dayFor('晴れ',state.day+1);nextDay=state.day+1;}
+    const other=makeMonster(state.nextId++,0,4,7);state.monsters.push(other);monsterWalkTimer139(other).wait=1000;
+    state.paths.push('7,6');
+    const before=economy();let drew=0,saved=false;
+    const event=run(90,[other,monster],()=>{for(const a of [other,monster]){
+      if(ranchSceneVisual124(a)?.phase!=='use')continue;
+      check(Math.abs(a.x-lot.x)+Math.abs(a.y-lot.y)<=1.5,'flower use off adjacent tile');
+      const bit=a===other?1:2;if(!(drew&bit)){rendered(a);drew|=bit;}
+      if(!saved){
+        check(save(true),'cannot save with flower scene active');
+        const snap=JSON.parse(localStorage.getItem(SAVE_KEY));
+        const serializedActors=[...snap.monsters,...snap.staff];
+        check(!Object.keys(snap).some(k=>/ranchRoutine|ranchScene/i.test(k)) &&
+          serializedActors.every(a=>!Object.keys(a).some(k=>/ranchRoutine|ranchScene/i.test(k))),'a scene leaked into save JSON');
+        saved=true;
+      }
+    }});
+    const seq=[...event.values()].flat();
+    check(only(seq,'water/use')===1 && only(seq,'sniff/use')===1,'water/sniff should each complete once: '+JSON.stringify([...event.values()]));
+    check(drew===3 && saved && economy()===before,'the flower scene changed rewards/notifications');
+    results.push('flower watering + sniffing approach, use and return to idle, each once; both actors drawn, runtime transient across saves, no reward or notification');
+  }
+  {
+    const {monster}=setup(8,'flowerbed211');
+    for(let tries=0;state.day%3===0&&tries<10;tries++)state.day=dayFor('晴れ',state.day+1);
+    nextDay=state.day+1;
+    const other=makeMonster(state.nextId++,0,4,7);state.monsters.push(other);monsterWalkTimer139(other).wait=1000;
+    const seq=[...run(75,[other,monster]).values()].flat();
+    check(only(seq,'water/use')===1&&only(seq,'sniff/use')===1,'single-road flowerbed must permit both activities: '+seq);
+    results.push('one-road flowerbed remains usable for both watering and sniffing');
+  }
+  {
+    const {lot,citizen,monster}=setup(18,'campfire124');
+    state.speed=0;
+    check([...run(12,[citizen,monster]).values()].every(seq=>equal(seq,['-']))&&!campfireLit124(lot),'paused game initialized a new scene');
+    state.speed=1;
+    for(let n=0;n<20 && !ranchSceneVisual124(monster);n++)stepActors(.05);
+    check(ranchSceneVisual124(monster)?.phase==='approach','campfire route not started');
+    state.buildings=state.buildings.filter(b=>b!==lot);
+    stepActors(.05);
+    check(!ranchSceneVisual124(monster)&&!monster.path.length&&!campfireLit124(lot),'removed fire left stranded activity/path');
+    results.push('pause prevents startup; removing a target during approach cancels route');
+  }
+  for(const weather of ['くもり','雨','雪']){
+    const {citizen,monster}=setup(8,'flowerbed211',weather);
+    check([...run(20,[citizen,monster]).values()].every(seq=>equal(seq,['-'])),'non-sunny flower routine '+weather);
+  }
+  results.push('flower scene starts on sunny mornings only, not cloudy/rainy/snowy mornings');
+  for(const weather of ['雨','雪']){
+    const {lot,citizen,monster}=setup(18,'campfire124',weather);
+    const before=economy();
+    const event=run(60,[citizen,monster],()=>check(!campfireLit124(lot),'campfire lit in '+weather));
+    check([...event.values()].every(seq=>equal(seq,['-']))&&economy()===before,'bad-weather fire routine '+weather);
+  }
+  {
+    const {lot,citizen,monster}=setup(18,'campfire124');
+    const other=makeMonster(state.nextId++,0,4,7);state.monsters.push(other);monsterWalkTimer139(other).wait=1000;
+    state.paths.push('7,6');
+    const before=economy();let lit=false,drew=0;
+    const event=run(90,[other,monster],()=>{
+      lit=lit||campfireLit124(lot);
+      for(const a of [other,monster]){
+        if(ranchSceneVisual124(a)?.phase!=='use')continue;
+        const bit=a===other?1:2;if(!(drew&bit)){rendered(a);drew|=bit;}
+      }
+    });
+    const seq=[...event.values()].flat();
+    check(lit&&only(seq,'kindle/use')===1&&only(seq,'warm/use')>=1,'dusk ignition/warm-up failed or repeated: '+JSON.stringify([...event.values()]));
+    check(economy()===before && drew>0,'fire scene rewards or rendering');
+    state.hour=22;
+    run(1,[citizen,monster],()=>check(!campfireLit124(lot),'bedtime fire remains lit'));
+    results.push('dusk campfire ignites, actor warms and remains drawn; no rain/snow or later flame, reward, notification or repeat ignition');
+  }
+  {
+    const {lot,citizen,monster}=setup(18,'campfire124');
+    let changed=false;
+    for(let n=0;n<1600;n++){
+      stepActors(.05);
+      if(!campfireLit124(lot))continue;
+      const nextRain=dayFor('雨');
+      state.day=nextRain;
+      stepActors(.05);
+      check(!campfireLit124(lot),'active fire remained after rollover to rain');
+      changed=true;
+      break;
+    }
+    check(changed,'no active fire to check weather interruption');
+    results.push('an active campfire does not carry over into a rainy day');
+  }
+  {
+    const {lot,citizen,monster}=setup(12,'postOffice');
+    const before=economy();let sawOffice=false,drew=false,returned=false;
+    const gate=()=>entranceRoads(lot).some(([x,y])=>Math.hypot(citizen.x-x,citizen.y-y)<.1);
+    const event=run(75,[citizen,monster],()=>{
+      const c=ranchSceneVisual124(citizen);
+      if(c?.phase==='office'&&gate())sawOffice=true;
+      if(c?.phase==='chat'&&!drew){
+        check(Math.hypot(citizen.x-monster.x,citizen.y-monster.y)<=2,'mail conversation not adjacent');
+        rendered(citizen);rendered(monster);drew=true;
+      }
+      if(drew&&gate())returned=true;
+    });
+    const phases=event.get(citizen);
+    let last=-1;
+    for(const phase of ['office','delivery','chat','return']){
+      const i=phases.indexOf('mail/'+phase);
+      check(i>last,'mail phases out of order or absent: '+phases);
+      last=i;
+    }
+    check(only(phases,'mail/chat')===1 && sawOffice&&returned&&drew && economy()===before,'postal actor did not leave and return to office, or changed economics');
+    results.push('postal citizen goes out from office, delivers, chats and returns on actual road; both actors drawn; no duplicate or notification/reward');
+  }
+  {
+    const {citizen,monster}=setup(8,'flowerbed211');
+    citizen.path=[[2,7]]; monster.path=[[10,7]];
+    const event=run(.15,[citizen,monster]);
+    check([...event.values()].every(seq=>equal(seq,['-']))&&citizen.x<3&&monster.x>9,'ambient action preempted ordinary actor paths');
+    const offline=setup(8,'flowerbed211');
+    state.paths=['3,7','6,7','9,7'];
+    check([...run(30,[offline.citizen,offline.monster]).values()].every(seq=>equal(seq,['-'])), 'routine traversed disconnected paths');
+    const late=setup(23,'campfire124');
+    check([...run(45,[late.citizen,late.monster]).values()].every(seq=>equal(seq,['-'])) && !campfireLit124(late.lot),'new scene started in sleeping hours');
+    results.push('normal paths advance without being hijacked; isolated paths block ambient actions; no scene starts in sleep hours');
+  }
+  return results;
+ }
+};
+})();
+}
+const check=(ok,msg)=>{if(!ok)throw Error(msg);};
+async function textFile(url){const r=await fetch(url,{cache:'no-store'}); if(!r.ok)throw Error(url+' '+r.status);return r.text();}
+async function run(){
+ const out=document.querySelector('#result'),mount=document.querySelector('#screens');
+ const log=text=>out.textContent+=text+'\n';
+ out.textContent='';
+ const prefix='v12424_qa_'+crypto.randomUUID()+'_';
+ try{
+ const [oldSource,current,previous]=await Promise.all([textFile('../releases/1.24.23/game.html'),textFile('../game.html'),textFile('v1.24.21-ranch.html')]);
+ const previousHook=previous.slice(previous.indexOf('function fixture()'),previous.indexOf('function compareYards('));
+ async function open(source,width){
+   const f=document.createElement('iframe');f.title='検証用牧場';f.width=width;f.height=width===390?844:900;
+   const end='})();\n<\/script>';
+   f.srcdoc=source.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0; window.confirm=()=>true;')
+    .replace(end,()=>previousHook+'\nfixture();\n('+activityProof.toString()+')();\n'+end);
+   const ready=new Promise((resolve,reject)=>{f.onload=resolve;f.onerror=reject;});
+   mount.append(f);await ready;
+   const w=f.contentWindow;
+   for(let i=0;i<250&&!w.qa?.ready();i++)await new Promise(r=>setTimeout(r,20));
+   check(w.qa?.ready(),'画像の読み込み');return {w,f};
+ }
+ for(const width of [1366,390]){
+   const seed=await open(oldSource,width);seed.w.qa.seed();seed.f.remove();
+   const old=await open(oldSource,width),snapshot=old.w.qa.snapshot();old.f.remove();
+   const update=await open(current,width);
+   check(update.w.document.title.includes('1.24.24'),'ゲームの版番号');
+   check(update.w.qa.snapshot()===snapshot,'1.24.23セーブの引き継ぎ');
+   check(width!==390||update.w.document.documentElement.scrollWidth<=391,'スマートフォン幅');
+   log(width+'px: 旧セーブ互換・画面幅');
+   log('✓ '+update.w.qa124.placement());
+   log('✓ '+update.w.qa124.art());
+   const reopened=await open(current,width);
+   log('✓ '+reopened.w.qa124.persistence());
+   reopened.f.remove();
+   for(const result of update.w.qa124.activities())log('✓ '+result);
+   update.f.remove();
+   for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);
+ }
+ log('すべて成功');
+ }finally{mount.replaceChildren();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);}
+}
+document.querySelector('#run').onclick=async({currentTarget:button})=>{
+ button.disabled=true;try{await run();}catch(e){document.querySelector('#result').textContent+='失敗 '+e.stack;}finally{button.disabled=false;}
+};
+</script></html>
