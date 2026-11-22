@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8">
+<title>もんすたー日和 1.24.29 アイコン確認</title>
+<h1>シロガオのアイコン・自動更新・旧セーブ</h1>
+<button id="run">検証を開始</button><pre id="result" aria-live="polite"></pre><div id="screens"></div>
+<script>
+'use strict';
+const check=(ok,msg)=>{if(!ok)throw Error(msg);};
+const root=new URL('../',location.href);
+const target=new URL('game.html',root);
+const release=new URL('releases/1.24.29/game.html',root);
+const manifestURL=new URL('app.webmanifest',root);
+const approved='8af4f6f7ea0e20f37373910e6c8e6a86a58498a9f11b69526672b65126d8e9e2';
+async function file(url){const r=await fetch(url,{cache:'no-store'});check(r.ok,url+' '+r.status);return r;}
+async function sha(bytes){return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),v=>v.toString(16).padStart(2,'0')).join('');}
+async function image(url,size){const img=new Image();img.src=url;await img.decode();check(img.naturalWidth===size&&img.naturalHeight===size,'アイコン寸法 '+size+'px');}
+async function checkHead(source,address,manifest){
+ const page=new DOMParser().parseFromString(source,'text/html');
+ const icons=[...page.querySelectorAll('head link[rel=icon][data-monster-biyori-app-icon]')];
+ check(page.title.includes('1.24.29')&&icons.length===2,'ゲームの版／タブアイコン');
+ for(const size of [16,32]){
+  const favicon=icons.find(link=>link.getAttribute('sizes')===size+'x'+size);
+  const href=favicon?.getAttribute('href');
+  check(href?.startsWith('data:image/png;base64,')&&favicon.type==='image/png','埋め込みPNG '+size+'px');
+  const a=await(await file(href)).arrayBuffer(),b=await(await file(new URL('app-icons/favicon-'+size+'.png',root))).arrayBuffer();
+  check(await sha(a)===await sha(b),'埋め込みアイコンと配布PNGの一致');
+  await image(href,size);
+ }
+ const setup=[...page.head.querySelectorAll('script')].find(s=>s.textContent.includes('app.webmanifest'));
+ check(setup,'アイコン登録スクリプト');
+ new Function('location','document',setup.textContent)(address,page);
+ check(page.head.querySelector('link[rel=manifest]')?.getAttribute('href')===manifestURL.href,'両HTMLに同じアプリ設定');
+ check(page.head.querySelector('link[rel=apple-touch-icon]')?.getAttribute('href')===new URL('app-icons/icon-192.png',root).href,'タッチ用アイコンの参照');
+ for(const k of ['start_url','id'])check(new URL(manifest[k],manifestURL).href===target.href,'インストール起動先 '+k);
+ check(new URL(manifest.scope,manifestURL).href===root.href&&manifest.display==='standalone','アプリ表示と範囲');
+}
+async function run(){
+ const out=document.querySelector('#result'),mount=document.querySelector('#screens');
+ const log=text=>{out.textContent+=text+'\n';};
+ out.textContent='';
+ const prefix='v12429_qa_'+crypto.randomUUID()+'_';
+ try{
+ const [rootGame,releasedGame,manifest,latest,oldSource,oldTest]=await Promise.all([
+  file(target).then(r=>r.arrayBuffer()),file(release).then(r=>r.arrayBuffer()),
+  file(manifestURL).then(r=>r.json()),file(new URL('latest.json',root)).then(r=>r.json()),
+  file(new URL('releases/1.24.28/game.html',root)).then(r=>r.text()),file('v1.24.21-ranch.html').then(r=>r.text())
+ ]);
+ check(await sha(rootGame)===approved&&await sha(releasedGame)===approved,'ルート／版別HTMLのハッシュ');
+ check(latest.version==='1.24.29'&&latest.sha256===approved&&latest.html_url===release.href,'更新情報が承認版と一致');
+ const current=new TextDecoder().decode(rootGame),other=new TextDecoder().decode(releasedGame);
+ await checkHead(current,target,manifest);await checkHead(other,release,manifest);
+ log('ルート／版別HTML、16px・32pxの埋め込みアイコン、自動更新ハッシュが一致。');
+ check(manifest.name==='もんすたー日和'&&manifest.icons?.length===3,'マニフェストのゲーム名と画像数');
+ for(const [size,purpose] of [[192,'any'],[512,'any'],[512,'maskable']]){
+  const icon=manifest.icons.find(item=>item.sizes===size+'x'+size&&item.purpose===purpose);
+  check(icon?.type==='image/png','インストールアイコンの宣言 '+size+' '+purpose);
+  await image(new URL(icon.src,manifestURL).href,size);
+ }
+ log('192px・512px・512px（マスク対応）の公開PNGを読み込み、起動ページを確認。');
+ const hook=oldTest.slice(oldTest.indexOf('function fixture()'),oldTest.indexOf('function compareYards('));
+ async function open(source,width){
+   const f=document.createElement('iframe');f.title='検証用牧場';f.width=width;f.height=width===390?844:900;
+   const end='})();\n<\/script>';
+   f.srcdoc=source.replaceAll('monster_biyori_',prefix)
+    .replace('<script>','<script>window.requestAnimationFrame=()=>0; window.confirm=()=>true;')
+    .replace(end,()=>hook+'\nfixture();\nwindow.iconQA={save:()=>save(true),checkFrame:()=>{drawWorld(180);return canvas.width>0;}};\n'+end);
+   const ready=new Promise((resolve,reject)=>{f.onload=resolve;f.onerror=reject;});
+   mount.append(f);await ready;
+   const w=f.contentWindow;
+   for(let i=0;i<250&&!w.qa?.ready();i++)await new Promise(r=>setTimeout(r,20));
+   check(w.qa?.ready(),'画像の読み込み');return {w,f};
+ }
+ for(const width of [1366,390]){
+   const seed=await open(oldSource,width);seed.w.qa.seed();seed.f.remove();
+   const old=await open(oldSource,width),snapshot=old.w.qa.snapshot();old.f.remove();
+   const game=await open(current,width);
+   check(game.w.qa.snapshot()===snapshot&&game.w.document.title.includes('1.24.29'),'1.24.28セーブの引き継ぎ');
+   check(width!==390||game.w.document.documentElement.scrollWidth<=391,'スマートフォン幅');
+   check(game.w.iconQA.checkFrame()&&game.w.iconQA.save(),'牧場の描画と保存');
+   game.f.remove();
+   const reread=await open(current,width);
+   check(reread.w.qa.snapshot()===snapshot,'再保存した牧場の読み込み');
+   reread.f.remove();
+   log(width+'px: 旧セーブ、牧場描画、再保存・読み直し成功。');
+   for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);
+ }
+ log('すべて成功');
+ }finally{mount.replaceChildren();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);}
+}
+document.querySelector('#run').onclick=async({currentTarget:button})=>{
+ button.disabled=true;try{await run();}catch(e){document.querySelector('#result').textContent+='失敗 '+e.stack;}finally{button.disabled=false;}
+};
+</script>
