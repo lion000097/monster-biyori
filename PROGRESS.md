@@ -1,8 +1,8 @@
 # もんすたー日和 1.24.22
 
-対象バージョン　1.24.22。基準の公開版は1.24.21。
+対象バージョン　1.24.22。公開済み（1.24.21から更新）。
 
-保存先　GitHub の `lion000097/monster-biyori`、ブランチ `release/1.24.22`。本体は `game.html`、引き継ぎは `PROGRESS.md`。
+保存先　GitHub の `lion000097/monster-biyori`、ブランチ `main` と `release/1.24.22`。本体は `game.html`、引き継ぎは `PROGRESS.md`。
 
 完了事項
 
@@ -18,9 +18,13 @@
 
 保存先の詳細　`tests/v1.24.22-ranch.html` に再実行できる動作確認、`releases/1.24.22/` に版別HTML、配布ZIP、変更前後の比較画像、確認記録を保存。`latest.json` が自動更新先。
 
-残作業　本番の `main` へ反映し、GitHub Pagesから返るHTML・自動更新情報・配布ZIPを照合する。
+公開確認　`e86025d6cf5031b227155a7c4e4ad3fd95711aac` のGitHub Pagesデプロイが成功。2026年11月22日（日本時間）、公開先の通常URLから取得したゲーム本体、版別HTML、配布ZIP、比較画像、自動更新情報が検証済みのデータと一致した。
 
-次の操作　`main` へこの版を反映して公開先を確認する。反映済みの場合は公開確認だけを行う。
+公開先　https://lion000097.github.io/monster-biyori/game.html
+
+残作業　なし。
+
+次の操作　次版は公開済み1.24.22から開始する。
 
 HTML SHA-256　`a4dc9e30c11d910779df916d0860ff1a6c4dfbf74a3dc8ebd0a257da0dd3a0be`
 ZIP SHA-256　`38af5b5d29bc1dabb5fe27797dd4a2fc8226ca07dbfceb9b0bcceccf28ab3997`
