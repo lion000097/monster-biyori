@@ -90,6 +90,7 @@ function placement(){
  return log.join('、');
 }
 function fourDirections(){
+ check(basicHelp().includes('「森の庭だより」の'+types.length+'種類'),'ヘルプに現在の種類数');
  check(!B.lantern250&&!document.querySelector('[data-id="lantern250"]'),'撤回したランタンが建設候補に出ない');
  for(const type of types){
   for(const direction of [0,1,2,3]){
@@ -97,6 +98,7 @@ function fourDirections(){
    const card=$('tabBody').querySelector('[data-action="build"][data-id="'+type+'"]');
    check(card.closest('.build-option').textContent.includes('世界樹 Lv.'+B[type].unlock),'建設一覧の解放Lv '+type);
    card.click();renderFacingPicker();
+   check($('tabBody').textContent.includes('「森の庭だより」の'+types.length+'種類'),'建設の案内に現在の種類数');
    const images=facingButtons.map(c=>c.canvas.toDataURL());
    check(new Set(images).size===4,'向き選択の別々のサムネイル '+type);
    const button=facingButtons.find(c=>c.direction===direction).button;
