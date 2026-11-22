@@ -1283,12 +1283,39 @@ function plotImageRect(b,m=buildingOf(b)) {
   const top=projectGround(b.x,b.y),n=m.w*T;
   return {x:top.x-m.h*T,y:top.y-n+LOT_PIXEL_PAD,w:(m.w+m.h)*T,h:2*n};
 }
+// Window centers in the four original sprites, normalized to a 192px frame.
+const bedroomWindows={
+  home:[[[30,101],[83,124],[129,119],[159,103]],[[36,105],[67,122],[120,121],[156,102]],
+        [[34,102],[72,122],[125,119],[159,103]],[[33,102],[62,119],[111,124],[162,102]]],
+  inn:[[[71,102],[88,109],[127,102]],[[72,106],[108,111],[125,104]],
+       [[69,103],[84,109],[114,110],[132,103]],[[66,103],[109,108],[125,103]]]
+};
+const windowArtCache=new WeakMap();
+function eveningWindows(art,b){
+  const points=bedroomWindows[b.type];
+  if(!points||state.hour<17+(Math.abs(b.id)%3)&&state.hour>=6)return null;
+  if(windowArtCache.has(art))return windowArtCache.get(art);
+  const lit=pixelSprite(art.width,art.height,g=>{
+    const pixels=art.getContext('2d').getImageData(0,0,art.width,art.height),data=pixels.data;
+    const centers=points[validFacing(b.facing)],scale=art.width/192;
+    for(let y=0;y<art.height;y++)for(let x=0;x<art.width;x++){
+      const i=(y*art.width+x)*4,r=data[i],green=data[i+1],blue=data[i+2];
+      if(data[i+3]<200||blue<=r+8||green<=r+5||!centers.some(([cx,cy])=>Math.abs(x/scale-cx)<8&&Math.abs(y/scale-cy)<8))continue;
+      g.fillStyle=green>145?'#fff3ac':green>95?'#ffd06b':'#dc9451';g.fillRect(x,y,1,1);
+    }
+  });
+  windowArtCache.set(art,lit);return lit;
+}
 function drawLot(b,facing,level,preview=false) {
   if(!facilitySheetReady)return;
   const m=buildingOf(b),rect=plotImageRect(b,m);
   const art=b.type==='relicStand'&&!preview?standArt(level,validFacing(facing),displayedRelic(b)):spriteBuildingV161(b.type,level,facing);
   ctx.drawImage(art,rect.x,rect.y,rect.w,rect.h);
-  if(!preview)mapPickItems.push({building:b,art,rect});
+  if(!preview){
+    const lights=eveningWindows(art,b);
+    if(lights)ctx.drawImage(lights,rect.x,rect.y,rect.w,rect.h);
+    mapPickItems.push({building:b,art,rect});
+  }
 }
 function pickMapActorOrFacility(p) {
   for(let i=mapPickItems.length-1;i>=0;i--){const item=mapPickItems[i],r=item.rect;
