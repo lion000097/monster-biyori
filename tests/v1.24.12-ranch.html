@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8">
+<title>もんすたー日和 1.24.12 動作検証</title>
+<h1>もんすたー日和 1.24.12 動作検証</h1>
+<button id="run">検証を開始</button><pre id="result" aria-live="polite"></pre>
+<script>
+'use strict';
+function ranchFixture(){
+  const check=(condition,label)=>{if(!condition)throw Error(label)};
+  function seed(){
+    Object.assign(state,{speed:0,ranchName:'なよ牧場',coins:34567,food:191.5,magic:33,fame:127});
+    state.monsters[1].shiny=true;addCatalogMonster(state.monsters[1]);state.party=[state.monsters[1].id];
+    Object.assign(state.research,{farm:3,train:2,market:1,quest:4,battle:2,guest:1});
+    state.treasures=[0,1];state.adventure.stage=7;state.adventure.clears=6;
+    state.postcards[0]={count:3,day:1,sender:'旅人アン'};
+    save(true);
+  }
+  function snapshot(){
+    return JSON.stringify([state.ranchName,state.coins,state.food,state.magic,state.fame,state.day,state.hour,
+      state.monsters.map(m=>[m.id,m.kind,m.lv,m.xp,m.shiny,m.trait,m.bond,m.energy]),state.restingMonsters,state.party,state.paths,
+      state.staff.map(w=>[w.id,w.name,w.job,w.level]),state.buildings.map(b=>[b.id,b.type,b.level,b.x,b.y,b.facing]),
+      state.research,state.adventure,state.catalog,state.treasures,state.materialStock211,state.postcards,state.zones]);
+  }
+  function life(){
+    state.monsters=[];state.staff=[];state.guests=[];state.buildings=[];state.ponds=[];state.paths=[];
+    state.clearedScenery=[];state.clearedPonds=[];state.zones=[0,1,4,5];state.removedDefaultPaths=[...DEFAULT_PATH_KEYS];
+    for(let x=0;x<22;x++)for(let y=0;y<15;y++){
+      const k=keyXY(x,y);state.paths.push(k);state.clearedScenery.push(k);state.clearedPonds.push(k);
+    }
+    const home={type:'home',x:7,y:6,facing:0,id:state.nextId++,level:1};state.buildings.push(home);
+    const door=entranceRoads(home)[0],m=makeMonster(state.nextId++,0,...door);
+    state.monsters=[m];state.speed=1;state.day=2;state.hour=5;
+    m.trait=TRAITS.findIndex(t=>t.name==='おっとり');
+    startFacilityVisit(m,home,{pt:door,path:[]});
+    for(let i=0;i<100&&!m.indoorRest;i++)advanceFacilityVisit(m,.1);
+    advanceFacilityVisit(m,6);check(m.indoorRest,'sleeps until sunrise');
+    state.hour=6;
+    for(let i=0;i<100&&!morningPoses.has(m);i++)advanceFacilityVisit(m,.1);
+    check(morningPoses.get(m)?.trait==='おっとり','relaxed wake');
+    updateMonsterWalks139(1.5);check(morningPoses.has(m),'second yawn');drawWorld(500);
+    updateMonsterWalks139(2.2);check(!morningPoses.has(m),'wake ends');
+    state.day++;m.trait=0;startMorningPose(m);updateMonsterWalks139(1.2);
+    check(monsterWalkTimer139(m).morningRun>0&&m.path.length,'energetic departure');
+    const checks=[];
+    for(const type of ['home','inn'])for(const facing of [0,1,2,3]){
+      const building={type,id:5,facing},art=spriteBuildingV161(type,1,facing);
+      state.hour=18;check(!eveningWindows(art,building),'staggered lights');
+      state.hour=20;const mask=eveningWindows(art,building);
+      const data=mask.getContext('2d').getImageData(0,0,mask.width,mask.height).data;
+      let count=0;for(let i=3;i<data.length;i+=4)if(data[i])count++;
+      check(count>=4,'lit glass '+type+' '+facing+' '+count);checks.push(count);
+      state.hour=6;check(!eveningWindows(art,building),'lights turn off');
+    }
+    state.monsters=[makeMonster(state.nextId++,1,7,9)];const friend=state.monsters[0];
+    const worker=makeStaff(state.nextId++,'keeper',8,9);state.staff=[worker];worker.path=[[7,9]];
+    state.hour=12;state.day=2;nextGreeting=0;updateGreetings(.1);
+    check(greetings.get(friend)?.worker===worker,'nearby encounter');
+    const pos=[worker.x,worker.y];stepActors(.1);check(worker.x===pos[0]&&worker.y===pos[1],'worker waits');
+    updateGreetings(1);drawWorld(900);updateGreetings(1.5);
+    check(!greetings.has(friend)&&!greetings.has(worker),'both leave');state.staff=[];
+    state.day=15;updateSeasonWalks(.1);nextLeaf=0;updateSeasonWalks(.1);
+    check(leafStop?.monster===friend&&residentRoad(...leafStop.from),'autumn leaf');updateSeasonWalks(1.7);
+    drawWorld(1200);check(leafStop.time>=1.6,'leaf stopped at paw');updateSeasonWalks(1.3);check(!leafStop,'leaf ends');
+    state.day=22;friend.path=[[9,9]];updateSeasonWalks(.05);friend.x+=.5;updateSeasonWalks(.1);
+    check(footprints.length===1,'winter track');drawWorld(1700);
+    friend.path=[];updateSeasonWalks(6.1);check(!footprints.length,'print fades');
+    state.day=1;updateSeasonWalks(.1);check(!leafStop&&!footprints.length,'spring reset');
+  }
+  window.ranchQA={ready:()=>villageSheetReady&&facilitySheetReady,seed,snapshot,life};
+}
+async function verify(width,previous,current){
+  const prefix='qa12412_'+crypto.randomUUID()+'_',errors=[];let frame;
+  async function open(html){
+    frame?.remove();frame=document.createElement('iframe');frame.width=width;frame.height=width===390?844:900;
+    const end='})();\n<\/script>';
+    if(!html.includes(end))throw Error('missing game entry');
+    frame.srcdoc=html.replaceAll('monster_biyori_',prefix).replace(end,()=> '('+ranchFixture.toString()+')();\n'+end);
+    const ready=new Promise(resolve=>frame.onload=resolve);document.body.append(frame);await ready;
+    frame.contentWindow.addEventListener('error',e=>errors.push(e.message));
+    const qa=frame.contentWindow.ranchQA;
+    for(let n=0;qa&&!qa.ready()&&n<200;n++)await new Promise(resolve=>setTimeout(resolve,30));
+    if(!qa?.ready())throw Error('game or sprites failed to load');return qa;
+  }
+  try{
+    let qa=await open(previous);qa.seed();qa=await open(previous);const legacy=qa.snapshot();
+    qa=await open(current);
+    if(!frame.contentDocument.title.includes('Ver.1.24.12'))throw Error('wrong game version');
+    const currentSave=qa.snapshot(),before=JSON.parse(legacy),after=JSON.parse(currentSave);
+    if(currentSave!==legacy){
+      const i=before.findIndex((v,i)=>JSON.stringify(v)!==JSON.stringify(after[i]));
+      throw Error('old save field '+i+' / '+JSON.stringify(before[i])+' / '+JSON.stringify(after[i]));
+    }
+    if(frame.contentDocument.documentElement.scrollWidth>frame.contentWindow.innerWidth+1)throw Error('layout width');
+    qa.life();
+    if(errors.length)throw Error(errors.join(' / '));
+    document.querySelector('#result').textContent+=width+'px 成功\n';
+  }finally{
+    frame?.remove();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);
+  }
+}
+document.querySelector('#run').onclick=async({currentTarget})=>{
+  currentTarget.disabled=true;const output=document.querySelector('#result');output.textContent='';
+  try{
+    const pages=await Promise.all(['../releases/1.24.11/game.html','../releases/1.24.12/game.html'].map(async url=>{
+      const response=await fetch(url);if(!response.ok)throw Error(url);return response.text();
+    }));
+    for(const width of [1366,390])await verify(width,...pages);
+    output.textContent+='すべて成功';
+  }catch(e){output.textContent+='失敗 '+e.stack;}
+  finally{currentTarget.disabled=false;}
+};
+</script></html>

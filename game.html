@@ -1293,7 +1293,7 @@ const bedroomWindows={
 const windowArtCache=new WeakMap();
 function eveningWindows(art,b){
   const points=bedroomWindows[b.type];
-  if(!points||state.hour<17+(Math.abs(b.id)%3)&&state.hour>=6)return null;
+  if(!points||(state.hour<17+(Math.abs(b.id)%3)&&state.hour>=6))return null;
   if(windowArtCache.has(art))return windowArtCache.get(art);
   const lit=pixelSprite(art.width,art.height,g=>{
     const pixels=art.getContext('2d').getImageData(0,0,art.width,art.height),data=pixels.data;
@@ -1360,7 +1360,7 @@ function drawMapActor(o,monster,now) {
   if(wake){
     const stretch=Math.sin(Math.PI*Math.min(1,wake.time/1.1));
     height+=Math.round(stretch*5);
-    if(wake.time>1.1&&wake.trait==='おっとり')height=Math.round(size*.83);
+    if(wake.time>1.1&&wake.trait==='おっとり')height=Math.round(size*(.83+.07*Math.sin((wake.time-1.1)*5.5)));
   }
   if(timer?.morningRun>0&&o.path?.length)dy-=Math.round(Math.abs(Math.sin(timer.morningRun*14))*5);
   const greeting=greetings.get(o);
@@ -5672,7 +5672,7 @@ function startMonsterPastime(m,timer){
   m.act='💤 お昼寝中';return true;
  }
  if(roll>=.36)return false;
- const nearby=state.monsters.filter(b=>b!==m&&Math.hypot(b.x-m.x,b.y-m.y)<=4&&freeForPlay(b));
+ const nearby=state.monsters.filter(b=>b!==m&&!greetings.has(b)&&!morningPoses.has(b)&&leafStop?.monster!==b&&Math.hypot(b.x-m.x,b.y-m.y)<=4&&freeForPlay(b));
  if(!nearby.length)return false;
  const mate=rnd(nearby),waitAt=[Math.round(mate.x),Math.round(mate.y)];
  const approach=pathTo(m.x,m.y,...waitAt,true);
@@ -7595,6 +7595,7 @@ function stepPlotWalk(actor,site,door,dt,seconds,onArrival,onServed){
       if(v.bedroom)enterIndoorRest(actor,v);
     }
   }else if(v.phase==='use'){
+    if(v.bedroom&&actor.kind!==undefined&&state.hour>=4&&state.hour<6)return 'use';
     v.remaining=Math.max(0,v.remaining-dt);
     if(actor.indoorRest)actor.indoorRest.remaining=v.remaining;
     if(v.remaining===0){
