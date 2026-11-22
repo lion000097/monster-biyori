@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8">
+<title>もんすたー日和 1.24.31 動作確認</title>
+<h1>ランプ・しろがおの風見飾り：道なし設置</h1>
+<button id="run">検証を開始</button>
+<pre id="result" aria-live="polite"></pre>
+<div id="screens"></div>
+<script>
+'use strict';
+function fixture(){
+window.qaRoadOptional131=()=>{
+ const check=(ok,label)=>{if(!ok)throw Error(label)};
+ const park=()=>{
+  state.buildings=[];state.staff=[];state.monsters=[];state.guests=[];state.ponds=[];
+  state.paths=[];state.removedDefaultPaths=[...DEFAULT_PATH_KEYS];state.clearedScenery=[];state.clearedPonds=[];
+  state.zones=[0,1,4,5];state.stoneTiles={};state.speed=0;state.coins=100000;state.villageLv=state.worldTreeLevel=20;
+  for(let x=0;x<=21;x++)for(let y=0;y<=17;y++){state.clearedScenery.push(keyXY(x,y));state.clearedPonds.push(keyXY(x,y));}
+  buildMode=null;moveMode=null;placementFacing=0;
+ };
+ for(const [i,type] of ['lamp211','shirovane130'].entries()){
+  park();const x=4+i*4,y=4;
+  const due=constructionCost(type);
+  place(type,x,y);
+  let prop=getBuildingAt(x,y);
+  check(prop?.type===type&&state.coins===100000-due,'isolated grass placement and normal price '+type);
+  check(!entranceRoads(prop).length&&!isPath(x,y),'isolated prop has no invented road '+type);
+  for(const next of [1,2,3,0]){
+   setFacilityFacing({building:prop,direction:validFacing(prop.facing),preview:false},next);
+   check(prop.facing===next,'rotate away from road '+type+'/'+next);
+  }
+  startMoving(prop.id);placementFacing=3;moveBuilding(x,9);
+  check(getBuildingAt(x,9)===prop&&!getBuildingAt(x,y)&&prop.facing===3,'relocate to isolated grass '+type);
+  const id=prop.id;
+  check(save(true)&&load(),'roundtrip '+type);
+  prop=state.buildings.find(b=>b.id===id);
+  check(prop&&prop.facing===3&&!entranceRoads(prop).length,'isolated facing intact on reload '+type);
+  putTerrain('road',x+1,9);
+  check(residentRoad(x+1,9)&&entranceRoads(prop).length,'add actual front road '+type);
+  putTerrain('roadErase',x+1,9);
+  check(!isPath(x+1,9)&&!entranceRoads(prop).length,'erase final front road without trapping prop '+type);
+  putTerrain('stone',x,9);
+  check(isPath(x,9)&&state.stoneTiles[keyXY(x,9)]===true,'existing road-underlay brush still works '+type);
+  putTerrain('roadErase',x,9);
+  check(!isPath(x,9)&&getBuildingAt(x,9)===prop,'road-underlay erase preserves prop '+type);
+  putTerrain('road',x-1,9);
+  putTerrain('roadErase',x-1,9);
+  check(!residentRoad(x-1,9),'optional side road may also be erased');
+  const n=state.buildings.length,coins=state.coins;
+  placementFacing=0;place(type,x,9);
+  check(state.buildings.length===n&&state.coins===coins,'overlap rejected without charge '+type);
+  putTerrain('pond',x+2,9);check(isPond(x+2,9),'pond setup');
+  place(type,x+2,9);
+  check(!getBuildingAt(x+2,9)&&state.coins===coins,'water overlap rejected '+type);
+ }
+ park();
+ for(const t of ['farm','bench211','onsen130']){
+  const n=state.buildings.length,coins=state.coins;
+  place(t,6,5);check(state.buildings.length===n&&state.coins===coins,'other facility still requires eligible road '+t);
+ }
+ state.paths.push('6,7');
+ place('farm',6,5);
+ const farm=getBuildingAt(6,5);
+ check(farm?.type==='farm','farm positive control');
+ setFacilityFacing({building:farm,direction:0,preview:false},3);check(farm.facing===0,'farm rotates only toward road');
+ startMoving(farm.id);placementFacing=0;moveBuilding(9,9);
+ check(farm.x===6&&farm.y===5,'ordinary farm may not relocate to roadless lot');
+ cancelMoving();
+ placementFacing=3;place('lamp211',5,7);check(getBuildingAt(5,7)?.type==='lamp211','shared optional lamp control');
+ putTerrain('roadErase',6,7);
+ check(isPath(6,7),'ordinary farm keeps its last frontage road');
+ return 'lamp/vane isolated builds, all turns, move, saves, last-road removal, floor paint/erase, no overlap; ordinary buildings still guarded';
+};
+ function add(type,x,y,level=1){const b={id:state.nextId++,type,x,y,level,facing:0};state.buildings.push(b);return b;}
+ function level(n){state.villageLv=state.worldTreeLevel=site('worldtree').level=n;}
+ function seed(){
+  state.speed=0;state.ranchName='洞窟の牧場';state.food=317.25;state.coins=41000;state.magic=130;state.day=17;state.hour=14;
+  level(5);state.villageXp=500;state.reserveRareMaterials=false;state.expeditionAuto213=false;
+  add('lamp211',5,6).facing=1;add('shirovane130',6,8);add('onsen130',12,7).facing=2;state.paths.push('6,8');state.stoneTiles={'6,8':true};
+  add('guild212',13,6,3).constructionPaid=1150;add('expeditionOffice',7,2,4);
+  state.treasures=[0,10];state.treasureStock={0:2,10:1};state.materialStock211[0]=85;state.materialStock211[5]=17;ensureMaterials211();
+  state.economy.ordersDone=4;state.economy.eventDay=16;state.economy.treasureOrdersDone=2;state.exploreProgress=37;
+  state.paths.push('4,6');state.removedDefaultPaths.push('10,12');
+  save(true);
+ }
+ function snapshot(){return JSON.stringify([state.ranchName,state.speed,state.day,state.hour,state.coins,state.food,state.magic,
+  state.villageLv,state.villageXp,state.buildings.map(b=>[b.id,b.type,b.x,b.y,b.facing,b.level,investedIn(b)]),
+  state.paths,state.stoneTiles,state.removedDefaultPaths,state.treasures,state.reserveRareMaterials,state.materialStock211,state.stock,state.treasureStock,
+  state.monsters.map(m=>[m.id,m.name,m.kind,m.lv,m.xp]),state.staff.map(w=>[w.id,w.name,w.job,w.level,w.work]),
+  state.expeditionAuto213,state.exploreProgress,state.economy.ordersDone,state.economy.treasureOrdersDone,state.economy.eventDay,state.research,state.party]);}
+
+ window.qa131={seed,snapshot,ready:()=>Boolean(colorIndices&&lionReady),road:window.qaRoadOptional131};
+}
+const out=document.querySelector('#result'),mount=document.querySelector('#screens');
+const check=(ok,label)=>{if(!ok)throw Error(label);};
+const log=line=>out.textContent+=line+'\n';
+document.querySelector('#run').onclick=async({currentTarget:button})=>{
+ button.disabled=true;out.textContent='';
+ const prefix='v12431_qa_'+crypto.randomUUID()+'_';
+ const clear=()=>{for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);};
+ try{
+  async function read(path){const r=await fetch(path,{cache:'no-store'});check(r.ok,path+' HTTP '+r.status);return r.text();}
+  const [prior,latest]=await Promise.all([read('../releases/1.24.30/game.html'),read('../game.html')]);
+  async function open(source,width){
+    const f=document.createElement('iframe');f.title='検証用牧場';f.width=width;f.height=width===390?844:900;
+    const end='})();\n<\/script>';
+    check(source.split(end).length===2,'ゲームの初期化スクリプト');
+    f.srcdoc=source.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0;window.confirm=()=>true;')
+      .replace(end,()=>fixture.toString()+'\nfixture();\n'+end);
+    const ready=new Promise((resolve,reject)=>{f.onload=resolve;f.onerror=reject;});mount.append(f);await ready;
+    const w=f.contentWindow;
+    for(let i=0;i<250&&!w.qa131?.ready();i++)await new Promise(r=>setTimeout(r,20));
+    check(w.qa131?.ready(),'画像の読み込み');return {w,f};
+  }
+  for(const width of [1366,390]){
+    clear();const seed=await open(prior,width);seed.w.qa131.seed();seed.f.remove();
+    const old=await open(prior,width);const snapshot=old.w.qa131.snapshot();old.f.remove();
+    const current=await open(latest,width);
+    check(current.w.document.title.includes('1.24.31'),'ゲームの版番号');
+    check(current.w.qa131.snapshot()===snapshot,'1.24.30セーブの引き継ぎ');
+    check(width!==390||current.w.document.documentElement.scrollWidth<=391,'スマートフォン幅');
+    current.w.qa131.road();current.f.remove();
+    log(width+'px: 旧セーブ、道なし新設・全4方向・移設、最後の道や石畳の撤去、重複・水面・別施設の道制限');
+  }
+  log('すべて成功');
+ }catch(e){log('失敗 '+e.stack);}finally{mount.replaceChildren();clear();button.disabled=false;}
+};
+</script></html>
