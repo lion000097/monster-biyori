@@ -315,6 +315,7 @@ html.monster-detail-open{overflow:hidden}
   <h4 id="treeNextLevel"></h4><ul id="treeTargets"></ul>
   <div class="tree-cost"><span>成長費用</span><strong><span aria-label="おかね">🪙</span> <span id="treeCostCoins"></span></strong><strong><span aria-label="キラキラ">✨</span> <span id="treeCostMagic"></span></strong></div>
   <details class="tree-benefits" id="treeBenefits"><summary>次のレベルで増えるもの</summary><div id="treeBenefitsBody"></div></details>
+  <button type="button" class="small-button secondary" data-v193="festival">🎊 牧場まつり</button>
   <button id="treeGrow" class="small-button" data-v193="grow" hidden>世界樹を成長させる</button>
 </section><div class="progress-section"><div class="progress-top"><span>🌟 牧場ランク <strong id="rankName">みならい</strong></span><span id="rankProgress">0 / 20</span></div><div class="progress-track"><div class="progress-bar" id="rankBar" style="width:10%"></div></div><div class="progress-top" style="margin-top:10px"><span>🐾 モンスター</span><span id="countInfo">4 / 6</span></div><div class="progress-top" style="margin-top:5px"><span>🧑‍🌾 市民</span><span id="staffCount">2 / 4</span></div></div></section>
 <section class="panel"><div class="panel-heading"><h2>📜 おまかせミッション</h2><span class="chip">報酬も自動</span></div><div class="quests" id="quests"></div><div class="tip-box"><strong>💡 ほうっておいても成長！</strong><br>仲間たちは食べて・遊んで・働いて、自分で行動するよ。施設の配置と育成方針だけ決めよう。</div></section>
@@ -706,13 +707,18 @@ function currentMarketOrder() {
    reward:ranchIncome(base.reward*scale*(1+.02*(level-1)))};
 }
 function completeOrder(){const order=currentMarketOrder(),rewards=order.reward;if(spendableStock()<order.stock||state.food<order.food)return toast('注文に必要な素材とごはんが足りないよ','error');spendMaterials211(order.stock);state.food-=order.food;const earned=gainCoins(Math.round(rewards));state.fame+=order.fame;state.economy.ordersDone++;villageAdd(32);message(`📦 ${order.name}の注文達成！ +${earned}G、評判+${order.fame}`,'success');save(true);renderUI(true)}
-function hostFestival(){const cost=420+Math.floor(state.villageLv*35),food=24;if(state.economy.eventDay===state.day)return toast('今日はお祭りを開催済みだよ','error');if(state.coins<cost||state.food<food)return toast(`開催には${cost}Gとごはん${food}が必要だよ`,'error');state.coins-=cost;bookExpense(cost);state.food-=food;state.economy.eventDay=state.day;state.economy.festival=true;const bonus=14+buildingLevel('park')*3+buildingLevel('tower')*4;state.fame+=bonus;villageAdd(65);for(const m of state.monsters)m.happy=clamp(m.happy+17,0,100);for(const w of state.staff)w.morale=clamp(w.morale+16,0,100);message('🎉 牧場まつり大盛況！ 評判+'+bonus+'・村の皆が幸せ！','success');save(true);renderUI(true)}
+function festivalCost(){return 420+Math.floor(state.villageLv*35)}
+function festivalPanel(){
+ const cost=festivalCost(),held=state.economy.eventDay===state.day;
+ return `<section class="management-card" id="treeFestival"><h3>🎊 牧場まつり</h3><p>1日1回、世界樹の下でお祭りを開催できるよ。村の評判、仲間のごきげん、市民のやる気が上がるよ。</p><button type="button" class="wide-button" data-action="festival" ${held||state.coins<cost||state.food<24?'disabled':''}>${held?'本日は開催済み':'開催する（'+cost+'G ＋ 🍎24）'}</button></section>`;
+}
+function hostFestival(){if(!state.buildings.some(b=>b.id===selectedBuilding&&b.type==='worldtree'))return;
+ const cost=festivalCost(),food=24;if(state.economy.eventDay===state.day)return toast('今日はお祭りを開催済みだよ','error');if(state.coins<cost||state.food<food)return toast(`開催には${cost}Gとごはん${food}が必要だよ`,'error');state.coins-=cost;bookExpense(cost);state.food-=food;state.economy.eventDay=state.day;state.economy.festival=true;const bonus=14+buildingLevel('park')*3+buildingLevel('tower')*4;state.fame+=bonus;villageAdd(65);for(const m of state.monsters)m.happy=clamp(m.happy+17,0,100);for(const w of state.staff)w.morale=clamp(w.morale+16,0,100);message('🎉 牧場まつり大盛況！ 評判+'+bonus+'・村の皆が幸せ！','success');save(true);renderUI(true)}
 function econHTML(){const usable=spendableStock(), e=state.economy;const chart=e.history.slice(-10);const max=Math.max(1,...chart.map(d=>Math.abs(d.income-d.expense)));const order=currentMarketOrder(),rewards=order.reward;
  let html=`<div class="info-card"><strong>📊 経営ダッシュボード</strong><br>${seasonInfo().icon} ${seasonInfo().name} / ${weatherInfo().icon} ${weatherInfo().name}　来客・収穫に影響<br>今までの来客 ${e.totalVisitors}人　注文達成 ${e.ordersDone}回<br>職員の給料 ${staffWages()}G / 日${ranchAid(state.villageLv).daily ? '<br>🌱 牧場支援金 ＋'+ranchAid(state.villageLv).daily+'G / 日（ゲーム内の深夜0時）・建物強化費 '+ranchAid(state.villageLv).discount*100+'%引き' : ''}</div>`;
  html+=`<div class="management-card"><h3>💰 収支と履歴</h3><div class="stat-row"><span>本日の収入</span><strong>+${num(e.income)}G</strong></div><div class="stat-row"><span>本日の支出</span><strong>−${num(e.expense)}G</strong></div><div class="stat-row"><span>本日の収支</span><strong style="color:${e.income-e.expense>=0?'#298c75':'#c67c65'}">${e.income-e.expense>=0?'+':''}${num(e.income-e.expense)}G</strong></div><div class="stat-row"><span>前日の収支</span><strong>${num(e.lastIncome-e.lastExpense)}G</strong></div><p>直近${chart.length}日分の純利益（赤は赤字）</p><div class="econ-chart">${chart.length?chart.map(d=>{let v=d.income-d.expense;return `<span class="${v<0?'loss':''}" title="${d.day}日目：${Math.round(v)}G" data-value="${Math.round(v)}" style="height:${Math.max(7,Math.abs(v)/max*70)}px"></span>`}).join(''):'<small>ゲーム内で1日経つと履歴が増えるよ</small>'}</div></div>`;
  html+=reservePanel();
  html+=`<div class="management-card"><h3>📮 商隊からの注文</h3><p>注文に合わせて素材やごはんを貯めて、まとめて納品しよう。</p><strong>${order.name}</strong><div class="stat-row"><span>📦 納品できる素材</span><strong>${Math.floor(usable)} / ${order.stock}</strong></div><div class="stat-row"><span>🍎 ごはん</span><strong>${Math.floor(state.food)} / ${order.food}</strong></div><button class="wide-button" data-action="completeOrder" ${usable<order.stock||state.food<order.food?'disabled':''}>納品する　報酬 ${rewards}G</button></div>`;
- const festcost=420+Math.floor(state.villageLv*35);html+=`<div class="management-card"><h3>🎊 牧場まつり</h3><p>1日1回。村の評判・仲間のごきげん・従業員のやる気を上げるよ。</p><button class="wide-button" data-action="festival" ${state.coins<festcost||state.food<24||e.eventDay===state.day?'disabled':''}>${e.eventDay===state.day?'本日は開催済み':'開催する（'+festcost+'G + 🍎24）'}</button></div>`;
  html+=`<div class="management-card"><h3>🏪 地域経済</h3><div class="stat-row"><span>宿・カフェ・展望台</span><strong>${buildingLevel('inn')} / ${buildingLevel('cafe')} / ${buildingLevel('tower')}</strong></div><div class="stat-row"><span>工房のおまもり</span><strong>🧿 ${state.charms}個</strong></div><div class="stat-row"><span>現在の来客数</span><strong>${state.guests.length}人</strong></div></div>`;
  return html;
 }
@@ -1622,6 +1628,7 @@ function stepActors(dt){for(let a of [...state.monsters,...state.staff]){if(!Arr
 function selectMapBuilding(b){
   selectedBuilding=b.id;selectedMonster=null;tab='build';renderUI(true);
   if(b.type==='expeditionOffice')expeditionPanel?.scrollIntoView({block:'nearest'});
+  if(b.type==='worldtree')$('treeFestival')?.scrollIntoView({block:'nearest'});
   toast(`${B[b.type].icon} ${B[b.type].name} Lv.${b.level}`);
 }
 function onMapClick(e){const p=canvasCell(e);
@@ -3528,6 +3535,10 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('[data-v193]');
   if(!b)return;
   if(b.dataset.v193==='grow')growWorldTree193();
+  if(b.dataset.v193==='festival'){
+    const tree=state.buildings.find(v=>v.type==='worldtree');
+    if(tree)selectMapBuilding(tree);
+  }
   if(b.dataset.v193==='focus'){
     const tree=state.buildings.find(v=>v.type==='worldtree');
     if(tree){selectedBuilding=tree.id;tab='build';renderUI(true)}
@@ -5977,6 +5988,7 @@ renderTab=function(){
  if(tab==='adventure')$('tabBody').insertAdjacentHTML('afterbegin','<p class="option-desc">自動遠征は、世界樹Lv.3で建てられる「遠征所」から出発できるよ。</p>');
  if(tab==='build'){
   const selected=state.buildings.find(b=>b.id===selectedBuilding);
+  if(selected?.type==='worldtree')$('tabBody').insertAdjacentHTML('afterbegin',festivalPanel());
   if(selected?.type==='expeditionOffice'){
    $('tabBody').prepend(expeditionPanel213());
    updateExpeditionPanel();
