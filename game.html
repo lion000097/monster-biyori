@@ -617,11 +617,12 @@ function validRanchName(value) {
   const name = typeof value === 'string' ? value.trim() : '';
   return name && [...name].length <= RANCH_NAME_LIMIT ? name : '';
 }
-function initial(){return {version:1,ranchName:DEFAULT_RANCH_NAME,stoneTiles:{},talentFruit:0,ranchPace1313:true,restingMonsters:[],pendingExploreEgg:null,reserveRareMaterials:true,clearedScenery:[],coins:910,food:88,stock:5,magic:12,fame:9,day:1,hour:8,ticks:0,speed:1,buildings:[{id:1,type:'farm',x:3,y:3,level:1},{id:2,type:'home',x:8,y:3,level:1}],monsters:[makeMonster(1,0,7,9),makeMonster(2,1,12,9),makeMonster(3,2,15,10)],staff:[makeStaff(5,'keeper',10,9),makeStaff(6,'gather',11,7)],eggs:[],villageLv:1,villageXp:0,zones:[0,1,4,5],catalog:{friends:[0,1,2],shinies:[],enemies:[],defeated:[],citizens:[]},adventure:{stage:1,clears:0,auto:false,cooldown:0},battle:null,research:{farm:0,train:0,market:0,quest:0},metrics:{food:0,coins:0,level:0,sell:0,days:0,build:0,explore:0,hatch:0},quests:[],nextId:7,questSequence:0,exploreProgress:0,springProgress:0,log:[],createdAt:Date.now(),savedAt:Date.now()}}
+function initial(){return {version:1,ranchName:DEFAULT_RANCH_NAME,stoneTiles:{},talentFruit:0,ranchPace1313:true,guildPricesUpdated:true,restingMonsters:[],pendingExploreEgg:null,reserveRareMaterials:true,clearedScenery:[],coins:910,food:88,stock:5,magic:12,fame:9,day:1,hour:8,ticks:0,speed:1,buildings:[{id:1,type:'farm',x:3,y:3,level:1},{id:2,type:'home',x:8,y:3,level:1}],monsters:[makeMonster(1,0,7,9),makeMonster(2,1,12,9),makeMonster(3,2,15,10)],staff:[makeStaff(5,'keeper',10,9),makeStaff(6,'gather',11,7)],eggs:[],villageLv:1,villageXp:0,zones:[0,1,4,5],catalog:{friends:[0,1,2],shinies:[],enemies:[],defeated:[],citizens:[]},adventure:{stage:1,clears:0,auto:false,cooldown:0},battle:null,research:{farm:0,train:0,market:0,quest:0},metrics:{food:0,coins:0,level:0,sell:0,days:0,build:0,explore:0,hatch:0},quests:[],nextId:7,questSequence:0,exploreProgress:0,springProgress:0,log:[],createdAt:Date.now(),savedAt:Date.now()}}
 function makeMonster(id,kind,x,y){return {id,kind,iv:{hp:rollTalentIV(),attack:rollTalentIV(),defense:rollTalentIV()},name:rnd(names),shiny:false,lv:1,xp:0,happy:83+Math.random()*16,bond:10+Math.random()*12,energy:85,x,y,path:[],produce:Math.random()*6,bob:Math.random()*6,act:'あそぶ',trait:Math.floor(Math.random()*TRAITS.length),element:KIND_ELEMENTS[kind],equip:false,trainedDay:0}}
 function makeStaff(id,job,x,y){const gender=Math.random()<.5?'男':'女';return {id,name:rnd(gender==='男'?MALE_NAMES:FEMALE_NAMES),gender,job,x,y,path:[],bob:Math.random()*6,act:'仕事中',level:1,work:0,workXp:0,morale:85,fatigue:8,mastery:{keeper:0,gather:0,sell:0,study:0,explore:0}}}
 
 function ensureAdvanced(){
+ migrateGuildPrices();
  state.economy=Object.assign({day:state.day,income:0,expense:0,lastIncome:0,lastExpense:0,history:[],visitors:0,totalVisitors:0,ordersDone:0,eventDay:0,festival:false},state.economy||{});
  state.party=Array.isArray(state.party)?state.party.filter(n=>state.monsters.some(m=>m.id===n)).slice(0,3):[];
  state.charms=Math.max(0,Number(state.charms)||0);
@@ -699,14 +700,28 @@ function ranchIncome(base) {
  const bonus=level<=3?.15:level<=6?.10:level<=10?.06:.03;
  return Math.round(base*(1+bonus));
 }
+function highestGuildLevel(){
+ return state.buildings.reduce((best,b)=>b.type==='guild212'?Math.max(best,b.level):best,0);
+}
+function guildOrderBonus(level){return Math.min(20,Math.max(0,level-1)*2)}
+function guildOrderReward(base){
+ return Math.round(base*(1+guildOrderBonus(highestGuildLevel())/100));
+}
+function atGuild(){
+ return tab==='build'&&state.buildings.some(b=>b.type==='guild212'&&b.id===selectedBuilding);
+}
 function currentMarketOrder() {
  const base=MARKET_ORDERS[state.economy.ordersDone % MARKET_ORDERS.length];
  const level=Math.min(30,state.villageLv);
  const scale=1+.10*Math.pow(Math.max(0,level-6),1.25);
  return {...base,stock:Math.round(base.stock*scale),food:Math.round(base.food*scale),
-   reward:ranchIncome(base.reward*scale*(1+.02*(level-1)))};
+   reward:guildOrderReward(ranchIncome(base.reward*scale*(1+.02*(level-1))))};
 }
-function completeOrder(){const order=currentMarketOrder(),rewards=order.reward;if(spendableStock()<order.stock||state.food<order.food)return toast('注文に必要な素材とごはんが足りないよ','error');spendMaterials211(order.stock);state.food-=order.food;const earned=gainCoins(Math.round(rewards));state.fame+=order.fame;state.economy.ordersDone++;villageAdd(32);message(`📦 ${order.name}の注文達成！ +${earned}G、評判+${order.fame}`,'success');save(true);renderUI(true)}
+function completeOrder(sequence){if(!atGuild()||sequence!==state.economy.ordersDone)return;const order=currentMarketOrder(),rewards=order.reward;if(spendableStock()<order.stock||state.food<order.food)return toast('注文に必要な素材とごはんが足りないよ','error');spendMaterials211(order.stock);state.food-=order.food;const earned=gainCoins(Math.round(rewards));state.fame+=order.fame;state.economy.ordersDone++;villageAdd(32);message(`📦 ${order.name}の注文達成！ +${earned}G、評判+${order.fame}`,'success');save(true);renderUI(true)}
+function guildOrderPanel(){
+ const usable=spendableStock(),order=currentMarketOrder();
+ return `<div class="management-card" id="guildOrders"><h3>📮 商隊からの注文</h3><p>注文に合わせて素材やごはんを貯めて、まとめて納品しよう。</p><strong>${order.name}</strong><div class="stat-row"><span>📦 納品できる素材</span><strong>${Math.floor(usable)} / ${order.stock}</strong></div><div class="stat-row"><span>🍎 ごはん</span><strong>${Math.floor(state.food)} / ${order.food}</strong></div><button class="wide-button" data-action="completeOrder" data-id="${state.economy.ordersDone}" ${usable<order.stock||state.food<order.food?'disabled':''}>納品する　報酬 ${order.reward}G</button></div>`;
+}
 function festivalCost(){return 420+Math.floor(state.villageLv*35)}
 function festivalPanel(){
  const cost=festivalCost(),held=state.economy.eventDay===state.day;
@@ -714,11 +729,10 @@ function festivalPanel(){
 }
 function hostFestival(){if(!state.buildings.some(b=>b.id===selectedBuilding&&b.type==='worldtree'))return;
  const cost=festivalCost(),food=24;if(state.economy.eventDay===state.day)return toast('今日はお祭りを開催済みだよ','error');if(state.coins<cost||state.food<food)return toast(`開催には${cost}Gとごはん${food}が必要だよ`,'error');state.coins-=cost;bookExpense(cost);state.food-=food;state.economy.eventDay=state.day;state.economy.festival=true;const bonus=14+buildingLevel('park')*3+buildingLevel('tower')*4;state.fame+=bonus;villageAdd(65);for(const m of state.monsters)m.happy=clamp(m.happy+17,0,100);for(const w of state.staff)w.morale=clamp(w.morale+16,0,100);message('🎉 牧場まつり大盛況！ 評判+'+bonus+'・村の皆が幸せ！','success');save(true);renderUI(true)}
-function econHTML(){const usable=spendableStock(), e=state.economy;const chart=e.history.slice(-10);const max=Math.max(1,...chart.map(d=>Math.abs(d.income-d.expense)));const order=currentMarketOrder(),rewards=order.reward;
+function econHTML(){const e=state.economy;const chart=e.history.slice(-10);const max=Math.max(1,...chart.map(d=>Math.abs(d.income-d.expense)));
  let html=`<div class="info-card"><strong>📊 経営ダッシュボード</strong><br>${seasonInfo().icon} ${seasonInfo().name} / ${weatherInfo().icon} ${weatherInfo().name}　来客・収穫に影響<br>今までの来客 ${e.totalVisitors}人　注文達成 ${e.ordersDone}回<br>職員の給料 ${staffWages()}G / 日${ranchAid(state.villageLv).daily ? '<br>🌱 牧場支援金 ＋'+ranchAid(state.villageLv).daily+'G / 日（ゲーム内の深夜0時）・建物強化費 '+ranchAid(state.villageLv).discount*100+'%引き' : ''}</div>`;
  html+=`<div class="management-card"><h3>💰 収支と履歴</h3><div class="stat-row"><span>本日の収入</span><strong>+${num(e.income)}G</strong></div><div class="stat-row"><span>本日の支出</span><strong>−${num(e.expense)}G</strong></div><div class="stat-row"><span>本日の収支</span><strong style="color:${e.income-e.expense>=0?'#298c75':'#c67c65'}">${e.income-e.expense>=0?'+':''}${num(e.income-e.expense)}G</strong></div><div class="stat-row"><span>前日の収支</span><strong>${num(e.lastIncome-e.lastExpense)}G</strong></div><p>直近${chart.length}日分の純利益（赤は赤字）</p><div class="econ-chart">${chart.length?chart.map(d=>{let v=d.income-d.expense;return `<span class="${v<0?'loss':''}" title="${d.day}日目：${Math.round(v)}G" data-value="${Math.round(v)}" style="height:${Math.max(7,Math.abs(v)/max*70)}px"></span>`}).join(''):'<small>ゲーム内で1日経つと履歴が増えるよ</small>'}</div></div>`;
  html+=reservePanel();
- html+=`<div class="management-card"><h3>📮 商隊からの注文</h3><p>注文に合わせて素材やごはんを貯めて、まとめて納品しよう。</p><strong>${order.name}</strong><div class="stat-row"><span>📦 納品できる素材</span><strong>${Math.floor(usable)} / ${order.stock}</strong></div><div class="stat-row"><span>🍎 ごはん</span><strong>${Math.floor(state.food)} / ${order.food}</strong></div><button class="wide-button" data-action="completeOrder" ${usable<order.stock||state.food<order.food?'disabled':''}>納品する　報酬 ${rewards}G</button></div>`;
  html+=`<div class="management-card"><h3>🏪 地域経済</h3><div class="stat-row"><span>宿・カフェ・展望台</span><strong>${buildingLevel('inn')} / ${buildingLevel('cafe')} / ${buildingLevel('tower')}</strong></div><div class="stat-row"><span>工房のおまもり</span><strong>🧿 ${state.charms}個</strong></div><div class="stat-row"><span>現在の来客数</span><strong>${state.guests.length}人</strong></div></div>`;
  return html;
 }
@@ -854,13 +868,13 @@ function constructionCost(type){
   const percent=unlock<2?100:unlock<5?110:unlock<10?115:120;
   return Math.round(cost*percent/100);
 }
-function costUpgrade(b){return Math.round(B[b.type].cost*(.58+b.level*.9))}
+function costUpgrade(b,baseCost=B[b.type].cost){return Math.round(baseCost*(.58+b.level*.9))}
 function place(type,x,y){const spec=B[type];if(!spec)return;if(state.villageLv<spec.unlock){toast(`世界樹レベル ${spec.unlock} で解放されるよ`,'error');return}const price=constructionCost(type);if(state.coins<price){toast('お金が足りないよ！','error');return}if(!canBuild(x,y)){toast('ここには建てられないよ。空いた草地を選んでね。','error');return}state.coins-=price;bookExpense(price);const b={id:state.nextId++,type,x,y,level:1,constructionPaid:price};state.buildings.push(b);state.metrics.build++;state.fame+=3;villageAdd(25);selectedBuilding=b.id;buildMode=null;message(`🔨 ${spec.name}が完成したよ！`,'success');save(true);renderUI(true)}
 function investedIn(b){
   const legacyCost=b.freeStarter200?0:B[b.type].cost;
   let total=Number.isSafeInteger(b.constructionPaid)&&b.constructionPaid>=0?b.constructionPaid:legacyCost;
   for(let lv=1;lv<b.level;lv++)total+=standardUpgradeCost({type:b.type,level:lv});
-  return Math.max(0,total-(b.upgradeSavings||0));
+  return Math.max(0,total+(b.guildLegacyInvestment||0)-(b.upgradeSavings||0));
 }
 function startMoving(id){const b=state.buildings.find(v=>v.id===id);if(!b)return;moveMode=b.id;buildMode=null;selectedBuilding=id;toast('🏗️ 移動先の2×2の空き地をクリック。長押しドラッグは地図の移動！');renderUI(true)}
 function cancelMoving(){moveMode=null;renderUI(true)}
@@ -1629,6 +1643,7 @@ function selectMapBuilding(b){
   selectedBuilding=b.id;selectedMonster=null;tab='build';renderUI(true);
   if(b.type==='expeditionOffice')expeditionPanel?.scrollIntoView({block:'nearest'});
   if(b.type==='worldtree')$('treeFestival')?.scrollIntoView({block:'nearest'});
+  if(b.type==='guild212')$('guildOrders')?.scrollIntoView({block:'nearest'});
   toast(`${B[b.type].icon} ${B[b.type].name} Lv.${b.level}`);
 }
 function onMapClick(e){const p=canvasCell(e);
@@ -1659,7 +1674,7 @@ canvas.addEventListener('wheel', event => {
 }, {passive:false});
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.tab;renderUI(true)}));
 document.querySelectorAll('[data-speed]').forEach(b=>b.addEventListener('click',()=>{state.speed=+b.dataset.speed;document.querySelectorAll('[data-speed]').forEach(el=>el.classList.toggle('on',el===b));renderUI(true)}));
-document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const action=b.dataset.action,id=b.dataset.id;if(action==='build'){terrainMode=null;if(buildMode===id)buildMode=null;else{moveMode=null;clearMode=false;buildMode=id;placementFacing=0;selectedBuilding=null;selectedMonster=null;toast(`🔨 ${B[id].name}を建てる位置を選ぼう`)}renderUI(true)}else if(action==='cancelBuild'){buildMode=null;renderUI(true)}else if(action==='moveBuilding')startMoving(+id);else if(action==='cancelMove')cancelMoving();else if(action==='toggleClear'){terrainMode=null;toggleClearMode()}else if(action==='recoverBuilding')recoverBuilding(+id);else if(action==='zoomIn')setZoom(zoom*1.2);else if(action==='zoomOut')setZoom(zoom/1.2);else if(action==='zoomReset')setZoom(1);else if(action==='showAdventure'){tab='adventure';renderUI(true);$('tabBody').scrollTop=0}else if(action==='upgrade')upgrade(+id);else if(action==='egg')buyEgg();else if(action==='hire')hire();else if(action==='research')doResearch(id);else if(action==='selectMonster')openMonsterDetails(+id,b);else if(action==='export')exportSave();else if(action==='reset')reset();else if(action==='import')$('importInput').click();else if(action==='pan'){const d={left:[-11,0],right:[11,0],up:[0,-10],down:[0,10]}[id];if(d)cameraMove(...d)}else if(action==='walkCamera')startWalkCamera(+id);else if(action==='centerMap'){stopWalkCamera();cameraX=VW/2-VW/(2*zoom);cameraY=VH/2-VH/(2*zoom);limitCamera();renderUI(false)}else if(action==='adventureStart')startAdventure();else if(action==='adventureAuto'){state.adventure.auto=!state.adventure.auto;state.adventure.cooldown=0;message(state.adventure.auto?'🔁 自動冒険を始めるよ！':'⏹️ 自動冒険を停止したよ。');renderUI(true);save(true)}else if(action==='atlas'){atlasCategory=id;renderUI(true)}else if(action==='showManagement'){tab='management';renderUI(true)}else if(action==='completeOrder')completeOrder();else if(action==='festival')hostFestival();else if(action==='trainMonster')trainMonster(+id);else if(action==='equipCharm')equipCharm(+id);else if(action==='toggleParty')toggleParty(+id)});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const action=b.dataset.action,id=b.dataset.id;if(action==='build'){terrainMode=null;if(buildMode===id)buildMode=null;else{moveMode=null;clearMode=false;buildMode=id;placementFacing=0;selectedBuilding=null;selectedMonster=null;toast(`🔨 ${B[id].name}を建てる位置を選ぼう`)}renderUI(true)}else if(action==='cancelBuild'){buildMode=null;renderUI(true)}else if(action==='moveBuilding')startMoving(+id);else if(action==='cancelMove')cancelMoving();else if(action==='toggleClear'){terrainMode=null;toggleClearMode()}else if(action==='recoverBuilding')recoverBuilding(+id);else if(action==='zoomIn')setZoom(zoom*1.2);else if(action==='zoomOut')setZoom(zoom/1.2);else if(action==='zoomReset')setZoom(1);else if(action==='showAdventure'){tab='adventure';renderUI(true);$('tabBody').scrollTop=0}else if(action==='upgrade')upgrade(+id);else if(action==='egg')buyEgg();else if(action==='hire')hire();else if(action==='research')doResearch(id);else if(action==='selectMonster')openMonsterDetails(+id,b);else if(action==='export')exportSave();else if(action==='reset')reset();else if(action==='import')$('importInput').click();else if(action==='pan'){const d={left:[-11,0],right:[11,0],up:[0,-10],down:[0,10]}[id];if(d)cameraMove(...d)}else if(action==='walkCamera')startWalkCamera(+id);else if(action==='centerMap'){stopWalkCamera();cameraX=VW/2-VW/(2*zoom);cameraY=VH/2-VH/(2*zoom);limitCamera();renderUI(false)}else if(action==='adventureStart')startAdventure();else if(action==='adventureAuto'){state.adventure.auto=!state.adventure.auto;state.adventure.cooldown=0;message(state.adventure.auto?'🔁 自動冒険を始めるよ！':'⏹️ 自動冒険を停止したよ。');renderUI(true);save(true)}else if(action==='atlas'){atlasCategory=id;renderUI(true)}else if(action==='showManagement'){tab='management';renderUI(true)}else if(action==='completeOrder')completeOrder(Number(id));else if(action==='festival')hostFestival();else if(action==='trainMonster')trainMonster(+id);else if(action==='equipCharm')equipCharm(+id);else if(action==='toggleParty')toggleParty(+id)});
 document.addEventListener('pointerdown',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('focusin',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('change',e=>{if(e.target.matches('.staff-select[data-staff]')){let s=state.staff.find(o=>o.id===+e.target.dataset.staff);if(s&&JOBS[e.target.value]){if(s.job!==e.target.value&&(s.job==='explore'||e.target.value==='explore')){cancelPlotWalk(s);s.jobTarget211=null;s.jobTask212=null;s.jobCooldown211=0;s.act='待機中'}s.job=e.target.value;s.path=[];if(s.job==='explore')seek(s,s.job);message(`🧑‍🌾 ${s.name}の担当が「${JOBS[s.job].label}」になったよ。`,'success');save(true)}inputLock=false;renderUI(true)}if(e.target.id==='importInput')importSave(e.target.files[0])});document.addEventListener('focusout',e=>{if(e.target.matches('.staff-select'))inputLock=false});
 const helpTopics = {staff:'市民の役職', tree:'世界樹の成長XP', basics:'基本とセーブ'};
 let helpOpener;
@@ -1767,7 +1782,7 @@ function basicHelp() {
   return `<div class="guide-basics">
     <section><h3>時間とゲーム速度</h3><p>1倍速では実際の16秒が牧場の1時間、6分24秒が1日だよ。画面上部で一時停止・1倍・2倍・4倍を選べるよ。</p></section>
     <section><h3>施設と区画</h3><p>お店と素材牧場は世界樹Lv.1から建てられて、各1軒目は無料。建設・移設・回転には、施設の正面の辺に道が1マス以上必要だよ。「施設」で役割を選ぶと建物を絞り込めるよ。石のタイルは道として使えて1マス100G。施設を選ぶと移動や回収ができるよ。地図はドラッグで移動できるよ。施設の設置・移動中は、地図の上でホイールを回すか、向きボタンを押して回転しよう。普段はホイールで拡大縮小、「−」「＋」は設置中も使えるよ（15%〜280%）。上下左右で接する未解放区画を選ぼう。地図に表示された世界樹レベルに達し、必要なおかねを払うと開拓できるよ。最初の牧場のすぐ北と西はどちらも世界樹Lv.2・4,200Gだよ。</p></section>
-    <section><h3>ごはん・素材・おかね</h3><p>畑のごはんはモンスターと職員の食事や注文に使うよ。素材はモンスターが素材牧場で集め、お店の旅人に売るとおかねになるよ。世界樹が育つと商隊の注文も大きくなるよ。「経営」でSSRとURを1種類につき1個ずつ取り置きできるよ。</p></section>
+    <section><h3>ごはん・素材・おかね</h3><p>畑のごはんはモンスターと職員の食事や注文に使うよ。素材はモンスターが素材牧場で集め、お店の旅人に売るとおかねになるよ。世界樹Lv.5で冒険者ギルドを建てると、商隊に納品できるよ。「経営」でSSRとURを1種類につき1個ずつ取り置きできるよ。</p></section>
     <section><h3>キラキラと評判</h3><p>キラキラは研究所や遠征などで手に入り、研究と世界樹の成長に使うよ。評判は来店客の買い物、注文、冒険などで上がり、旅人がお店に来やすくなるよ。</p></section>
     <section><h3>冒険と自動遠征</h3><p>冒険の各エリアの5戦目はボス戦。撃破済みのボスは「冒険」の「ボスエリア選択」から周回できるよ。勝つと同じ相手に再挑戦し、敗北か「周回を停止」で終了するよ。世界樹Lv.3で遠征所を建て、牧場の遠征所を選んで行き先を決めよう。建設後は探検担当がいなくても自動で進み、奥の行き先ほど帰還報酬が増えるよ。行き先を変えても、それまでの進み具合は保存されるよ。</p></section>
     <section><h3>おやすみ牧舎</h3><p>「仲間」から開けるよ。世界樹Lv.1では5匹、Lv.5・10・15・20で5匹ずつ増えて最大25匹まで預けられるよ。預けた子はレベル・装備・お気に入りを保ったままおやすみするよ。放牧枠が満員のときは「入れ替え」で、牧舎の子と放牧中の子を交換できるよ。</p></section>
@@ -3840,7 +3855,20 @@ villageAdd=function(amount){return villageAddBefore196((Number(amount)||0)*.65)}
 const thresholdBefore196=villageThreshold;
 villageThreshold=function(level){return Math.round(thresholdBefore196(level)*1.25)};
 const upgradeCostBefore196=costUpgrade;
-function standardUpgradeCost(building){return Math.round(upgradeCostBefore196(building)*1.25)}
+function standardUpgradeCost(building,baseCost){return Math.round(upgradeCostBefore196(building,baseCost)*1.25)}
+function migrateGuildPrices(){
+ if(state.guildPricesUpdated)return;
+ for(const b of state.buildings.filter(site=>site.type==='guild212')){
+  if(!Number.isSafeInteger(b.constructionPaid))b.constructionPaid=6200;
+  let premium=0;
+  for(let level=1;level<Math.min(99,b.level);level++){
+   const step={type:b.type,level};
+   premium+=standardUpgradeCost(step,6200)-standardUpgradeCost(step);
+  }
+  b.guildLegacyInvestment=premium;
+ }
+ state.guildPricesUpdated=true;
+}
 function ranchAid(level){
  if(level<=3)return {discount:.5,daily:100};
  if(level<=6)return {discount:.25,daily:60};
@@ -4290,7 +4318,7 @@ function workAtSite211(w,b){
   const amount=(.35+b.level*.09)*power;state.magic+=amount;w.act='🔮 研究 +'+Math.round(amount);
  }else if(w.job==='explore'){
   if(state.expeditionAuto213&&state.speed>0){
-   const guildLevel=state.buildings.reduce((best,site)=>site.type==='guild212'?Math.max(best,site.level):best,0);
+   const guildLevel=highestGuildLevel();
    const progress=(.42+Math.min(30,w.level||1)*.035)*power+(guildLevel ? .15+.035*guildLevel : 0);
    advanceExpedition(progress);w.act='🧭 探検支援 +'+progress.toFixed(1);
   }else w.act='🧭 たまごを探索';
@@ -4766,7 +4794,7 @@ stepActors=function(dt){
 };
 // Extra facilities to make world-tree growth beyond 10 meaningful.
 Object.assign(B,{
- guild212:{name:'冒険者ギルド',icon:'🛡️',cost:6200,unlock:11,w:3,h:3,pixel:96,desc:'遠征所の探検係を支援するギルド。',effect:'🧭 遠征所から帰還した探検係の成果アップ'},
+ guild212:{name:'冒険者ギルド',icon:'🛡️',cost:1000,unlock:5,w:3,h:3,pixel:96,desc:'商隊の注文を受け付け、遠征所の探検係も支援する。',effect:'📮 商隊への納品・探検係の帰還支援。強化で注文報酬もアップ'},
  greenhouse212:{name:'温室農園',icon:'🌱',cost:7900,unlock:13,w:3,h:3,pixel:96,desc:'天候に左右されにくい農園',effect:'🍎 安定した食料生産'},
  gallery212:{name:'素材博物館',icon:'🏛️',cost:10800,unlock:15,w:3,h:3,pixel:96,desc:'珍しい素材を展示する施設',effect:'🌟 評判アップ・観光客増加'},
  sanctuary212:{name:'精霊の森',icon:'🌲',cost:16500,unlock:18,w:4,h:4,pixel:128,desc:'モンスターを癒やす神聖な森',effect:'💕 ごきげん上昇・素材収穫アップ'}
@@ -5988,6 +6016,7 @@ renderTab=function(){
  if(tab==='adventure')$('tabBody').insertAdjacentHTML('afterbegin','<p class="option-desc">自動遠征は、世界樹Lv.3で建てられる「遠征所」から出発できるよ。</p>');
  if(tab==='build'){
   const selected=state.buildings.find(b=>b.id===selectedBuilding);
+  if(selected?.type==='guild212')$('tabBody').insertAdjacentHTML('afterbegin',guildOrderPanel());
   if(selected?.type==='worldtree')$('tabBody').insertAdjacentHTML('afterbegin',festivalPanel());
   if(selected?.type==='expeditionOffice'){
    $('tabBody').prepend(expeditionPanel213());
@@ -7332,10 +7361,13 @@ function buildingUpgradePreview(building) {
       local('昼間の生産ゲージ加算'+time,n => .20*(n-1));
       note = '生産個数は仲間の種類・レベル・特技と端数の丸めで決まります。';
       break;
-    case 'guild212':
-      local('探検係の帰還1回の支援量',n => .15+.035*n,'pt');
-      note = '複数のギルドがあるときは、最も高いLv.の支援量を使います。';
+    case 'guild212': {
+      const best=highestGuildLevel(),after=Math.max(best,next);
+      compare('商隊の注文報酬ボーナス',guildOrderBonus(best),guildOrderBonus(after),'%');
+      compare('探検係の帰還1回の支援量',.15+.035*best,.15+.035*after,'pt');
+      note = 'いちばん高いギルドのLv.が適用されます。注文報酬はLv.ごとに2%ずつ、最大20%増えます。';
       break;
+    }
     case 'greenhouse212':
       ranch('温室のごはん'+time,foodProduction.greenhouse,'個');
       local('採集1回の基本量',foodProduction.gather,'個');
