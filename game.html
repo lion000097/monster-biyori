@@ -120,7 +120,7 @@
 .tree-summary progress::-webkit-progress-value,.expedition-card progress::-webkit-progress-value{background:#36866c;border-radius:5px}
 .tree-summary progress::-moz-progress-bar,.expedition-card progress::-moz-progress-bar{background:#36866c;border-radius:5px}
 .tree-summary h4{margin:11px 0 2px;font-size:12px;color:#436b57}
-#treeTargets{margin:0;padding:0;list-style:none}
+#treeTargets{margin:0;padding:0;list-style:none;max-height:18rem;overflow-y:auto}
 #treeTargets li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center;padding:5px 0;border-bottom:1px solid #d9e6d8;font-size:12px}
 #treeTargets b,#treeTargets small{display:block;overflow-wrap:anywhere}
 #treeTargets small{font-size:11px;color:#506d5c}#treeTargets strong{white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -769,7 +769,7 @@ function festivalPanel(){
 function hostFestival(){if(!state.buildings.some(b=>b.id===selectedBuilding&&b.type==='worldtree'))return;
  const cost=festivalCost(),food=24;if(state.economy.eventDay===state.day)return toast('今日はお祭りを開催済みだよ','error');if(state.coins<cost||state.food<food)return toast(`開催には${cost}Gとごはん${food}が必要だよ`,'error');state.coins-=cost;bookExpense(cost);state.food-=food;state.economy.eventDay=state.day;state.economy.festival=true;const bonus=14+buildingLevel('park')*3+buildingLevel('tower')*4;state.fame+=bonus;villageAdd(65);for(const m of state.monsters)m.happy=clamp(m.happy+17,0,100);for(const w of state.staff)w.morale=clamp(w.morale+16,0,100);message('🎉 牧場まつり大盛況！ 評判+'+bonus+'・村の皆が幸せ！','success');save(true);renderUI(true)}
 function econHTML(){const e=state.economy;const chart=e.history.slice(-10);const max=Math.max(1,...chart.map(d=>Math.abs(d.income-d.expense)));
- let html=`<div class="info-card"><strong>📊 経営ダッシュボード</strong><br>${seasonInfo().icon} ${seasonInfo().name} / ${weatherInfo().icon} ${weatherInfo().name}　来客・収穫に影響<br>今までの来客 ${e.totalVisitors}人　注文達成 ${e.ordersDone}回<br>職員の給料 ${staffWages()}G / 日${ranchAid(state.villageLv).daily ? '<br>🌱 牧場支援金 ＋'+ranchAid(state.villageLv).daily+'G / 日（ゲーム内の深夜0時）・建物強化費 '+ranchAid(state.villageLv).discount*100+'%引き' : ''}</div>`;
+ let html=`<div class="info-card"><strong>📊 経営ダッシュボード</strong><br>${seasonInfo().icon} ${seasonInfo().name} / ${weatherInfo().icon} ${weatherInfo().name}　来客・収穫に影響<br>今までの来客 ${e.totalVisitors}人　注文達成 ${e.ordersDone}回<br>職員の給料 ${staffWages()}G / 日${ranchAid(state.villageLv).daily ? '<br>🌱 牧場支援金 ＋'+ranchAid(state.villageLv).daily+'G / 日（深夜0時・世界樹の強化条件に応じて支給）'+(ranchAid(state.villageLv).discount?'・建物強化費 '+ranchAid(state.villageLv).discount*100+'%引き':'') : ''}</div>`;
  html+=`<div class="management-card"><h3>💰 収支と履歴</h3><div class="stat-row"><span>本日の収入</span><strong>+${num(e.income)}G</strong></div><div class="stat-row"><span>本日の支出</span><strong>−${num(e.expense)}G</strong></div><div class="stat-row"><span>本日の収支</span><strong style="color:${e.income-e.expense>=0?'#298c75':'#c67c65'}">${e.income-e.expense>=0?'+':''}${num(e.income-e.expense)}G</strong></div><div class="stat-row"><span>前日の収支</span><strong>${num(e.lastIncome-e.lastExpense)}G</strong></div><p>直近${chart.length}日分の純利益（赤は赤字）</p><div class="econ-chart">${chart.length?chart.map(d=>{let v=d.income-d.expense;return `<span class="${v<0?'loss':''}" title="${d.day}日目：${Math.round(v)}G" data-value="${Math.round(v)}" style="height:${Math.max(7,Math.abs(v)/max*70)}px"></span>`}).join(''):'<small>ゲーム内で1日経つと履歴が増えるよ</small>'}</div></div>`;
  html+=reservePanel();
  html+=`<div class="management-card"><h3>🏪 地域経済</h3><div class="stat-row"><span>宿・カフェ・展望台</span><strong>${buildingLevel('inn')} / ${buildingLevel('cafe')} / ${buildingLevel('tower')}</strong></div><div class="stat-row"><span>工房のおまもり</span><strong>🧿 ${state.charms}個</strong></div><div class="stat-row"><span>現在の来客数</span><strong>${state.guests.length}人</strong></div></div>`;
@@ -1802,7 +1802,7 @@ function treeHelp() {
   const cost = treeCost193(1);
   const buildings = treeRequirements193(2).map(r =>
     `${B[r.type].name} Lv.${r.minLevel}以上を${r.count}軒`).join('、');
-  return `<p class="guide-intro">新しい牧場で世界樹Lv.20に届く目安は、<strong>1倍速で約60時間</strong>。お店と素材牧場を建て、約10分ごとに注文・施設の強化・世界樹の成長を進めた場合だよ。遊び方やゲーム速度で前後するよ。</p><p>牧場の時間が1時間進むたびに、世界樹に経験値が入るよ。仲間のモンスターが多いほど、1時間にもらえる量が増えるよ。小数分もたまり、世界樹の欄には整数で表示されるよ。</p>
+  return `<p class="guide-intro">世界樹を育てるには、今のレベルまでに解放された建物をそろえ、同じ種類の建物も1軒ずつ今の強化上限まで育てよう。花壇・ベンチ・街灯・噴水・お宝展示台は自由に飾れるよ。施設の強化に合わせて、毎日0時に牧場支援金が届くよ。</p><p>牧場の時間が1時間進むたびに、世界樹に経験値が入るよ。仲間のモンスターが多いほど、1時間にもらえる量が増えるよ。小数分もたまり、世界樹の欄には整数で表示されるよ。</p>
     <h3>行動でもらえる成長XP</h3>
     <dl class="guide-rewards">
       <div><dt>職員を1人雇う</dt><dd>+6.5 XP</dd></div>
@@ -3177,14 +3177,20 @@ const WORLD_REQ193={
  10:[{type:'tower',count:1,minLevel:3,label:'展望台 Lv.3以上 ×1'},{type:'school',count:2,minLevel:3,label:'とっくん広場 Lv.3以上 ×2'}]
 };
 Object.assign(VILLAGE_REQUIREMENTS,WORLD_REQ193);
-function treeRequirements193(level){
+function earlyTreeMilestones(level){
   if(WORLD_REQ193[level])return WORLD_REQ193[level];
   return [{type:'farm',count:Math.min(15,level+1),minLevel:Math.min(12,Math.floor(level/3)+2),label:'おやつ畑の発展'}];
 }
 function treeRequirementStatus193(level){
+  const levels=new Map();
+  for(const building of state.buildings){
+    const group=levels.get(building.type)||[];
+    group.push(building.level);levels.set(building.type,group);
+  }
   return treeRequirements193(level).map(r=>{
-    const value=state.buildings.filter(b=>b.type===r.type&&b.level>=(r.minLevel||1)).length;
-    return {type:r.type,minLevel:r.minLevel||1,label:r.label,value,need:r.count,ok:value>=r.count};
+    const placed=levels.get(r.type)||[],need=Math.max(r.count,placed.length);
+    const value=placed.filter(lv=>lv>=r.minLevel).length;
+    return {...r,value,need,ok:value>=need};
   });
 }
 function facilityCountCap193(type,lv=state.villageLv){
@@ -3909,10 +3915,23 @@ function migrateGuildPrices(){
  }
  state.guildPricesUpdated=true;
 }
+const developmentGrants=new Map();
 function ranchAid(level){
- if(level<=3)return {discount:.5,daily:100};
- if(level<=6)return {discount:.25,daily:60};
- return {discount:0,daily:0};
+ if(developmentGrants.has(level))return developmentGrants.get(level);
+ const discount=level<=3?.5:level<=6?.25:0;
+ const requirements=treeRequirements193(level+1),cap=facilityLevelCap193(level);
+ const previous=new Map(level>1?treeRequirements193(level).map(r=>[r.type,r.count]):[]);
+ let budget=0;
+ for(const {type,count} of requirements){
+  // Existing facilities usually need one new level. Newly required copies start at Lv.1.
+  const existing=Math.min(count,previous.get(type)||0);
+  for(let lv=1;lv<cap;lv++){
+   const copies=count-existing+(lv>=facilityLevelCap193(level-1)?existing:0);
+   budget+=copies*Math.round(standardUpgradeCost({type,level:lv})*(1-discount));
+  }
+ }
+ const daily=Math.max(level<=3?100:level<=6?60:0,Math.ceil(budget/8/10)*10);
+ const aid={discount,daily};developmentGrants.set(level,aid);return aid;
 }
 costUpgrade=function(building){
  return Math.round(standardUpgradeCost(building)*(1-ranchAid(state.villageLv).discount));
@@ -4409,6 +4428,7 @@ const SHOP_OPENING_BONUS = 30;
 function openingBonusRemaining() {
  return state.villageLv <= 3 ? Math.max(0, 10 - state.shopStats211.customers) : 0;
 }
+function shopPriceMultiplier(level){return 1.15*(1+.14*(level-1))}
 function checkoutGuest211(g,shop){
  ensureMaterials211();
  if(g.checkedOut211)return;
@@ -4422,8 +4442,8 @@ function checkoutGuest211(g,shop){
  const sold=spendMaterials211(count,available[0]?.i??0);
  const soldN=sold.reduce((n,o)=>n+o.amount,0);if(!soldN)return;
  const service=shop.staffUntil211>=state.ticks?(shop.staffBonus211||0):0;
- const rate=(9+.095*Math.sqrt(Math.max(0,state.fame)))*researchMultiplier('market')*
-  (1+.14*(shop.level-1))*(1+service)*(g.rare211?1.5:1);
+ const rate=shopPriceMultiplier(shop.level)*(9+.095*Math.sqrt(Math.max(0,state.fame)))*researchMultiplier('market')*
+  (1+service)*(g.rare211?1.5:1);
  const bonus=openingBonusRemaining()>0 ? SHOP_OPENING_BONUS : 0;
  const sale=ranchIncome(sold.reduce((n,o)=>n+o.amount*MATERIALS211[o.id][4],0)*rate);
  const earn=gainCoins(sale+bonus);
@@ -4884,7 +4904,6 @@ tick=function(silent=false){
  }
  checkAchievements193(silent);
 };
-const treeRequiresBefore212=treeRequirements193;
 const WORLD_REQUIREMENTS212={
  11:[['shop',2,3],['ranch',2,3]],
  12:[['guild212',1,1],['school',2,3]],
@@ -4897,8 +4916,8 @@ const WORLD_REQUIREMENTS212={
  19:[['sanctuary212',1,2],['ranch',4,5]],
  20:[['gallery212',2,3],['shop',5,5]]
 };
-treeRequirements193=function(level){
- if(level<=10)return treeRequiresBefore212(level);
+function treeMilestones(level){
+ if(level<=10)return earlyTreeMilestones(level);
  let req=WORLD_REQUIREMENTS212[level];
  if(!req){
   const tier=Math.min(5,Math.max(0,Math.floor((level-20)/5)));
@@ -4908,7 +4927,14 @@ treeRequirements193=function(level){
  return req.map(([type,count,minLevel])=>({
   type,count,minLevel,label:(B[type]?.name||type)+' Lv.'+minLevel+'以上 ×'+count
  }));
-};
+}
+function treeRequirements193(nextLevel){
+ const level=nextLevel-1,cap=facilityLevelCap193(level);
+ const counts=new Map(treeMilestones(nextLevel).map(r=>[r.type,r.count]));
+ return Object.entries(B)
+  .filter(([type,spec])=>type!=='worldtree'&&type!=='relicStand'&&!DECOR211[type]&&spec.unlock<=level)
+  .map(([type,spec])=>({type,count:counts.get(type)||1,minLevel:cap,label:spec.name+' Lv.'+cap}));
+}
 const thresholdPrev212=villageThreshold;
 villageThreshold=function(level){
  return level<=10?thresholdPrev212(level):Math.round(thresholdPrev212(level)*(.85+.015*Math.min(20,level-10)));
@@ -7379,7 +7405,7 @@ function buildingUpgradePreview(building) {
       break;
     case 'shop': {
       const worldBonus=Math.floor(Math.max(0,Math.min(30,state.villageLv)-9)/4);
-      local('この店の販売単価倍率',n => 1+.14*(n-1),'倍');
+      local('この店の販売単価倍率',shopPriceMultiplier,'倍');
       local('通常客1人の最大購入数',n => 3+Math.floor(n/2)+worldBonus,'個');
       note = '購入数は在庫とお客さんによって変わります。';
       break;
