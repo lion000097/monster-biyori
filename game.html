@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>もんすたー日和 Ver.1.24.19 | まもの牧場シミュレーション</title>
+<title>もんすたー日和 Ver.1.24.20 | まもの牧場シミュレーション</title>
 <style>
 :root{--ink:#263d42;--muted:#74878a;--mint:#2d978a;--mint-dark:#20796f;--cream:#fffdf6;--bg:#e9f0e5;--line:#dae5db;--yellow:#f4ba54;--red:#e77969;--shadow:0 5px 0 #cddbd2,0 12px 28px #18372d15}
 *{box-sizing:border-box}body{margin:0;color:var(--ink);background:radial-gradient(ellipse at 50% -100px,#f8faed 0%,#e6eee5 85%);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;font-size:13px;-webkit-font-smoothing:antialiased}button,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.43}.app{max-width:1650px;margin:auto;padding:18px 18px 22px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}.brand{display:flex;align-items:center;gap:12px}.brand-badge{height:51px;width:51px;background:#344c53;box-shadow:inset 0 -5px #1d343a,0 5px #bacbc0;border:3px solid #fff5df;border-radius:12px;display:grid;place-items:center;font-size:27px;transform:rotate(-3deg)}.brand small{font-size:10px;letter-spacing:.24em;font-weight:900;color:#729187;display:block}.brand h1{font-size:23px;letter-spacing:.02em;line-height:1.1;margin:3px 0 0;font-weight:950}.top-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.clock{font-size:13px;color:#54736a;font-weight:900;background:#d8e9dc;border:1px solid #c3dccb;border-radius:10px;padding:12px 14px}.button{border:1px solid #cfddd1;background:var(--cream);padding:10px 12px;border-radius:10px;color:#365c57;font-weight:900;box-shadow:0 3px 0 #d2dfd6;transition:transform .1s,background .1s}.button:hover:not(:disabled){background:#f3faf2;transform:translateY(-1px)}.button:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #d2dfd6}.button.primary{background:#26988b;border-color:#1b8077;color:white;box-shadow:0 3px 0 #176b63}.button.primary:hover:not(:disabled){background:#178879}.button.warn{color:#c36455}.speed-group{display:flex;background:#dde9de;border-radius:10px;padding:4px;gap:3px}.speed-group button{background:transparent;border:0;border-radius:7px;color:#648178;font-size:12px;font-weight:900;padding:7px 10px}.speed-group button.on{color:white;background:#365c57;box-shadow:0 2px 0 #25443f}.layout{display:grid;grid-template-columns:238px minmax(480px,1fr) 300px;gap:16px;align-items:start}.panel{border:1px solid #dfebe0;background:#fffef8;border-radius:15px;box-shadow:var(--shadow);overflow:hidden}.panel-heading{padding:15px 16px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px}.panel-heading h2{font-size:13px;margin:0;font-weight:950}.subtext{color:#8aa097;font-size:11px;font-weight:700}.side-left,.side-right{display:flex;flex-direction:column;gap:16px}.resources{padding:0 14px 12px}.resource{display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-bottom:1px dashed #e4eee5}.resource:last-child{border-bottom:0}.resource-label{display:flex;align-items:center;gap:9px;color:#5f7874;font-weight:800}.resource-icon{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:16px}.ri-money{background:#fff0c4}.ri-food{background:#e6f5d8}.ri-stock{background:#f9e9d9}.ri-magic{background:#e9e8ff}.ri-fame{background:#ffe9dc}.resource-value{font-size:17px;font-weight:950;letter-spacing:-.03em;font-variant-numeric:tabular-nums}.resource small{font-size:10px;color:#95aaa0}.progress-section{padding:0 15px 16px}.progress-top{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#67827b;font-weight:800;margin:8px 0}.progress-track{height:9px;background:#e7ede5;border-radius:10px;overflow:hidden;border:1px solid #d8e6dc}.progress-bar{height:100%;background:linear-gradient(90deg,#81cbaa,#35a28d);border-radius:10px;transition:width .3s}.quests{padding:0 12px 13px}.quest{background:#f6f9f0;border:1px solid #e6eddd;border-radius:10px;padding:11px 11px 9px;margin:6px 0}.quest-title{display:flex;align-items:center;justify-content:space-between;gap:7px;font-size:11px;font-weight:900}.quest-title span:last-child{color:#3f9783;font-size:10px;white-space:nowrap}.quest .progress-track{margin:8px 0 4px;height:6px}.quest-bottom{color:#8da397;display:flex;justify-content:space-between;font-size:10px;font-weight:700}.tip-box{padding:14px 15px;background:#fef9ec;color:#806f4e;font-size:11px;line-height:1.75;border-top:1px solid #f0ebd8}.tip-box strong{color:#a6793b}.world-shell{padding:12px}.world-header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 5px 12px}.world-title{font-size:15px;font-weight:950}.world-title small{display:block;color:#9caf9c;font-size:10px;letter-spacing:.08em;margin-top:3px}.world-badges{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.world-tag{background:#e8f3e9;color:#568475;font-size:10px;font-weight:900;padding:6px 9px;border-radius:7px}.world-tag.gold{background:#fff1d5;color:#a98445}.canvas-frame{position:relative;border-radius:9px;overflow:hidden;border:4px solid #f3f4dc;outline:1px solid #d9e1c5;background:#8ecb78;box-shadow:inset 0 0 0 4px #fff;line-height:0}#game{width:100%;height:auto;display:block;image-rendering:pixelated;cursor:grab;touch-action:none;user-select:none}#game:active{cursor:grabbing}#battleCanvas{display:block;width:100%;height:auto;image-rendering:pixelated;aspect-ratio:1200/318}.battle-scene{background:#e7f3eb;border:3px solid #fbf5d6;border-radius:11px;overflow:hidden;box-shadow:inset 0 0 0 2px #a7cdb1}.battle-caption{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:9px 0 8px;color:#537d6d;font-weight:900;font-size:11px}.battle-caption strong{font-size:12px;color:#2f6c5d}.camera-toolbar{display:flex;align-items:center;justify-content:space-between;gap:5px;background:#f5f8ed;border:1px solid #e3ead8;border-radius:9px;padding:6px 7px;margin:0 3px 9px;flex-wrap:wrap;font-weight:900;font-size:11px;color:#6d8e7d}.camera-toolbar .camera-buttons{display:flex;align-items:center;gap:5px}.camera-toolbar button{border:1px solid #c9ded0;border-radius:7px;background:#fffefa;color:#38675b;padding:5px 11px;font-size:13px;font-weight:950;cursor:pointer}.camera-toolbar button:hover{background:#def2df}.battle-stats{font-size:10px;padding:6px 10px;color:#678e7b;line-height:1.5;background:#f6f8ec}.relocate-hint{background:#f0f1ff;border:1px solid #d0d6fa;color:#6566a1}.facility-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.facility-actions button{font-size:11px}.mini-instruction{font-size:10px;color:#859b8e}.canvas-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 4px 0;gap:8px;flex-wrap:wrap;font-size:11px;color:#8b9f97;font-weight:700}.building-mode{display:none;background:#fff2c6;border:1px solid #f0d78b;color:#9b7826;border-radius:9px;padding:9px 11px;line-height:1.5;margin-top:10px;font-weight:900;font-size:12px}.building-mode.active{display:flex;align-items:center;justify-content:space-between;gap:10px}.game-log{padding:0 14px 14px;max-height:200px;overflow:auto}.log-entry{display:flex;gap:9px;padding:9px 1px;border-bottom:1px dashed #e6ebe3;font-size:11px;line-height:1.45;color:#617971}.log-entry:last-child{border-bottom:0}.log-time{white-space:nowrap;font-size:10px;color:#a1b2a7;font-weight:800}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:10px 10px 0}.tab{background:#eff3ec;color:#78938a;border:0;padding:10px 0;border-radius:8px 8px 6px 6px;font-size:11px;font-weight:950}.tab.on{background:#2c8f82;color:white}.tab-body{padding:12px;min-height:445px;max-height:690px;overflow:auto}.help{font-size:11px;color:#8ca095;line-height:1.6;margin:3px 2px 10px}.build-option,.entity-row,.research-option{border:1px solid #e2e9de;background:#fcfdf7;border-radius:11px;padding:10px;margin-bottom:8px;transition:background .15s,border-color .15s}.build-option:hover{border-color:#b3d7c1}.build-option.selected{border-color:#4ba98f;background:#e9f7e9}.option-header{display:flex;align-items:center;gap:10px}.building-icon{width:45px;height:45px;flex:none;background:#eaf2dd;border:1px solid #e0ead5;display:grid;place-items:center;font-size:24px;border-radius:9px}.option-info{flex:1;min-width:0}.option-name{font-size:12px;font-weight:950}.option-desc{font-size:10px;line-height:1.55;color:#91a39a;margin-top:4px}.option-bottom{display:flex;gap:6px;align-items:center;justify-content:space-between;margin-top:9px}.price{font-size:11px;font-weight:950;color:#b17b30}.price-food{color:#539b5b}.small-button{border:0;background:#318f80;color:white;padding:7px 10px;border-radius:7px;font-weight:900;font-size:11px}.small-button.secondary{background:#e5ede4;color:#5c8374}.small-button:disabled{background:#e8e8e1;color:#a7afa6}.locked{opacity:.63}.locked .small-button{background:#f0eee5;color:#8e948a}.section-label{display:flex;justify-content:space-between;align-items:center;color:#617f73;font-weight:950;font-size:11px;margin:12px 1px 9px}.entity-row{padding:10px;display:flex;gap:10px;align-items:center}.monster-avatar{width:48px;height:48px;image-rendering:pixelated;background:#e5f4e9;border:1px solid #d1e8db;border-radius:9px;flex:none}.entity-info{flex:1;min-width:0}.entity-name{display:flex;align-items:center;justify-content:space-between;font-weight:950;font-size:12px;gap:4px}.entity-sub{color:#869b8f;font-weight:800;font-size:10px;margin-top:4px}.tiny-track{height:5px;border-radius:5px;background:#e6ebde;margin-top:7px;overflow:hidden}.tiny-track div{height:100%;background:#7fc8a6;border-radius:5px}.entity-row.highlighted{border-color:#46aa92;background:#effaf0}.pill{display:inline-block;font-weight:900;color:#6d887b;background:#eff2e9;padding:4px 6px;border-radius:5px;font-size:10px}.info-card{border-radius:11px;background:#eaf5ed;border:1px solid #d4e9db;padding:12px;margin-bottom:10px;line-height:1.6;font-size:11px;color:#58786b}.info-card strong{color:#287e70}.wide-button{width:100%;border:none;border-radius:10px;background:#309487;color:#fff;font-weight:950;padding:12px 9px;margin:5px 0 10px;box-shadow:0 3px 0 #1c7369}.wide-button:disabled{box-shadow:none;background:#d7e1d8;color:#9faea6}.big-count{font-size:22px;font-weight:950;color:#2e796e}.staff-select{appearance:auto;background:#edf5e9;border:1px solid #d6e4d7;border-radius:6px;padding:5px;font-size:10px;font-weight:900;color:#477c6b;max-width:118px}.research-option{margin-bottom:9px}.research-header{display:flex;align-items:center;justify-content:space-between;gap:5px;font-weight:950}.research-level{font-size:10px;color:#80a091}.research-desc{font-size:10px;color:#7f978b;line-height:1.65;margin:7px 0}.research-bottom{display:flex;justify-content:space-between;align-items:center;gap:7px}.empty{text-align:center;padding:28px 8px;font-size:11px;color:#98a8a0;line-height:1.75}.footer{font-size:10px;color:#91a59a;text-align:center;margin-top:17px}.toast-area{position:fixed;right:25px;bottom:20px;display:flex;flex-direction:column;gap:8px;z-index:999;pointer-events:none}.toast{background:#2d5752;color:white;border:2px solid #c9ebd0;border-radius:10px;padding:11px 15px;box-shadow:0 7px 22px #132b2355;font-weight:900;max-width:330px;animation:slidein .2s ease-out;line-height:1.5}.toast.error{background:#9f6453;border-color:#ffdfcc}.toast.success{background:#2d826d}.toast.fade{opacity:0;transform:translateY(9px);transition:all .3s}@keyframes slidein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.modal-wrap{display:none;position:fixed;inset:0;background:#112b2a91;z-index:1000;padding:20px;align-items:center;justify-content:center}.modal-wrap.show{display:flex}.modal{width:min(540px,100%);background:#fffef7;border-radius:18px;border:4px solid #e7eedf;padding:22px;box-shadow:0 15px 70px #09211b66;max-height:90vh;overflow:auto}.modal h2{margin:0 0 12px;font-size:20px}.modal p{color:#6f8880;line-height:1.85;font-size:13px}.modal .cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}.modal .cols div{padding:11px;border-radius:9px;background:#f1f6ec;font-size:11px;line-height:1.65}.modal .close-row{display:flex;justify-content:flex-end;gap:8px;margin-top:17px}.chip{font-size:10px;font-weight:900;padding:4px 7px;background:#edf6e6;border-radius:5px;color:#5a9169}.pixel-icon{font-family:monospace}@media(max-width:1240px){.layout{grid-template-columns:210px minmax(400px,1fr) 273px;gap:11px}.app{padding:12px}.panel-heading{padding:13px 12px 9px}}@media(max-width:1040px){.layout{grid-template-columns:minmax(0,1fr) 295px}.side-left{grid-column:1 / -1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.side-left .panel:last-child{grid-column:auto}}@media(max-width:710px){.app{padding:9px}.layout{display:flex;flex-direction:column}.layout>*{width:100%}.side-left{display:grid;grid-template-columns:1fr}.top{align-items:flex-start}.top-right{gap:5px}.clock{padding:10px}.brand h1{font-size:19px}.tabs .tab{font-size:12px}.tab-body{max-height:none;min-height:250px}}
@@ -347,7 +347,7 @@ html.monster-detail-open{overflow:hidden}
 </div>
 <div class="side-right"><section class="panel"><div class="tabs" role="tablist"><button class="tab" data-tab="management">📊 経営</button><button class="tab on" data-tab="build">🏠 施設</button><button class="tab" data-tab="monster">🐾 仲間</button><button class="tab" data-tab="staff">🧑‍🌾 市民</button><button class="tab" data-tab="research">✨ 研究</button><button class="tab" data-tab="adventure">⚔️ 冒険</button><button class="tab" data-tab="bestiary">📚 図鑑</button></div><div class="tab-body" id="tabBody"></div></section><section class="panel"><div class="panel-heading"><h2>🌱 今日のひとこと</h2></div><div class="tip-box" style="background:transparent;border:0" id="dailyTip">新しい施設を建てると、できることが増えるよ。</div></section></div>
 </main>
-<footer class="footer">© もんすたー日和 Ver.1.24.19 — ハウスの就寝と世界樹の入口</footer>
+<footer class="footer">© もんすたー日和 Ver.1.24.20 — 柵の中の小さな飾り</footer>
 </div>
 <div class="toast-area" id="toasts" aria-live="polite"></div>
 <div class="modal-wrap" id="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal" id="modalContent"></div></div>
@@ -431,7 +431,7 @@ function toggleBossLoop(stage) {
   if(!state.battle){selectedBattleStage=stage;startAdventure();}
   else{save(true);renderUI(true);}
 }
-const GAME_APP_VERSION='1.24.19';
+const GAME_APP_VERSION='1.24.20';
 const MIN_MAP_ZOOM=.15, MAX_MAP_ZOOM=2.8;
 const W=44,H=30,T=32,VW=22,VH=15,ZONE_W=11,ZONE_H=10,MIN_X=-22,MIN_Y=-20,SAVE_KEY='monster_biyori_save_v1';
 const $=id=>document.getElementById(id);
@@ -6700,17 +6700,238 @@ function standArt(level, facing, relic = null) {
   tourismArtCache.set(key, art);
   return art;
 }
+// Center x / foot y in a 128×128 normalized frame. Order: down, left, up, right.
+// The narrow erase bounds cover the old prop while minimizing back-fence overlap.
+const largeFacilityYardAnchors120 = {
+  palace:       [[22,91,'sign',10,13], [22,91,'sign',10,13], [107,92,'sign',10,12], [106,91,'sign',10,13]],
+  tower:        [[21,89,'sign',12,13], [103,88,'bench',12,8], [107,89,'sign',12,13], [25,89,'bench',12,8]],
+  sanctuary212: [[21,89,'crystal',10,13], [22,89,'crystal',11,10], [107,89,'crystal',10,13], [106,90,'crystal',11,11]],
+  school:       [[21,89,'training',14,16], [103,88,'bench',13,9], [106,89,'training',14,16], [25,89,'bench',13,9]],
+  park:         [[21,87,'bench',13,10], [103,85,'sign',12,12], [25,87,'bench',13,10], [25,87,'sign',11,12]],
+  lab:          [[21,89,'crateBooks',14,13], [22,89,'crateBooks',14,15], [107,89,'crateBooks',14,15], [106,89,'crateBooks',14,12]],
+  spring:       [[22,87,'barrel',12,12], [23,87,'crystal',11,15], [107,87,'barrel',12,12], [106,88,'crystal',11,15]],
+  inn:          [[22,88,'crate',15,15], [103,87,'bench',13,9], [25,88,'barrel',13,12], [25,87,'bench',13,9]],
+};
+
+// Small, individually drawn courtyard props. Coordinates are on the otherwise
+// unmodified 128px lot frame, even for larger atlas entries.
+const lotPropCache=new WeakMap(),lotPropArtCache=new Map();
+function yardPropArt(kind) {
+  if(lotPropArtCache.has(kind))return lotPropArtCache.get(kind);
+  const art=pixelSprite(18,20,g=>{
+    const p=(c,x,y,w=1,h=1)=>{g.fillStyle=c;g.fillRect(x,y,w,h);};
+    const ink='#403431',dark='#664733',wood='#a06d47',light='#e4ba77',metal='#42606a';
+    const pole=()=>{p(ink,8,5,3,13);p(wood,8,6,1,11);p(dark,5,17,8,2);p(light,6,17,6);};
+    const box=()=>{
+      p(ink,2,11,14,7);p(dark,3,12,12,6);p(wood,4,11,10,5);p(light,4,11,10);
+      p('#c28a57',5,13,7,2);p(dark,4,15,10);p('#eac080',4,12,1,5);p('#805333',13,12,1,5);
+    };
+    p('#3b413943',3,18,12,2);
+    if(kind==='planter'||kind==='herbs'){
+      box();p('#3a5842',3,9,12,3);p('#6f9c5d',4,8,3,3);p('#83af71',7,7,3,4);p('#598a59',10,8,4,3);
+      for(const [x,y] of [[5,7],[9,5],[12,7]]){
+        p(kind==='herbs'?'#aec889':'#b95d72',x-1,y,3,2);
+        p(kind==='herbs'?'#e0d698':'#ffb0ad',x,y-1,2,2);p('#fff0ba',x,y);
+      }
+    }else if(kind==='lantern'){
+      pole();p(ink,5,4,9,8);p('#a06a43',6,5,7,6);p('#eeb567',7,6,5,4);
+      p('#fff0ac',8,6,3,3);p('#f5d395',6,4,7);p(wood,7,2,5,2);
+    }else if(kind==='barrel'||kind==='basin'){
+      p(ink,3,8,12,10);p(dark,4,11,10,7);p(wood,5,9,8,8);p(light,6,10,1,6);
+      p(metal,4,12,10);p(metal,4,15,10);p('#d9bc84',5,8,8,2);
+      if(kind==='basin'){p('#365d65',5,9,8,2);p('#70b6bc',6,9,6);p('#bbded4',7,9,2);}
+    }else if(kind==='bench'){
+      p(ink,3,9,12,9);p(wood,4,10,10,4);p(light,4,10,10);p(light,5,12,9);
+      p('#586f5c',4,14,2,4);p('#586f5c',12,14,2,4);p(dark,6,14,6,2);
+    }else if(kind==='sign'||kind==='booksign'){
+      pole();p(ink,3,5,12,9);p(wood,4,6,10,7);p(light,4,6,10);p('#f1d8a5',5,7,8,4);
+      p(kind==='booksign'?'#586f82':'#6c7760',6,8,4);p('#ba8561',7,10,4);
+    }else if(kind==='crystal'){
+      p(metal,4,15,10,3);p('#8fa49a',5,14,8,2);
+      p('#437980',6,7,6,8);p('#84c2b8',7,5,4,8);p('#c6e8d0',8,4,2,7);p('#deeee0',8,6);
+      p('#5c9697',10,9,3,6);p('#679ba4',5,11,2,4);
+    }else if(kind==='hay'){
+      p('#815737',3,11,12,7);p('#e4b758',4,10,10,7);p('#f8d383',5,10,8,2);
+      p('#b88c46',5,14,8);p('#b88c46',7,11,1,6);p('#b88c46',11,11,1,6);p('#ffe0a0',5,12,3);
+    }else if(kind==='training'){
+      pole();p('#583d38',4,5,10,9);p('#d9b276',5,6,8,7);p('#a24f53',7,7,4,5);p('#f3d39b',8,8,2,3);
+    }else{
+      box();
+      if(kind==='crateBooks'){
+        p('#3a6266',5,8,8,3);p('#85a598',6,8,7);p('#ad6261',6,5,8,3);p('#e7cb99',7,6,6);
+      }else{
+        p('#775643',4,12,10);p(light,7,13,4,3);p(dark,8,14,2);
+      }
+    }
+  });
+  lotPropArtCache.set(kind,art);return art;
+}
+function decorateFacilityYard(base,type,direction){
+  const spec=lotPropPlacements[type]?.[direction];
+  if(!spec)return base;
+  if(lotPropCache.has(base))return lotPropCache.get(base);
+  const art=pixelSprite(base.width,base.height,g=>{
+    g.drawImage(base,0,0);
+    const k=base.width/128;
+    for(const [x,y,kind,w=16,h=15] of spec){
+      const left=Math.round((x-w/2)*k),top=Math.round((y-h)*k);
+      const width=Math.round(w*k),height=Math.round(h*k),foot=top+height;
+      // Reuse this frame's original floor colors. Leave transparent and fence
+      // edge pixels alone even when a neighboring decorative box is tight.
+      const ground=g.getImageData(left,foot, width,Math.ceil(6*k));
+      const patch=g.getImageData(left,top,width,height);
+      for(let row=0;row<height;row++)for(let col=0;col<width;col++){
+        const i=(row*width+col)*4;
+        const sample=(Math.floor((2+row%3)*k)*width+col)*4;
+        if(patch.data[i+3]!==255||ground.data[sample+3]!==255)continue;
+        for(let channel=0;channel<3;channel++)patch.data[i+channel]=ground.data[sample+channel];
+      }
+      g.putImageData(patch,left,top);
+      const prop=yardPropArt(kind),scale=Math.min(1,Math.max(.67,w/18,h/20)),pw=Math.round(18*k*scale),ph=Math.round(20*k*scale);
+      g.drawImage(prop,Math.round(x*k-pw/2),Math.round(y*k-ph),pw,ph);
+    }
+    // Picking on the map uses the original sprite's alpha silhouette.
+    const mask=base.getContext('2d').getImageData(0,0,base.width,base.height);
+    const result=g.getImageData(0,0,base.width,base.height);
+    for(let i=0;i<mask.data.length;i+=4)if(mask.data[i+3]!==255)
+      for(let c=0;c<4;c++)result.data[i+c]=mask.data[i+c];
+    g.putImageData(result,0,0);
+  });
+  lotPropCache.set(base,art);return art;
+}
+const lotPropPlacements=Object.fromEntries(Object.entries({
+  ...largeFacilityYardAnchors120,
+  workshop: [[103,89,'crate',16,11],[103,87,'training',15,15],[21,85,'crate',16,11],[103,86,'barrel',16,14]],
+  clinic: [[21,87,'herbs',15,13],[103,85,'basin',13,14],[103,87,'herbs',15,13],[21,86,'basin',14,14]],
+  guild212: [[103,90,'crateBooks',16,13],[22,88,'booksign',14,16],[21,86,'crateBooks',16,13],[103,88,'booksign',14,16]],
+  greenhouse212: [[103,89,'planter',16,13],[103,87,'basin',13,14],[21,87,'planter',16,13],[21,87,'basin',13,14]],
+  gallery212: [[103,90,'planter',16,12],[103,86,'bench',15,11],[21,87,'planter',16,13],[21,87,'bench',15,11]],
+  treasureMuseum213: [[21,83,'crystal',15,19],[21,81,'booksign',14,16],[105,82,'crystal',15,19],[103,81,'booksign',14,16]],
+}).map(([type,facings])=>[type,facings.map(p=>[p])]));
+
+// Redetail only courtyard props: native-pixel overlays on the baked atlas frames.
+// Triples are [prop, native x, native y], measured on each original 384px frame.
+const worldTreeYardProps=[
+ [
+  [['barrel',64,256],['planter',253,287],['sign',190,318]],
+  [['sign',66,255],['planter',127,283],['basin',275,282]],
+  [['basin',149,300],['planter',260,284],['barrel',322,256]],
+  [['barrel',191,323],['planter',129,286],['sign',317,257]]
+ ],
+ [
+  [['lamp',64,251],['bench',252,292],['stone',310,265]],
+  [['sign',67,255],['bench',125,292],['stone',182,323]],
+  [['stone',74,257],['bench',197,322],['lamp',320,252]],
+  [['bench',75,263],['planter',130,289],['lamp',190,318]]
+ ],
+ [
+  [['lamp',64,251],['bench',251,298],['crystal',309,266]],
+  [['stone',66,265],['bench',122,291],['crystal',183,322]],
+  [['crystal',74,263],['bench',198,322],['lamp',321,254]],
+  [['bench',74,263],['lamp',190,318],['stone',317,264]]
+ ]
+];
+const worldTreeYardCache=new WeakMap();
+function decorateWorldTreeYard(base,level,direction){
+  const tier=level>=8?2:level>=5?1:0,face=validFacing(direction);
+  let cached=worldTreeYardCache.get(base);
+  if(!cached){cached=new Map();worldTreeYardCache.set(base,cached);}
+  const key=tier*4+face;
+  if(cached.has(key))return cached.get(key);
+  const result=pixelSprite(base.width,base.height,g=>{
+    g.drawImage(base,0,0);
+    g.globalCompositeOperation='source-atop';
+    // The major pixel silhouettes and shapes (benches, lamps, etc.) remain
+    // integrated in the atlas. These tiny palette-matched details redraw their
+    // faces, glass, and trim without repainting paving stones under them.
+    for(const [kind,x,y] of worldTreeYardProps[tier][face]){
+      const p=(color,dx,dy,w=1,h=1)=>{g.fillStyle=color;g.fillRect(x+dx,y+dy,w,h);};
+      if(kind==='planter'){
+        p('#4d381f',-11,-2,22,5);p('#9a6b42',-11,-2,21,3);p('#dab37a',-10,-2,18);
+        p('#bf8953',-8,0,5);p('#bf8953',1,1,5);p('#705437',-6,1,2,2);p('#705437',6,0,2,2);
+        p('#56703b',-9,-6,18,3);p('#738846',-7,-8,3,3);p('#738846',4,-8,3,3);
+        p('#ae6755',-7,-9,4,3);p('#d9987c',-6,-10,2,3);p('#ffe1a0',-5,-9);
+        p('#a15770',3,-9,4,3);p('#d48794',4,-10,2,3);p('#ffe1a0',5,-9);
+      }else if(kind==='barrel'){
+        p('#785335',-9,-4,18,5);p('#b48151',-8,-4,3,5);p('#9a6b44',0,-4,2,4);
+        p('#4c6c63',-9,-6,18,2);p('#527b70',-9,1,18,2);
+        p('#384b48',-6,-12,12,5);p('#58948a',-6,-11,12,3);
+        p('#a3c8ae',-4,-11,5);p('#6fb9ab',0,-10,5);p('#d7dda6',-7,-7,3);
+      }else if(kind==='basin'){
+        p('#65553b',-11,-7,22,4);p('#ac845a',-10,-7,20,3);p('#e0bc81',-9,-7,12);
+        p('#427e7b',-9,-11,18,4);p('#6db3a7',-7,-10,12,2);p('#b2ccaa',-5,-10,4);
+        p('#c7d6ab',2,-9,5);
+      }else if(kind==='sign'){
+        p('#6f5031',-9,-8,18,11);p('#d3a86d',-8,-7,16,8);p('#ebc18a',-8,-7,16);
+        p('#604d35',-2,-5,4,3);p('#74563b',-5,-4,3,2);p('#74563b',2,-4,3,2);
+        p('#705237',-4,-1,8,1);p('#fae0a1',-6,-6,1);
+      }else if(kind==='bench'){
+        p('#744f35',-10,-5,21,8);p('#be8b57',-10,-5,20,2);p('#e1b879',-10,-5,18);
+        p('#a86d45',-10,-1,21,3);p('#d8a36a',-10,-1,20);
+        p('#8a5939',-7,1,6);p('#8a5939',2,1,5);p('#654b35',-7,2,3,2);p('#654b35',7,2,3,2);
+      }else if(kind==='lamp'){
+        p('#5b614c',-5,-5,10,9);p('#c9995e',-4,-4,8,7);p('#ffe29d',-3,-3,6,5);
+        p('#f5c07b',-3,1,6);p('#876748',-1,-4,1,7);p('#e8c799',-5,-6,10);
+      }else if(kind==='stone'||kind==='crystal'){
+        const crystal=kind==='crystal';
+        p(crystal?'#4f8f8b':'#7e9391',-3,-5,7,13);p(crystal?'#65b4ab':'#a2b4af',-3,-2,3,8);
+        p(crystal?'#b5e2c4':'#d3d8bc',-2,-7,2,7);p(crystal?'#40837d':'#6b8885',2,-1,3,8);
+        p('#657b73',-7,8,14,2);p('#a6b6a0',-6,8,10);
+      }
+    }
+  });
+  cached.set(key,result);
+  return result;
+}
+
+const compactYardDecor={
+  hut:{"colors":{"s":"#b8976a","o":"#6d4932","b":"#94633e","w":"#b37b4b","c":"#d99e5a","h":"#edbd7a"},"rows":[".............","....oooo.....","...ohhcoo....","..oohwcbbo...","..occboowwo..",".ohhhowwwboo.",".ochcowwboho.",".obwboobohco.","..oooooobco..","..sssssssss.."],"anchors":[[97,64],[96,64],[20,64],[20,64]]},
+  stall:{"colors":{"s":"#b18d68","o":"#635149","b":"#876442","w":"#b38950","c":"#daa354","r":"#c65645","h":"#f3cf70","g":"#67814a","v":"#ebb184"},"rows":[".............",".......g.....","....g.rv.....","...rhrhhg....","..rhrvhvhr...","..occoooooo..","..owwbwbbbo..","..obcbwbbbo..","...oooooooo..","...ssssssss.."],"anchors":[[97,64],[96,64],[20,64],[20,64]]},
+  ranch:{"colors":{"s":"#b8976a","o":"#685640","b":"#987450","w":"#b59259","g":"#658350","h":"#8ca85a","l":"#b4bd6b","c":"#d0a366"},"rows":[".............","......h......","...h..l.g....","..gh.ghgh....","..hlhlhlhg...","..olghhhhoo..","..occwwbbbo..","...obwbbooo..","....ooooo....","...sssssss..."],"anchors":[[94,81],[94,81],[17,78],[28,84]]},
+};
+const compactYardSprites=new Map();
+function drawCompactYardDecor(g,type,facing,rect){
+  const spec=compactYardDecor[type];
+  if(!spec)return;
+  const dir=validFacing(facing),mirrored=dir>=2,key=type+'/'+Number(mirrored);
+  let art=compactYardSprites.get(key);
+  if(!art){
+    art=pixelSprite(13,10,g=>{
+      spec.rows.forEach((row,y)=>[...row].forEach((pixel,x)=>{
+        const color=spec.colors[pixel];if(!color)return;
+        g.fillStyle=color;g.fillRect(mirrored?12-x:x,y,1,1);
+      }));
+    });
+    compactYardSprites.set(key,art);
+  }
+  const [x,y]=spec.anchors[dir],sx=rect.w/128,sy=rect.h/128;
+  g.drawImage(art,rect.x+x*sx,rect.y+y*sy,13*sx,10*sy);
+}
+
+const compactLotCache=new WeakMap();
+function decorateCompactLot(base,type,direction){
+ if(!compactYardDecor[type])return base;
+ if(compactLotCache.has(base))return compactLotCache.get(base);
+ const result=pixelSprite(base.width,base.height,g=>{
+  g.drawImage(base,0,0);
+  drawCompactYardDecor(g,type,direction,{x:0,y:0,w:base.width,h:base.height});
+ });
+ compactLotCache.set(base,result);
+ return result;
+}
+
 const previousFacilityArt = spriteBuildingV161;
 spriteBuildingV161 = function(type, level = 1, facing = 0) {
   const direction = validFacing(facing);
   if (type === 'worldtree') {
     const frame = worldTreeFrames[level >= 8 ? 2 : level >= 5 ? 1 : 0];
     const tree = villageSprite(frame, 0, facilitySheet, direction);
-    return tree ? worldTreeMilestoneArt(tree, level, state?.hour, tickAccum, direction) : previousFacilityArt(type, level);
+    return tree ? worldTreeMilestoneArt(decorateWorldTreeYard(tree,level,direction), level, state?.hour, tickAccum, direction) : previousFacilityArt(type, level);
   }
   const marks = level >= 4 ? 2 : level >= 2 ? 1 : 0;
   const sheet = type === 'expeditionOffice' ? expeditionOfficeSheet : facilitySheet;
-  return villageSprite(facilityFrames[type], marks, sheet, direction) || previousFacilityArt(type, level);
+  const base=villageSprite(facilityFrames[type], marks, sheet, direction);
+  return base?decorateCompactLot(decorateFacilityYard(base,type,direction),type,direction):previousFacilityArt(type,level);
 };
 spriteBuilding = spriteBuildingV161;
 
