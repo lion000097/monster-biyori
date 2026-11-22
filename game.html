@@ -4347,12 +4347,14 @@ function materialGallery211(){
  <div class="treasure-grid material-grid">${cards}</div></div>`;
 }
 function isBedroom(site){return site.type==='home'||site.type==='inn'}
+const staffPlanWait=new WeakMap();
 function planStaffActivity(w){
  const night=phase213(state.hour)==='sleep';
  if(!night&&w.jobTarget211?.rest&&!w.jobTask212){
   w.jobTarget211=null;w.path=[];w.act='待機中';
  }
- if(w.jobTask212||w.jobTarget211||w.path?.length)return;
+ if(w.jobTask212||w.jobTarget211||w.indoorRest||w.expeditionVisit||plotWalks.has(w)||greetings.has(w))return;
+ if(w.path?.length&&!night)return;
  if(night){
   const route=monsterRoute139(w,state.buildings.filter(isBedroom),1,true);
   if(route){
@@ -4360,7 +4362,15 @@ function planStaffActivity(w){
    w.path=route.path;w.act=B[route.site.type].name+'へ休みに行く';return;
   }
  }
- if(chance(.5))seek(w,w.job);
+ if(w.path?.length)return;
+ seek(w,w.job);
+ if(w.jobTarget211)return;
+ const walk=monsterRoute139(w,[null],3);
+ if(walk){w.path=walk.path;w.act='道を散歩中';return;}
+ // A single isolated road tile can strand a resident after construction or an old save.
+ const connected=nearestResidentRoad(w.x,w.y,true);
+ if(connected){Object.assign(w,connected);w.act='つながった道に合流';}
+ else w.act='歩ける道を待っている';
 }
 function workplaceType211(job){
  return {keeper:'home',gather:'farm',sell:'shop',study:'lab',explore:'expeditionOffice'}[job]||null;
@@ -4370,15 +4380,12 @@ seek=function(actor,job){
  if(actor.kind!==undefined)return seekOld211(actor,job);
  if(actor.jobTarget211||actor.jobCooldown211>0)return;
  const type=workplaceType211(job);if(!type)return;
- const sites=state.buildings.filter(b=>b.type===type).sort((a,b)=>
-  Math.hypot(actor.x-a.x,actor.y-a.y)-Math.hypot(actor.x-b.x,actor.y-b.y));
- for(const b of sites){
-  const route=monsterRoute139(actor,[b],1,true);if(!route)continue;
-  const p=route.pt,path=route.path;
-  if(path.length||Math.hypot(actor.x-p[0],actor.y-p[1])<.2){
-   actor.path=path;actor.jobTarget211={id:b.id,job,goal:p};
-   actor.act='🚶 '+B[b.type].name+'へ移動';return;
-  }
+ const sites=state.buildings.filter(b=>b.type===type);
+ let route=monsterRoute139(actor,sites,1,true);
+ if(!route&&type==='greenhouse212')route=monsterRoute139(actor,state.buildings.filter(b=>b.type==='farm'),1,true);
+ if(route){
+  actor.path=route.path;actor.jobTarget211={id:route.site.id,job,goal:route.pt};
+  actor.act='🚶 '+B[route.site.type].name+'へ移動';return;
  }
  actor.act=job==='explore'?(sites.length?'遠征所までの道を待っている':'遠征所の建設待ち'):'仕事場が必要';
 };
@@ -6068,7 +6075,17 @@ tick=function(silent=false){
 };
 const oldStep213=stepActors;
 stepActors=function(dt){
- if(state.speed>0)updateMonsterWalks139(dt);
+ if(state.speed>0){
+  updateMonsterWalks139(dt);
+  let planned=0;
+  for(const w of state.staff){
+   if(w.jobTask212||w.jobTarget211||w.path?.length||plotWalks.has(w)||greetings.has(w))continue;
+   const wait=(staffPlanWait.get(w)??(1+(w.id%4)*.45))-dt;
+   staffPlanWait.set(w,wait);
+   if(wait>0||planned>=2)continue;
+   planStaffActivity(w);planned++;staffPlanWait.set(w,2+Math.random()*2);
+  }
+ }
  oldStep213(dt);
  for(const a of [...state.monsters,...state.staff]){
   if(!a.path?.length){a.prevPos213=null;a.stall213=0;continue}
@@ -7867,11 +7884,11 @@ function alignExistingEntrances() {
   }
   state.frontRoadsAligned = true;
 }
-function nearestResidentRoad(x,y){
+function nearestResidentRoad(x,y,connected=false){
  let best=null,distance=Infinity;
  for(const group of [DEFAULT_PATH_KEYS,state.paths||[]])for(const key of group){
   const [px,py]=key.split(',').map(Number),d=(px-x)**2+(py-y)**2;
-  if(d<distance&&residentRoad(px,py)){best={x:px,y:py};distance=d;}
+  if(d<distance&&residentRoad(px,py)&&(!connected||neighbors(px,py).some(([nx,ny])=>residentRoad(nx,ny)))){best={x:px,y:py};distance=d;}
  }
  return best;
 }
