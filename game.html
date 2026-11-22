@@ -648,8 +648,10 @@ function visitTick(silent){const econ=state.economy,season=seasonInfo(),weather=
   const destinations=state.buildings.filter(b=>(['shop','cafe','inn','park','tower','treasureMuseum213','postOffice'].includes(b.type)||displayedRelic(b)!==null)&&entranceRoads(b).length);
   const shops=destinations.filter(b=>b.type==='shop'),sights=destinations.filter(b=>b.type!=='shop');
   const hasTouristStop=sights.some(b=>['treasureMuseum213','relicStand','postOffice'].includes(b.type));
-  const store=shops.length&&(!hasTouristStop||Math.random()>.22)?rnd(shops):null;
-  const spot=store||(sights.length?rnd(sights):null);
+  const rooms=phase213(state.hour)==='sleep'?state.buildings.filter(b=>isBedroom(b)&&entranceRoads(b).length):[];
+  const room=rooms.length&&Math.random()<.5?rnd(rooms):null;
+  const store=!room&&shops.length&&(!hasTouristStop||Math.random()>.22)?rnd(shops):null;
+  const spot=room||store||(sights.length?rnd(sights):null);
   const pos=spot?nearestPlace(12,9,spot.x,spot.y):nearestPlace(12,9,10,8);
   const entry=visitorEntry101(pos);
   if(entry){
@@ -666,7 +668,7 @@ function visitTick(silent){const econ=state.economy,season=seasonInfo(),weather=
   }
  }
  for(const g of state.guests){
-  if(['arrive','queue','detour','leave'].includes(g.phase212))g.life=Math.max(2,Number(g.life)||2);
+  if(g.indoorRest||['arrive','queue','detour','leave'].includes(g.phase212))g.life=Math.max(2,Number(g.life)||2);
   else g.life-=1;
  }
  state.guests=state.guests.filter(g=>g.life>0);
@@ -887,7 +889,7 @@ const fed=state.food>=demand;
 state.food=Math.max(0,state.food-demand);
 const xpBoost=researchMultiplier('train');
 for(let m of state.monsters){m.happy=clamp(m.happy+(fed?.08:-.65)+park*.14,4,100);m.bond=clamp(m.bond+.03+park*.02,0,100);m.xp+=(.39+.38*Math.sqrt(school))*(m.happy/110+.35)*xpBoost*(.72+m.energy/280)*.35*(m.gift212===3?1.20:1);m.produce+=(m.happy>30?1:.55)*.65*(state.hour>=21||state.hour<6?.12:1);if(state.hour>=6&&state.hour<21&&m.produce>=Math.max(4,10-(m.lv>=7?1:0))){m.produce=Math.max(4,10-(m.lv>=7?1:0));ranchProduction200(m,!!silent);if(!silent&&chance(.015))swirls.push({x:m.x*T+16,y:m.y*T,life:1.15,text:'✦'})}let need=monsterLevelNeed135(m.lv);if(m.xp>=need){m.xp-=need;m.lv++;state.metrics.level++;state.fame+=.5+Math.floor(m.lv/12)*.5;m.happy=clamp(m.happy+5,0,100);if(!silent)message(`⬆️ ${m.name}が Lv.${m.lv} に！ 牧場の評判アップ！`)}}
-for(let s of state.staff){if(!silent&&(!s.path||!s.path.length)&&chance(.5)){seek(s,s.job);if(s.job!=='explore')s.act=s.jobTask212?'作業中':JOBS[s.job].label+'中'}}
+if(!silent)for(const worker of state.staff)planStaffActivity(worker);
 // Sale happens only on guest arrival.
 // No automatic sales: shop money is credited at customer checkout.
 
@@ -1712,7 +1714,7 @@ canvas.addEventListener('wheel', event => {
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.tab;renderUI(true)}));
 document.querySelectorAll('[data-speed]').forEach(b=>b.addEventListener('click',()=>{state.speed=+b.dataset.speed;document.querySelectorAll('[data-speed]').forEach(el=>el.classList.toggle('on',el===b));renderUI(true)}));
 document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const action=b.dataset.action,id=b.dataset.id;if(action==='build'){terrainMode=null;if(buildMode===id)buildMode=null;else{moveMode=null;clearMode=false;buildMode=id;placementFacing=0;selectedBuilding=null;selectedMonster=null;toast(`🔨 ${B[id].name}を建てる位置を選ぼう`)}renderUI(true)}else if(action==='cancelBuild'){buildMode=null;renderUI(true)}else if(action==='moveBuilding')startMoving(+id);else if(action==='cancelMove')cancelMoving();else if(action==='toggleClear'){terrainMode=null;toggleClearMode()}else if(action==='recoverBuilding')recoverBuilding(+id);else if(action==='zoomIn')setZoom(zoom*1.2);else if(action==='zoomOut')setZoom(zoom/1.2);else if(action==='zoomReset')setZoom(1);else if(action==='showAdventure'){tab='adventure';renderUI(true);$('tabBody').scrollTop=0}else if(action==='upgrade')upgrade(+id);else if(action==='egg')buyEgg();else if(action==='hire')hire();else if(action==='research')doResearch(id);else if(action==='selectMonster')openMonsterDetails(+id,b);else if(action==='export')exportSave();else if(action==='reset')reset();else if(action==='import')$('importInput').click();else if(action==='pan'){const d={left:[-11,0],right:[11,0],up:[0,-10],down:[0,10]}[id];if(d)cameraMove(...d)}else if(action==='walkCamera')startWalkCamera(+id);else if(action==='centerMap'){stopWalkCamera();cameraX=VW/2-VW/(2*zoom);cameraY=VH/2-VH/(2*zoom);limitCamera();renderUI(false)}else if(action==='adventureStart')startAdventure();else if(action==='adventureAuto'){state.adventure.auto=!state.adventure.auto;state.adventure.cooldown=0;message(state.adventure.auto?'🔁 自動冒険を始めるよ！':'⏹️ 自動冒険を停止したよ。');renderUI(true);save(true)}else if(action==='atlas'){atlasCategory=id;renderUI(true)}else if(action==='showManagement'){tab='management';renderUI(true)}else if(action==='completeOrder')completeOrder(Number(id));else if(action==='treasureOrder')deliverTreasureOrder(Number(id));else if(action==='festival')hostFestival();else if(action==='trainMonster')trainMonster(+id);else if(action==='equipCharm')equipCharm(+id);else if(action==='toggleParty')toggleParty(+id)});
-document.addEventListener('pointerdown',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('focusin',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('change',e=>{if(e.target.matches('.staff-select[data-staff]')){let s=state.staff.find(o=>o.id===+e.target.dataset.staff);if(s&&JOBS[e.target.value]){if(s.job!==e.target.value&&(s.job==='explore'||e.target.value==='explore')){cancelPlotWalk(s);s.jobTarget211=null;s.jobTask212=null;s.jobCooldown211=0;s.act='待機中'}s.job=e.target.value;s.path=[];if(s.job==='explore')seek(s,s.job);message(`🧑‍🌾 ${s.name}の担当が「${JOBS[s.job].label}」になったよ。`,'success');save(true)}inputLock=false;renderUI(true)}if(e.target.id==='importInput')importSave(e.target.files[0])});document.addEventListener('focusout',e=>{if(e.target.matches('.staff-select'))inputLock=false});
+document.addEventListener('pointerdown',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('focusin',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('change',e=>{if(e.target.matches('.staff-select[data-staff]')){let s=state.staff.find(o=>o.id===+e.target.dataset.staff);if(s&&JOBS[e.target.value]){if(s.job!==e.target.value&&(s.jobTarget211?.rest||s.job==='explore'||e.target.value==='explore')){cancelPlotWalk(s);s.jobTarget211=null;s.jobTask212=null;s.jobCooldown211=0;s.act='待機中'}s.job=e.target.value;s.path=[];if(s.job==='explore')seek(s,s.job);message(`🧑‍🌾 ${s.name}の担当が「${JOBS[s.job].label}」になったよ。`,'success');save(true)}inputLock=false;renderUI(true)}if(e.target.id==='importInput')importSave(e.target.files[0])});document.addEventListener('focusout',e=>{if(e.target.matches('.staff-select'))inputLock=false});
 const helpTopics = {staff:'市民の役職', tree:'世界樹の成長XP', basics:'基本とセーブ'};
 let helpOpener;
 let monsterDetails=null;
@@ -4319,6 +4321,22 @@ function materialGallery211(){
  return `<div class="material-gallery" style="--material-atlas-size:${columns*100}% ${rows*100}%"><div class="info-card"><strong>📦 素材図鑑</strong><br>発見 ${seen.size} / ${MATERIALS211.length}種<br>モンスターが素材牧場で生産した素材を集めよう。</div>
  <div class="treasure-grid material-grid">${cards}</div></div>`;
 }
+function isBedroom(site){return site.type==='home'||site.type==='inn'}
+function planStaffActivity(w){
+ const night=phase213(state.hour)==='sleep';
+ if(!night&&w.jobTarget211?.rest&&!w.jobTask212){
+  w.jobTarget211=null;w.path=[];w.act='待機中';
+ }
+ if(w.jobTask212||w.jobTarget211||w.path?.length)return;
+ if(night){
+  const route=monsterRoute139(w,state.buildings.filter(isBedroom),1,true);
+  if(route){
+   w.jobTarget211={id:route.site.id,job:w.job,goal:route.pt,rest:true};
+   w.path=route.path;w.act=B[route.site.type].name+'へ休みに行く';return;
+  }
+ }
+ if(chance(.5))seek(w,w.job);
+}
 function workplaceType211(job){
  return {keeper:'home',gather:'farm',sell:'shop',study:'lab',explore:'expeditionOffice'}[job]||null;
 }
@@ -4636,19 +4654,22 @@ function progressStaffWork212(dt){
  for(const w of state.staff){
   const task=w.jobTask212;if(!task)continue;
   const building=state.buildings.find(b=>b.id===task.id);
-  const exploring=w.job==='explore';
-  if(!building||task.job!==w.job||!w.jobTarget211?.goal||(exploring&&building.type!=='expeditionOffice')){
+  const resting=!!w.jobTarget211?.rest,exploring=!resting&&w.job==='explore';
+  if(!building||task.job!==w.job||!w.jobTarget211?.goal||(exploring&&building.type!=='expeditionOffice')||
+     (resting&&!w.indoorRest&&plotWalks.get(w)?.phase!=='exit'&&phase213(state.hour)!=='sleep')){
    cancelPlotWalk(w);w.jobTask212=null;w.jobTarget211=null;w.path=[];continue;
   }
   const phase=stepPlotWalk(w,building,w.jobTarget211.goal,dt,task.duration,()=>{
    if(exploring){
     w.expeditionVisit={buildingId:building.id,remaining:task.duration};
     w.act='🧭 探検中';
-   }else w.act='🔨 '+JOBS[w.job].label+'作業中';
+   }else if(!resting)w.act='🔨 '+JOBS[w.job].label+'作業中';
   },()=>{if(exploring)w.act='🧭 遠征所に帰還';});
   if(phase==='cancelled'){w.jobTask212=null;w.jobTarget211=null;continue;}
   if(phase==='done'){
-   delete w.expeditionVisit;w.jobTask212=null;workAtSite211(w,building);
+   delete w.expeditionVisit;w.jobTask212=null;
+   if(resting){w.jobTarget211=null;w.act='待機中';}
+   else workAtSite211(w,building);
   }else{
    task.remaining=plotWalks.get(w).remaining;
    if(w.expeditionVisit)w.expeditionVisit.remaining=task.remaining;
@@ -4732,7 +4753,7 @@ function planGuestDetour(g,site){
 function finishGuestVisit(g){
  if(Math.random()<.55){
   const sites=state.buildings.filter(b=>b.id!==g.visitBuildingId&&
-   (guestDetourTypes.has(b.type)||displayedRelic(b)!==null));
+   (guestDetourTypes.has(b.type)||displayedRelic(b)!==null||(phase213(state.hour)==='sleep'&&isBedroom(b))));
   const start=Math.floor(Math.random()*sites.length);
   for(let i=0;i<sites.length;i++)if(planGuestDetour(g,sites[(start+i)%sites.length]))return;
  }
@@ -4989,6 +5010,10 @@ load=function(){
   repairVIP212();
   for(const w of state.staff){
    w.jobTask212=null;w.jobTarget211=null;w.path=[];
+   if(w.indoorRest){
+    if(resumeIndoorRest(w,staffWorkSeconds))continue;
+    w.act='待機中';
+   }
    if(w.expeditionVisit)resumeExpeditionVisit(w);
    else if(w.job==='explore')w.act='探検の準備中';
   }
@@ -7650,14 +7675,14 @@ function cancelPlotWalk(actor){
   const p=residentRoad(x,y)?{x,y}:actor.kind!==undefined||actor.job?nearestResidentRoad(x,y):nearestFree191(x,y);
   if(p){actor.x=p.x;actor.y=p.y;}
   if(actor.indoorRest){
-    delete actor.indoorRest;actor.act=actor.kind!==undefined?'🐾 おさんぽ':'観光中';
+    delete actor.indoorRest;actor.act=actor.kind!==undefined?'🐾 おさんぽ':actor.job?'待機中':'観光中';
   }
   if(actor.expeditionVisit){delete actor.expeditionVisit;actor.act='待機中';}
   plotWalks.delete(actor);delete actor.facilityDoor;
 }
 function usesSleepingRoom(actor,site){
-  return (site.type==='home'||site.type==='inn')&&
-    (actor.kind!==undefined||actor.phase212==='sightseeing'||actor.phase212==='detour');
+  return isBedroom(site)&&(actor.kind!==undefined||actor.jobTarget211?.rest||
+    actor.phase212==='sightseeing'||actor.phase212==='detour');
 }
 function enterIndoorRest(actor,walk){
   actor.indoorRest={buildingId:walk.site.id,remaining:walk.remaining};
@@ -7667,13 +7692,16 @@ function resumeIndoorRest(actor,duration){
   const {buildingId,remaining}=actor.indoorRest;
   delete actor.indoorRest;
   const site=state.buildings.find(b=>b.id===buildingId);
-  if(!site||!usesSleepingRoom(actor,site)||!Number.isFinite(remaining)||remaining<=0||remaining>duration)return false;
-  if(actor.kind===undefined&&(!actor.arrived211||actor.visitBuildingId!==buildingId))return false;
-  // The save loader has already restored the actor to its original entrance.
-  const door=[actor.x,actor.y],walk=beginPlotWalk(actor,site,door,remaining);
-  if(!walk)return false;
+  if(!site||!isBedroom(site)||!Number.isFinite(remaining)||remaining<=0||remaining>duration)return false;
+  const door=[actor.x,actor.y];
+  if(actor.job)actor.jobTarget211={id:buildingId,job:actor.job,goal:door,rest:true};
+  else if(actor.kind===undefined&&(!actor.arrived211||actor.visitBuildingId!==buildingId||!usesSleepingRoom(actor,site)))return false;
+  const walk=beginPlotWalk(actor,site,door,remaining);
+  if(!walk){if(actor.job)actor.jobTarget211=null;return false;}
   if(actor.kind!==undefined){
     startFacilityVisit(actor,site,{pt:door,path:[]});monsterWalkTimer139(actor).visit.remaining=remaining;
+  }else if(actor.job){
+    beginStaffWork212(actor,site);actor.jobTask212.remaining=remaining;
   }else{actor.visitGoal=door;actor.route212=[];}
   [actor.x,actor.y]=walk.points.at(-1);walk.points=[];walk.phase='use';
   enterIndoorRest(actor,walk);return true;
@@ -7736,7 +7764,7 @@ function stepPlotWalk(actor,site,door,dt,seconds,onArrival,onServed){
       if(v.bedroom)enterIndoorRest(actor,v);
     }
   }else if(v.phase==='use'){
-    if(v.bedroom&&actor.kind!==undefined&&state.hour>=4&&state.hour<6)return 'use';
+    if(v.bedroom&&(actor.job?phase213(state.hour)==='sleep':actor.kind!==undefined&&state.hour>=4&&state.hour<6))return 'use';
     v.remaining=Math.max(0,v.remaining-dt);
     if(actor.indoorRest)actor.indoorRest.remaining=v.remaining;
     if(v.remaining===0){
