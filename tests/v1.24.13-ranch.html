@@ -85,6 +85,8 @@ function ranchFixture(){
     check(state.expeditionArea213===0&&state.exploreProgress===18.5&&state.expeditionHeld134[1]===42.75,'行き先別の進捗');
     toggle().click();advanceExpeditionClock(2);renderUI(false);
     check(state.exploreProgress>18.5&&document.querySelector('[data-exp-status]').textContent==='遠征中','通常時計と表示');
+    const panelRect=document.querySelector('.expedition-card').getBoundingClientRect();
+    check(panelRect.top<innerHeight&&panelRect.bottom>0,'遠征操作が画面内に見える');
     const n=state.expeditionCounts213[0],coins=state.coins;
     advanceExpedition(expeditionGoal213(0)-state.exploreProgress);
     check(state.expeditionCounts213[0]===n+1&&state.coins>coins,'遠征帰還と報酬');

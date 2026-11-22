@@ -1619,13 +1619,18 @@ if(b){const flash=Math.max(0,1-(Date.now()-(b.lastHitAt||0))/650);if(flash>0){g.
 let lastBattleText='';function updateBattleStats(){let b=state.battle,n=b?b.stage:state.adventure.stage,info=stageMonsterInfo(n);const s=b?`⚔️ Round ${b.round}　味方 ${Math.ceil(b.ourHp)} / ${b.ourMax} HP ・ 敵 ${Math.ceil(b.hp)} / ${b.maxHp} HP　${b.log||''}`:'🌿 次の相手：'+info.enemy.name+'　｜　冒険タブから出発すると自動で戦うよ';$('battleStageBadge').textContent=stageLabel(n)+(info.boss?' 👑ボス戦':' 🌿冒険'+recommendedPartyText(n));if(s!==lastBattleText){$('battleStats').textContent=s;lastBattleText=s}}
 
 function stepActors(dt){for(let a of [...state.monsters,...state.staff]){if(!Array.isArray(a.path)||!a.path.length)continue;let p=a.path[0],dx=p[0]-a.x,dy=p[1]-a.y,d=Math.hypot(dx,dy);if(d<.05){a.x=p[0];a.y=p[1];a.path.shift();continue}let speed=(a.kind!==undefined?1.3:1.55)*dt;if(speed>=d){a.x=p[0];a.y=p[1];a.path.shift()}else{a.x+=dx/d*speed;a.y+=dy/d*speed}}for(const g of state.guests){const d=Math.hypot(g.tx-g.x,g.ty-g.y);if(d>.08){const v=Math.min(d,dt*.55);g.x+=(g.tx-g.x)/d*v;g.y+=(g.ty-g.y)/d*v}else if(Math.random()<dt*.22){const p=randWalk();g.tx=p.x;g.ty=p.y}}for(let i=swirls.length-1;i>=0;i--){swirls[i].life-=dt*.8;if(swirls[i].life<=0)swirls.splice(i,1)}}
+function selectMapBuilding(b){
+  selectedBuilding=b.id;selectedMonster=null;tab='build';renderUI(true);
+  if(b.type==='expeditionOffice')expeditionPanel?.scrollIntoView({block:'nearest'});
+  toast(`${B[b.type].icon} ${B[b.type].name} Lv.${b.level}`);
+}
 function onMapClick(e){const p=canvasCell(e);
 const picked=(!clearMode&&!terrainMode&&!moveMode&&!buildMode)?pickMapActorOrFacility(p):null;
 if(picked){
   if(picked.monster&&!picked.monster.indoorRest&&state.monsters.includes(picked.monster)){const m=picked.monster;openMonsterDetails(m.id,canvas);return}
-  if(picked.building&&state.buildings.includes(picked.building)){const b=picked.building;selectedBuilding=b.id;selectedMonster=null;tab='build';renderUI(true);toast(`${B[b.type].icon} ${B[b.type].name} Lv.${b.level}`);return}
+  if(picked.building&&state.buildings.includes(picked.building)){const b=picked.building;selectMapBuilding(b);return}
 }
-if(p.x<MIN_X||p.y<MIN_Y||p.x>=W||p.y>=H)return;if(clearMode){clearScenery(p.x,p.y);return}if(!unlocked(p.x,p.y)){if(moveMode){toast('施設は解放済みの土地にしか置けないよ','error');return}requestLandPurchase(zoneId(p.x,p.y));return}if(moveMode){moveBuilding(p.x,p.y);return}if(buildMode){place(buildMode,p.x,p.y);return}let m=state.monsters.findLast(m=>!m.indoorRest&&Math.hypot(m.x-p.x,m.y-p.y)<.9);if(m){openMonsterDetails(m.id,canvas);return}let b=getBuildingAt(p.x,p.y);if(b){selectedBuilding=b.id;selectedMonster=null;tab='build';renderUI(true);toast(`${B[b.type].icon} ${B[b.type].name} Lv.${b.level}`);return}selectedBuilding=null;selectedMonster=null;renderUI(true)}
+if(p.x<MIN_X||p.y<MIN_Y||p.x>=W||p.y>=H)return;if(clearMode){clearScenery(p.x,p.y);return}if(!unlocked(p.x,p.y)){if(moveMode){toast('施設は解放済みの土地にしか置けないよ','error');return}requestLandPurchase(zoneId(p.x,p.y));return}if(moveMode){moveBuilding(p.x,p.y);return}if(buildMode){place(buildMode,p.x,p.y);return}let m=state.monsters.findLast(m=>!m.indoorRest&&Math.hypot(m.x-p.x,m.y-p.y)<.9);if(m){openMonsterDetails(m.id,canvas);return}let b=getBuildingAt(p.x,p.y);if(b){selectMapBuilding(b);return}selectedBuilding=null;selectedMonster=null;renderUI(true)}
 let mapPointer=null;
 canvas.addEventListener('pointerdown',e=>{if(e.button!==0&&e.pointerType==='mouse')return;mapPointer={id:e.pointerId,startX:e.clientX,startY:e.clientY,lastX:e.clientX,lastY:e.clientY,dragged:false};canvas.setPointerCapture(e.pointerId)});
 canvas.addEventListener('pointermove',e=>{const p=canvasCell(e);hover=p.x>=MIN_X&&p.y>=MIN_Y&&p.x<W&&p.y<H?p:null;if(mapPointer&&mapPointer.id===e.pointerId){const d=mapPointer;const rect=canvas.getBoundingClientRect();if(Math.hypot(e.clientX-d.startX,e.clientY-d.startY)>5)d.dragged=true;if(d.dragged){stopWalkCamera();const drag=unprojectGround((e.clientX-d.lastX)*VW*T/(rect.width*zoom),(e.clientY-d.lastY)*VH*T/(rect.height*zoom));cameraX-=drag.x;cameraY-=drag.y;limitCamera();hover=null}d.lastX=e.clientX;d.lastY=e.clientY}});
