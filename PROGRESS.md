@@ -2,15 +2,15 @@
 
 対象バージョン　1.24.12
 
-保存先　GitHub lion000097/monster-biyori の release/1.24.12、game.html と PROGRESS.md
+保存先　GitHub lion000097/monster-biyori の main と release/1.24.12、game.html と PROGRESS.md
 
 完了事項　朝の寝起き、夕暮れの窓あかり、仲間と市民の立ち話、季節の道草
 
-確認結果　ゲーム本体のJavaScript構文確認に合格。
+確認結果　1.24.11のセーブ引き継ぎと全4演出をChromeで確認。1366×900と390×844の両方で合格。
 
-残作業　配布と公開確認
+残作業　なし
 
-次の操作　配布と公開確認
+次の操作　次回は公開済みの1.24.12から開始。
 
 ## 修正ごとの記録
 
@@ -27,3 +27,7 @@
 Chromeでは初回のPC幅が成功。スマートフォン幅で寝起きの検証用の仲間に前の行動が残るケースがあったため、性格ごとに別の仲間を実際の入口から入退室させる検証に修正。
 
 版別HTML・更新情報・配布ZIPを作成。HTMLのSHA-256は c14a2abaad58e0f1ca5f4c99ba696076ee32e70d31b16de61e415bee09e73d2c。ZIPの186項目を展開し、前版からの素材と新版の本体・説明を照合済み。
+
+[PC・スマートフォン幅の検証結果](https://github.com/lion000097/monster-biyori/actions/runs/44979683989)。検証済みの配布コミットをmainへ反映。
+
+2026年11月22日公開完了。[公開処理](https://github.com/lion000097/monster-biyori/actions/runs/44979779652) が成功。更新情報・ゲーム本体・版別HTML・配布ZIPがすべてHTTP 200で検証済みのファイルと一致。
