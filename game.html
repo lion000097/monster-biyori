@@ -616,7 +616,7 @@ function validRanchName(value) {
   const name = typeof value === 'string' ? value.trim() : '';
   return name && [...name].length <= RANCH_NAME_LIMIT ? name : '';
 }
-function initial(){return {version:1,ranchName:DEFAULT_RANCH_NAME,stoneTiles:{},talentFruit:0,ranchPace1313:true,restingMonsters:[],pendingExploreEgg:null,reserveRareMaterials:false,clearedScenery:[],coins:910,food:88,stock:5,magic:12,fame:9,day:1,hour:8,ticks:0,speed:1,buildings:[{id:1,type:'farm',x:3,y:3,level:1},{id:2,type:'home',x:8,y:3,level:1}],monsters:[makeMonster(1,0,7,9),makeMonster(2,1,12,9),makeMonster(3,2,15,10)],staff:[makeStaff(5,'keeper',10,9),makeStaff(6,'gather',11,7)],eggs:[],villageLv:1,villageXp:0,zones:[0,1,4,5],catalog:{friends:[0,1,2],shinies:[],enemies:[],defeated:[],citizens:[]},adventure:{stage:1,clears:0,auto:false,cooldown:0},battle:null,research:{farm:0,train:0,market:0,quest:0},metrics:{food:0,coins:0,level:0,sell:0,days:0,build:0,explore:0,hatch:0},quests:[],nextId:7,questSequence:0,exploreProgress:0,springProgress:0,log:[],createdAt:Date.now(),savedAt:Date.now()}}
+function initial(){return {version:1,ranchName:DEFAULT_RANCH_NAME,stoneTiles:{},talentFruit:0,ranchPace1313:true,restingMonsters:[],pendingExploreEgg:null,reserveRareMaterials:true,clearedScenery:[],coins:910,food:88,stock:5,magic:12,fame:9,day:1,hour:8,ticks:0,speed:1,buildings:[{id:1,type:'farm',x:3,y:3,level:1},{id:2,type:'home',x:8,y:3,level:1}],monsters:[makeMonster(1,0,7,9),makeMonster(2,1,12,9),makeMonster(3,2,15,10)],staff:[makeStaff(5,'keeper',10,9),makeStaff(6,'gather',11,7)],eggs:[],villageLv:1,villageXp:0,zones:[0,1,4,5],catalog:{friends:[0,1,2],shinies:[],enemies:[],defeated:[],citizens:[]},adventure:{stage:1,clears:0,auto:false,cooldown:0},battle:null,research:{farm:0,train:0,market:0,quest:0},metrics:{food:0,coins:0,level:0,sell:0,days:0,build:0,explore:0,hatch:0},quests:[],nextId:7,questSequence:0,exploreProgress:0,springProgress:0,log:[],createdAt:Date.now(),savedAt:Date.now()}}
 function makeMonster(id,kind,x,y){return {id,kind,iv:{hp:rollTalentIV(),attack:rollTalentIV(),defense:rollTalentIV()},name:rnd(names),shiny:false,lv:1,xp:0,happy:83+Math.random()*16,bond:10+Math.random()*12,energy:85,x,y,path:[],produce:Math.random()*6,bob:Math.random()*6,act:'あそぶ',trait:Math.floor(Math.random()*TRAITS.length),element:KIND_ELEMENTS[kind],equip:false,trainedDay:0}}
 function makeStaff(id,job,x,y){const gender=Math.random()<.5?'男':'女';return {id,name:rnd(gender==='男'?MALE_NAMES:FEMALE_NAMES),gender,job,x,y,path:[],bob:Math.random()*6,act:'仕事中',level:1,work:0,workXp:0,morale:85,fatigue:8,mastery:{keeper:0,gather:0,sell:0,study:0,explore:0}}}
 
@@ -6926,7 +6926,7 @@ function validBarnRoster(save) {
 function loadBarn(save) {
   save.restingMonsters ??= [];
   save.pendingExploreEgg ??= null;
-  save.reserveRareMaterials = save.reserveRareMaterials === true;
+  save.reserveRareMaterials = save.reserveRareMaterials !== false;
   let next = Number.isSafeInteger(save.nextId) ? save.nextId : 100;
   for (const group of [save.monsters, save.restingMonsters, save.staff, save.eggs, save.buildings]) {
     for (const item of group) if (Number.isSafeInteger(item.id)) next = Math.max(next, item.id + 1);
