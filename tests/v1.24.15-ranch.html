@@ -1,0 +1,126 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><title>もんすたー日和 1.24.15 動作確認</title>
+<h1>建物の操作・世界樹・洞窟・市民・お店</h1><button id="run">検証を開始</button><pre id="result" aria-live="polite"></pre>
+<script>
+'use strict';
+function fixture(){
+ const check=(ok,label)=>{if(!ok)throw Error(label)};
+ const query=s=>document.querySelector(s),site=type=>state.buildings.find(b=>b.type===type);
+ function add(type,x,y,level=1){const b={id:state.nextId++,type,x,y,level,facing:0};state.buildings.push(b);return b;}
+ function level(n){state.villageLv=state.worldTreeLevel=site('worldtree').level=n;}
+ function seed(){
+  state.speed=0;state.ranchName='洞窟の牧場';state.food=317.25;state.coins=41000;state.magic=130;state.day=17;state.hour=14;
+  level(5);state.villageXp=500;state.reserveRareMaterials=false;state.expeditionAuto213=false;
+  add('guild212',13,6,3).constructionPaid=1150;add('expeditionOffice',7,2,4);
+  state.treasures=[0,10];state.treasureStock={0:2,10:1};state.materialStock211[0]=85;state.materialStock211[5]=17;ensureMaterials211();
+  state.economy.ordersDone=4;state.economy.eventDay=16;state.economy.treasureOrdersDone=2;state.exploreProgress=37;
+  save(true);
+ }
+ function snapshot(){return JSON.stringify([state.ranchName,state.speed,state.day,state.hour,state.coins,state.food,state.magic,
+  state.villageLv,state.villageXp,state.buildings.map(b=>[b.id,b.type,b.x,b.y,b.facing,b.level,investedIn(b)]),
+  state.paths,state.treasures,state.reserveRareMaterials,state.materialStock211,state.stock,state.treasureStock,
+  state.monsters.map(m=>[m.id,m.name,m.kind,m.lv,m.xp]),state.staff.map(w=>[w.id,w.name,w.job,w.level,w.work]),
+  state.expeditionAuto213,state.exploreProgress,state.economy.ordersDone,state.economy.treasureOrdersDone,state.economy.eventDay,state.research,state.party]);}
+ function map(){
+  const tree=site('worldtree');Object.assign(tree,{x:16,y:9});state.buildings=[tree];state.monsters=[];state.staff=[];state.party=[];state.guests=[];state.quests=[];
+  state.ponds=[];state.paths=[];state.clearedScenery=[];state.clearedPonds=[];state.removedDefaultPaths=[...DEFAULT_PATH_KEYS];
+  for(let x=0;x<23;x++)for(let y=0;y<16;y++){const k=keyXY(x,y);state.clearedScenery.push(k);state.clearedPonds.push(k);
+   if(!((x>=7&&x<=8&&y>=4&&y<=5)||(x>=12&&x<=13&&y>=5&&y<=6)))state.paths.push(k);}
+  buildMode=null;moveMode=null;clearMode=false;terrainMode=null;selectedBuilding=null;state.speed=0;state.hour=13;level(5);
+  cameraX=8-VW/2;cameraY=6-VH/2;zoom=1;limitCamera();renderUI(true);
+ }
+ function clickTile(x,y){const r=canvas.getBoundingClientRect(),o=mapScreenOrigin(),p=projectGround(x,y);
+  onMapClick({clientX:r.left+(o.x+p.x*zoom)*r.width/(VW*T),clientY:r.top+(o.y+p.y*zoom)*r.height/(VH*T)});}
+ function menu(){
+  map();const farm=add('farm',7,4),action=a=>query('#buildingMenu [data-action="'+a+'"]');state.coins=50000;
+  drawWorld(100);clickTile(7.8,4.8);const menu=$('buildingMenu');
+  check(!menu.hidden&&selectedBuilding===farm.id&&!query('#tabBody [data-action="upgrade"]'),'地図上に操作が1組');
+  function geometry(){const r=canvas.getBoundingClientRect(),m=menu.getBoundingClientRect(),o=mapScreenOrigin(),foot=projectGround(farm.x+2,farm.y+2);
+   const expected=r.top+(o.y+zoom*foot.y)*r.height/(VH*T);check(Math.abs(m.top-expected-6)<2&&m.left>=r.left-1&&m.right<=r.right+1,'建物の真下・画面幅');return m.top;}
+  const y=geometry();cameraY+=2;drawWorld(101);check(y!==geometry(),'地図の移動に追従');setZoom(1.2);drawWorld(102);geometry();
+  const fee=costUpgrade(farm),money=state.coins;action('upgrade').click();check(farm.level===2&&state.coins===money-fee,'強化・支払い');
+  query('#buildingMenu [data-menu-facing]').click();check(!facingPicker.hidden&&menu.contains(facingPicker),'足元で向きを選ぶ');
+  query('#buildingMenu [data-facing="3"]').click();check(farm.facing===3,'正面の道へ回転');
+  action('moveBuilding').click();check(menu.hidden&&moveMode===farm.id&&$('placementFacingDock').contains(facingPicker),'移設プレビュー');
+  clickTile(12.5,5.5);check(farm.x===12&&farm.y===5&&farm.facing===3&&!menu.hidden,'移設後の操作');
+  const funds=state.coins,refund=Math.floor(investedIn(farm)*.65);const confirm=window.confirm;try{window.confirm=()=>true;action('recoverBuilding').click();}finally{window.confirm=confirm;}
+  check(!site('farm')&&state.coins===funds+refund&&menu.hidden&&!menu.querySelector('[data-action="upgrade"]'),'回収・メニューを閉じる');
+  for(const [type,id] of [['guild212','#guildOrders'],['expeditionOffice','#areaSelect213'],['worldtree','#treeFestival'],['treasureMuseum213','[data-v213]'],['relicStand','#detailStandOpen'],['postOffice','#postOfficeAlbum']]){
+   const b=site(type)||add(type,7,4);selectMapBuilding(b);menuSpecial.open=true;const body=$('buildingSpecialBody');
+   check(!menuSpecial.hidden&&(type==='treasureMuseum213'?body.textContent.includes('展示'):body.querySelector(id)),'施設操作 '+type);
+   if(type==='expeditionOffice'){const select=body.querySelector(id);select.focus();renderUI(false);check(document.activeElement===select&&select.isConnected,'遠征先を選ぶ間のフォーカス');}
+  }
+  $('buildingMenuClose').click();check(menu.hidden&&!selectedBuilding,'閉じる');
+ }
+ function growth(){
+  map();const ignored=['worldtree','flowerbed211','bench211','lamp211','fountain211','relicStand'];
+  for(let lv=1;lv<=99;lv++){
+   const req=treeRequirements193(lv+1),expected=Object.keys(B).filter(t=>!ignored.includes(t)&&B[t].unlock<=lv);
+   check(req.length===expected.length&&req.every(r=>expected.includes(r.type)&&r.minLevel===Math.min(lv+2,99)&&r.count<=facilityCountCap193(r.type,lv)),'建設可能な条件だけ Lv.'+lv);
+  }
+  level(3);state.coins=999999;state.magic=9999;state.villageXp=villageThreshold(3)+20;
+  const goals=treeRequirements193(4);for(const r of goals)for(let i=0;i<r.count;i++)add(r.type,3,7,r.minLevel);
+  add('flowerbed211',7,9,1);add('relicStand',6,9,1);
+  const copy=add('home',5,4,1),office=site('expeditionOffice');state.buildings=state.buildings.filter(b=>b!==office);
+  const missing=treeRequirementStatus193(4).filter(r=>!r.ok);check(missing.length===2&&missing.some(r=>r.type==='home')&&missing.some(r=>r.type==='expeditionOffice'),'未建設の遠征所・2軒目のハウス');
+  const funds=state.coins;growWorldTree193();check(state.villageLv===3&&state.coins===funds,'未達時の成長・引落しを拒否');
+  state.buildings.push(office);copy.level=4;renderUI(true);query('#treeTargets [data-tree-target="home"]').click();check(selectedBuilding===copy.id,'未達の2軒目へ案内');
+  query('#buildingMenu [data-action="upgrade"]').click();check(copy.level===5&&treeRequirementStatus193(4).every(r=>r.ok),'全施設が上限・低レベルの装飾を除外');
+  const cost=treeCost193(3),before=state.coins,magic=state.magic;renderUI(true);check(!$('treeGrow').hidden,'成長ボタン');$('treeGrow').click();
+  check(state.villageLv===4&&state.coins===before-cost.coins&&state.magic===magic-cost.magic&&treeRequirements193(5).every(r=>r.minLevel===6),'成長時の引き落としと次の強化上限');
+  check(ranchAid(1).daily>100&&ranchAid(5).daily>60&&ranchAid(13).daily>ranchAid(12).daily,'新施設の多い段階まで支援金を調整');
+  state.hour=23;state.day=20;state.staff=[];state.monsters=[];state.quests=[];const gain=gainCoins,received=[];
+  try{gainCoins=n=>{received.push(n);return gain(n)};tick(true)}finally{gainCoins=gain;}
+  check(received.filter(n=>n===ranchAid(4).daily).length===1,'ゲーム内の深夜に支援金が1回入る');
+ }
+ function citizens(){
+  map();state.speed=1;const w=makeStaff(8100,'explore',4,8);state.staff=[w];
+  const walk=n=>{for(let i=0;i<n;i++)stepActors(.05);};
+  const trace=new Set();for(let i=0;i<720;i++){stepActors(.05);trace.add(Math.round(w.x)+','+Math.round(w.y));check(residentRoad(Math.round(w.x),Math.round(w.y)),'待機中は道を歩く');}
+  check(trace.size>=3&&!w.jobTask212&&!w.jobTarget211&&!w.work,'遠征所がない市民の散歩・架空の仕事なし');
+  const office=add('expeditionOffice',7,4);for(let i=0;i<2200&&!w.expeditionVisit;i++)stepActors(.05);
+  check(w.expeditionVisit?.buildingId===office.id,'建設後は自力で遠征所に到着');
+  for(let i=0;i<800&&w.work!==1;i++)stepActors(.05);check(w.work===1,'帰還報酬は1回');
+  map();state.speed=1;const seller=makeStaff(8102,'sell',2,2);state.staff=[seller];state.paths=['2,2','7,7','8,7','9,7'];walk(200);
+  check(Math.round(seller.y)===7&&seller.x>=7&&seller.x<=9,'孤立した1マスからつながった道へ復帰');
+ }
+ function materials(){
+  const m={kind:0,lv:1,gift212:3},rng=Math.random;Math.random=()=>.5;
+  try{delete state.materialSupplyRemainders;const stock=state.stock;
+   for(let i=0;i<9;i++)check(gatherMaterial211(m,1)===1,'少量生産時の端数');
+   check(state.stock===stock+9&&save(true)&&load(),'9個分を保存');
+   check(gatherMaterial211(m,1)===2&&gatherMaterial211(m,20)===22&&state.stock===stock+33,'再起動をまたいで10個につき1個');
+   check(Math.abs(state.stock-state.materialStock211.reduce((a,b)=>a+b,0))<1e-8,'総在庫と種類別在庫');
+  }finally{Math.random=rng;}
+ }
+ function sale(){level(5);state.shopStats211={sales:0,units:0,customers:0};ensureMaterials211();const b=site('shop')||add('shop',7,5);b.level=7;
+  const money=state.coins,random=Math.random,g={name:'旅人',x:4,y:4};try{Math.random=()=>.5;checkoutGuest211(g,b);checkoutGuest211(g,b);}finally{Math.random=random;}
+  check(state.shopStats211.customers===1,'同じ来客の会計は1回');const earned=state.coins-money;load();return earned;}
+ function cave(){return Array.from({length:4},(_,d)=>spriteBuildingV161('expeditionOffice',1,d).toDataURL());}
+ window.qa={ready:()=>villageSheetReady&&facilitySheetReady&&expeditionOfficeSheet.complete,seed,snapshot,menu,growth,citizens,materials,sale,cave};
+}
+async function verify(width,previous,current){
+ const prefix='v12415_test_'+crypto.randomUUID()+'_';let frame;
+ async function open(source){
+  frame?.remove();frame=document.createElement('iframe');frame.width=width;frame.height=width===390?844:900;
+  const end='})();\n<\/script>';
+  frame.srcdoc=source.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0;').replace(end,()=> '('+fixture.toString()+')();\n'+end);
+  const loaded=new Promise(r=>frame.onload=r);document.body.append(frame);await loaded;
+  const api=frame.contentWindow.qa;for(let i=0;api&&!api.ready()&&i<200;i++)await new Promise(r=>setTimeout(r,25));
+  if(!api?.ready())throw Error('ゲームと四方向の画像を読み込めない');return api;
+ }
+ try{
+  let q=await open(previous);q.seed();q=await open(previous);const before=q.snapshot(),art=q.cave(),sale=q.sale();
+  q=await open(current);const after=q.snapshot();if(after!==before){const parts=JSON.parse(after),original=JSON.parse(before);throw Error('1.24.14セーブの引継ぎ '+parts.findIndex((v,i)=>JSON.stringify(v)!==JSON.stringify(original[i])));}
+  if(!frame.contentDocument.title.includes('1.24.15')||frame.contentDocument.documentElement.scrollWidth>width+1)throw Error('版番号・横幅');
+  const fresh=q.cave();if(new Set(fresh).size!==4||fresh.some((v,i)=>v===art[i]))throw Error('洞窟の四方向');
+  if(Math.abs(q.sale()-sale*1.15)>1.1)throw Error('店頭売上の調整');q.materials();q.menu();q.growth();q.citizens();
+  document.querySelector('#result').textContent+=width+'px 成功\n';
+ }finally{frame?.remove();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);}
+}
+document.querySelector('#run').onclick=async({currentTarget})=>{
+ const out=document.querySelector('#result');out.textContent='';currentTarget.disabled=true;
+ try{const pages=await Promise.all(['1.24.14','1.24.15'].map(async v=>{const r=await fetch('../releases/'+v+'/game.html');if(!r.ok)throw Error(v);return r.text();}));
+  for(const width of [1366,390])await verify(width,...pages);out.textContent+='すべて成功';
+ }catch(e){out.textContent+='失敗 '+e.stack;}finally{currentTarget.disabled=false;}
+};
+</script></html>
