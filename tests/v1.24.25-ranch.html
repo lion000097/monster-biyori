@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8">
+<title>もんすたー日和 1.24.25 動作確認</title>
+<h1>遠征帰還・雨宿り・小鳥・夜の明かりの動作確認</h1>
+<button id="run">検証を開始</button>
+<pre id="result" aria-live="polite"></pre>
+<div id="screens"></div>
+<script>
+'use strict';
+function activityProof(){
+(function(){
+const check=(ok,m)=>{if(!ok)throw Error(m)};
+const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const nextWeather=(weather,start=1)=>{for(let day=start;day<start+301;day++)if(weatherInfo(day).name===weather)return day;throw Error('No weather '+weather);};
+function makeMap(weather,hour){
+ Object.assign(state,{buildings:[],staff:[],guests:[],monsters:[],party:[],zones:[0,1,4,5],paths:[],ponds:[],removedDefaultPaths:[...DEFAULT_PATH_KEYS],
+   clearedScenery:[],clearedPonds:[],speed:1,day:nextWeather(weather),hour,villageLv:20,worldTreeLevel:20});
+ for(let x=MIN_X;x<W;x++)for(let y=MIN_Y;y<H;y++){state.clearedPonds.push(keyXY(x,y));state.clearedScenery.push(keyXY(x,y));}
+ state.economy.festival=false; stopWalkCamera(); hover=null; selectedBuilding=null; zoom=1;
+}
+const lot=(type,id,x,y,facing=0,level=1)=>{const b={type,id,x,y,facing,level};state.buildings.push(b);return b;};
+const roads=(x1,x2,y)=>{for(let x=x1;x<=x2;x++)state.paths.push(keyXY(x,y));};
+const resources=()=>JSON.stringify([state.coins,state.food,state.magic,state.fame,state.talentFruit,state.stock,state.materialStock211,
+   state.treasures,state.treasureStock,state.economy,state.postcards,state.metrics,state.log,[...$('toasts').children].map(e=>e.textContent)]);
+function observeMap(focus,now,cb){
+ const calls=[],draw=drawMapActor;drawMapActor=(actor,...args)=>{calls.push(actor);return draw(actor,...args);};
+ try{
+  cameraX=focus.x-VW/2;cameraY=focus.y-VH/2;
+  drawWorld(now);if(cb)cb(canvas);
+ }finally{drawMapActor=draw;}
+ return calls;
+}
+function launchTrip(isDraft,witness=true,discovery=true){
+ Math.random=()=>.99;
+ makeMap('晴れ',12);roads(2,13,7);
+ const office=lot('expeditionOffice',300,6,5), w=makeStaff(301,'explore',6,7);
+ const m=makeMonster(302,0,8,7);state.staff=[w];state.monsters=witness?[m]:[];
+ staffPlanWait.set(w,1000);monsterWalkTimer139(m).wait=1000;
+ state.treasures=[0];state.treasureStock={0:1};state.expeditionArea213=0;state.expeditionAuto213=true;
+ state.exploreProgress=discovery?expeditionGoal213(0)-.1:0;
+ check(entranceRoads(office).some(p=>same(p,[6,7])),'expedition front road fixture');
+ w.jobTarget211={id:office.id,job:'explore',goal:[6,7]};
+ beginStaffWork212(w,office);
+ let indoors=false,seen=false,returnedAt=0,snapshot=null;
+ for(let i=0;i<520;i++){
+  stepActors(.05);
+  const welcome=isDraft?welcomeVisual125(w):null;
+  if(w.expeditionVisit&&plotWalks.get(w)?.phase==='use'){
+   indoors=true;
+   check(!welcome,'welcome started before expedition ended');
+   if(!seen){check(!observeMap(w,100).includes(w),'worker needs to disappear only inside expedition office');seen=true;}
+  }
+  if(indoors&&!w.jobTask212){
+   returnedAt=i;snapshot=resources();
+   check(!w.expeditionVisit&&!plotWalks.has(w) && entranceRoads(office).some(p=>Math.hypot(w.x-p[0],w.y-p[1])<.1),
+   'expedition welcome started before the worker returned to the facade road');
+   break;
+  }
+ }
+ check(indoors&&snapshot,'real staff expedition did not return from office');
+ return {w,m,office,returnedAt,snapshot};
+}
+window.qa125={
+ tripBaseline:()=>launchTrip(false),
+ expedition(old){
+  const fixtureState=JSON.stringify(state);
+  const prior=old.tripBaseline();
+  const {w,m,returnedAt,snapshot}=launchTrip(true);
+  const view=welcomeVisual125(w), witness=welcomeVisual125(m);
+  check(returnedAt===prior.returnedAt&&snapshot===prior.snapshot,'new scene changed actual expedition return time/reward');
+  check(view?.role==='returner'&&state.treasures.length===2&&view.scene.treasure===state.treasures[1]&&witness?.role==='witness','eligible welcome lacks returner, visible witness, or actual returned treasure '+JSON.stringify([view?.role,view?.scene?.treasure,witness?.role,state.treasures,state.exploreProgress,state.expeditionAuto213,w.act]));
+  const visible=observeMap(w,120);
+  check(visible.includes(w)&&visible.includes(m),'returned explorer and witness are not both drawn');
+  check(!w.path.length&&!m.path.length&&save(true),'scene added a gameplay route or cannot save');
+  check(!/welcomeVisual125|expeditionWelcomes125/.test(localStorage.getItem(SAVE_KEY)),'welcome leaked into save');
+  for(let i=0;i<29;i++)stepActors(.05);
+  check(welcomeHop125(welcomeVisual125(m))>=8,'witness never hops for the actual treasure');
+  for(let i=0;i<220;i++)stepActors(.05);
+  check(!welcomeVisual125(w)&&!welcomeVisual125(m)&&snapshot===resources(),'welcome did not end or changed rewards by itself');
+  state=JSON.parse(fixtureState);const plain=launchTrip(true,true,false);
+  check(welcomeVisual125(plain.w)?.role==='returner'&&welcomeVisual125(plain.w).scene.treasure===null&&welcomeHop125(welcomeVisual125(plain.m))===0,'ordinary return invented treasure or surprised witness');
+  state=JSON.parse(fixtureState);const alone=launchTrip(true,false,false);
+  check(!welcomeVisual125(alone.w),'welcome scene started without nearby witness');
+  return ['expedition disappears only indoors, then unchanged real completion/reward with visible return wave + owned treasure witness',
+    'welcome ends without side effects; no witness or displayed treasure without eligibility'];
+ },
+ rain(){
+  makeMap('雨',12);roads(2,11,7);
+  const house=lot('home',341,6,5), host=makeMonster(342,0,6,7), guest=makeMonster(343,0,5.4,7);
+  state.monsters=[host,guest];host.path=[];guest.path=[[6,7]];
+  const rest={kind:'rain',action:'shelter',phase:'rest',from:[6,7],site:house,siteX:house.x,siteY:house.y,facing:house.facing,day:state.day,duration:6,elapsed:1,startled:0};
+  const incoming={...rest,phase:'approach',elapsed:0};
+  monsterWalkTimer139(host).pastime=rest;monsterWalkTimer139(guest).pastime=incoming;
+  const before=resources(),coords=[host.x,host.y,guest.x,guest.y];
+  check(!awningPose125(host)&&!awningPose125(guest),'unpaired actors misreported sharing');
+  check(advanceRainPastime(guest,incoming,.05),'existing approach remained valid');
+  advanceRainPastime(host,rest,.35);
+  check(awningPose125(host)?.gesture && Math.abs(awningPose125(host).dx)>=10 && !awningPose125(guest),'no sidestep and gesture while newcomer approaches');
+  check(same(coords,[host.x,host.y,guest.x,guest.y])&&guest.path.length===1&&rest.duration===6,'courtesy mutated route or extended rest');
+  guest.path=[];guest.x=6;
+  advanceRainPastime(guest,incoming,.05);
+  advanceRainPastime(guest,incoming,.35);
+  const a=awningPose125(host),b=awningPose125(guest);
+  check(a&&b&&a.dx*b.dx<0&&Math.abs(a.dx-b.dx)>=20,'arrived monsters overlap instead of sharing projected tile');
+  const both=observeMap(host,130);
+  check(both.includes(host)&&both.includes(guest)&&resources()===before,'shelter courtesy visibility or economy regression');
+  state.hour=22;check(!awningPose125(host)&&!awningPose125(guest),'courtesy continued in sleep hours');
+  state.hour=12;house.facing=1;check(!awningPose125(host)&&!awningPose125(guest),'changed facing left an orphan courtesy pose');
+  return ['rain shelter makes room visually without changing coordinates/route/time, and stops on sleep or invalidated door'];
+ },
+ bird(){
+  makeMap('晴れ',12);
+  const tree=lot('worldtree',320,6,5,1,1);
+  for(const dir of [1,2]){
+   const frame=p=>treeBasinBirdFrame125(tree,dir,1,1,10,p,'晴れ');
+   check(!frame(.0)&&frame(.36)&&!frame(.95),'bird scheduling window');
+   check(!treeBasinBirdFrame125(tree,dir,5,1,10,.36,'晴れ'),'bird bathing in removed basin tier');
+   check(!treeBasinBirdFrame125(tree,dir,1,1,10,.36,'雨')&&!treeBasinBirdFrame125(tree,dir,1,1,10,.36,'雪'),'bird bath in precipitation');
+   check(!treeBasinBirdFrame125(tree,dir,1,3,12,.36,'晴れ'),'bird should not visit every day');
+  }
+  for(const dir of [0,3])check(!treeBasinBirdFrame125(tree,dir,1,1,10,.36,'晴れ'),'bird bathed in a facing with no water basin');
+  state.day=1;state.hour=10;
+  const rect=plotImageRect(tree);const frame=treeBasinBirdFrame125(tree,1,1,1,10,.36,'晴れ');
+  const art=pixelSprite(384,384,g=>drawTreeBasinBird125(g,{...rect,x:0,y:0,w:384,h:384},tree,1,1,frame));
+  const data=art.getContext('2d').getImageData(0,0,384,384).data;
+  let opaque=0,out=0;
+  for(let y=0;y<384;y++)for(let x=0;x<384;x++){
+   if(data[(y*384+x)*4+3]===0)continue;
+   opaque++;if(x<251||x>299||y<249||y>305)out++;
+  }
+  check(opaque>16&&out===0,'bird silhouette misses actual left-facing .23 water basin: '+opaque+' px, outside '+out);
+  return ['occasional bird uses exact water-basin facings/tier and sunny/cloudy daytime only, rendered within .23 basin'];
+ },
+ flatNight(hour){
+  makeMap('晴れ',hour);tickAccum=0;
+  const focus={x:5,y:6};let result;
+  observeMap(focus,177,c=>{const d=c.getContext('2d').getImageData((c.width/2|0)-8,(c.height/2|0)-8,16,16).data; result=[0,1,2].map(ch=>d.reduce((sum,v,i)=>sum+(i%4===ch?v:0),0)/256);});
+  return result;
+ },
+ night(old){
+  check(nightOpacity125(12,0)===0 && nightOpacity125(18,.49)===0 && nightOpacity125(18,.75)>0,'dusk ramp thresholds');
+  check(nightOpacity125(22,0)>=.35 && nightOpacity125(22,0)>nightOpacity125(19,0),'night must be dark and dusk progressive');
+  check(nightOpacity125(5,0)>nightOpacity125(5,.5) && nightOpacity125(6,0)===0,'dawn transition');
+  const day=this.flatNight(12), previousDay=old.flatNight(12), dark=this.flatNight(22), previousDark=old.flatNight(22);
+  check(same(day,previousDay)&&dark[0]+dark[1]<previousDark[0]+previousDark[1]-35,'render must be unchanged at noon and materially darker at night: '+JSON.stringify({day,previousDay,dark,previousDark}));
+  makeMap('晴れ',20);tickAccum=0;
+  const home=lot('home',350,5,6),fire=lot('campfire124',351,8,6),actor=makeMonster(352,0,5,8);
+  state.monsters=[actor];state.speed=0;roads(2,12,7);
+  const traces=[], original=ctx.drawImage,now=performance.now,fireOriginal=campfireLit124;
+  let ms=1000;
+  ctx.drawImage=function(img,...args){if(img===nightGlowArt125('fire'))traces.push(['fire',ctx.globalAlpha,ctx.globalCompositeOperation]);if(img===nightGlowArt125('window'))traces.push(['window',ctx.globalAlpha,ctx.globalCompositeOperation]);return original.call(this,img,...args);};
+  performance.now=()=>ms;
+  try{
+   campfireLit124=()=>false;
+   observeMap(home,ms);check(traces.length===0,'empty house or unlit fire emits light');
+   state.hour=22;actor.indoorRest={buildingId:home.id,remaining:2};plotWalks.set(actor,{site:home,phase:'use'});
+   observeMap(home,ms);
+   campfireLit124=b=>b===fire;ms+=500;
+   observeMap(home,ms);
+   check(traces.some(([type,a,m])=>type==='window'&&a>0&&m==='screen')&&traces.some(([type,a,m])=>type==='fire'&&a>0&&m==='screen'),'occupied window and lit campfire must emit local warm light');
+   traces.length=0;state.hour=14;
+   observeMap(home,ms);check(traces.length===0,'warm night lights drawn in sunlight');
+  }finally{performance.now=now;ctx.drawImage=original;campfireLit124=fireOriginal;}
+  return ['noon Canvas pixels unchanged, night materially darker and fades; occupied-window and lit-fire local warm lights, dark empty/unlit lots'];
+ }
+};
+})();
+
+}
+const check=(ok,msg)=>{if(!ok)throw Error(msg);};
+async function textFile(url){const r=await fetch(url,{cache:'no-store'}); if(!r.ok)throw Error(url+' '+r.status);return r.text();}
+async function run(){
+ const out=document.querySelector('#result'),mount=document.querySelector('#screens');
+ const log=text=>out.textContent+=text+'\n';
+ out.textContent='';
+ const prefix='v12425_qa_'+crypto.randomUUID()+'_';
+ try{
+ const [oldSource,current,previous]=await Promise.all([textFile('../releases/1.24.24/game.html'),textFile('../game.html'),textFile('v1.24.21-ranch.html')]);
+ const previousHook=previous.slice(previous.indexOf('function fixture()'),previous.indexOf('function compareYards('));
+ async function open(source,width){
+   const f=document.createElement('iframe');f.title='検証用牧場';f.width=width;f.height=width===390?844:900;
+   const end='})();\n<\/script>';
+   f.srcdoc=source.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0; window.confirm=()=>true;')
+    .replace(end,()=>previousHook+'\nfixture();\n('+activityProof.toString()+')();\n'+end);
+   const ready=new Promise((resolve,reject)=>{f.onload=resolve;f.onerror=reject;});
+   mount.append(f);await ready;
+   const w=f.contentWindow;
+   for(let i=0;i<250&&!w.qa?.ready();i++)await new Promise(r=>setTimeout(r,20));
+   check(w.qa?.ready(),'画像の読み込み');return {w,f};
+ }
+ for(const width of [1366,390]){
+   const seed=await open(oldSource,width);seed.w.qa.seed();seed.f.remove();
+   const old=await open(oldSource,width),snapshot=old.w.qa.snapshot();
+   const update=await open(current,width);
+   check(update.w.document.title.includes('1.24.25'),'ゲームの版番号');
+   check(update.w.qa.snapshot()===snapshot,'1.24.24セーブの引き継ぎ');
+   check(width!==390||update.w.document.documentElement.scrollWidth<=391,'スマートフォン幅');
+   log(width+'px: 旧セーブ互換・画面幅');
+   for(const part of ['expedition','rain','bird','night'])for(const result of update.w.qa125[part](old.w.qa125))log('✓ '+result);
+   old.f.remove();update.f.remove();
+   for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);
+ }
+ log('すべて成功');
+ }finally{mount.replaceChildren();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);}
+}
+document.querySelector('#run').onclick=async({currentTarget:button})=>{
+ button.disabled=true;try{await run();}catch(e){document.querySelector('#result').textContent+='失敗 '+e.stack;}finally{button.disabled=false;}
+};
+</script></html>
