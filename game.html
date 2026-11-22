@@ -623,7 +623,7 @@ function makeStaff(id,job,x,y){const gender=Math.random()<.5?'男':'女';return 
 
 function ensureAdvanced(){
  migrateGuildPrices();
- state.economy=Object.assign({day:state.day,income:0,expense:0,lastIncome:0,lastExpense:0,history:[],visitors:0,totalVisitors:0,ordersDone:0,eventDay:0,festival:false},state.economy||{});
+ state.economy=Object.assign({day:state.day,income:0,expense:0,lastIncome:0,lastExpense:0,history:[],visitors:0,totalVisitors:0,ordersDone:0,treasureOrdersDone:0,eventDay:0,festival:false},state.economy||{});
  state.party=Array.isArray(state.party)?state.party.filter(n=>state.monsters.some(m=>m.id===n)).slice(0,3):[];
  state.charms=Math.max(0,Number(state.charms)||0);
  state.craftProgress=Math.max(0,Number(state.craftProgress)||0);
@@ -718,6 +718,43 @@ function currentMarketOrder() {
    reward:guildOrderReward(ranchIncome(base.reward*scale*(1+.02*(level-1))))};
 }
 function completeOrder(sequence){if(!atGuild()||sequence!==state.economy.ordersDone)return;const order=currentMarketOrder(),rewards=order.reward;if(spendableStock()<order.stock||state.food<order.food)return toast('注文に必要な素材とごはんが足りないよ','error');spendMaterials211(order.stock);state.food-=order.food;const earned=gainCoins(Math.round(rewards));state.fame+=order.fame;state.economy.ordersDone++;villageAdd(32);message(`📦 ${order.name}の注文達成！ +${earned}G、評判+${order.fame}`,'success');save(true);renderUI(true)}
+// Permanent treasure IDs in the caravan's rotation. Regular orders advance separately.
+const caravanTreasureIds=[0,10,3,12,6,20,1,15,4,22,8,18];
+function treasureCopies(id){
+ const stored=state.treasureStock?.[id];
+ return Number.isSafeInteger(stored)&&stored>=0?stored:Number(state.treasures.includes(id));
+}
+function recordTreasure(id){
+ const copies=treasureCopies(id);
+ (state.treasureStock??={})[id]=Math.min(Number.MAX_SAFE_INTEGER,copies+1);
+ if(!state.treasures.includes(id))state.treasures.push(id);
+ state.bestiary.treasures=state.treasures;
+}
+function currentTreasureOrder(){
+ const sequence=state.economy.treasureOrdersDone||0,id=caravanTreasureIds[sequence%caravanTreasureIds.length];
+ const item=TREASURE_ITEMS[id],exhibited=state.buildings.some(b=>b.type==='treasureMuseum213'&&museumItems213(b).includes(id));
+ const available=Math.max(0,treasureCopies(id)-Number(exhibited));
+ const base={N:320,R:520,SR:850}[item.rarity],fame={N:2,R:3,SR:5}[item.rarity];
+ return {id,item,sequence,available,reward:guildOrderReward(ranchIncome(base)),fame};
+}
+function treasureOrderPanel(){
+ const {id,item,sequence,available,reward,fame}=currentTreasureOrder();
+ return `<section class="management-card" id="guildTreasureOrder"><h3>🎁 特別注文</h3>
+ <p>商隊が探しているお宝を1個届けよう。展示中の1個は取り置きされるよ。</p>
+ <div class="stat-row"><strong>${treasureThumbnail(id)} ${esc(item.name)}（${item.rarity}）</strong><span>納品可能 ${available} / 1個</span></div>
+ <p>遠征や冒険の宝箱で手に入るよ。納品しても図鑑の発見記録は残るよ。</p>
+ <button type="button" class="wide-button" data-action="treasureOrder" data-id="${sequence}" ${available<1?'disabled':''}>納品する　報酬 ${reward}G・評判＋${fame}</button></section>`;
+}
+function deliverTreasureOrder(sequence){
+ if(!atGuild())return;
+ const order=currentTreasureOrder();
+ if(sequence!==order.sequence||order.available<1)return;
+ (state.treasureStock??={})[order.id]=treasureCopies(order.id)-1;
+ state.economy.treasureOrdersDone++;
+ gainCoins(order.reward);state.fame+=order.fame;villageAdd(35);checkQuests();
+ message('🎁 特別注文に「'+order.item.name+'」を納品！ +'+order.reward+'G・評判+'+order.fame,'success');
+ save(true);renderUI(true);
+}
 function guildOrderPanel(){
  const usable=spendableStock(),order=currentMarketOrder();
  return `<div class="management-card" id="guildOrders"><h3>📮 商隊からの注文</h3><p>注文に合わせて素材やごはんを貯めて、まとめて納品しよう。</p><strong>${order.name}</strong><div class="stat-row"><span>📦 納品できる素材</span><strong>${Math.floor(usable)} / ${order.stock}</strong></div><div class="stat-row"><span>🍎 ごはん</span><strong>${Math.floor(state.food)} / ${order.food}</strong></div><button class="wide-button" data-action="completeOrder" data-id="${state.economy.ordersDone}" ${usable<order.stock||state.food<order.food?'disabled':''}>納品する　報酬 ${order.reward}G</button></div>`;
@@ -1674,7 +1711,7 @@ canvas.addEventListener('wheel', event => {
 }, {passive:false});
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.tab;renderUI(true)}));
 document.querySelectorAll('[data-speed]').forEach(b=>b.addEventListener('click',()=>{state.speed=+b.dataset.speed;document.querySelectorAll('[data-speed]').forEach(el=>el.classList.toggle('on',el===b));renderUI(true)}));
-document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const action=b.dataset.action,id=b.dataset.id;if(action==='build'){terrainMode=null;if(buildMode===id)buildMode=null;else{moveMode=null;clearMode=false;buildMode=id;placementFacing=0;selectedBuilding=null;selectedMonster=null;toast(`🔨 ${B[id].name}を建てる位置を選ぼう`)}renderUI(true)}else if(action==='cancelBuild'){buildMode=null;renderUI(true)}else if(action==='moveBuilding')startMoving(+id);else if(action==='cancelMove')cancelMoving();else if(action==='toggleClear'){terrainMode=null;toggleClearMode()}else if(action==='recoverBuilding')recoverBuilding(+id);else if(action==='zoomIn')setZoom(zoom*1.2);else if(action==='zoomOut')setZoom(zoom/1.2);else if(action==='zoomReset')setZoom(1);else if(action==='showAdventure'){tab='adventure';renderUI(true);$('tabBody').scrollTop=0}else if(action==='upgrade')upgrade(+id);else if(action==='egg')buyEgg();else if(action==='hire')hire();else if(action==='research')doResearch(id);else if(action==='selectMonster')openMonsterDetails(+id,b);else if(action==='export')exportSave();else if(action==='reset')reset();else if(action==='import')$('importInput').click();else if(action==='pan'){const d={left:[-11,0],right:[11,0],up:[0,-10],down:[0,10]}[id];if(d)cameraMove(...d)}else if(action==='walkCamera')startWalkCamera(+id);else if(action==='centerMap'){stopWalkCamera();cameraX=VW/2-VW/(2*zoom);cameraY=VH/2-VH/(2*zoom);limitCamera();renderUI(false)}else if(action==='adventureStart')startAdventure();else if(action==='adventureAuto'){state.adventure.auto=!state.adventure.auto;state.adventure.cooldown=0;message(state.adventure.auto?'🔁 自動冒険を始めるよ！':'⏹️ 自動冒険を停止したよ。');renderUI(true);save(true)}else if(action==='atlas'){atlasCategory=id;renderUI(true)}else if(action==='showManagement'){tab='management';renderUI(true)}else if(action==='completeOrder')completeOrder(Number(id));else if(action==='festival')hostFestival();else if(action==='trainMonster')trainMonster(+id);else if(action==='equipCharm')equipCharm(+id);else if(action==='toggleParty')toggleParty(+id)});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const action=b.dataset.action,id=b.dataset.id;if(action==='build'){terrainMode=null;if(buildMode===id)buildMode=null;else{moveMode=null;clearMode=false;buildMode=id;placementFacing=0;selectedBuilding=null;selectedMonster=null;toast(`🔨 ${B[id].name}を建てる位置を選ぼう`)}renderUI(true)}else if(action==='cancelBuild'){buildMode=null;renderUI(true)}else if(action==='moveBuilding')startMoving(+id);else if(action==='cancelMove')cancelMoving();else if(action==='toggleClear'){terrainMode=null;toggleClearMode()}else if(action==='recoverBuilding')recoverBuilding(+id);else if(action==='zoomIn')setZoom(zoom*1.2);else if(action==='zoomOut')setZoom(zoom/1.2);else if(action==='zoomReset')setZoom(1);else if(action==='showAdventure'){tab='adventure';renderUI(true);$('tabBody').scrollTop=0}else if(action==='upgrade')upgrade(+id);else if(action==='egg')buyEgg();else if(action==='hire')hire();else if(action==='research')doResearch(id);else if(action==='selectMonster')openMonsterDetails(+id,b);else if(action==='export')exportSave();else if(action==='reset')reset();else if(action==='import')$('importInput').click();else if(action==='pan'){const d={left:[-11,0],right:[11,0],up:[0,-10],down:[0,10]}[id];if(d)cameraMove(...d)}else if(action==='walkCamera')startWalkCamera(+id);else if(action==='centerMap'){stopWalkCamera();cameraX=VW/2-VW/(2*zoom);cameraY=VH/2-VH/(2*zoom);limitCamera();renderUI(false)}else if(action==='adventureStart')startAdventure();else if(action==='adventureAuto'){state.adventure.auto=!state.adventure.auto;state.adventure.cooldown=0;message(state.adventure.auto?'🔁 自動冒険を始めるよ！':'⏹️ 自動冒険を停止したよ。');renderUI(true);save(true)}else if(action==='atlas'){atlasCategory=id;renderUI(true)}else if(action==='showManagement'){tab='management';renderUI(true)}else if(action==='completeOrder')completeOrder(Number(id));else if(action==='treasureOrder')deliverTreasureOrder(Number(id));else if(action==='festival')hostFestival();else if(action==='trainMonster')trainMonster(+id);else if(action==='equipCharm')equipCharm(+id);else if(action==='toggleParty')toggleParty(+id)});
 document.addEventListener('pointerdown',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('focusin',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('change',e=>{if(e.target.matches('.staff-select[data-staff]')){let s=state.staff.find(o=>o.id===+e.target.dataset.staff);if(s&&JOBS[e.target.value]){if(s.job!==e.target.value&&(s.job==='explore'||e.target.value==='explore')){cancelPlotWalk(s);s.jobTarget211=null;s.jobTask212=null;s.jobCooldown211=0;s.act='待機中'}s.job=e.target.value;s.path=[];if(s.job==='explore')seek(s,s.job);message(`🧑‍🌾 ${s.name}の担当が「${JOBS[s.job].label}」になったよ。`,'success');save(true)}inputLock=false;renderUI(true)}if(e.target.id==='importInput')importSave(e.target.files[0])});document.addEventListener('focusout',e=>{if(e.target.matches('.staff-select'))inputLock=false});
 const helpTopics = {staff:'市民の役職', tree:'世界樹の成長XP', basics:'基本とセーブ'};
 let helpOpener;
@@ -1782,7 +1819,7 @@ function basicHelp() {
   return `<div class="guide-basics">
     <section><h3>時間とゲーム速度</h3><p>1倍速では実際の16秒が牧場の1時間、6分24秒が1日だよ。画面上部で一時停止・1倍・2倍・4倍を選べるよ。</p></section>
     <section><h3>施設と区画</h3><p>お店と素材牧場は世界樹Lv.1から建てられて、各1軒目は無料。建設・移設・回転には、施設の正面の辺に道が1マス以上必要だよ。「施設」で役割を選ぶと建物を絞り込めるよ。石のタイルは道として使えて1マス100G。施設を選ぶと移動や回収ができるよ。地図はドラッグで移動できるよ。施設の設置・移動中は、地図の上でホイールを回すか、向きボタンを押して回転しよう。普段はホイールで拡大縮小、「−」「＋」は設置中も使えるよ（15%〜280%）。上下左右で接する未解放区画を選ぼう。地図に表示された世界樹レベルに達し、必要なおかねを払うと開拓できるよ。最初の牧場のすぐ北と西はどちらも世界樹Lv.2・4,200Gだよ。</p></section>
-    <section><h3>ごはん・素材・おかね</h3><p>畑のごはんはモンスターと職員の食事や注文に使うよ。素材はモンスターが素材牧場で集め、お店の旅人に売るとおかねになるよ。世界樹Lv.5で冒険者ギルドを建てると、商隊に納品できるよ。「経営」でSSRとURを1種類につき1個ずつ取り置きできるよ。</p></section>
+    <section><h3>ごはん・素材・おかね</h3><p>畑のごはんはモンスターと職員の食事や注文に使うよ。素材はモンスターが素材牧場で集め、お店の旅人に売るとおかねになるよ。世界樹Lv.5で冒険者ギルドを建てると、商隊に納品できるよ。特別注文では指定のお宝を1個届けるよ。「経営」でSSRとURを1種類につき1個ずつ取り置きできるよ。</p></section>
     <section><h3>キラキラと評判</h3><p>キラキラは研究所や遠征などで手に入り、研究と世界樹の成長に使うよ。評判は来店客の買い物、注文、冒険などで上がり、旅人がお店に来やすくなるよ。</p></section>
     <section><h3>冒険と自動遠征</h3><p>冒険の各エリアの5戦目はボス戦。撃破済みのボスは「冒険」の「ボスエリア選択」から周回できるよ。勝つと同じ相手に再挑戦し、敗北か「周回を停止」で終了するよ。世界樹Lv.3で遠征所を建て、牧場の遠征所を選んで行き先を決めよう。建設後は探検担当がいなくても自動で進み、奥の行き先ほど帰還報酬が増えるよ。行き先を変えても、それまでの進み具合は保存されるよ。</p></section>
     <section><h3>おやすみ牧舎</h3><p>「仲間」から開けるよ。世界樹Lv.1では5匹、Lv.5・10・15・20で5匹ずつ増えて最大25匹まで預けられるよ。預けた子はレベル・装備・お気に入りを保ったままおやすみするよ。放牧枠が満員のときは「入れ替え」で、牧舎の子と放牧中の子を交換できるよ。</p></section>
@@ -2039,7 +2076,7 @@ function spriteMonster64(kind,shiny=false){const key='monster64:'+kind+':'+Numbe
 function stageEncounter(n){const boss=(n%5)===0;const world=Math.floor((n-1)/5);const base=world*5;const live=[];if(boss){const idx=Math.min(ENEMIES.length-1,base+4);const e=ENEMIES[idx];live.push({name:e.name,icon:e.icon,index:idx,maxHp:Math.round(e.hp*(1+world*.48)*1.35),hp:Math.round(e.hp*(1+world*.48)*1.35),atk:Math.round(e.atk*(1+world*.35)*1.2),boss:true});return {boss:true,foes:live,chestChance:.8}}
  const count=3+Math.floor(Math.random()*3);for(let i=0;i<count;i++){let idx=Math.min(ENEMIES.length-1,base+Math.floor(Math.random()*4));let e=ENEMIES[idx],scale=1+world*.24+i*.05;live.push({name:e.name,icon:e.icon,index:idx,maxHp:Math.round(e.hp*.56*scale),hp:Math.round(e.hp*.56*scale),atk:Math.round(e.atk*.72*scale),boss:false})}return {boss:false,foes:live,chestChance:.28+.03*world}}
 function totalEnemyHp(foes){return foes.reduce((s,f)=>s+Math.max(0,f.hp),0)}
-function rewardTreasure(stage,boss){ensureV16Data();if(Math.random()>(boss?.95:.5))return null;const id=rollTreasure194();if(!state.treasures.includes(id))state.treasures.push(id);state.bestiary.treasures=state.treasures;return id}
+function rewardTreasure(stage,boss){ensureV16Data();if(Math.random()>(boss?.95:.5))return null;const id=rollTreasure194();recordTreasure(id);return id}
 stageMonsterInfo=function(n){const enc=stageEncounter(n);const foe=enc.foes[0];return {index:foe.index,enemy:ENEMIES[foe.index],hp:Math.round(totalEnemyHp(enc.foes)),atk:foe.atk,boss:enc.boss,count:enc.foes.length,encounter:enc}}
 startAdventure=function(){if(state.battle)return toast('冒険中だよ！','error');if(!state.monsters.length)return toast('先に仲間を増やそう','error');const n=selectedBattleStage||state.adventure.stage,enc=stageEncounter(n),party=crewParty();const hp=battlePartyHealth(party);state.battle={stage:n,foes:enc.foes,ourHp:hp,ourMax:hp,round:0,log:'パーティが出発！',skills:[],status:'',boss:enc.boss,chestChance:enc.chestChance};for(const f of enc.foes)if(!state.catalog.enemies.includes(f.index))state.catalog.enemies.push(f.index);message('⚔️ '+stageLabel(n)+' '+(enc.boss?'ボス':'敵'+enc.foes.length+'体')+' に挑戦！');renderUI(true)}
 updateBattleStats=function(){let b=state.battle,n=b?b.stage:state.adventure.bossLoop||state.adventure.stage;const info=stageMonsterInfo(n);const enemyHp=b?Math.ceil(totalEnemyHp(b.foes))+'/'+b.foes.reduce((s,f)=>s+f.maxHp,0):Math.ceil(info.hp)+' / '+Math.ceil(info.hp);const live=b?b.foes.filter(f=>f.hp>0).length:info.count||1;const s=b?`⚔️ Round ${b.round}　味方 ${Math.ceil(b.ourHp)} / ${b.ourMax} HP ・ 敵 ${enemyHp}（残り${live}体）　${b.log||''}`:'🌿 次の相手：'+(info.boss?'ボス ':'')+(info.count?info.count+'体':'1体')+'　｜　冒険タブから出発すると自動で戦うよ';$('battleStageBadge').textContent=stageLabel(n)+(info.boss?' 👑ボス戦':' 🌿冒険'+recommendedPartyText(n));if(s!==lastBattleText){$('battleStats').textContent=s;lastBattleText=s}}
@@ -4342,7 +4379,7 @@ function offerVIP211(g){
  const id=chosen.id,m=MATERIALS211[id],qty=chosen.qty;
  state.vipOrder211={id,qty,reward:Math.round(90+qty*20*m[4]*(1+state.villageLv*.18)),
   fame:m[3]==='SR'?5:3,expires:state.day+7,visitor:g.name};
- message('📮 '+g.name+'の特別注文！ '+m[1]+'×'+qty,'success');
+ message('📮 '+g.name+'の素材注文！ '+m[1]+'×'+qty,'success');
 }
 const SHOP_OPENING_BONUS = 30;
 function openingBonusRemaining() {
@@ -4391,9 +4428,9 @@ function observeGuestStop(g,site){
 }
 function vipOrderHTML211(){
  const o=state.vipOrder211;
- if(!o)return '<div class="management-card"><h3>💎 レア旅人の特別注文</h3><p>珍しい旅人が来店すると特別注文が届くよ。</p></div>';
+ if(!o)return '<div class="management-card"><h3>💎 レア旅人の素材注文</h3><p>珍しい旅人が来店すると素材の注文が届くよ。</p></div>';
  const m=MATERIALS211[o.id],have=Math.floor(spendableMaterial(o.id));
- return '<div class="management-card"><h3>💎 特別注文</h3><strong>'+esc(o.visitor)+'</strong>'+
+ return '<div class="management-card"><h3>💎 レア旅人の素材注文</h3><strong>'+esc(o.visitor)+'</strong>'+
  '<p>'+m[2]+' '+m[1]+' 納品可能 '+have+' / '+o.qty+'個 · 期限：'+o.expires+'日目</p>'+
  '<p>報酬 '+o.reward+'G と評判 '+o.fame+'</p>'+
  '<button class="wide-button" data-v211="deliver" '+(have<o.qty||state.day>o.expires?'disabled':'')+'>📦 納品する</button></div>';
@@ -4404,7 +4441,7 @@ function deliverVIP211(){
  if(!o||state.day>o.expires||spendableMaterial(o.id)<o.qty)return toast('注文の素材が足りないよ','error');
  spendMaterials211(o.qty,o.id);
  const earned=gainCoins(o.reward);state.fame+=o.fame;state.vipDone211=(state.vipDone211||0)+1;
- state.vipOrder211=null;villageAdd(35);checkQuests();message('✨ 特別注文達成！ +'+Math.round(earned)+'G','success');save(true);renderUI(true);
+ state.vipOrder211=null;villageAdd(35);checkQuests();message('✨ レア旅人の素材注文達成！ +'+Math.round(earned)+'G','success');save(true);renderUI(true);
 }
 const tabBefore211=renderTab;
 renderTab=function(){
@@ -4472,7 +4509,7 @@ tick=function(silent=false){
   if(w.jobCooldown211>0)w.jobCooldown211--;
  }
  if(state.vipOrder211&&state.day>state.vipOrder211.expires){
-  message('⌛ 特別注文の期限が過ぎたよ。');state.vipOrder211=null;
+  message('⌛ レア旅人の素材注文の期限が過ぎたよ。');state.vipOrder211=null;
  }
 };
 const stepOld211=stepActors;
@@ -4547,7 +4584,7 @@ renderTab=function(){
   $('tabBody').insertAdjacentHTML('beforeend','<div class="management-card"><h3>🧳 旅人の動き</h3>'+
    '<div class="stat-row"><span>お店で順番待ち</span><strong>'+waiting+'人</strong></div>'+
    '<div class="stat-row"><span>帰宅中</span><strong>'+returning+'人</strong></div>'+
-   '<div class="stat-row"><span>特別注文の達成数</span><strong>'+(state.vipDone211||0)+'件</strong></div></div>');
+   '<div class="stat-row"><span>レア旅人の注文達成数</span><strong>'+(state.vipDone211||0)+'件</strong></div></div>');
  }
 };
 document.addEventListener('change',e=>{
@@ -4855,9 +4892,9 @@ const MORE_ACHIEVEMENTS212=[
  ['material8','素材の専門家','素材を8種類発見','🧶','materials212',8],
  ['material12','素材の大博士','素材を12種類発見','💎','materials212',12],
  ['material24','牧場の素材図鑑','素材を24種類発見','📚','materials212',24],
- ['vip1','王都の取引','特別注文を1件納品','🎩','vip212',1],
- ['vip5','幻の商談','特別注文を5件納品','💰','vip212',5],
- ['vip25','伝説の御用商人','特別注文を25件納品','👑','vip212',25],
+ ['vip1','王都の取引','レア旅人の素材注文を1件納品','🎩','vip212',1],
+ ['vip5','幻の商談','レア旅人の素材注文を5件納品','💰','vip212',5],
+ ['vip25','伝説の御用商人','レア旅人の素材注文を25件納品','👑','vip212',25],
  ['customer25','小さな繁盛店','実際の購入客25人','🛍️','customers212',25],
  ['customer100','人気のお店','実際の購入客100人','🏪','customers212',100],
  ['customer500','街の大商人','実際の購入客500人','💵','customers212',500],
@@ -5111,8 +5148,7 @@ function advanceExpedition(points, silent = false) {
   // Keep surplus work for the next trip. A return and its rewards share one save.
   state.exploreProgress = Math.max(0, state.exploreProgress - goal);
   const reward = expeditionReward(index), id = rollExpeditionTreasure213(Math.random, index);
-  if (!state.treasures.includes(id)) state.treasures.push(id);
-  state.bestiary.treasures = state.treasures;
+  recordTreasure(id);
   state.metrics.explore++;
   state.expeditionTreasures = (state.expeditionTreasures || 0) + 1;
   state.expeditionCounts213[index] = (state.expeditionCounts213[index] || 0) + 1;
@@ -5309,7 +5345,7 @@ function museumAppeal213(){
 }
 function museumPanel213(b){
  const shown=museumItems213(b),every=new Set(state.buildings.filter(x=>x.type==='treasureMuseum213').flatMap(x=>museumItems213(x)));
- const owned=[...new Set(state.treasures||[])].filter(i=>TREASURE_ITEMS[i]&&!TREASURE_ITEMS[i].bossStage);
+ const owned=[...new Set(state.treasures||[])].filter(i=>TREASURE_ITEMS[i]&&!TREASURE_ITEMS[i].bossStage&&treasureCopies(i)>0);
  return '<div class="management-card"><h3>🏛️ お宝展示館</h3><p>展示 '+shown.length+' / '+museumSlots213(b)+' ・ 人気度 +'+
  shown.reduce((n,i)=>n+(APPEAL213[TREASURE_ITEMS[i].rarity]||1),0)+'</p>'+
  (shown.length?shown.map(i=>'<div class="stat-row"><span>'+treasureThumbnail(i)+esc(TREASURE_ITEMS[i].name)+
@@ -5324,7 +5360,7 @@ function changeMuseum213(id,item,add){
  if(!b||!Number.isInteger(item)||!TREASURE_ITEMS[item])return;
  let ids=museumItems213(b);
  if(add){
-  if(!(state.treasures||[]).includes(item)||ids.length>=museumSlots213(b))return;
+  if(!(state.treasures||[]).includes(item)||treasureCopies(item)<1||ids.length>=museumSlots213(b))return;
   if(state.buildings.some(x=>x.type==='treasureMuseum213'&&museumItems213(x).includes(item)))return;
   ids.push(item);
  }else{if(!ids.includes(item))return;ids=ids.filter(x=>x!==item)}
@@ -6016,7 +6052,7 @@ renderTab=function(){
  if(tab==='adventure')$('tabBody').insertAdjacentHTML('afterbegin','<p class="option-desc">自動遠征は、世界樹Lv.3で建てられる「遠征所」から出発できるよ。</p>');
  if(tab==='build'){
   const selected=state.buildings.find(b=>b.id===selectedBuilding);
-  if(selected?.type==='guild212')$('tabBody').insertAdjacentHTML('afterbegin',guildOrderPanel());
+  if(selected?.type==='guild212')$('tabBody').insertAdjacentHTML('afterbegin',guildOrderPanel()+treasureOrderPanel());
   if(selected?.type==='worldtree')$('tabBody').insertAdjacentHTML('afterbegin',festivalPanel());
   if(selected?.type==='expeditionOffice'){
    $('tabBody').prepend(expeditionPanel213());
