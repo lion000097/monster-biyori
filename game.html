@@ -1812,7 +1812,9 @@ function drawWorld(now){
   drawSeasonTracks();
   drawSummerFireflies(now,{minX,minY,maxX,maxY});
   if($('roadCheck').open)drawWorkRoad(now);
+  let visibleTree=null;
   for(const b of state.buildings){const m=buildingOf(b),r=plotImageRect(b,m);if(r.x+r.w<left||r.x>right||r.y+r.h<top||r.y>bottom)continue;
+    if(b.type==='worldtree')visibleTree=b;
     objects.push({depth:b.x+b.y+(m.w+m.h)/2,draw(){
       drawLot(b,b.facing,b.level,false,litHomes.get(b));
       if(b.type==='workshop'&&Math.sin(now/400+b.id)>.45){const pos=projectGround(b.x+m.w*.55,b.y+m.h*.53);ctx.fillStyle='#fff2ab';ctx.fillRect(pos.x+2,pos.y-m.h*12,3,3)}
@@ -1826,11 +1828,13 @@ function drawWorld(now){
     const p=projectGround(o.x+.5,o.y+.5);if(p.x<left-40||p.x>right+40||p.y<top-24||p.y>bottom+65)continue;
     let depth=o.x+o.y+1;
     if(visit){
-      // The left and upper gates are beyond the building in the isometric view.
-      const farGate=visit.facing===1||visit.facing===2;
-      if(visit.site.type==='worldtree'&&worldTreeCourtyardContains(visit.site,o.x+.5,o.y+.5))
-        depth=Math.max(depth,visit.depth+.01);
-      else depth=farGate?Math.min(depth,visit.depth-.01):Math.max(depth,visit.depth+.01);
+      // The World Tree's paving and crown share one sprite. Its outdoor visitors
+      // need the same layer for the whole walk, including the gate and return.
+      const behind=visit.site.type!=='worldtree'&&(visit.facing===1||visit.facing===2);
+      depth=behind?Math.min(depth,visit.depth-.01):Math.max(depth,visit.depth+.01);
+    }else if(visibleTree&&(worldTreeCourtyardContains(visibleTree,o.x+.5,o.y+.5)||onWorldTreeGateRoad(visibleTree,o.x+.5,o.y+.5))){
+      const {w,h}=buildingOf(visibleTree);
+      depth=Math.max(depth,visibleTree.x+visibleTree.y+(w+h)/2+.01);
     }
     objects.push({depth,draw:()=>drawMapActor(o,monster,now,shootingStar,origin)});
   }
@@ -8441,6 +8445,12 @@ function resumeExpeditionVisit(worker){
 function worldTreeCourtyardContains(site,x,y){
  const {w,h}=buildingOf(site);
  return x>=site.x+.75&&x<=site.x+w-.75&&y>=site.y+.75&&y<=site.y+h-.75;
+}
+function onWorldTreeGateRoad(tree,x,y){
+  const {w,h}=buildingOf(tree),dir=validFacing(tree.facing),dx=x-tree.x,dy=y-tree.y;
+  const along=dir%2?dy:dx, length=dir%2?h:w;
+  const outside=[dy-h,-dx,-dy,dx-w][dir];
+  return along>=0&&along<length&&outside>=0&&outside<=1;
 }
 function worldTreeCourtyardPoint(site,dir){
  const {w,h}=buildingOf(site),right=dir===2||dir===3;
