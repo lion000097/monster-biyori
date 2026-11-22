@@ -14,13 +14,14 @@ function fixture(){
   state.treasures=[0,10];state.treasureStock={0:2,10:1};state.materialStock211[0]=85;state.materialStock211[5]=17;ensureMaterials211();
   state.economy.ordersDone=4;state.economy.eventDay=16;state.economy.treasureOrdersDone=2;state.exploreProgress=37;
   state.paths.push('4,6');state.removedDefaultPaths.push('10,12');
+  state.charms=2;equipCharm(state.monsters[0].id);
   save(true);
  }
  function snapshot(){return JSON.stringify([state.ranchName,state.speed,state.day,state.hour,state.coins,state.food,state.magic,
   state.villageLv,state.villageXp,state.buildings.map(b=>[b.id,b.type,b.x,b.y,b.facing,b.level,investedIn(b)]),
   state.paths,state.stoneTiles,state.removedDefaultPaths,state.treasures,state.reserveRareMaterials,state.materialStock211,state.stock,state.treasureStock,
-  state.monsters.map(m=>[m.id,m.name,m.kind,m.lv,m.xp]),state.staff.map(w=>[w.id,w.name,w.job,w.level,w.work]),
-  state.expeditionAuto213,state.exploreProgress,state.economy.ordersDone,state.economy.treasureOrdersDone,state.economy.eventDay,state.research,state.party]);}
+  state.monsters.map(m=>[m.id,m.name,m.kind,m.lv,m.xp,m.equip,m.iv,m.shiny]),state.staff.map(w=>[w.id,w.name,w.job,w.level,w.work]),
+  state.charms,state.expeditionAuto213,state.exploreProgress,state.economy.ordersDone,state.economy.treasureOrdersDone,state.economy.eventDay,state.research,state.party]);}
 
 
  function ready(){return !!(state&&facilitySheetReady&&villageSheetReady&&lionReady);}
@@ -120,6 +121,8 @@ function visits(){
  const route=small.path;check(save(true),'着席中の保存');const serialized=JSON.parse(localStorage.getItem(SAVE_KEY));
  check(serialized.monsters.find(o=>o.id===small.id).path.length===0,'一時経路の保存除外');
  step(7);check(!ranchSceneVisual124(small),'降りて行動を再開');
+ check(load(),'着席中のセーブを開く');const restored=state.monsters.find(v=>v.id===small.id);
+ check(restored&&!ranchSceneVisual124(restored)&&!Object.values(gardenActs250).includes(restored.act)&&residentRoad(...ranchTile124(restored)),'着席中の保存から道へ復帰');
  fresh(3);row(9,5,11);const crate=prop('acorn250'),fan=friend(8,9);
  step(1.5);check(!ranchSceneVisual124(fan),'春の屋台');state.day=15;monsterWalkTimer139(fan).wait=35;
  const goods=stateOfGoods();step(3);const browse=ranchSceneVisual124(fan);
@@ -128,6 +131,21 @@ function visits(){
  fresh(15);row(9,5,11);const moved=prop('acorn250'),visitor=friend(8,9);step(2);
  check(ranchSceneVisual124(visitor),'移動中断の準備');startMoving(moved.id);moveBuilding(11,5);step(.1);
  check(!ranchSceneVisual124(visitor),'屋台の移設で安全に終了');
+}
+function baths(){
+ for(const direction of [0,1,2,3]){
+  fresh();state.hour=18;placementFacing=direction;
+  row(7,7,11);row(11,7,11);
+  for(let y=7;y<=11;y++){road(7,y);road(11,y);}
+  const b=prop('onsen130');const door=entranceRoads(b)[1];check(door,'露天風呂の入口');
+  const guest=friend(...door);check(startFacilityVisit(guest,b,{pt:door,path:[]}),'入浴開始');
+  let bathed=false;
+  for(let i=0;i<700&&monsterWalkTimer139(guest).visit;i++){
+   advanceFacilityVisit(guest,.05);
+   if(!bathed&&onsenVisual130(guest)){bathed=true;drawWorld(900);}
+  }
+  check(bathed&&!monsterWalkTimer139(guest).visit&&residentRoad(...ranchTile124(guest)),'露天風呂の描画・入浴・退出 '+direction);
+ }
 }
 function rendering(){
  fresh();const arch=prop('roseArch250'),r=plotImageRect(arch);
@@ -149,7 +167,7 @@ function rendering(){
  return '四季、昼夜、描画、一時停止';
 }
 
- Object.assign(window.qa250,{placement,passage,visits,rendering});
+ Object.assign(window.qa250,{placement,passage,visits,rendering,baths});
  })();
 }
 const out=document.querySelector('#result'),mount=document.querySelector('#screens');
@@ -185,6 +203,7 @@ document.querySelector('#run').onclick=async({currentTarget:button})=>{
     current.w.qa250.passage();log(width+'px アーチ通行・最後の入口保護');
     current.w.qa250.visits();log(width+'px 小鳥、着席、秋の屋台と経済');
     log(width+'px '+current.w.qa250.rendering());
+    current.w.qa250.baths();log(width+'px 露天風呂の4方向と入浴');
     current.f.remove();
   }
   log('すべて成功');

@@ -2172,18 +2172,24 @@ function drawGardenLanternGround250(b){
     for(let y=0;y<25;y++)for(let x=0;x<50;x++){
       const d=((x-24)/24)**2+((y-12)/10.5)**2;
       if(d>=1)continue;
-      rect(d>.82?'#f5bb6038':d>.58?'#ffd36986':d>.29?'#ffdc7cc8':'#ffe5a1f8',x,y,1,1);
+      g.globalAlpha=Math.round((1-d)**.72*12)/12;
+      rect('#ffe1a1',x,y,1,1);
     }
-    // Two five-petalled silhouettes, foreshortened on the ground.
-    const petals=['  ##  ##  ',' #######  ','  ##+#### ',' ###++### ','#######   ',' ## ###   ','     ##   '];
-    function shade(x,y){
-      petals.forEach((row,j)=>[...row].forEach((mark,i)=>{
-        if(mark!==' ')rect(mark==='+'?'#b68b49':'#745866',x+i,y+j,1,1);
-      }));
-      rect('#806b51',x-1,y+6,6,1);rect('#806b51',x-3,y+7,4,1);
-      rect('#867653',x-3,y+4,2,2);rect('#867653',x-2,y+5,3,1);
+    g.globalAlpha=1;
+    const stem=(x0,y0,x1,y1)=>{
+      for(let i=0;i<=14;i++)rect('#8a7659',Math.round(x0+(x1-x0)*i/14),Math.round(y0+(y1-y0)*i/14),1,1);
+    };
+    stem(13,14,35,10);stem(14,15,25,18);
+    rect('#8e795a',21,12,3,2);rect('#8e795a',19,11,3,1);
+    function shade(cx,cy,radius){
+      for(let y=-6;y<=6;y++)for(let x=-8;x<=8;x++){
+        const dy=y/.74,angle=Math.atan2(dy,x);
+        const edge=radius*(.73+.27*Math.cos(5*angle+.4));
+        if(x*x+dy*dy<=edge*edge)rect('#776171',cx+x,cy+y,1,1);
+      }
+      rect('#a48866',cx,cy,2,1);
     }
-    shade(33,7);shade(21,13);
+    shade(36,10,7.0);shade(25,18,5.0);
   });
   const p=projectGround(b.x+.5,b.y+.5);
   ctx.save();ctx.globalAlpha*=dark/.39;
@@ -2202,7 +2208,7 @@ function drawLooseAcorn250(x,y){
     const rows=['     oo   ','    oc    ','  oooooo  ',' occgcbco ','ocbgcccbbo',' oobbbboo ','  oagabo  ','  oggabo  ','  ogaboo  ','   oabo   ','    oo    '];
     rows.forEach((row,y)=>[...row].forEach((k,x)=>{if(colors[k]){g.fillStyle=colors[k];g.fillRect(x,y,1,1);}}));
   });
-  ctx.drawImage(gardenAcornArt250,Math.round(x-4),Math.round(y-5),9,10);
+  ctx.drawImage(gardenAcornArt250,Math.round(x-3),Math.round(y-3),6,7);
 }
 function gardenNutLift250(t){
   return clamp(Math.min((t-1.15)/1.0,(4.8-t)/1.1),0,1);
@@ -2232,17 +2238,14 @@ function drawGardenHeldNut250(a,x,foot,size){
   const t=gardenNutLift250(a.elapsed);
   if(t<=0)return;
   const [sx,sy]=gardenNutPoint250(a.site),side=Math.sign(sx-x)||1;
-  const px=x+side*size*.32,py=foot-size*.61;
+  const px=x+side*size*.34,py=foot-size*.50;
   const nx=sx+(px-sx)*t,ny=sy+(py-sy)*t-4*Math.sin(t*Math.PI);
   const fur=gardenFur250(spriteMonsterHD(a.actor.kind,!!a.actor.shiny));
-  const baseX=x+side*size*.23,baseY=foot-size*.36;
-  const reachX=nx-side*3,reachY=ny+3;
-  for(let i=0;i<=5;i++){
-    const q=i/5,xx=Math.round(baseX+(reachX-baseX)*q),yy=Math.round(baseY+(reachY-baseY)*q);
-    ctx.fillStyle=fur.ink;ctx.fillRect(xx-2,yy-1,4,3);
-    ctx.fillStyle=fur.fur;ctx.fillRect(xx-1,yy-1,2,2);
+  if(t>.50){
+    const ox=Math.round(nx-side*2),oy=Math.round(ny+2);
+    ctx.fillStyle=fur.ink;ctx.fillRect(ox-1,oy,3,2);
+    ctx.fillStyle=fur.fur;ctx.fillRect(ox-1,oy,2,1);ctx.fillStyle=fur.light;ctx.fillRect(ox,oy-1,1,1);
   }
-  ctx.fillStyle=fur.light;ctx.fillRect(Math.round(reachX)-1,Math.round(reachY)-1,2,1);
   drawLooseAcorn250(nx,ny);
 }
 function gardenSeatWeight250(scene){
@@ -2258,30 +2261,13 @@ function drawMushroomGuest250(art,x,y,w,h,elapsed,weight){
     const sx=leg?half:0,dw=leg?w-mid:mid;
     for(let j=0;j<4;j++){
       const s0=cut+Math.round((sh-cut)*j/4),s1=cut+Math.round((sh-cut)*(j+1)/4);
-      const y0=edge+Math.round((h-edge)*j/4),y1=edge+Math.round((h-edge)*(j+1)/4);
+      const length=(h-edge)*(1+weight*(.42+.26*sway));
+      const y0=edge+Math.round(length*j/4),y1=edge+Math.round(length*(j+1)/4);
       const shift=Math.round(sway*(j+1)*.72);
       ctx.drawImage(art,sx,s0,leg?sw-half:half,s1-s0,x+(leg?mid:0)+shift,y+y0,dw,y1-y0);
     }
   }
-  if(weight>.45){
-    const fur=gardenFur250(art);
-    ctx.save();ctx.globalAlpha*=clamp((weight-.45)/.4,0,1);
-    // Two small forepaws keep the colors of the actual (including shiny) sprite.
-    for(let i=0;i<2;i++){
-      const swing=Math.sin(elapsed*4.3+i*Math.PI);
-      const ax=x+Math.round(w*(i?.66:.44)),ay=y+Math.round(h*.82);
-      const length=Math.round(h*.14+1.5*swing);
-      for(let j=0;j<=length;j++){
-        const xx=ax+Math.round(swing*3.3*(j/length)**1.5);
-        ctx.fillStyle=fur.ink;ctx.fillRect(xx-1,ay+j,3,1);
-        ctx.fillStyle=j%3===0?fur.light:fur.fur;ctx.fillRect(xx,ay+j,1,1);
-      }
-      const px=ax+Math.round(swing*3.3),py=ay+length;
-      ctx.fillStyle=fur.ink;ctx.fillRect(px-2,py,4,2);ctx.fillRect(px-1,py+2,2,1);
-      ctx.fillStyle=fur.fur;ctx.fillRect(px-1,py,2,2);ctx.fillStyle=fur.light;ctx.fillRect(px,py,1,1);
-    }
-    ctx.restore();
-  }
+
 }
 
 function drawLot(b,facing,level,preview=false,homeOpacity=0,now=0) {
