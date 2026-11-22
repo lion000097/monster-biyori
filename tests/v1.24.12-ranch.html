@@ -39,8 +39,12 @@ function ranchFixture(){
     check(morningPoses.get(m)?.trait==='おっとり','relaxed wake');
     updateMonsterWalks139(1.5);check(morningPoses.has(m),'second yawn');drawWorld(500);
     updateMonsterWalks139(2.2);check(!morningPoses.has(m),'wake ends');
-    state.day++;m.trait=0;startMorningPose(m);updateMonsterWalks139(1.2);
-    check(monsterWalkTimer139(m).morningRun>0&&m.path.length,'energetic departure');
+    state.day++;
+    const eager=makeMonster(state.nextId++,0,...door);eager.trait=0;state.monsters=[eager];
+    startFacilityVisit(eager,home,{pt:door,path:[]});
+    for(let i=0;i<160&&!morningPoses.has(eager);i++)advanceFacilityVisit(eager,.1);
+    updateMonsterWalks139(1.2);
+    check(monsterWalkTimer139(eager).morningRun>0&&eager.path.length,'energetic departure');
     const checks=[];
     for(const type of ['home','inn'])for(const facing of [0,1,2,3]){
       const building={type,id:5,facing},art=spriteBuildingV161(type,1,facing);
