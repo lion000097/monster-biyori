@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8">
+<title>もんすたー日和 1.24.28 動作確認</title>
+<h1>夕方の散歩・旅人の再訪・窓の影の動作確認</h1>
+<button id="run">検証を開始</button>
+<pre id="result" aria-live="polite"></pre>
+<div id="screens"></div>
+<script>
+'use strict';
+function activityProof(){
+(function(){
+const check=(ok,m)=>{if(!ok)throw Error(m)};
+const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+let from=1;
+function makeMap(weather,hour){
+ const save=JSON.parse(JSON.stringify(state));
+ let day=from;
+ while(weatherInfo(day).name!==weather&&day<from+300)day++;
+ check(day<from+300,'no weather '+weather);from=day+1;
+ state=save;
+ Object.assign(state,{buildings:[],staff:[],guests:[],monsters:[],party:[],zones:[0,1,4,5],paths:[],ponds:[],removedDefaultPaths:[...DEFAULT_PATH_KEYS],
+   clearedScenery:[],clearedPonds:[],speed:1,day,hour,villageLv:20,worldTreeLevel:20});
+ for(let x=MIN_X;x<W;x++)for(let y=MIN_Y;y<H;y++){state.clearedPonds.push(keyXY(x,y));state.clearedScenery.push(keyXY(x,y));}
+ state.economy.festival=false; stopWalkCamera(); hover=null; selectedBuilding=null; zoom=1;
+}
+const lot=(type,id,x,y,facing=0,level=1)=>{const b={type,id,x,y,facing,level};state.buildings.push(b);return b;};
+const roads=(x1,x2,y)=>{for(let x=x1;x<=x2;x++)state.paths.push(keyXY(x,y));};
+const frozen=(id,x,y)=>{const a=makeMonster(id,0,x,y);state.monsters.push(a);monsterWalkTimer139(a).wait=1000;return a;};
+const resources=()=>JSON.stringify([state.coins,state.food,state.magic,state.fame,state.talentFruit,state.stock,state.materialStock211,
+   state.treasures,state.treasureStock,state.economy,state.postcards,state.metrics,state.log,[...$('toasts').children].map(e=>e.textContent)]);
+const step=(dt=0.05,seconds=0.05,after=()=>{})=>{for(let n=0;n<Math.ceil(seconds/dt);n++){stepActors(dt);after(n);}};
+function observeMap(focus,now){
+ const calls=[],draw=drawMapActor;drawMapActor=(actor,...args)=>{calls.push(actor);return draw(actor,...args);};
+ try{
+  cameraX=focus.x-VW/2;cameraY=focus.y-VH/2;
+  drawWorld(now);
+ }finally{drawMapActor=draw;}
+ return calls;
+}
+const saveRuntime=()=>{
+ check(save(true),'saving during scene failed');
+ const s=JSON.parse(localStorage.getItem(SAVE_KEY));
+ check(!/(eveningWalk128|returningTraveler128|homeNightPrep128)/.test(JSON.stringify(s)),'a passive animation leaked to the save');
+ return s;
+};
+const advance=(sec,fn)=>step(.05,sec,fn);
+const dayMatching=(predicate)=>{for(let d=1;d<380;d++)if(predicate(d))return d;throw Error('no matching day');};
+const sampleFrame=focus=>{const seen=observeMap(focus,500);return seen;};
+const idleStaff=(id,x,y)=>{const staff=makeStaff(id,'gather',x,y);state.staff.push(staff);staffPlanWait.set(staff,1000);return staff;};
+const clockCheck=()=>[state.day,state.hour,state.speed];
+const drawBy=(focus,marker,fn)=>{
+ const got=observeMap(focus,420);
+ if(marker)check(got.includes(marker),'expected real visible sprite');
+ if(fn)fn(got);
+};
+window.qa128={
+ evening(old){
+  const before=old.eveningTrial(false);
+  const after=this.eveningTrial(true);
+  check(same(before.trajectory,after.trajectory)&&same(before.resources,after.resources),'evening walk changed original route or game rewards');
+  check(after.sawTogether&&after.sawGlance&&after.drawn,'evening walk/glance did not render '+JSON.stringify([after.sawTogether,after.sawGlance,after.drawn]));
+  for(const key of ['rain','day','night','paused','busy','opposite']){
+   const {a,b}=this.eveningSetup(key);
+   if(key==='busy'){stepEveningWalk128(.4);check(!eveningWalkVisual128(a)&&!eveningWalkVisual128(b),'paired walk competed with assigned work');}
+   else step(.05,.4,()=>check(!eveningWalkVisual128(a)&&!eveningWalkVisual128(b),'paired walk incorrectly starts with '+key));
+  }
+  return ['evening companions follow their original routes and visibly glance back only after a real fork; weather/time/priority restrictions'];
+ },
+ eveningSetup(variant){
+  makeMap(variant==='rain'?'雨':'晴れ',variant==='day'?12:variant==='night'?22:18);
+  if(variant==='paused')state.speed=0;
+  roads(2,12,7);state.paths.push('5,8','5,9');
+  const a=frozen(610,3,7),b=frozen(611,4,7);
+  a.path=[[4,7],[5,7],[5,8],[5,9]];
+  b.path=[[5,7],[6,7],[7,7],[8,7],[9,7],[10,7]];
+  if(variant==='busy')a.ranchTarget200=99;
+  if(variant==='opposite')a.path=[[2,7]];
+  return {a,b};
+ },
+ eveningTrial(active){
+  const {a,b}=this.eveningSetup(),samples=[],before=resources();
+  let sawTogether=false,sawGlance=false,drawn=false,saved=false;
+  step(.05,13,()=>{
+   samples.push([a.x,a.y,b.x,b.y,JSON.stringify(a.path),JSON.stringify(b.path)]);
+   if(!active)return;
+   const entry=eveningWalkVisual128(a),other=eveningWalkVisual128(b);
+   const scenes=[entry?.scene,other?.scene].filter(Boolean);
+   if(scenes.some(s=>s.phase==='together')){
+    sawTogether=true;check(entry&&other&&entry.scene===other.scene,'pair does not reference same transient scene');
+    if(!drawn){const z=observeMap(a,325);drawn=z.includes(a)&&z.includes(b);}
+    if(!saved){saveRuntime();saved=true;}
+   }
+   if(scenes.some(s=>s.phase==='glance')){
+    check(sawTogether,'glance starts before walking beside each other');
+    const lookers=[[a,entry],[b,other]].filter(([m,e])=>e&&eveningPose128(m,e).glance);
+    check(lookers.length===1,'the true route fork should cause one look-back, not two');
+    if(!sawGlance){
+     const draw=drawEveningLook128,paint=[];
+     drawEveningLook128=function(pose,...args){if(pose.glance)paint.push(1);return draw(pose,...args);};
+     try{check(observeMap(a,325).includes(lookers[0][0])&&paint.length===1,'glance animation missing from actual Canvas render');}
+     finally{drawEveningLook128=draw;}
+    }
+    sawGlance=true;
+   }
+  });
+  check(resources()===before,'evening routines changed economy within test');
+  return {trajectory:samples,resources:[state.coins,state.food,state.magic,state.stock,state.fame],sawTogether,sawGlance,drawn};
+ },
+ reunion(old){
+  const before=old.travelerTrial(false);
+  const after=this.travelerTrial(true);
+  check(same(before.trajectory,after.trajectory)&&same(before.rewards,after.rewards),'greeting changed actual travel/destination or economy');
+  check(after.seen&&after.drawn&&after.saved,'known returning traveler did not exchange a visible reciprocal greeting');
+  for(const variant of ['new','wrong-identity','same-day','busy','night','disconnected','pause']){
+   const {g,w}=this.travelerSetup(variant);
+   step(.05,.2,()=>check(!returningTravelerVisual128(g)&&!returningTravelerVisual128(w),'greeting incorrectly accepted '+variant));
+  }
+  {
+   const {g,w}=this.travelerSetup('new');
+   arriveTourist211(g);
+   g.phase212='leave';g.route212=[[7,7]];g.gone212=false;
+   step(.05,3);
+   check(g.gone212,'previous actual tourist visit did not complete return');
+   const next={...g,id:637,phase212:'arrive',x:6,y:7,arrived211:false,gone212:false,route212:[[7,7],[8,7]],entryPath101:[[8,7]],tx:8,ty:7};
+   state.guests=[next];
+   step(.05,.1);check(!returningTravelerVisual128(next),'same-day guest should not evoke past-day recognition');
+   state.day++;next.x=6;next.route212=[[7,7],[8,7]];
+   step(.05,.1);check(returningTravelerVisual128(next)?.scene.resident===w,'actually serviced and departed visitor not recognized next day');
+  }
+  for(const stage of ['unserved','unfinished-departure']){
+   const {g,w}=this.travelerSetup('new');
+   if(stage==='unfinished-departure')arriveTourist211(g);
+   g.phase212='leave';g.route212=[[7,7],[8,7]];g.gone212=false;
+   step(.05,stage==='unserved'?3:.1);
+   check(g.gone212===(stage==='unserved'),'first trip setup must reach correct elapsed status');
+   state.day++;
+   const next={...g,id:638,phase212:'arrive',x:6,y:7,arrived211:false,gone212:false,route212:[[7,7],[8,7]],entryPath101:[[8,7]],tx:8,ty:7};
+   state.guests=[next];
+   step(.05,.15);check(!returningTravelerVisual128(next)&&!returningTravelerVisual128(w),'visitor wrongly remembered after '+stage);
+  }
+  return ['known prior postcard sender and actual departed visitors are recognized on a later real visit; same routes/rewards, visible resident wave and answering traveler', 'strangers, wrong identity, same-day visits, work, pause and overnight/disconnected roads do not trigger returning greeting'];
+ },
+ travelerSetup(variant){
+  makeMap('晴れ',variant==='night'?22:13);state.day=4;roads(2,13,7);
+  const w=idleStaff(634,5,7),name=VISITORS[0],gender=genderForName(name);
+  const g={id:635,x:6,y:7,tx:8,ty:7,bob:0,name,gender,fromOutside101:true,entered211:true,arrived211:false,phase212:'arrive',
+   route212:[[7,7],[8,7]],entryPath101:[[8,7]],spent:0,leaveAt:100,wait212:1};
+  state.guests=[g];state.postcards=[null,null,null,null];
+  if(variant!=='new')state.postcards[0]={count:1,day:variant==='same-day'?4:1,sender:name};
+  if(variant==='wrong-identity')g.gender=gender==='男'?'女':'男';
+  if(variant==='busy')w.path=[[4,7],[3,7]];
+  if(variant==='disconnected')state.paths=state.paths.filter(key=>key!=='5,7');
+  if(variant==='pause')state.speed=0;
+  return {g,w};
+ },
+ travelerTrial(active){
+  const {g,w}=this.travelerSetup(),trajectory=[],first=[state.coins,state.food,state.magic,state.stock,state.fame,state.economy.totalVisitors];
+  let seen=false,drawn=false,saved=false;
+  step(.05,.45,()=>{
+   trajectory.push([g.x,g.y,w.x,w.y,JSON.stringify(g.route212),g.phase212]);
+   if(!active)return;
+   const visitor=returningTravelerVisual128(g),host=returningTravelerVisual128(w);
+   if(!visitor)return;
+   check(visitor.role==='traveler'&&host?.role==='resident'&&host.scene===visitor.scene,'visitor wave roles are not shared/correct');
+   seen=true;
+   if(!drawn){
+    const draw=drawReturningTraveler128,calls=[];
+    drawReturningTraveler128=function(phase,...args){calls.push(phase.role);return draw(phase,...args);};
+    try{const seenActors=observeMap(g,325);drawn=seenActors.includes(g)&&seenActors.includes(w)&&calls.includes('traveler')&&calls.includes('resident');}
+    finally{drawReturningTraveler128=draw;}
+   }
+   if(!saved){saveRuntime();saved=true;}
+  });
+  return {trajectory,rewards:[state.coins,state.food,state.magic,state.stock,state.fame,state.economy.totalVisitors].map((v,i)=>v-first[i]),seen,drawn,saved};
+ },
+ silhouette(){
+  let frames=0;
+  for(let facing=0;facing<4;facing++){
+   makeMap('晴れ',22);
+   const home=lot('home',623,5,5,facing),tree=lot('worldtree',624,10,1,0,20);
+   const door=frontPoint('home',home.x,home.y,facing,.25,.5).map(Math.floor);
+   state.paths=[keyXY(...door)];
+   const actor=frozen(625,door[0],door[1]),before=resources();
+   check(!homeNightPrepVisual128(home),'vacant house generated a shadow');
+   check(beginPlotWalk(actor,home,door,2.2),'actual bedroom approach could not start '+facing);
+   for(let i=0;i<150&&plotWalks.get(actor)?.phase!=='use';i++)stepPlotWalk(actor,home,door,.05,2.2);
+   check(actor.indoorRest?.buildingId===home.id&&homeNightPrepVisual128(home)?.actor===actor,'real sleep entry did not start the shadow '+facing);
+   const day=state.hour;state.hour=6;check(!homeNightPrepVisual128(home),'silhouette visible outside sleep even if previous frame had lit');state.hour=day;
+   let now=1000;
+   const origNow=performance.now,origin=homeNightPrepShadow128,called=[];
+   performance.now=()=>now;
+   homeNightPrepShadow128=(art,lights,b,scene)=>{
+    const overlay=origin(art,lights,b,scene);if(b===home&&overlay)called.push([lights,overlay]);return overlay;
+   };
+   try{
+    drawBy(home,null,actors=>check(!actors.includes(actor),'bedroom actor must remain hidden outdoors'));
+    stepHomeNightPrep128(.86);now+=800;
+    drawBy(home,null,actors=>check(!actors.includes(actor),'shadow must not draw indoor creature on map'));
+    check(called.length,'lit bedroom never drew its shadow '+facing);
+    const [mask,shadow]=called.at(-1),m=mask.getContext('2d').getImageData(0,0,mask.width,mask.height).data;
+    const f=shadow.getContext('2d').getImageData(0,0,shadow.width,shadow.height).data;
+    check(f.length===m.length,'one-to-one existing window mask dimensions');
+    let changed=0;
+    for(let i=3;i<f.length;i+=4){if(f[i]){changed++;check(m[i]>0,'silhouette painted outside the authentic lit window');}}
+    check(changed>0,'empty shadow art');frames++;
+   }finally{performance.now=origNow;homeNightPrepShadow128=origin;}
+   check(resources()===before,'bedtime silhouette changes actual economic state');
+   saveRuntime();check(load(),'could not continue from sleep save');
+   const room=state.buildings.find(b=>b.id===home.id), again=state.monsters.find(m=>m.id===actor.id);
+   check(room&&again?.indoorRest?.buildingId===room.id&&!homeNightPrepVisual128(room),'resumed household save wrongly replays window shadow');
+  }
+  return ['real bedtime entry, hidden actor, and shadow entirely inside the existing window pixels in all '+frames+' facings; no replay when loading an already sleeping actor'];
+ }
+};
+})();
+
+}
+const check=(ok,msg)=>{if(!ok)throw Error(msg);};
+async function textFile(url){const r=await fetch(url,{cache:'no-store'}); if(!r.ok)throw Error(url+' '+r.status);return r.text();}
+async function run(){
+ const out=document.querySelector('#result'),mount=document.querySelector('#screens');
+ const log=text=>out.textContent+=text+'\n';
+ out.textContent='';
+ const prefix='v12428_qa_'+crypto.randomUUID()+'_';
+ try{
+ const [oldSource,current,previous]=await Promise.all([textFile('../releases/1.24.27/game.html'),textFile('../game.html'),textFile('v1.24.21-ranch.html')]);
+ const previousHook=previous.slice(previous.indexOf('function fixture()'),previous.indexOf('function compareYards('));
+ async function open(source,width){
+   const f=document.createElement('iframe');f.title='検証用牧場';f.width=width;f.height=width===390?844:900;
+   const end='})();\n<\/script>';
+   f.srcdoc=source.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0; window.confirm=()=>true;')
+    .replace(end,()=>previousHook+'\nfixture();\n('+activityProof.toString()+')();\n'+end);
+   const ready=new Promise((resolve,reject)=>{f.onload=resolve;f.onerror=reject;});
+   mount.append(f);await ready;
+   const w=f.contentWindow;
+   for(let i=0;i<250&&!w.qa?.ready();i++)await new Promise(r=>setTimeout(r,20));
+   check(w.qa?.ready(),'画像の読み込み');return {w,f};
+ }
+ for(const width of [1366,390]){
+   const seed=await open(oldSource,width);seed.w.qa.seed();seed.f.remove();
+   const old=await open(oldSource,width),snapshot=old.w.qa.snapshot();
+   const update=await open(current,width);
+   check(update.w.document.title.includes('1.24.28'),'ゲームの版番号');
+   check(update.w.qa.snapshot()===snapshot,'1.24.27セーブの引き継ぎ');
+   check(width!==390||update.w.document.documentElement.scrollWidth<=391,'スマートフォン幅');
+   log(width+'px: 旧セーブ互換・画面幅');
+   for(const part of ['evening','reunion','silhouette'])for(const result of update.w.qa128[part](old.w.qa128))log('✓ '+result);
+   old.f.remove();update.f.remove();
+   for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);
+ }
+ log('すべて成功');
+ }finally{mount.replaceChildren();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);}
+}
+document.querySelector('#run').onclick=async({currentTarget:button})=>{
+ button.disabled=true;try{await run();}catch(e){document.querySelector('#result').textContent+='失敗 '+e.stack;}finally{button.disabled=false;}
+};
+</script></html>
