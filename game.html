@@ -1697,7 +1697,7 @@ const LOT_PIXEL_PAD=12;
 const gardenProps250={
   birdbath250:{name:'ちいさな鳥の水浴び鉢',icon:'🐦',unlock:2,cost:150,width:44,pivot:37,desc:'日中、小鳥が浅い石鉢で水浴びするよ。そばを通る仲間はそっと見守るよ'},
   roseArch250:{name:'つるバラのアーチ',icon:'🌹',unlock:4,cost:360,width:75,pivot:65,desc:'道にかけると仲間が下をくぐるよ。春は花びら、秋は赤い葉が舞い落ちるよ'},
-  mushroom250:{name:'きのこの腰かけ',icon:'🍄',unlock:1,cost:85,width:30,pivot:24,desc:'森のすみの小さな腰かけ。そばを通る小柄な仲間が腰かけて足をぶらぶらさせるよ'},
+  mushroom250:{name:'きのこの腰かけ',icon:'🍄',unlock:1,cost:85,width:30,pivot:24,desc:'森のすみの小さな腰かけ。そばを通る小柄な仲間がちょこんと座ってひと休みするよ'},
   acorn250:{name:'どんぐりの屋台飾り',icon:'🌰',unlock:5,cost:320,width:48,pivot:40,desc:'秋に仲間が木箱をのぞき、お気に入りの実を手に取って戻すよ。売買や補充はないよ'}
 };
 const ranchPlinth130={shirovane130:{width:64,pivot:59},...gardenProps250};
@@ -2186,22 +2186,6 @@ function drawGardenCrate250(b){
     a.site===b&&a.kind==='browseNuts'&&a.phase==='use'&&ranchSiteExisting124(a));
   if(!browsing||gardenNutLift250(browsing.elapsed)===0)drawLooseAcorn250(...gardenNutPoint250(b));
 }
-const gardenFurs250=new WeakMap();
-function gardenFur250(art){
-  if(gardenFurs250.has(art))return gardenFurs250.get(art);
-  const {width:w,height:h}=art,data=art.getContext('2d').getImageData(0,0,w,h).data,colors=new Map();
-  for(let y=Math.floor(h*.54);y<h;y+=2)for(let x=Math.floor(w*.25);x<w*.83;x+=2){
-    const i=(y*w+x)*4;
-    if(data[i+3]<170)continue;
-    const r=data[i],g=data[i+1],b=data[i+2],key=(r>>4)*256+(g>>4)*16+(b>>4);
-    const bin=colors.get(key)||{count:0,color:'rgb('+r+','+g+','+b+')',light:r*.21+g*.72+b*.07};
-    bin.count++;colors.set(key,bin);
-  }
-  const common=[...colors.values()].sort((a,b)=>b.count-a.count).slice(0,12).sort((a,b)=>a.light-b.light);
-  const at=f=>common[Math.round((common.length-1)*f)]?.color;
-  const palette={ink:at(.10)||'#654f51',fur:at(.64)||'#e5c7a1',light:at(.95)||'#fff0d7'};
-  gardenFurs250.set(art,palette);return palette;
-}
 const gardenPawContacts250=new WeakMap();
 function gardenPawContact250(art){
   if(gardenPawContacts250.has(art))return gardenPawContacts250.get(art);
@@ -2231,42 +2215,6 @@ function drawGardenHeldNut250(scene,art,left,top,width,height,flipped){
 function gardenSeatWeight250(scene){
   return clamp(Math.min(scene.elapsed/.68,(ranchSceneSeconds124.mushroomSit-scene.elapsed)/.68),0,1);
 }
-function drawMushroomGuest250(art,x,y,w,h,elapsed,weight){
-  const sw=art.width,sh=art.height,cut=Math.floor(sh*.70);
-  const edge=Math.round(h*cut/sh),half=Math.floor(sw/2),mid=Math.round(w/2);
-  ctx.drawImage(art,0,0,sw,cut,x,y,w,edge);
-  // Keep this species' own feet. Successive rows swing farther from the body.
-  for(let leg=0;leg<2;leg++){
-    const sway=Math.sin(elapsed*5.7+(leg?Math.PI:0))*weight;
-    const sx=leg?half:0,dw=leg?w-mid:mid;
-    for(let j=0;j<4;j++){
-      const s0=cut+Math.round((sh-cut)*j/4),s1=cut+Math.round((sh-cut)*(j+1)/4);
-      const y0=edge+Math.round((h-edge)*j/4),y1=edge+Math.round((h-edge)*(j+1)/4);
-      const shift=Math.round(sway*(j+1)*.72);
-      ctx.drawImage(art,sx,s0,leg?sw-half:half,s1-s0,x+(leg?mid:0)+shift,y+y0,dw,y1-y0);
-    }
-  }
-  if(weight>.45){
-    const fur=gardenFur250(art);
-    ctx.save();ctx.globalAlpha*=clamp((weight-.45)/.4,0,1);
-    // Two small forepaws keep the colors of the actual (including shiny) sprite.
-    for(let i=0;i<2;i++){
-      const swing=Math.sin(elapsed*4.3+i*Math.PI);
-      const ax=x+Math.round(w*(i?.66:.44)),ay=y+Math.round(h*.82);
-      const length=Math.round(h*.14+1.5*swing);
-      for(let j=0;j<=length;j++){
-        const xx=ax+Math.round(swing*3.3*(j/length)**1.5);
-        ctx.fillStyle=fur.ink;ctx.fillRect(xx-1,ay+j,3,1);
-        ctx.fillStyle=j%3===0?fur.light:fur.fur;ctx.fillRect(xx,ay+j,1,1);
-      }
-      const px=ax+Math.round(swing*3.3),py=ay+length;
-      ctx.fillStyle=fur.ink;ctx.fillRect(px-2,py,4,2);ctx.fillRect(px-1,py+2,2,1);
-      ctx.fillStyle=fur.fur;ctx.fillRect(px-1,py,2,2);ctx.fillStyle=fur.light;ctx.fillRect(px,py,1,1);
-    }
-    ctx.restore();
-  }
-}
-
 function drawLot(b,facing,level,preview=false,homeOpacity=0,now=0) {
   if(!facilitySheetReady)return;
   const m=buildingOf(b),rect=plotImageRect(b,m);
@@ -2681,10 +2629,7 @@ function drawMapActor(o,monster,now,star=null,origin=null) {
   if(ranchScene?.kind==='browseNuts'&&ranchScene.phase==='use'){
     drawGardenHeldNut250(ranchScene,art,left,top,size,height,flipped);
   }
-  if(seatWeight>0){
-    ctx.save();ctx.translate(flipped?left+size:left,top);if(flipped)ctx.scale(-1,1);
-    drawMushroomGuest250(art,0,0,size,height,ranchScene.elapsed,seatWeight);ctx.restore();
-  }else if(flipped){
+  if(flipped){
     ctx.save();ctx.translate(left+size,top);ctx.scale(-1,1);ctx.drawImage(art,0,0,size,height);ctx.restore();
   }else ctx.drawImage(art,left,top,size,height);
   if(greeting&&!monster&&greeting.time<1.15){
@@ -7451,7 +7396,7 @@ function startMorningPose(m){
 let ranchRoutines124=null;
 const ranchActors124=new WeakMap();
 const ranchSceneSeconds124={water:3.4,sniff:2.1,kindle:1.35,warm:5.4,watchBird:12,mushroomSit:6.0,browseNuts:5.9};
-const gardenActs250={watchBird:'小鳥の水浴びをそっと見守っている',mushroomSit:'きのこに腰かけて足をぶらぶら',browseNuts:'木の実をのぞき込んでいる'};
+const gardenActs250={watchBird:'小鳥の水浴びをそっと見守っている',mushroomSit:'きのこの腰かけでひと休み',browseNuts:'木の実をのぞき込んでいる'};
 const ranchClearWeather124=()=>['晴れ','くもり'].includes(weatherInfo().name);
 const ranchFireTime124=()=>state.hour>=17&&state.hour<21&&ranchClearWeather124();
 const ranchFlowerTime124=()=>state.hour>=7&&state.hour<10&&weatherInfo().name==='晴れ';
@@ -10779,7 +10724,7 @@ const plotWalks=new WeakMap();
 const packedPlots=new Set(['home','farm','cafe']);
 function restoreVisitDoors(save){
   for(const a of [...save.monsters,...save.staff,...(Array.isArray(save.guests)?save.guests:[])]){
-    if(a?.kind!==undefined&&Object.values(gardenActs250).includes(a.act))a.act='🐾 おさんぽ';
+    if(a?.kind!==undefined&&(Object.values(gardenActs250).includes(a.act)||a.act==='きのこに腰かけて足をぶらぶら'))a.act='🐾 おさんぽ';
     if(!a?.facilityDoor)continue;
     const p=a.facilityDoor;
     if(Array.isArray(p)&&p.length===2&&p.every(Number.isInteger)){
