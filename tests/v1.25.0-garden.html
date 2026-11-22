@@ -186,7 +186,7 @@ document.querySelector('#run').onclick=async({currentTarget:button})=>{
  const clear=()=>{for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);};
  try{
   async function read(path){const r=await fetch(path,{cache:'no-store'});check(r.ok,path+' HTTP '+r.status);return r.text();}
-  const [prior,latest]=await Promise.all([read('../releases/1.24.31/game.html'),read('../game.html')]);
+  const [prior,latest]=await Promise.all([read('../releases/1.24.31/game.html'),read('../releases/1.25.0/game.html')]);
   async function open(source,width){
     const f=document.createElement('iframe');f.title='検証用牧場';f.width=width;f.height=width===390?844:900;
     const end='})();\n<\/script>';
