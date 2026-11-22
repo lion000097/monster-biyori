@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8">
+<title>もんすたー日和 1.24.26 動作確認</title>
+<h1>おやつ分け・世界樹スケッチ・帽子拾いの動作確認</h1>
+<button id="run">検証を開始</button>
+<pre id="result" aria-live="polite"></pre>
+<div id="screens"></div>
+<script>
+'use strict';
+function activityProof(){
+(function(){
+const check=(ok,m)=>{if(!ok)throw Error(m)};
+const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+let from=1;
+function makeMap(weather,hour){
+ const save=JSON.parse(JSON.stringify(state));
+ let day=from;
+ while(weatherInfo(day).name!==weather&&day<from+300)day++;
+ check(day<from+300,'no weather '+weather);from=day+1;
+ state=save;
+ Object.assign(state,{buildings:[],staff:[],guests:[],monsters:[],party:[],zones:[0,1,4,5],paths:[],ponds:[],removedDefaultPaths:[...DEFAULT_PATH_KEYS],
+   clearedScenery:[],clearedPonds:[],speed:1,day,hour,villageLv:20,worldTreeLevel:20});
+ for(let x=MIN_X;x<W;x++)for(let y=MIN_Y;y<H;y++){state.clearedPonds.push(keyXY(x,y));state.clearedScenery.push(keyXY(x,y));}
+ state.economy.festival=false; stopWalkCamera(); hover=null; selectedBuilding=null; zoom=1;
+}
+const lot=(type,id,x,y,facing=0,level=1)=>{const b={type,id,x,y,facing,level};state.buildings.push(b);return b;};
+const roads=(x1,x2,y)=>{for(let x=x1;x<=x2;x++)state.paths.push(keyXY(x,y));};
+const frozen=(id,x,y)=>{const a=makeMonster(id,0,x,y);state.monsters.push(a);monsterWalkTimer139(a).wait=1000;return a;};
+const resources=()=>JSON.stringify([state.coins,state.food,state.magic,state.fame,state.talentFruit,state.stock,state.materialStock211,
+   state.treasures,state.treasureStock,state.economy,state.postcards,state.metrics,state.log,[...$('toasts').children].map(e=>e.textContent)]);
+const step=(dt=0.05,seconds=0.05,after=()=>{})=>{for(let n=0;n<Math.ceil(seconds/dt);n++){stepActors(dt);after(n);}};
+function observeMap(focus,now){
+ const calls=[],draw=drawMapActor;drawMapActor=(actor,...args)=>{calls.push(actor);return draw(actor,...args);};
+ try{
+  cameraX=focus.x-VW/2;cameraY=focus.y-VH/2;
+  drawWorld(now);
+ }finally{drawMapActor=draw;}
+ return calls;
+}
+const saveRuntime=()=>{
+ check(save(true),'saving during scene failed');
+ const s=JSON.parse(localStorage.getItem(SAVE_KEY));
+ check(!/(snackShare126|treeSketch126|hatRescue126)/.test(JSON.stringify(s)),'a passive animation leaked to the save');
+ return s;
+};
+window.qa126={
+ snack(){
+  const setup=(weather='晴れ',hour=15)=>{
+   makeMap(weather,hour);roads(2,11,7);const stall=lot('stall',410,5,6);return {stall,a:frozen(411,5,7),b:frozen(412,6,7)};
+  };
+  let {stall,a,b}=setup();const before=resources(),coords=[a.x,a.y,b.x,b.y],af=a.path,bf=b.path;
+  let count=0,shown=false,was=false,saved=false;
+  step(.05,20,()=>{
+   const first=snackShareVisual126(a),second=snackShareVisual126(b),on=!!first;
+   if(on&&!was){count++;check(first.role!==second?.role&&first.scene===second?.scene,'snack actors without same valid shared scene');}
+   if(on&&!shown){const seen=observeMap(a,500);shown=seen.includes(a)&&seen.includes(b);}
+   if(on&&!saved){saveRuntime();saved=true;}
+   was=on;
+  });
+  check(count===1&&shown&&saved&&!snackShareVisual126(a)&&!snackShareVisual126(b),'snack sequence missing, repeated or hidden: '+[count,shown,saved]);
+  check(resources()===before&&same(coords,[a.x,a.y,b.x,b.y])&&a.path===af&&b.path===bf,'snack changed economy, positions or routes');
+  for(const [weather,hour] of [['雨',15],['雪',15],['晴れ',22],['晴れ',13]]){
+   ({a,b}=setup(weather,hour));step(.05,6,()=>check(!snackShareVisual126(a)&&!snackShareVisual126(b),'snack played in wrong weather/time '+weather+'/'+hour));
+  }
+  ({stall,a,b}=setup());
+  b.path=[[8,7]];step(.05,.15,()=>check(!snackShareVisual126(a)&&!snackShareVisual126(b),'work/movement was interrupted by snack'));
+  b.path=[];b.x=6;b.y=7;step(.05,1);check(snackShareVisual126(a),'missing snack after suitable companions idle');
+  state.buildings=[];step();check(!snackShareVisual126(a)&&!snackShareVisual126(b),'stale snack after removal of stall');
+  return ['stall snack from actual actor steps, one play per day, both drawn and save-compatible; no reward or route mutation', 'no snack at night/in rain or snow/busy, stale scene cancels after removing its stall'];
+ },
+ sketch(old){
+  const expected=old.sketchVisit(false);
+  const observed=this.sketchVisit(true);
+  check(observed.exit>expected.exit&&observed.exit-expected.exit<=53,'sketch should briefly pause, then finish the same walk: '+JSON.stringify({observed,expected}));
+  check(same(observed.economy,expected.economy)&&same(observed.point,expected.point),'sketch changed actual guest departure or net guest earnings');
+  for(const variant of ['rain','night','no-gate','pause','retarget']){
+   makeMap(variant==='rain'?'雨':'晴れ',variant==='night'?22:12);roads(1,16,8);
+   const tree=lot('worldtree',425,6,2,0), guest={id:426,gender:'男',name:'QA',x:6,y:8,tx:6,ty:8,bob:0,phase212:'leave',arrived211:true,entered211:true,route212:[[5,8],[4,8],[3,8]]};
+   state.guests=[guest];
+   if(variant==='no-gate')state.paths=state.paths.filter(key=>key!=='6,8');
+   if(variant==='pause')state.speed=0;
+   if(variant==='retarget'){
+    step();const first=treeSketchVisual126(guest);check(first,'could not start sketch-to-rotation test');
+    state.speed=0;step(.05,.5);
+    check(treeSketchVisual126(guest)?.progress===first.progress,'an active sketch progressed while paused');
+    state.speed=1;tree.facing=1;
+    check(!treeSketchVisual126(guest),'rotation leaves stale sketch until next actor tick');
+   }
+   step(.05,.5,()=>check(!treeSketchVisual126(guest),'sketch did not ignore/cancel '+variant));
+  }
+  return ['returning traveler sketches by a real World Tree entrance, preserves route, action, and earnings; paper renders in all three visible phases',
+    'sketch never starts in rain/night/pause or without its road and cancels when the tree rotates'];
+ },
+ sketchVisit(active){
+  makeMap('晴れ',12);roads(1,16,8);
+  const tree=lot('worldtree',421,6,2,0),guest={
+   id:423,name:'QA旅人',gender:'女',x:6,y:8,tx:6,ty:8,act:'帰り道',bob:0,phase212:'leave',
+   arrived211:true,entered211:true,route212:[[5,8],[4,8],[3,8],[2,8],[1,8]],wait212:0};
+  const second={...guest,id:424,x:7,route212:[[8,8],[9,8]]};
+  state.guests=[guest,second];
+  const poses=[],frames=[],route=JSON.stringify(guest.route212);
+  const before=[state.coins,state.food,state.magic,state.fame,state.economy.tourists];
+  let exit=-1,seen=false;
+  for(let i=0;i<280;i++){
+   step();
+   if(guest.gone212&&exit===-1)exit=i;
+   if(!active)continue;
+   check(!treeSketchVisual126(second),'scene repeated same day or sketch took second traveler simultaneously');
+   const view=treeSketchVisual126(guest);
+   if(view){
+    check(guest.phase212==='leave'&&guest.act==='帰り道'&&guest.x===6&&guest.y===8&&JSON.stringify(guest.route212)===route,'sketch overwrote ordinary return motion or status');
+    if(!poses.includes(view.pose)){
+      poses.push(view.pose);
+      const draw=drawTreeSketch126,capture=[];
+      drawTreeSketch126=function(...args){capture.push(args[1].pose);return draw.apply(this,args);};
+      try{check(observeMap(guest,i*50).includes(guest),'sketching guest hidden');}
+      finally{drawTreeSketch126=draw;}
+      frames.push(...capture);
+    }
+    if(!seen){seen=true;saveRuntime();}
+   }
+  }
+  check(exit>=0,'actual traveler never finished original road route');
+  if(active)check(same(poses,['look','draw','finish'])&&same(frames,poses),'missing visible sketch phases '+JSON.stringify({poses,frames}));
+  return {exit,point:[guest.x,guest.y],economy:[state.coins,state.food,state.magic,state.fame,state.economy.tourists].map((v,i)=>v===undefined?null:v-before[i])};
+ },
+ hat(){
+  const setup=()=>{
+   makeMap('晴れ',13);state.day=1;roads(2,12,7);
+   const owner=makeStaff(431,'gather',5,7),helper=frozen(432,6,7);
+   state.staff=[owner];staffPlanWait.set(owner,1000);return {owner,helper};
+  };
+  let {owner,helper}=setup();const before=resources(),coords=[owner.x,owner.y,helper.x,helper.y];
+  let active=0,seen=false,drawn=false,lift=0,saved=false;
+  step(.05,15,()=>{
+   const r=hatSceneVisual126(owner);
+   if(r&&!seen)active++;
+   seen=!!r;
+   if(r){
+    check(r===hatSceneVisual126(helper)&&r.owner===owner&&r.helper===helper&&same(r.from,[5,7])&&same(r.to,[6,7]),'hat handoff has wrong actor relationship');
+    lift=Math.max(lift,windHatLift126(helper,r));
+    if(!drawn){
+     const draw=drawWindHat126,steps=[];
+     drawWindHat126=(...args)=>{steps.push(1);return draw(...args);};
+     try{const actors=observeMap(owner,500);drawn=actors.includes(owner)&&actors.includes(helper)&&steps.length===1;}
+     finally{drawWindHat126=draw;}
+    }
+    if(!saved){saveRuntime();saved=true;}
+   }
+  });
+  check(active===1&&lift>0&&drawn&&saved&&!hatSceneVisual126(owner),'hat single visible rescue/jump did not complete');
+  check(same(coords,[owner.x,owner.y,helper.x,helper.y])&&resources()===before&&!owner.path.length&&!helper.path.length,'hat scene changed resources or gameplay routes');
+  for(const abnormal of ['pause','rain','night','busy','disconnect']){
+   ({owner,helper}=setup());
+   if(abnormal==='pause')state.speed=0;
+   else if(abnormal==='rain'){while(weatherInfo().name!=='雨')state.day++;}
+   else if(abnormal==='night')state.hour=22;
+   else if(abnormal==='busy')helper.path=[[8,7]];
+   else state.paths=state.paths.filter(key=>key!=='6,7');
+   step(.05,abnormal==='busy'?.2:2,()=>check(!hatSceneVisual126(owner),'hat triggered with '+abnormal));
+  }
+  ({owner,helper}=setup());step(.05,.2);check(hatSceneVisual126(owner),'hat cancel fixture had no scene');
+  helper.ranchTarget200=99;check(!hatSceneVisual126(owner),'new job does not cancel hat pose');
+  // A hat uses one of two snack companions during the overlapping 14–16h window.
+  ({owner,helper}=setup());
+  const other=frozen(434,7,7);lot('stall',433,6,6);
+  step(.05,.15);check(hatSceneVisual126(helper),'overlap fixture must start with hat');
+  state.hour=15;
+  step(.05,.5,()=>check(!(hatSceneVisual126(helper)&&snackShareVisual126(helper)),'hat and snack animate the same actor simultaneously'));
+  return ['once-per-day windy hat catches and returns via visible citizen/companion hop; no real coordinates, reward, or save mutations',
+   'hat is blocked by rain, sleep, pause, work or disconnected roads, and cannot animate the same actor as snack'];
+ }
+};
+})();
+
+}
+const check=(ok,msg)=>{if(!ok)throw Error(msg);};
+async function textFile(url){const r=await fetch(url,{cache:'no-store'}); if(!r.ok)throw Error(url+' '+r.status);return r.text();}
+async function run(){
+ const out=document.querySelector('#result'),mount=document.querySelector('#screens');
+ const log=text=>out.textContent+=text+'\n';
+ out.textContent='';
+ const prefix='v12426_qa_'+crypto.randomUUID()+'_';
+ try{
+ const [oldSource,current,previous]=await Promise.all([textFile('../releases/1.24.25/game.html'),textFile('../game.html'),textFile('v1.24.21-ranch.html')]);
+ const previousHook=previous.slice(previous.indexOf('function fixture()'),previous.indexOf('function compareYards('));
+ async function open(source,width){
+   const f=document.createElement('iframe');f.title='検証用牧場';f.width=width;f.height=width===390?844:900;
+   const end='})();\n<\/script>';
+   f.srcdoc=source.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0; window.confirm=()=>true;')
+    .replace(end,()=>previousHook+'\nfixture();\n('+activityProof.toString()+')();\n'+end);
+   const ready=new Promise((resolve,reject)=>{f.onload=resolve;f.onerror=reject;});
+   mount.append(f);await ready;
+   const w=f.contentWindow;
+   for(let i=0;i<250&&!w.qa?.ready();i++)await new Promise(r=>setTimeout(r,20));
+   check(w.qa?.ready(),'画像の読み込み');return {w,f};
+ }
+ for(const width of [1366,390]){
+   const seed=await open(oldSource,width);seed.w.qa.seed();seed.f.remove();
+   const old=await open(oldSource,width),snapshot=old.w.qa.snapshot();
+   const update=await open(current,width);
+   check(update.w.document.title.includes('1.24.26'),'ゲームの版番号');
+   check(update.w.qa.snapshot()===snapshot,'1.24.25セーブの引き継ぎ');
+   check(width!==390||update.w.document.documentElement.scrollWidth<=391,'スマートフォン幅');
+   log(width+'px: 旧セーブ互換・画面幅');
+   for(const part of ['snack','sketch','hat'])for(const result of update.w.qa126[part](old.w.qa126))log('✓ '+result);
+   old.f.remove();update.f.remove();
+   for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);
+ }
+ log('すべて成功');
+ }finally{mount.replaceChildren();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);}
+}
+document.querySelector('#run').onclick=async({currentTarget:button})=>{
+ button.disabled=true;try{await run();}catch(e){document.querySelector('#result').textContent+='失敗 '+e.stack;}finally{button.disabled=false;}
+};
+</script></html>
