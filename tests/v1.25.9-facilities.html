@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><title>もんすたー日和 1.25.9 施設の確認</title>
+<h1>おやつ屋台と木の小屋</h1><button id="run">動作確認</button>
+<pre id="result" aria-live="polite"></pre><div id="mount"></div>
+<script>
+'use strict';
+// This hook is installed only in the isolated test iframe.
+function fixture() {
+  window.facilities259 = {
+    ready: () => facilitySheetReady,
+    seed() {
+      state.speed = 0;
+      state.ranchName = 'おやつの時間';
+      state.coins = 32001;
+      state.paths.push('8,9', '9,8');
+      state.buildings.push(
+        {type:'stall',x:7,y:9,w:1,h:1,id:state.nextId++,level:4,facing:3},
+        {type:'hut',x:9,y:7,w:1,h:1,id:state.nextId++,level:2,facing:0}
+      );
+      if (!save(true)) throw Error('旧セーブ作成');
+      return localStorage.getItem(SAVE_KEY);
+    },
+    snapshot() {
+      return JSON.stringify([state.ranchName,state.coins,state.paths,
+        state.buildings.map(b => [b.id,b.type,b.x,b.y,b.w,b.h,b.level,b.facing])]);
+    },
+    inspect() {
+      function check(ok,msg) { if (!ok) throw Error(msg); }
+      for (const type of ['stall','hut']) for (let f=0; f<4; f++) {
+        const b={type,x:7,y:9,facing:f}, m=buildingOf(b), r=plotImageRect(b);
+        const center=projectGround(b.x+.5,b.y+.5);
+        check(m.w===1 && m.h===1,type+' 占有面積');
+        const art=spriteBuildingV161(type,1,f);
+        const pixels=art.getContext('2d').getImageData(0,0,art.width,art.height).data;
+        let left=art.width,right=-1,top=art.height,bottom=-1;
+        for (let y=0; y<art.height; y++) for (let x=0; x<art.width; x++) {
+          if (!pixels[(y*art.width+x)*4+3]) continue;
+          left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y);
+          const dx=r.x+(x+.5)*r.w/art.width-center.x, dy=r.y+(y+.5)*r.h/art.height-center.y;
+          check(dy <= (T-Math.abs(dx))/2+.001,type+' 手前の道にはみ出している');
+        }
+        check((right-left+1)*r.w/art.width >= 1.95*T && (bottom-top+1)*r.h/art.height > 1.8*T,type+' 建物本体の大きさ');
+        const door=frontPoint(type,b.x,b.y,f,.5,.5).map(Math.floor);
+        const points=plotItinerary(b,door), stop=points.at(-1);
+        check(!areaContains(b,stop[0]+.5,stop[1]+.5),type+' 入口の立ち位置');
+      }
+      check(save(true) && load(),'再保存');
+    }
+  };
+}
+const result=document.getElementById('result'), mount=document.getElementById('mount');
+document.getElementById('run').onclick=async ({currentTarget:button})=>{
+  const prefix='facilities259_'+crypto.randomUUID()+'_';
+  function clear() { for(const k of Object.keys(localStorage)) if(k.startsWith(prefix))localStorage.removeItem(k); }
+  async function open(path,width) {
+    const response=await fetch(path,{cache:'no-store'});
+    if(!response.ok)throw Error(path+' '+response.status);
+    const end='})();\n<\/script>', source=await response.text();
+    if(source.split(end).length!==2)throw Error('初期化スクリプト');
+    const f=document.createElement('iframe');f.width=width;f.height=844;
+    f.srcdoc=source.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0;')
+      .replace(end,()=>fixture.toString()+'\nfixture();\n'+end);
+    const loaded=new Promise(resolve=>f.onload=resolve);mount.replaceChildren(f);await loaded;
+    const q=f.contentWindow.facilities259;
+    for(let i=0;i<200&&!q?.ready();i++)await new Promise(res=>setTimeout(res,25));
+    if(!q?.ready())throw Error('施設の画像が読み込めません');
+    return q;
+  }
+  button.disabled=true;result.textContent='';
+  try{
+    const prior='../releases/1.25.8/game.html',save=(await open(prior,1280)).seed();
+    const expected=(await open(prior,1280)).snapshot();
+    for(const path of ['../game.html','../releases/1.25.9/launcher-game.html'])for(const width of [1280,390]){
+      clear();localStorage.setItem(prefix+'save_v1',save);
+      const q=await open(path,width);
+      if(q.snapshot()!==expected)throw Error('引き継ぎ');
+      q.inspect();
+      if(q.snapshot()!==expected)throw Error('再読み込み');
+      result.textContent+=path+' / '+width+'px OK\n';
+    }
+    result.textContent+='すべて成功';
+  }catch(e){result.textContent+='失敗 '+e.stack;}
+  finally{mount.replaceChildren();clear();button.disabled=false;}
+};
+</script></html>
