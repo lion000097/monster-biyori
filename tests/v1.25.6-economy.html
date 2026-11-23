@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><title>もんすたー日和 1.25.6 動作確認</title>
+<h1>牧場の経営バランス・セーブ互換</h1><button id="run">検証を開始</button>
+<pre id="result" aria-live="polite"></pre><div id="screens"></div>
+<script>
+'use strict';
+function fixture(){
+window.qaEconomy={
+ ready(){return facilitySheetReady&&treeDecorationReady&&Object.values(ranchSheets130).every(x=>x.img.naturalWidth);},
+ balances(){return JSON.stringify([state.coins,state.food,state.stock,state.materialStock211,state.magic,state.fame,rank(),state.villageLv,
+  state.villageXp,state.research,state.buildings,state.treasureStock,state.treasures,state.talentFruit,state.reserveRareMaterials,state.economy.ordersDone]);},
+ seed(high){
+  state.speed=0;
+  if(high){
+   state.coins=42_678_912;state.food=3_125_678.25;state.magic=3_892_011;state.fame=1_282_245;
+   state.villageLv=state.worldTreeLevel=19;state.buildings.find(b=>b.type==='worldtree').level=19;
+   state.villageXp=123456.75;Object.keys(state.research).forEach((type,i)=>{state.research[type]=7+i;});
+   state.materialStock211=MATERIALS211.map((_,i)=>i===0?19_280_448.5:i+11);ensureMaterials211();
+   state.talentFruit=7;state.reserveRareMaterials=false;state.treasureStock={0:39,10:18};state.treasures=[0,10];state.economy.ordersDone=12;
+  }
+  if(!save(true))throw Error('baseline seed');
+ },
+ summary(){
+  return {cash:initial().coins,food:initial().food,aid:Array.from({length:20},(_,i)=>[i+1,ranchAid(i+1).daily,ranchAid(i+1).discount])};
+ },
+ bulk(method){
+  if(state.villageLv!==1)throw Error('use fresh for bulk');
+  state.coins=175000;state.speed=0;
+  const n=state.buildings.length,plan=treeBulkUpgradePlan1255();if(!plan.steps)throw Error('missing starter facilities');
+  if(method==='manual'){
+   for(const t of plan.targets)for(let l=t.start;l<t.end;l++)upgrade(t.building.id);
+  }else{
+   renderUI(true);window.confirm=()=>true;document.querySelector('[data-tree-bulk-upgrade="review"]').click();
+  }
+  if(state.buildings.length!==n||state.villageLv!==1||state.coins!==175000-plan.total||plan.targets.some(t=>t.building.level!==t.end))throw Error(method+' wrong upgrades');
+  return JSON.stringify([state.coins,state.food,state.magic,state.villageXp,state.fame,state.economy.expense,state.buildings.map(b=>[b.id,b.level,b.upgradeSavings]),plan.steps,plan.total]);
+ },
+ proofResearch(){
+  const check=(x,msg)=>{if(!x)throw Error(msg)};
+  const [type]=Object.keys(RESEARCH),initial=state.research[type],a=researchBonus1256(type,initial-1),b=researchBonus1256(type,initial),c=researchBonus1256(type,initial+1);
+  check(c>b&&b>a&&c-b<b-a,'display benefits actually diminish');
+  const need=researchCost(type,initial),next=researchCost(type,initial+1);check(next.coins>need.coins&&next.magic>need.magic,'costs grow');
+  const before=JSON.stringify(state);doResearch(type);check(JSON.stringify(state)===before,'no lab still purchased');
+  state.buildings.push({id:state.nextId++,type:'lab',level:6,x:12,y:8,facing:0});
+  tab='research';renderUI(true);const row=document.querySelector('.research-option');
+  check(row.textContent.includes('現在 +'+smallValue1256(b)+'%')&&row.textContent.includes('次 +'+smallValue1256(c)+'%'),'research preview agrees with actual gain');
+  state.coins=need.coins-1;state.magic=need.magic;doResearch(type);
+  check(state.research[type]===initial&&state.magic===need.magic,'insufficient cash still purchased');
+  const prevBank=need.coins+100,prevMagic=need.magic+20,baseFame=state.fame,baseXP=state.villageXp;state.coins=prevBank;state.magic=prevMagic;
+  const effect=fameAward1256(2),exp=state.economy.expense;doResearch(type);
+  check(state.research[type]===initial+1&&state.coins===100&&state.magic===20&&state.economy.expense===exp+need.coins,'exact research price');
+  check(Math.abs(state.fame-baseFame-effect)<1e-8&&state.villageXp===baseXP,'research fame or XP wrong');
+  check(Math.abs(researchMultiplier(type)-(1+c/100))<1e-12,'new modifier not applied');
+  const qty=12,good=labMagicRate1256(qty,0,19),tapered=labMagicRate1256(qty,1e6,19);
+  check(good===qty&&tapered>0&&tapered<good&&labMagicRate1256(qty,1e6,3)===qty,'magic output should slow only from late surplus');
+  return {rank:initial,need,prior:b,next:c,good,tapered};
+ },
+ proofFestival(){
+  const check=(x,msg)=>{if(!x)throw Error(msg)};
+  const tree=state.buildings.find(b=>b.type==='worldtree');selectedBuilding=tree.id;state.economy.eventDay=0;
+  const cost=festivalCost(),food=festivalFoodCost1256(),shell=document.createElement('div');
+  const render=()=>{shell.innerHTML=festivalPanel();return shell.querySelector('button');};
+  state.coins=cost;state.food=food-1;
+  check(render().disabled,'festival UI allows short food');let snap=JSON.stringify(state);hostFestival();check(JSON.stringify(state)===snap,'short food transaction occurred');
+  state.coins=cost-1;state.food=food;
+  check(render().disabled,'festival UI allows short coins');snap=JSON.stringify(state);hostFestival();check(JSON.stringify(state)===snap,'short coins transaction occurred');
+  state.coins=cost;state.food=food;
+  const button=render();check(!button.disabled&&button.textContent.includes(cost.toLocaleString('ja-JP')+'G')&&button.textContent.includes('🍎'+food),'festival wrong displayed quote');
+  const exp=state.economy.expense,amount=fameAward1256(14+buildingLevel('park')*3+buildingLevel('tower')*4),priorFame=state.fame;
+  hostFestival();check(state.coins===0&&state.food===0&&state.economy.expense===exp+cost&&state.economy.eventDay===state.day&&state.economy.festival,'wrong festival transaction');
+  check(state.log.some(line=>JSON.stringify(line).includes('評判+'+smallValue1256(amount))),'festival log reports base rather than earned');
+  check(Math.abs(state.fame-priorFame-amount)<1e-8,'festival fame wrong');
+  check(render().disabled&&render().textContent.includes('開催済み'),'festival duplicate not blocked in UI');
+  state.coins=cost;state.food=food;snap=JSON.stringify(state);hostFestival();check(JSON.stringify(state)===snap,'duplicate same-day festival charged');
+  state.day++;check(!render().disabled,'festival did not reset next day');hostFestival();check(state.coins===0&&state.food===0&&state.economy.eventDay===state.day,'next-day festival could not run');
+  return {cost,food,earned:amount};
+ },
+ proofGrant(){
+  const check=(x,msg)=>{if(!x)throw Error(msg)};
+  const l=state.villageLv,stash=state.coins,g=ranchGrantStatus1256();
+  check(stash>=g.target&&g.payment===0,'wealthy ranch gets no grant at level '+l);
+  state.monsters=[];state.guests=[];state.staff=[];state.quests=[];state.economy.festival=false;state.buildings=state.buildings.filter(x=>x.type==='worldtree');
+  state.expeditionAuto213=false;
+  const target=ranchGrantStatus1256().target;state.coins=target-1;
+  const small=ranchGrantStatus1256();check(small.payment===1,'grant trimmed to current shortfall');
+  state.hour=23;tick(true);check(state.coins===target,'real midnight must pay only 1 G: '+state.coins+' vs '+target);
+  state.hour=23;tick(true);check(state.coins===target,'idle midnight minted past target');
+  state.coins=0;const poor=ranchGrantStatus1256();check(poor.payment>0&&poor.payment<=poor.maximum,'low-bank daily grant bounded');
+  const gains=[],gain=gainCoins;gainCoins=(amount,...args)=>{gains.push(amount);return gain(amount,...args);};
+  try{state.hour=23;tick(true);}finally{gainCoins=gain;}
+  check(gains.includes(poor.payment),'real poor midnight grant event: '+gains.join(','));
+  return {level:l,target,poor:poor.payment,max:poor.maximum};
+ },
+ proofSupply(){
+  const check=(x,msg)=>{if(!x)throw Error(msg)};
+  const prior=state.food,priorTotal=state.stock;
+  check(prior>foodReserve1256(state)&&priorTotal>0,'no glut in seeded ranch');
+  check(econHTML().includes('在庫に合わせた生産')&&econHTML().includes('現在の所持金なら支給なし'),'late surplus and grant policy dedicated UI');
+  const high=foodProduction.field(15);const reserve=foodReserve1256(state);state.food=reserve/2;
+  const low=foodProduction.field(15);
+  check(high>0&&high<low&&foodReserveMultiplier1256()===1,'stock-glut food reduces new production without freezing');
+  state.food=prior;
+  const ids=[...MATERIALS211.keys()],common=ids.find(i=>MATERIALS211[i][3]==='N');
+  for(const kind of ['SR','SSR','UR']){
+   const i=ids.find(i=>MATERIALS211[i][3]===kind);
+   state.materialStock211[i]=1e6;check(commonMaterialYield1256(state,i)===1,'rare production nerfed '+kind);
+  }
+  state.materialStock211[common]=0;check(commonMaterialYield1256(state,common)===1,'depleted type nerfed despite glut');
+  state.materialStock211[common]=500;
+  const factor=commonMaterialYield1256(state,common);check(factor>0&&factor<1,'common material glut taper absent or hard zero');
+  let units=0,carry=0;for(let j=0;j<99;j++){
+   const [q,r]=supplyWholeBatch1256(1,.04,carry); carry=r;units+=q;
+  }
+  check(units===4&&carry>=0&&carry<10,'fractional batch carry discarded');
+  return {reserve,high,low,commonFactor:factor,units};
+ },
+ demand(){
+  const old=state.coins;
+  gainCoins(12345);
+  return state.coins-old;
+ }
+};
+window.qaEconomy.restore=()=>{if(!load())throw Error('旧セーブの再読み込み');};
+}
+const out=document.querySelector('#result'),mount=document.querySelector('#screens');
+function check(ok,label){if(!ok)throw Error(label);}
+function log(s){out.textContent+=s+'\n';}
+document.querySelector('#run').onclick=async ({currentTarget:button})=>{
+ out.textContent='';button.disabled=true;
+ const prefix='v1256_qa_'+crypto.randomUUID()+'_',key=prefix+'save_v1';
+ const clear=()=>{for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);};
+ async function read(path){const res=await fetch(path,{cache:'no-store'});check(res.ok,path+' HTTP '+res.status);return res.text();}
+ async function open(source,width){
+  const f=document.createElement('iframe');f.width=width;f.height=width===390?844:900;f.title='検証用牧場';
+  const end='})();\n<\/script>';check(source.split(end).length===2,'初期化スクリプト');
+  f.srcdoc=source.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0;')
+   .replace(end,()=>fixture.toString()+'\nfixture();\n'+end);
+  const loaded=new Promise((resolve,reject)=>{f.onload=resolve;f.onerror=reject;});mount.append(f);await loaded;
+  const w=f.contentWindow;for(let i=0;i<180&&!w.qaEconomy?.ready();i++)await new Promise(r=>setTimeout(r,25));
+  check(w.qaEconomy?.ready(),'ゲーム開始と施設画像');return {w,f};
+ }
+
+ try{
+  const [prior,latest]=await Promise.all([read('../releases/1.25.5/game.html'),read('../game.html')]);
+  for(const width of [1366,390]){
+   clear();
+   const old=await open(prior,width);old.w.qaEconomy.seed(true);const big=localStorage.getItem(key);old.f.remove();
+   check(big,'旧セーブが保存された');
+   const base=await open(prior,width);const snapshot=base.w.qaEconomy.balances();base.f.remove();
+   const c=await open(latest,width);check(c.w.document.title.includes('1.25.6'),'版番号');
+   check(c.w.qaEconomy.balances()===snapshot,'旧版の所持品・研究・評判を維持');
+   check(width!==390||c.w.document.documentElement.scrollWidth<=391,'モバイル表示のはみ出し');
+   c.w.qaEconomy.proofSupply();c.w.qaEconomy.proofGrant();
+   localStorage.setItem(key,big);c.w.qaEconomy.restore();c.w.qaEconomy.proofResearch();
+   localStorage.setItem(key,big);c.w.qaEconomy.restore();c.w.qaEconomy.proofFestival();c.f.remove();
+   log(width+'px: 旧セーブ・支援金・在庫に応じた生産・研究・牧場まつり');
+   clear();const b=await open(prior,width);b.w.qaEconomy.seed(false);const small=localStorage.getItem(key);const startup=b.w.qaEconomy.summary();b.f.remove();
+   const m=await open(latest,width);check(m.w.qaEconomy.summary().cash===startup.cash,'序盤の初期資金');const bulk=m.w.qaEconomy.bulk('bulk');m.f.remove();
+   localStorage.setItem(key,small);const n=await open(latest,width);check(n.w.qaEconomy.bulk('manual')===bulk,'まとめ強化と個別強化の一致');n.f.remove();
+   log(width+'px: 序盤資金・まとめ強化と個別強化の一致');
+  }
+  log('すべて成功');
+ }catch(e){log('失敗 '+e.stack);}finally{mount.replaceChildren();clear();button.disabled=false;}
+};
+</script></html>

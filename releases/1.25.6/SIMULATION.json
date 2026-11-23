@@ -1,0 +1,90 @@
+{
+  "public1255": [
+    {
+      "seed": 23,
+      "checkInMinutes": 20,
+      "sourceSha256": "47b4ebbd72692cb662b9cd42f890864ed8457818f555cef81cd8e3a69fd5b906",
+      "secondsLv20": 205200,
+      "secondsAdventure10_5": null,
+      "holdings": {
+        "coins": 128069512,
+        "food": 256734.16504407523,
+        "stock": 253204,
+        "magic": 33181.75
+      },
+      "coinsNeededForLv21": 2516509
+    },
+    {
+      "seed": 7,
+      "checkInMinutes": 25,
+      "sourceSha256": "47b4ebbd72692cb662b9cd42f890864ed8457818f555cef81cd8e3a69fd5b906",
+      "secondsLv20": 213000,
+      "secondsAdventure10_5": null,
+      "holdings": {
+        "coins": 135496048,
+        "food": 270956.46983017185,
+        "stock": 264290,
+        "magic": 34727.05
+      },
+      "coinsNeededForLv21": 2516509
+    },
+    {
+      "seed": 91,
+      "checkInMinutes": 30,
+      "sourceSha256": "47b4ebbd72692cb662b9cd42f890864ed8457818f555cef81cd8e3a69fd5b906",
+      "secondsLv20": 216000,
+      "secondsAdventure10_5": null,
+      "holdings": {
+        "coins": 134194696,
+        "food": 272592.71152803337,
+        "stock": 262993,
+        "magic": 35253.66
+      },
+      "coinsNeededForLv21": 2516509
+    }
+  ],
+  "candidate1256": [
+    {
+      "seed": 23,
+      "checkInMinutes": 20,
+      "sourceSha256": "aa5cc460cb6d721870d887c2fae7a09c07d45285039cfac2441e92eb25597a69",
+      "secondsLv20": 210000,
+      "secondsAdventure10_5": null,
+      "holdings": {
+        "coins": 1789715,
+        "food": 4086.8543641463,
+        "stock": 28187,
+        "magic": 1721.31
+      },
+      "coinsNeededForLv21": 2516509
+    },
+    {
+      "seed": 7,
+      "checkInMinutes": 25,
+      "sourceSha256": "aa5cc460cb6d721870d887c2fae7a09c07d45285039cfac2441e92eb25597a69",
+      "secondsLv20": 220500,
+      "secondsAdventure10_5": null,
+      "holdings": {
+        "coins": 1944729,
+        "food": 4012.415244131108,
+        "stock": 29378,
+        "magic": 1775.51
+      },
+      "coinsNeededForLv21": 2516509
+    },
+    {
+      "seed": 91,
+      "checkInMinutes": 30,
+      "sourceSha256": "aa5cc460cb6d721870d887c2fae7a09c07d45285039cfac2441e92eb25597a69",
+      "secondsLv20": 226800,
+      "secondsAdventure10_5": null,
+      "holdings": {
+        "coins": 1875888,
+        "food": 3772.916884465064,
+        "stock": 26135,
+        "magic": 1785.91
+      },
+      "coinsNeededForLv21": 2516509
+    }
+  ]
+}
