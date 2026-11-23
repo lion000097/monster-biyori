@@ -1,0 +1,59 @@
+name: Package equipment artwork 1.25.14
+on:
+  push:
+    branches: [qa/1.25.14-package]
+    paths: [.github/workflows/package-equipment-12514.yml]
+permissions:
+  contents: write
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            releases/1.25.13
+            releases/1.25.14
+      - name: Assemble and check the offline ZIP
+        shell: python
+        run: |
+          from pathlib import Path
+          from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
+          import hashlib
+          root=Path('releases/1.25.14')
+          old=Path('releases/1.25.13/monster-biyori-1.25.13.zip')
+          output=root/'monster-biyori-1.25.14.zip'
+          entries=[
+              ('game.html','game.html',(22,59,44)),
+              ('CHANGELOG.md','CHANGELOG.md',(23,8,6)),
+              ('TESTING.md','TESTING.md',(23,8,6)),
+              ('EQUIPMENT-GUIDE.png','EQUIPMENT-GUIDE.png',(23,7,2)),
+              ('sprites/1.25.14/equipment.png','sprites/equipment.png',(22,59,4)),
+              ('releases/1.25.14/CHANGELOG.md','CHANGELOG.md',(23,8,6)),
+              ('releases/1.25.14/TESTING.md','TESTING.md',(23,8,6)),
+          ]
+          replace={name for name,_,_ in entries}
+          with ZipFile(old) as source, ZipFile(output,'w',compression=ZIP_DEFLATED,compresslevel=7) as target:
+              for info in source.infolist():
+                  if info.filename not in replace:
+                      target.writestr(info,source.read(info))
+              for name,path,clock in entries:
+                  info=ZipInfo(name,(2026,11,23,*clock))
+                  info.external_attr=0o100644<<16
+                  target.writestr(info,(root/path).read_bytes(),compress_type=ZIP_DEFLATED,compresslevel=7)
+          with ZipFile(old) as source, ZipFile(output) as target:
+              assert set(target.namelist())==set(source.namelist())|replace
+              assert target.testzip() is None and len(target.infolist())==290
+              for name in set(source.namelist())-replace:
+                  assert target.read(name)==source.read(name),name
+              for name,path,_ in entries:
+                  assert target.read(name)==(root/path).read_bytes(),name
+          print(hashlib.sha256(output.read_bytes()).hexdigest(),output)
+      - name: Retain the inspected package on the build branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add releases/1.25.14/monster-biyori-1.25.14.zip
+          git commit -m "Assemble verified offline 1.25.14 package"
+          git push origin HEAD:refs/heads/qa/1.25.14-package
