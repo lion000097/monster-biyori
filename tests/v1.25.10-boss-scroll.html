@@ -1,0 +1,84 @@
+<!doctype html><html lang="ja"><meta charset="utf-8">
+<title>もんすたー日和 1.25.10 ボスエリア検証</title>
+<h1>ボスエリアのスクロールと挑戦を確認</h1>
+<button id="run">検証を開始</button><pre id="result" aria-live="polite"></pre><div id="mount"></div>
+<script>
+function bossProbe(allowBaseline=false){
+ const check=(condition,msg)=>{if(!condition)throw new Error(msg);};
+ state.adventure.stage=31;state.adventure.bossLoop=0;state.battle=null;state.speed=1;
+ document.querySelector('[data-tab="adventure"]').click();
+ const grid=()=>document.querySelector('.boss-grid192');
+ const fight=(s)=>grid().querySelector('[data-v192="fight"][data-stage="'+s+'"]');
+ let list=grid(), last=fight(30);
+ check(list&&last&&last.textContent==='再戦','open actual to 6-5, already won');
+ check(!fight(35),'7-5 locked while at 7-1');
+ // Keep 7-1 as the data fixture; on widths where all six cards already fit,
+ // cap the panel height for desktop overflow coverage, without altering game logic.
+ if(list.clientHeight&&list.scrollHeight<=list.clientHeight)
+  document.head.appendChild(Object.assign(document.createElement('style'),{textContent:'.boss-grid192{max-height:120px!important}'}));
+ const laidOut=list.scrollHeight>list.clientHeight;
+ const max=laidOut?list.scrollHeight-list.clientHeight:200;
+ check(!('TouchEvent' in window)||typeof TouchEvent==='function','TouchEvent API');
+ if(window.innerWidth<=440&&'TouchEvent' in window)list.dispatchEvent(new TouchEvent('touchstart',{bubbles:true}));
+ else list.dispatchEvent(new WheelEvent('wheel',{bubbles:true,deltaY:max}));
+ // Synthetic wheel/touch events do not perform native scrolling. This is a
+ // controlled measured offset, not a claim of physical gestures.
+ list.scrollTop=max;last.focus({preventScroll:true});
+ const startFrames=frameAt;
+ for(let i=0;i<14;i++)animate(frameAt+100);
+ check(frameAt>startFrames,'real animate loop cycled');
+ const replaced=grid()!==list;
+ if(allowBaseline){
+  check(replaced&&grid().scrollTop===0&&document.activeElement!==last,
+    'baseline should replace live scroller and lose offset and focus');
+  return {replaced:true,offset:grid().scrollTop,laidOut};
+ }
+ check(!replaced&&fight(30)===last,'boss grid and selected button identity stayed stable while active');
+ check(grid().scrollTop===max,'scroll offset preserved over several refreshes');
+ check(document.activeElement===last,'focused 6-5 button retained');
+ last.click();
+ check(state.battle?.stage===30&&state.adventure.stage===31,'clicked existing 6-5 replay, not the current unlocked stage');
+ check(fight(30).disabled,'6-5 replay disabled while already in battle');
+ check(!fight(35),'7-5 remains locked');
+ state.battle=null;renderUI(false);
+ const loop=grid().querySelector('[data-v192="loop"][data-stage="30"]');
+ check(loop&&!loop.disabled,'6-5 loop remains allowed after battle');
+ loop.click();
+ check(state.adventure.bossLoop===30,'6-5 loop still selects correct stage');
+ state.adventure.bossLoop=0;state.battle=null;state.adventure.stage=35;renderUI(false);
+ const next=fight(35);
+ check(next&&next.textContent==='挑戦'&&!next.disabled,'current 7-5 appears challenge-only');
+ check(!grid().querySelector('[data-v192="loop"][data-stage="35"]'),'loop only for already defeated bosses');
+ next.click();
+ check(state.battle?.stage===35&&state.adventure.stage===35,'new unlocked stage can be challenged');
+ return {laidOut,offset:max,replaced:false};
+}
+
+const mount=document.getElementById('mount'), result=document.getElementById('result'), run=document.getElementById('run');
+async function read(path){const res=await fetch(path,{cache:'no-store'});if(!res.ok)throw Error(path+' HTTP '+res.status);return await res.text();}
+run.onclick=async()=>{
+ const tag='boss12510_'+crypto.randomUUID()+'_';
+ try{
+  result.textContent='';run.disabled=true;
+  const [oldPage,candidate]=await Promise.all([read('../releases/1.25.9/game.html'),read('../game.html')]);
+  for(const width of [1366,390]) for(const [source,baseline] of [[oldPage,true],[candidate,false]]){
+   const f=document.createElement('iframe');f.width=width;f.height=850;f.title='検証用牧場 '+width+'px';
+   const loaded=new Promise((ok,no)=>{f.onload=ok;f.onerror=no;});
+   const end='})();\n<\/script>';
+   if(source.split(end).length!==2)throw Error('missing game bootstrap');
+   f.srcdoc=source.replaceAll('monster_biyori_',tag+(baseline?'old':'new')+'_')
+           .replace('<script>','<script>window.requestAnimationFrame=()=>0;')
+           .replace(end,()=>bossProbe.toString()+'\nwindow.bossProbe=bossProbe;\n'+end);
+   mount.append(f);await loaded;
+   const status=f.contentWindow.bossProbe(baseline);
+   if(!status.laidOut)throw Error(width+'px at 7-1: boss grid should actually overflow');
+   result.textContent+=width+'px: '+(baseline?'旧版で先頭へ戻る現象を再現':'スクロールとフォーカス維持、6-5再戦、7-5解放条件')+'\n';
+   f.remove();
+  }
+  result.textContent+='すべて成功';
+ }catch(e){result.textContent+='失敗 '+e.stack;}finally{
+  mount.replaceChildren();run.disabled=false;
+  for(const key of Object.keys(localStorage))if(key.startsWith(tag))localStorage.removeItem(key);
+ }
+};
+</script></html>
