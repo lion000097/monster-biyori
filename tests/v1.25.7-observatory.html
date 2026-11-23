@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><title>もんすたー日和 1.25.7 動作確認</title>
+<h1>牧場の観察・世界樹の小径</h1><button id="run">検証を開始</button>
+<pre id="result" aria-live="polite"></pre><div id="screens"></div>
+<script>
+'use strict';
+function fixture(){
+window.q1257={
+ ready(){return facilitySheetReady&&treeDecorationReady&&Object.values(ranchSheets130).every(x=>x.img.naturalWidth);},
+ seed(){
+  state.speed=0;state.ranchName='こもれび森の牧場';state.coins=190067;state.food=406;state.magic=320;state.day=17;
+  state.worldTreeLevel=state.villageLv=19;state.buildings.find(b=>b.type==='worldtree').level=19;
+  state.villageXp=villageThreshold(19)*.67;state.treasures=[0,10];state.treasureStock={0:2,10:1};
+  state.materialStock211[0]=820;ensureMaterials211();state.reserveRareMaterials=false;
+  state.exploreProgress=37;state.economy.ordersDone=2;state.paths.push('4,6');
+  toggleMonsterCollection138(state.monsters[0].id,'favorite');
+  state.research.farm=5;state.research.battle=4;
+  if(!save(true))throw Error('baseline seed');
+ },
+ snapshot(){return JSON.stringify([state.ranchName,state.speed,state.day,state.hour,state.coins,state.food,state.magic,state.fame,
+  state.villageLv,state.worldTreeLevel,state.villageXp,state.paths,state.stoneTiles,state.buildings,state.monsters,state.staff,state.research,state.party,
+  state.treasures,state.treasureStock,state.reserveRareMaterials,state.exploreProgress,state.economy.ordersDone,state.materialStock211]);},
+ beforeAmbient(){
+  const day=Array.from({length:384},(_,i)=>i+1).find(d=>weatherInfo(d).name==='晴れ');
+  Object.assign(state,{staff:[],guests:[],monsters:[],party:[],zones:[0,1,4,5],paths:[],ponds:[],removedDefaultPaths:[...DEFAULT_PATH_KEYS],
+   clearedPonds:[],clearedScenery:[],stoneTiles:{},speed:1,day,hour:13,coins:20000,villageLv:5,worldTreeLevel:5});
+  state.buildings=[];state.economy.festival=false;stopWalkCamera();hover=null;selectedBuilding=null;zoom=1;
+  for(let x=MIN_X;x<W;x++)for(let y=MIN_Y;y<H;y++){const k=keyXY(x,y);state.clearedPonds.push(k);state.clearedScenery.push(k);}
+  for(let x=2;x<=10;x++){const k=keyXY(x,7);state.paths.push(k);state.stoneTiles[k]=true;}
+ },
+ makeActor(x,y,kind=0){const m=makeMonster(state.nextId++,kind,x,y);state.monsters.push(m);monsterWalkTimer139(m).wait=1000;return m;},
+ shot(x,y,time=500){const p=unprojectGround(...(()=>{const g=projectGround(x,y);return [g.x,g.y]})());cameraX=p.x-VW/2;cameraY=p.y-VH/2;drawWorld(time);return canvas;},
+};q1257.run=function*(only){
+ const check=(ok,msg)=>{if(!ok)throw Error(msg);};
+ const j=x=>JSON.stringify(x);
+ const saved=localStorage.getItem(SAVE_KEY);
+ if((!only||only==='camera')&&document.getElementById('walkCameraStatus1257')){
+  const m=state.monsters.find(m=>m.favorite)||state.monsters[0];
+  startWalkCamera(m.id);check(followedMonster===m&&!$('stopWalkCamera').hidden,'follow activates via selected monster');
+  const start=cameraCenter();m.x+=1.6;updateWalkCamera(.08);const next=cameraCenter();
+  check(next.x>start.x&&next.x<m.x+.5,'follow softly moves');
+  check(localStorage.getItem(SAVE_KEY)===saved,'follow is transient');
+  $('stopWalkCamera').click();check(!followedMonster&&$('stopWalkCamera').hidden,'stop button');
+  startWalkCamera(m.id);document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));check(!followedMonster,'Escape stop');
+  yield {name:'favorite-follow'};
+ }else if(!only||only==='camera')throw Error('follow camera not integrated');
+ if(!only||only==='shortage'){
+  const tree=state.buildings.find(b=>b.type==='worldtree');
+  state.villageLv=state.worldTreeLevel=tree.level=1;
+  const xp=villageThreshold(1),price=treeCost193(1);
+  state.villageXp=xp-11.25;state.coins=price.coins+1;state.magic=price.magic-2;
+  renderUI(true);
+  const node=$('treeGrowthNotice1257');
+  check(node.querySelector('[data-ready="false"]')&&node.textContent.includes('あと 12 XP')&&node.textContent.includes('キラキラ：あと 2')&&!node.textContent.includes('おかね：あと'),'only actual currency shortages displayed');
+  check(node.textContent.includes('施設の建設')&&node.textContent.includes('施設の強化'),'new build and upgrades distinguished');
+  const styles=(el,props)=>Object.fromEntries(props.map(p=>[p,getComputedStyle(el)[p]]));
+  const heading=node.querySelector('strong'),label=$('treeNextLevel');
+  const proof={title:label.textContent,heading:heading.textContent,lines:Array.from(node.querySelectorAll('li'),x=>x.textContent),
+    level:$('treeLevel').textContent,xp:$('villageNext').textContent,
+    panelStyle:styles(heading.parentElement,['backgroundColor','color','borderColor','borderRadius','fontSize','padding','lineHeight']),
+    headingStyle:styles(heading,['fontWeight','color','fontSize']),
+    html:node.outerHTML};
+  const treeRect=plotImageRect(tree),p=unprojectGround(treeRect.x+treeRect.w*.5,treeRect.y+treeRect.h*.43);
+  yield {name:'growth-shortages-live-dom',lines:proof,canvas:q1257.shot(p.x,p.y,520)};
+  const rows=treeGrowthStatus1257().requirements;
+  check(rows.every((r,i)=>i===0||!rows[i-1].ok||r.ok),'requirement list sorted unmet first');
+  state.villageXp=xp;state.coins=price.coins;state.magic=price.magic;
+  state.buildings=[tree];for(const r of treeRequirements193(2))for(let i=0;i<r.count;i++)
+   state.buildings.push({id:state.nextId++,type:r.type,x:43,y:29,level:r.minLevel,facing:0});
+  renderUI(true);check(node.querySelector('[data-ready="true"]')&&!$('treeGrow').hidden,'button unlocked only when actual deficits filled');
+  yield {name:'growth-current-shortages-first'};
+ }
+ if(!only||only==='picnic'){
+  q1257.beforeAmbient();
+  const clear=state.day;state.hour=12;
+  const vals=()=>j([state.coins,state.food,state.magic,state.fame,state.villageXp,state.research,state.materialStock211]);
+  placementFacing=0;const price=constructionCost('picnic257'),money=state.coins;place('picnic257',6,6);const mat=getBuildingAt(6,6);
+  check(mat?.type==='picnic257'&&state.coins===money-price,'genuine build and price on grass');
+  const mo=q1257.makeActor(6,7,0),pi=q1257.makeActor(7,7,1);
+  for(const b of [{id:state.nextId++,type:'home',x:8,y:5,level:1,facing:0}])state.buildings.push(b);
+  const original=vals();stepPicnic257(.1);
+  let scene=picnicFlow257?.scene;check(scene?.members.length===2&&scene.members[0].actor!==scene.members[1].actor,'exactly two picnic partners');
+  for(let i=0;i<90&&scene.phase!=='use';i++)stepActors(.05);
+  check(scene.phase==='use','walking partners naturally arrive');
+  check(vals()===original,'picnic gains no resource reward');
+  stepPicnic257(.8);
+  yield {name:'sunny-picnic-actual-map',canvas:q1257.shot(6.75,6.8,1400)};
+  state.day=Array.from({length:384},(_,i)=>i+1).find(d=>d!==clear&&weatherInfo(d).name==='雨');
+  stepPicnic257(.1);check(!picnicFlow257.scene,'rain stops picnic');
+  const shelter=[mo,pi].map(m=>monsterWalkTimer139(m).pastime);
+  check(shelter.every(play=>play?.action==='shelter'&&play.site?.type==='home'),'both partners seek reachable shelter');
+  yield {name:'picnic-paid-placement-sun-rain-shelter'};
+ }
+
+};
+
+window.q1257.roundtrip=()=>{if(!save(true)||!load())throw Error('再保存');};
+}
+const out=document.querySelector('#result'),mount=document.querySelector('#screens');
+function check(ok,label){if(!ok)throw Error(label);}
+function log(s){out.textContent+=s+'\n';}
+document.querySelector('#run').onclick=async ({currentTarget:button})=>{
+ out.textContent='';button.disabled=true;
+ const prefix='v1257_qa_'+crypto.randomUUID()+'_',key=prefix+'save_v1';
+ const clear=()=>{for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);};
+ async function read(path){const res=await fetch(path,{cache:'no-store'});check(res.ok,path+' HTTP '+res.status);return res.text();}
+ async function open(source,width){
+  const f=document.createElement('iframe');f.width=width;f.height=width===390?844:900;f.title='検証用牧場';
+  const end='})();\n<\/script>';check(source.split(end).length===2,'初期化スクリプト');
+  f.srcdoc=source.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0;')
+   .replace(end,()=>fixture.toString()+'\nfixture();\n'+end);
+  const loaded=new Promise((resolve,reject)=>{f.onload=resolve;f.onerror=reject;});mount.append(f);await loaded;
+  const w=f.contentWindow;for(let i=0;i<180&&!w.q1257?.ready();i++)await new Promise(r=>setTimeout(r,25));
+  check(w.q1257?.ready(),'ゲーム開始と施設画像');return {w,f};
+ }
+
+
+ try{
+  const [prior,latest]=await Promise.all([read('../releases/1.25.6/game.html'),read('../game.html')]);
+  for(const width of [1366,390]){
+   clear();
+   const old=await open(prior,width);old.w.q1257.seed();old.f.remove();
+   check(localStorage.getItem(key),'旧セーブが保存された');
+   const base=await open(prior,width);const snapshot=base.w.q1257.snapshot();base.f.remove();
+   const c=await open(latest,width);check(c.w.document.title.includes('1.25.7'),'版番号');
+   check(c.w.q1257.snapshot()===snapshot,'旧版からの引き継ぎ');c.w.q1257.roundtrip();
+   check(c.w.q1257.snapshot()===snapshot,'旧版セーブの再保存');
+   check(width!==390||c.w.document.documentElement.scrollWidth<=391,'モバイル表示のはみ出し');
+   const checks=[...c.w.q1257.run()].map(r=>r.name);
+   check(checks.length===5,'全観察モードを通過');
+   c.f.remove();
+   log(width+'px: 旧セーブ・追跡・不足条件・ピクニック');
+  }
+  log('すべて成功');
+ }catch(e){log('失敗 '+e.stack);}finally{mount.replaceChildren();clear();button.disabled=false;}
+};
+</script></html>

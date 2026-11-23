@@ -20,8 +20,15 @@ async function run() {
     const start=()=>{click(d,'[data-action="selectMonster"][data-id="'+m.id+'"]');click(d,'[data-action="walkCamera"]');};
     start();assert.equal(f.followed(),m.id);
     assert(!d.getElementById('modal').classList.contains('show'));
-    assert(d.getElementById('stopWalkCamera').textContent.includes(m.name));
-    m.x=10.2;m.y=7.7;f.zoom(1.5);f.updateWalkCamera();
+    const status=d.getElementById('walkCameraStatus1257');
+    assert((status||d.getElementById('stopWalkCamera')).textContent.includes(m.name));
+    m.x=10.2;m.y=7.7;
+    if(status){
+      const previous=f.cameraCenter().x;f.updateWalkCamera(.06);
+      assert(f.cameraCenter().x>previous&&f.cameraCenter().x<m.x+.5);
+      f.zoom(1.5);assert.equal(f.followed(),undefined,'manual zoom releases the camera');
+      start();
+    }else{f.zoom(1.5);f.updateWalkCamera();}
     assert(Math.abs(f.cameraCenter().x-m.x-.5)<1e-8&&Math.abs(f.cameraCenter().y-m.y-.5)<1e-8);
     click(d,'[data-action="pan"][data-id="left"]');assert.equal(f.followed(),undefined);
     start();click(d,'#stopWalkCamera');assert(d.getElementById('stopWalkCamera').hidden);
