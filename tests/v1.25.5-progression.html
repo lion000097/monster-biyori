@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><title>もんすたー日和 1.25.5 動作確認</title>
+<h1>世界樹の成長・まとめ強化</h1><button id="run">検証を開始</button>
+<pre id="result" aria-live="polite"></pre><div id="screens"></div>
+<script>
+'use strict';
+function fixture(){
+window.qa255={
+ seed(){state.speed=0;state.ranchName='世界樹の牧場';state.coins=19000;state.food=476;state.day=17;
+   state.treasures=[0];state.treasureStock={0:2};state.materialStock211[0]=82;state.reserveRareMaterials=false;
+   state.exploreProgress=37;state.economy.ordersDone=2;state.paths.push('4,6');save(true);},
+ snapshot(){return JSON.stringify([state.ranchName,state.speed,state.day,state.hour,state.coins,state.food,state.paths,state.buildings,state.monsters,state.staff,state.research,state.party,state.treasures,state.treasureStock,state.reserveRareMaterials,state.exploreProgress,state.economy.ordersDone,state.materialStock211]);},
+ levels(lv,xp){const tree=state.buildings.find(b=>b.type==='worldtree');tree.level=lv;state.villageLv=state.worldTreeLevel=lv;state.villageXp=xp;return save(true);},
+ getXp(lv){return {current:state.villageXp,total:villageThreshold(lv),level:state.villageLv,coins:state.coins,magic:state.magic};},
+ artReady(){return facilitySheetReady&&treeDecorationReady;},
+ guide(){
+  renderUI(true);
+  const panel=document.querySelector('.tree-bulk1255');
+  const blocks=[panel.querySelector('.tree-bulk-totals1255 span').textContent,panel.querySelector('strong').textContent,panel.querySelector('.tree-bulk-summary1255').textContent,panel.querySelector('small').innerText||panel.querySelector('small').textContent,panel.querySelector('button').textContent];
+  const tree=state.buildings.find(b=>b.type==='worldtree');stopWalkCamera();zoom=1;selectedBuilding=null;const rect=plotImageRect(tree),center=unprojectGround(rect.x+rect.w*.5,rect.y+rect.h*.57);cameraX=center.x-VW/2;cameraY=center.y-VH/2;drawWorld(500);
+  return {blocks,canvas};
+ },
+ bulk(){
+  const assert=(x,msg)=>{if(!x)throw Error(msg)};
+  const bsel='[data-tree-bulk-upgrade="review"]',click=()=>{const b=document.querySelector(bsel);assert(b,'no bulk ui');b.click();};
+  let calls=0,confirmText='';window.confirm=text=>{calls++;confirmText=text;return false;};
+  const initially=JSON.stringify(state),preview=treeBulkUpgradePlan1255();
+  assert(preview.total>0&&preview.steps>0&&preview.missing>0,'fixture lacks targets and missing buildings');
+  renderUI(true);click();assert(calls===1&&JSON.stringify(state)===initially,'cancel should not mutate ranch');
+  assert(confirmText.includes(preview.total.toLocaleString('ja-JP'))&&confirmText.includes((state.coins-preview.total).toLocaleString('ja-JP'))&&confirmText.includes('建設しません'),'confirmation totals and exclusions');
+  const previous=state.coins;state.coins=preview.total-1;renderUI(true);
+  assert(document.querySelector(bsel).disabled,'blocked with insufficient coins');click();assert(calls===1,'disabled still opened');
+  state.coins=previous;renderUI(true);window.confirm=()=>{state.coins++;return true;};
+  const levels=state.buildings.map(b=>b.level).join();
+  click();assert(state.buildings.map(b=>b.level).join()===levels&&state.coins===previous+1,'stale quote purchased');
+  state.coins=previous;renderUI(true);window.confirm=()=>true;
+  const durable=JSON.stringify(state),s=window.Storage.prototype.setItem;
+  window.Storage.prototype.setItem=function(){throw Error('simulated denied storage')};
+  try{click();}finally{window.Storage.prototype.setItem=s;}
+  assert(JSON.stringify(state)===durable,'save error should fully roll back');
+  const expectedCosts=preview.targets.map(t=>Array.from({length:t.end-t.start},(_,i)=>costUpgrade({...t.building,level:t.start+i})).reduce((a,b)=>a+b,0));
+  assert(expectedCosts.reduce((a,b)=>a+b,0)===preview.total,'quote differs from individual cost sum');
+  const n=state.buildings.length,tree=state.villageLv,xp=state.villageXp,fame=state.fame,magic=state.magic,food=state.food,expense=state.economy.expense;
+  const expectedFame=preview.targets.flatMap(t=>Array.from({length:t.end-t.start},(_,i)=>3+Math.floor((t.start+i+1)/3))).reduce((a,b)=>a+b,0);
+  const expectedSavings=preview.targets.map(t=>(t.building.upgradeSavings||0)+t.prices.reduce((a,price,i)=>a+standardUpgradeCost({...t.building,level:t.start+i})-price,0));
+  const untouched=JSON.stringify(state.buildings.filter(b=>!preview.targets.some(t=>t.building===b)));
+  click();
+  assert(state.coins===previous-preview.total&&state.buildings.length===n&&state.villageLv===tree&&state.villageXp===xp+preview.steps*13&&state.fame===fame+expectedFame&&state.magic===magic&&state.food===food&&state.economy.expense===expense+preview.total,'wrong purchase effects');
+  assert(preview.targets.every((t,i)=>t.building.level===t.end&&t.building.upgradeSavings===expectedSavings[i]),'planned levels and normal upgrade discount savings');
+  assert(JSON.stringify(state.buildings.filter(b=>!preview.targets.some(t=>t.building===b)))===untouched,'other buildings untouched');
+  const snap=window.qa255.snapshot();assert(load()&&window.qa255.snapshot()===snap,'reload differs');
+  renderUI(true);assert(!document.querySelector(bsel),'already purchased again');
+  return confirmText;
+ }
+};
+}
+const out=document.querySelector('#result'),mount=document.querySelector('#screens');
+function check(ok,label){if(!ok)throw Error(label);}
+function log(s){out.textContent+=s+'\n';}
+document.querySelector('#run').onclick=async ({currentTarget:button})=>{
+ out.textContent='';button.disabled=true;
+ const prefix='v1255_qa_'+crypto.randomUUID()+'_',key=prefix+'save_v1';
+ const clear=()=>{for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);};
+ async function read(path){const res=await fetch(path,{cache:'no-store'});check(res.ok,path+' HTTP '+res.status);return res.text();}
+ async function open(source,width){
+  const f=document.createElement('iframe');f.width=width;f.height=width===390?844:900;f.title='検証用牧場';
+  const end='})();\n<\/script>';check(source.split(end).length===2,'初期化スクリプト');
+  f.srcdoc=source.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0;')
+   .replace(end,()=>fixture.toString()+'\nfixture();\n'+end);
+  const loaded=new Promise((resolve,reject)=>{f.onload=resolve;f.onerror=reject;});mount.append(f);await loaded;
+  const w=f.contentWindow;for(let i=0;i<180&&!w.qa255?.artReady();i++)await new Promise(r=>setTimeout(r,25));
+  check(w.qa255?.artReady(),'ゲーム開始と施設画像');return {w,f};
+ }
+ try{
+  const [old,latest]=await Promise.all([read('../releases/1.25.4/game.html'),read('../game.html')]);
+  for(const width of [1366,390]){
+   clear();const a=await open(old,width);a.w.qa255.seed();const b=await open(old,width),oldSnapshot=b.w.qa255.snapshot();
+   a.f.remove();b.f.remove();
+   const c=await open(latest,width);check(c.w.document.title.includes('1.25.5'),'版番号');
+   check(c.w.qa255.snapshot()===oldSnapshot,'1.25.4の牧場・所持品・仲間');
+   check(width!==390||c.w.document.documentElement.scrollWidth<=391,'モバイル表示のはみ出し');
+   c.w.qa255.bulk();c.f.remove();
+   log(width+'px: 旧セーブ引き継ぎ・見積り・キャンセル・不足額・再確認・保存失敗の復元・確定・再読み込み');
+   clear();const seed=await open(old,width);seed.w.qa255.seed();const needed=seed.w.qa255.getXp(9).total;
+   check(seed.w.qa255.levels(9,needed*.381),'旧XPセーブ');const raw=localStorage.getItem(key);check(raw,'旧保存キー');
+   seed.f.remove();const migrated=await open(latest,width);const actual=migrated.w.qa255.getXp(9);
+   check(actual.level===9&&Math.abs(actual.current/actual.total-.381)<1e-10,'進捗割合の維持');
+   migrated.f.remove();log(width+'px: 引き継いだ世界樹Lvと成長ゲージ');
+  }
+  log('すべて成功');
+ }catch(e){log('失敗 '+e.stack);}finally{mount.replaceChildren();clear();button.disabled=false;}
+};
+</script></html>

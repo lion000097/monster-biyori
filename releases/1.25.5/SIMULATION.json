@@ -1,0 +1,109 @@
+{
+  "target": "World Tree Lv20 in 55–65 hours at 1x, midpoint 60h",
+  "automatedCombat": "normal auto-advance; no replay farming, no direct training",
+  "timing": "visible active time, 100ms steps; time spent operating menus not counted",
+  "stopRule": "stop at World Tree Lv20; 10-5 not observed if tenFiveClearSeconds is null",
+  "earlyMilestoneClockGranularitySeconds": 16,
+  "profiles": {
+    "baseline": [
+      {
+        "seed": 23,
+        "checkMinutesAt1x": 20,
+        "sourceSha256": "d01e29956aa3f9359d47866fd00f759095853263308c49a5a8054530d3cf9b93",
+        "rawResult": "baseline-s23-20min.json",
+        "tree10SecondsApproxClock": 27584,
+        "tree15SecondsApproxClock": 71984,
+        "tree20Seconds": 151200,
+        "worldTree20Goal55To65HoursMet": false,
+        "tenFiveClearSeconds": null,
+        "adventureCurrentStageAtStop": 20,
+        "treasuryAtStop": 83458617,
+        "magicAtStop": 19493.93,
+        "lateHourlySamples": 34,
+        "lateHourlySamplesBlockedByXpOnly": 31
+      },
+      {
+        "seed": 7,
+        "checkMinutesAt1x": 25,
+        "sourceSha256": "d01e29956aa3f9359d47866fd00f759095853263308c49a5a8054530d3cf9b93",
+        "rawResult": "baseline-s7-25min.json",
+        "tree10SecondsApproxClock": 28496,
+        "tree15SecondsApproxClock": 76496,
+        "tree20Seconds": 156000,
+        "worldTree20Goal55To65HoursMet": false,
+        "tenFiveClearSeconds": null,
+        "adventureCurrentStageAtStop": 25,
+        "treasuryAtStop": 83842376,
+        "magicAtStop": 19960.86,
+        "lateHourlySamples": 36,
+        "lateHourlySamplesBlockedByXpOnly": 32
+      },
+      {
+        "seed": 91,
+        "checkMinutesAt1x": 30,
+        "sourceSha256": "d01e29956aa3f9359d47866fd00f759095853263308c49a5a8054530d3cf9b93",
+        "rawResult": "baseline-s91-30min.json",
+        "tree10SecondsApproxClock": 28784,
+        "tree15SecondsApproxClock": 77392,
+        "tree20Seconds": 160200,
+        "worldTree20Goal55To65HoursMet": false,
+        "tenFiveClearSeconds": null,
+        "adventureCurrentStageAtStop": 20,
+        "treasuryAtStop": 88643979,
+        "magicAtStop": 20582.03,
+        "lateHourlySamples": 37,
+        "lateHourlySamplesBlockedByXpOnly": 35
+      }
+    ],
+    "candidate": [
+      {
+        "seed": 23,
+        "checkMinutesAt1x": 20,
+        "sourceSha256": "32a27e31dbec1e3445e676245b299c0b9cb001edccd6f8f288b6ec9e4dc5e51a",
+        "rawResult": "candidate-s23-20min.json",
+        "tree10SecondsApproxClock": 31184,
+        "tree15SecondsApproxClock": 92384,
+        "tree20Seconds": 205200,
+        "worldTree20Goal55To65HoursMet": true,
+        "tenFiveClearSeconds": null,
+        "adventureCurrentStageAtStop": 25,
+        "treasuryAtStop": 128069512,
+        "magicAtStop": 33181.75,
+        "lateHourlySamples": 48,
+        "lateHourlySamplesBlockedByXpOnly": 47
+      },
+      {
+        "seed": 7,
+        "checkMinutesAt1x": 25,
+        "sourceSha256": "32a27e31dbec1e3445e676245b299c0b9cb001edccd6f8f288b6ec9e4dc5e51a",
+        "rawResult": "candidate-s7-25min.json",
+        "tree10SecondsApproxClock": 32992,
+        "tree15SecondsApproxClock": 95984,
+        "tree20Seconds": 213000,
+        "worldTree20Goal55To65HoursMet": true,
+        "tenFiveClearSeconds": null,
+        "adventureCurrentStageAtStop": 25,
+        "treasuryAtStop": 135496048,
+        "magicAtStop": 34727.05,
+        "lateHourlySamples": 50,
+        "lateHourlySamplesBlockedByXpOnly": 46
+      },
+      {
+        "seed": 91,
+        "checkMinutesAt1x": 30,
+        "sourceSha256": "32a27e31dbec1e3445e676245b299c0b9cb001edccd6f8f288b6ec9e4dc5e51a",
+        "rawResult": "candidate-s91-30min.json",
+        "tree10SecondsApproxClock": 34192,
+        "tree15SecondsApproxClock": 97184,
+        "tree20Seconds": 216000,
+        "worldTree20Goal55To65HoursMet": true,
+        "tenFiveClearSeconds": null,
+        "adventureCurrentStageAtStop": 25,
+        "treasuryAtStop": 134194696,
+        "magicAtStop": 35253.66,
+        "lateHourlySamples": 50,
+        "lateHourlySamplesBlockedByXpOnly": 50
+      }
+    ]
+  }
+}
