@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><title>もんすたー日和 1.25.16 動作確認</title>
+<h1>出撃編成と花咲く草ブロックの動作確認</h1>
+<button type="button" id="run">検証を開始</button>
+<pre id="result" aria-live="polite"></pre><div id="mount"></div>
+<script>
+'use strict';
+// Installed only in the isolated game copy, after its own bootstrap has run.
+function installReleaseTest() {
+  const check=(ok,label)=>{if(!ok)throw Error(label);};
+  const click=selector=>{
+    const button=document.querySelector(selector);
+    check(button&&!button.disabled,selector);button.click();return button;
+  };
+  const grass='flowerGrassBlock';
+  const monster=()=>state.monsters[1];
+  function seed() {
+    state.speed=0;state.coins=7300;state.food=640;state.talentFruit=2;state.ranchName='草花の牧場';
+    state.adventure.stage=17;state.research.train=2;state.treasures=[0,4];
+    state.equipmentStock12512.attack=2;state.equipmentBlueprints12513.dew=true;state.autoEquipment12512=false;
+    const m=monster();m.name='こはく';m.xp=monsterLevelNeed135(m.lv)-1;m.iv.attack=20;
+    writeEquipment12512(m,'shield');markEquipmentSeen12513('shield');state.party=[state.monsters[0].id];
+    for(let y=1;y<18;y++)for(let x=2;x<19;x++){
+      const start={x,y},plan=borderRowPlan({tile:start,borderType:grass},{x:x+2,y});
+      if(plan.error)continue;
+      const single=borderRowPlan({tile:start,borderType:grass},start);
+      placeBorderRow(single);getBuildingAt(x,y).facing=3;check(save(true),'前版で保存');return;
+    }
+    throw Error('前版の草を置く空き地');
+  }
+  function snapshot(){
+    return JSON.stringify([state.version,state.ranchName,state.day,state.hour,state.coins,state.food,state.magic,
+      state.villageLv,state.villageXp,state.adventure.stage,state.party,state.talentFruit,state.research,
+      state.monsters.map(m=>[m.id,m.name,m.kind,m.lv,m.xp,m.iv,m.equip,m.equipment12512,m.bond]),
+      state.staff.map(s=>[s.id,s.job,s.level]),state.buildings,state.paths,state.stoneTiles,state.treasures,
+      state.charms,state.equipmentStock12512,state.equipmentSeen12513,state.equipmentBlueprints12513]);
+  }
+  function party() {
+    click('[data-tab="adventure"]');
+    const m=monster(),id='partyDetail-'+m.id,partyBefore=JSON.stringify(state.party);
+    const original=$('partyDetail-'+state.party[0]);
+    check(original&&$(id),'編成中・待機中の両方に詳細');original.click();
+    check($('monsterDetailTitle').textContent.includes(state.monsters[0].name),'編成中の仲間の詳細');
+    click('#modalClose');
+    const trigger=$(id);trigger.scrollIntoView?.({block:'center',behavior:'instant'});
+    const scroll=$('tabBody').scrollTop,pageY=window.scrollY;
+    trigger.click();
+    check(tab==='adventure'&&$('monsterDetailTitle').textContent===m.name+'の育成カルテ','出撃画面から対象の詳細');
+    check(document.querySelector('.app').inert&&document.activeElement.id==='modalClose','カルテにフォーカス');
+    const equip=gear=>click('[data-equipment-choice12512="'+gear+'"][data-id="'+m.id+'"]');
+    const attack=countEquipment12512('attack'),shield=countEquipment12512('shield');
+    equip('attack');check(equipmentItem12512(m)==='attack'&&countEquipment12512('attack')===attack-1&&countEquipment12512('shield')===shield+1,'装備交換');
+    equip('none');check(equipmentItem12512(m)==='none'&&countEquipment12512('attack')===attack,'取り外し');
+    equip('attack');
+    const lv=m.lv,cost=22+Math.floor(lv*.9),coins=state.coins,food=state.food;
+    click('#monsterDetailBody [data-action="trainMonster"]');
+    check(m.lv===lv+1&&state.coins===coins-45&&state.food===food-cost,'特訓によるレベルアップと支払い');
+    click('#monsterDetailBody [data-fruit-stat="attack"]');
+    check(m.iv.attack===45&&state.talentFruit===1,'才能の実の消費と強化');
+    window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+    renderUI(false);
+    check(!$('modal').classList.contains('show')&&tab==='adventure'&&document.activeElement.id===id,'閉じた後の一覧とフォーカス');
+    check(Math.abs($('tabBody').scrollTop-scroll)<=1&&Math.abs(window.scrollY-pageY)<=1,'元のスクロール位置');
+    check(JSON.stringify(state.party)===partyBefore,'詳細を操作しても編成が保持される');
+    const row=$(id).closest('.party-unit');
+    check(row.textContent.includes('Lv.'+m.lv)&&row.querySelector('[data-equipment-art="attack"]'),'装備とレベルが即時反映');
+    check(row.scrollWidth<=row.clientWidth+1,'狭い画面でも操作が収まる');
+    row.querySelector('[data-action="toggleParty"]').click();check(state.party.includes(m.id),'編成に追加');
+    $(id).closest('.party-unit').querySelector('[data-action="toggleParty"]').click();
+    check(JSON.stringify(state.party)===partyBefore,'編成から外す');
+    click('[data-tab="monster"]');click('#monsterRow-'+m.id);click('#modalClose');
+    check(tab==='monster'&&document.activeElement.id==='monsterRow-'+m.id,'元の仲間一覧からの操作');
+  }
+  function mapEdits(){
+    click('[data-tab="build"]');
+    const category=name=>{
+      click('[data-facility-role="'+name+'"]');
+      return [...$('tabBody').querySelectorAll('[data-action="build"]')].map(b=>b.dataset.id);
+    };
+    const tourism=category('tourism'),decor=category('decor');
+    check(tourism.length===7&&decor.length===13&&tourism.every(t=>!decor.includes(t))&&decor.includes(grass)&&tourism.includes('palace'),'建設メニューの観光・装飾');
+    const old=state.buildings.find(b=>b.type===grass),x=old.x,y=old.y;
+    const coins=state.coins,price=constructionCost(grass),grassButton='[data-action="build"][data-id="'+grass+'"]';
+    // Observe the actual frames selected by drawWorld before and after each map operation.
+    cameraX=x+1.5-VW/(2*zoom);cameraY=y+.5-VH/(2*zoom);
+    function frameKinds(){
+      const original=flowerGrassArt,out={};
+      flowerGrassArt=(b,face,tiles)=>{
+        const art=original(b,face,tiles);
+        out[keyXY(b.x,b.y)]=art===ranchFrame130(grass,validFacing(face),0)?'single':'joined';
+        return art;
+      };
+      try{drawWorld(800);}finally{flowerGrassArt=original;}
+      return out;
+    }
+    const tile=(dx)=>keyXY(x+dx,y);
+    check(frameKinds()[tile(0)]==='single','旧セーブの単独の絵');
+    const box=canvas.getBoundingClientRect,capture=canvas.setPointerCapture;
+    canvas.getBoundingClientRect=()=>({left:0,top:0,width:VW*T,height:VH*T,right:VW*T,bottom:VH*T});
+    canvas.setPointerCapture=()=>{};
+    function pointer(name,dx){
+      const p=projectGround(x+dx+.5,y+.5),origin=mapScreenOrigin();
+      const event=Object.assign(new Event(name,{bubbles:true,cancelable:true}),{button:0,pointerType:'mouse',pointerId:9,clientX:origin.x+p.x*zoom,clientY:origin.y+p.y*zoom});
+      canvas.dispatchEvent(event);
+    }
+    function drag(cancel=false){
+      pointer('pointerdown',1);pointer('pointermove',2);drawWorld(800);
+      check($('tileTag').textContent.includes('2個'),'ドラッグ中の設置予告');
+      pointer(cancel?'pointercancel':'pointerup',2);
+    }
+    try{
+      click(grassButton);drag(true);
+      check(state.coins===coins&&!getBuildingAt(x+1,y),'設置前のキャンセル');
+      drag();const three=frameKinds();
+      check([0,1,2].every(i=>three[tile(i)]==='joined')&&state.coins===coins-2*price,'異なる向きの旧草と一列に接続');
+      click('#undoEdit1258');check(state.coins===coins&&frameKinds()[tile(0)]==='single'&&!getBuildingAt(x+1,y),'列の取り消し・返金');
+      click(grassButton);drag();
+    }finally{canvas.getBoundingClientRect=box;canvas.setPointerCapture=capture;}
+    const middle=getBuildingAt(x+1,y),end=getBuildingAt(x+2,y);
+    let target;
+    for(let v=y-3;v<=y+3&&!target;v++)for(let u=x-3;u<=x+3;u++){
+      if(Math.abs(v-y)>=2&&canBuild(u,v,middle.id,true,grass)){target=[u,v];break;}
+    }
+    check(target,'移動先の空き地');startMoving(middle.id);moveBuilding(...target);
+    const apart=frameKinds();
+    check(getBuildingAt(...target)===middle&&[0,2].every(i=>apart[tile(i)]==='single'),'移動で両隣が単独に戻る');
+    click('#undoEdit1258');check(getBuildingAt(x+1,y)===middle&&frameKinds()[tile(2)]==='joined','移動の取り消しで再接続');
+    const paid=state.coins;window.confirm=()=>true;recoverBuilding(middle.id);
+    const removed=frameKinds();
+    check(!getBuildingAt(x+1,y)&&[old,end].every(b=>removed[keyXY(b.x,b.y)]==='single')&&state.coins===paid+Math.floor(price*.65),'回収後の草と返金');
+    check(save(true),'編集後のセーブ');
+  }
+  function battle(){
+    click('[data-tab="adventure"]');click('[data-action="adventureStart"]');
+    check(state.battle,'戦闘開始');click('#partyDetail-'+monster().id);
+    const choices=[...document.querySelectorAll('#monsterDetailBody [data-equipment-choice12512]')];
+    check(choices.length>0&&choices.every(b=>b.disabled),'戦闘中の装備制限');click('#modalClose');
+  }
+  window.releaseTest={ready:()=>facilitySheetReady&&lionReady,seed,snapshot,party,mapEdits,battle};
+}
+const run=document.querySelector('#run'),result=document.querySelector('#result'),mount=document.querySelector('#mount');
+async function readGame(path){
+  const r=await fetch(path,{cache:'no-store'});if(!r.ok)throw Error(path+' HTTP '+r.status);return r.text();
+}
+async function openGame(html,prefix,width){
+  const marker='})();\n<'+ '/script>';
+  if(html.split(marker).length!==2)throw Error('起動スクリプト');
+  const frame=document.createElement('iframe');frame.width=width;frame.height=850;frame.title='検証用の牧場';
+  const loaded=new Promise(resolve=>{frame.onload=resolve;});
+  frame.srcdoc=html.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0;')
+    .replace(marker,()=>'\n('+installReleaseTest.toString()+')();\n'+marker);
+  mount.replaceChildren(frame);await loaded;
+  for(let i=0;i<300&&!frame.contentWindow.releaseTest?.ready();i++)await new Promise(r=>setTimeout(r,25));
+  if(!frame.contentWindow.releaseTest?.ready())throw Error('ゲームの起動・画像の読み込み');
+  return frame.contentWindow.releaseTest;
+}
+run.onclick=async()=>{
+  const scope='qa12516_'+crypto.randomUUID()+'_';
+  run.disabled=true;result.textContent='';
+  try{
+    const old=await readGame('../releases/1.25.15/game.html'),baseline=scope+'baseline_';
+    let test=await openGame(old,baseline,1280);test.seed();
+    test=await openGame(old,baseline,1280);const expected=test.snapshot(),raw=localStorage.getItem(baseline+'save_v1');
+    for(const [label,path] of [['通常版','../releases/1.25.16/game.html'],['ランチャー版','../releases/1.25.16/launcher-game.html']]){
+      const html=await readGame(path);
+      for(const width of [1280,390]){
+        const prefix=scope+label+width+'_';localStorage.setItem(prefix+'save_v1',raw);
+        test=await openGame(html,prefix,width);
+        if(test.snapshot()!==expected)throw Error('前版のセーブ引き継ぎ');
+        test.party();test.mapEdits();const edited=test.snapshot();
+        test=await openGame(html,prefix,width);
+        if(test.snapshot()!==edited)throw Error('編集後の再読み込み');
+        test.battle();result.textContent+=label+' '+width+'px　成功\n';
+      }
+    }
+    result.textContent+='すべて成功';
+  }catch(error){result.textContent+='失敗 '+error.stack;}finally{
+    mount.replaceChildren();for(const key of Object.keys(localStorage))if(key.startsWith(scope))localStorage.removeItem(key);
+    run.disabled=false;
+  }
+};
+</script></html>
