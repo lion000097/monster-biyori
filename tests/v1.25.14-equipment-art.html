@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8">
+<title>もんすたー日和 1.25.14 装備の絵と引き継ぎ検証</title>
+<h1>装備14種の表示と旧セーブを確認</h1>
+<button id="run" type="button">検証を開始</button><pre id="result" aria-live="polite"></pre><div id="mount"></div>
+<script>
+const mount=document.getElementById('mount'), result=document.getElementById('result'), run=document.getElementById('run');
+const order=['legacy','attack','shield','bell','pin','obsidian','dew','time','wind','rain','ribbon','sunset','ice','star'];
+const check=(ok,message)=>{if(!ok)throw Error(message);};
+async function source(url){
+  const response=await fetch(url,{cache:'no-store'});
+  check(response.ok,url+' / '+response.status);
+  return response.text();
+}
+// Inject this readback only into the isolated test iframe. The release HTML has no test API.
+function exposeFixture(){
+  window.qaArt={
+    ready:()=>lionReady&&facilitySheetReady&&treeDecorationReady,
+    seed(){
+      state.speed=0;state.ranchName='装備手帖の牧場';state.day=31;state.hour=13;
+      state.charms=4;state.autoEquipment12512=false;state.equipmentCraft12512=3;
+      state.adventure.stage=31;state.treasures=[0,4];state.equipmentBlueprintSeed12513=137;
+      equipmentTypes12512.forEach((id,i)=>{state.equipmentStock12512[id]=1+i%3;});
+      rareEquipment12513.forEach((id,i)=>{state.equipmentBlueprints12513[id]=i%2===0;});
+      writeEquipment12512(state.monsters[0],'star');writeEquipment12512(state.monsters[1],'legacy');
+      state.party=state.monsters.slice(0,2).map(m=>m.id);
+      message('🧿 ボスに勝って「おまもり」を見つけた！');
+      return save(true);
+    },
+    snapshot:()=>JSON.stringify([
+      state.ranchName,state.day,state.hour,state.coins,state.food,state.magic,state.charms,state.stock,
+      state.party,state.monsters.map(m=>[m.id,m.kind,m.lv,m.equip,m.equipment12512]),
+      state.buildings,state.paths,state.treasures,state.materialStock211,state.adventure.stage,
+      state.equipmentStock12512,state.equipmentSeen12513,state.equipmentCraft12512,
+      state.autoEquipment12512,state.equipmentBlueprints12513,state.equipmentBlueprintSeed12513,
+      equipmentOrder12512.map(id=>[id,equipmentInfo12512[id]])
+    ]),
+    first:()=>state.monsters[0].id,
+    equipped:()=>equipmentItem12512(state.monsters[0]),
+    stock:id=>countEquipment12512(id),
+    treasure:()=>spriteTreasureV161(0).toDataURL()
+  };
+}
+async function openGame(html,prefix,width){
+  const frame=document.createElement('iframe');
+  frame.width=width;frame.height=870;frame.title='検証用の牧場';
+  const marker='})();\n<'+ '/script>';
+  check(html.split(marker).length===2,'game initialization');
+  const loaded=new Promise(resolve=>{frame.onload=resolve;});
+  frame.srcdoc=html.replaceAll('monster_biyori_',prefix)
+    .replace('<script>','<script>window.requestAnimationFrame=()=>0;')
+    .replace(marker,()=>'\n('+exposeFixture.toString()+')();\n'+marker);
+  mount.append(frame);await loaded;
+  for(let i=0;i<240&&!frame.contentWindow.qaArt?.ready();i++)await new Promise(r=>setTimeout(r,25));
+  check(frame.contentWindow.qaArt?.ready(),'decoded artwork and loaded fixture');
+  return frame;
+}
+async function checkGallery(frame) {
+  const doc=frame.contentDocument,w=frame.contentWindow;
+  doc.querySelector('[data-tab="bestiary"]').click();
+  doc.querySelector('[data-action="atlas"][data-id="equipment"]').click();
+  const cards=[...doc.querySelectorAll('[data-gear-atlas-item]')];
+  check(cards.length===14,'14 equipment cards');
+  const first=cards[0].querySelector('[data-equipment-art]');
+  const sheet=new w.Image();
+  sheet.src=w.getComputedStyle(first).backgroundImage.slice(5,-2);
+  await sheet.decode();
+  check(sheet.width===256&&sheet.height===256,'embedded four-column sprite sheet');
+  const cell=doc.createElement('canvas');cell.width=cell.height=64;
+  const ctx=cell.getContext('2d',{willReadFrequently:true}),unique=new Set();
+  for(const card of cards){
+    const id=card.dataset.gearAtlasItem,i=order.indexOf(id),art=card.querySelector('[data-equipment-art]');
+    check(i>=0&&art?.dataset.equipmentArt===id&&art.getAttribute('aria-hidden')==='true','named art '+id);
+    const css=w.getComputedStyle(art),x=i%4,y=Math.floor(i/4);
+    check(css.imageRendering==='pixelated'&&css.backgroundImage===w.getComputedStyle(first).backgroundImage,'shared pixel renderer '+id);
+    check(Math.abs(parseFloat(css.backgroundPositionX)-x*100/3)<.01&&Math.abs(parseFloat(css.backgroundPositionY)-y*100/3)<.01,'mapped cell '+id);
+    check(art.offsetWidth>=48&&card.scrollWidth<=card.clientWidth+1,'fits card '+id);
+    ctx.clearRect(0,0,64,64);ctx.drawImage(sheet,x*64,y*64,64,64,0,0,64,64);
+    const pixels=ctx.getImageData(0,0,64,64).data;
+    let solid=0;for(let p=3;p<pixels.length;p+=4)if(pixels[p]===255)solid++;
+    check(solid>530&&solid<3500&&pixels[3]===0,'transparent and filled '+id);
+    unique.add(cell.toDataURL());
+  }
+  check(unique.size===14,'14 visually distinct cells');
+  const filter=doc.querySelector('#gearAtlasTier12513');filter.value='SSR';filter.dispatchEvent(new w.Event('change',{bubbles:true}));
+  check([...doc.querySelectorAll('[data-gear-atlas-item]')].map(c=>c.dataset.gearAtlasItem).sort().join(',')==='ice,star','filtered atlas');
+}
+function checkEquipmentControls(frame){
+  const w=frame.contentWindow,doc=frame.contentDocument,q=w.qaArt;
+  check(doc.querySelector('#log [data-equipment-art="legacy"]'),'old charm reward in activity log');
+  doc.querySelector('[data-tab="monster"]').click();
+  doc.querySelector('[data-action="selectMonster"][data-id="'+q.first()+'"]').click();
+  const detail=doc.querySelector('#monsterDetailBody'),choice=id=>detail.querySelector('[data-equipment-choice12512="'+id+'"]');
+  check(detail.querySelector('.stat-row [data-equipment-art="star"]'),'equipped item in monster details');
+  for(const id of order)check(choice(id)?.querySelector('[data-equipment-art="'+id+'"]'),'stock selector '+id);
+  const before=q.stock('ice'),previous=q.stock('star');
+  choice('ice').click();
+  check(q.equipped()==='ice'&&q.stock('ice')===before-1&&q.stock('star')===previous+1,'equip and return old item');
+  check(detail.querySelector('.stat-row [data-equipment-art="ice"]'),'new item displayed immediately');
+  choice('none').click();check(q.equipped()==='none'&&q.stock('ice')===before,'unequip');
+  choice('ice').click();
+  doc.querySelector('#modalClose').click();doc.querySelector('[data-tab="adventure"]').click();
+  check(doc.querySelector('.party-unit [data-equipment-art="ice"]'),'equipped item in party list');
+}
+run.onclick=async()=>{
+  const prefix='qa12514_'+crypto.randomUUID()+'_',clean=()=>{for(const key of Object.keys(localStorage))if(key.startsWith(prefix))localStorage.removeItem(key);};
+  run.disabled=true;result.textContent='';
+  try{
+    const launcher=new URLSearchParams(location.search).has('launcher');
+    const [old,current]=await Promise.all([source('../releases/1.25.13/game.html'),source('../releases/1.25.14/'+(launcher?'launcher-game.html':'game.html'))]);
+    for(const width of [1280,390]){
+      clean();
+      let f=await openGame(old,prefix,width);
+      check(f.contentWindow.qaArt.seed(),'old game wrote save');f.remove();
+      f=await openGame(old,prefix,width);
+      const frozen=f.contentWindow.qaArt.snapshot(),treasure=f.contentWindow.qaArt.treasure();
+      const raw=localStorage.getItem(prefix+'save_v1');f.remove();localStorage.setItem(prefix+'save_v1',raw);
+      f=await openGame(current,prefix,width);
+      check(f.contentDocument.title.includes('1.25.14'),'candidate version');
+      check(f.contentWindow.qaArt.snapshot()===frozen,'1.25.13 save, inventory, recipes, map and effects');
+      check(f.contentWindow.qaArt.treasure()===treasure,'same treasure pixels');
+      await checkGallery(f);checkEquipmentControls(f);f.remove();
+      f=await openGame(current,prefix,width);check(f.contentWindow.qaArt.equipped()==='ice','equipment survives reload');f.remove();
+      result.textContent+=width+'px　装備14種・図鑑・装備変更・編成・旧セーブ引き継ぎ 成功\n';
+    }
+    result.textContent+='すべて成功';
+  }catch(e){result.textContent+='失敗 '+e.stack;}finally{mount.replaceChildren();clean();run.disabled=false;}
+};
+</script></html>
