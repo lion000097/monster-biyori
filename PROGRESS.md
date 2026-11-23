@@ -1,8 +1,8 @@
 # もんすたー日和 1.25.9
 
-**対象バージョン**　1.25.9。作業元はランチャー修正を含む公開版 1.25.8（`32afe94f86efaae9fdfae9823d7f5a99bdb007c2`）。
+**対象バージョン**　1.25.9。2026年11月23日公開。作業元はランチャー修正を含む公開版 1.25.8（`32afe94f86efaae9fdfae9823d7f5a99bdb007c2`）。
 
-**保存先**　`release/1.25.9` の `game.html`、`releases/1.25.9/`、`tests/v1.25.9-facilities.html`。ゲーム内の変更前後は[比較写真](releases/1.25.9/FACILITIES-GUIDE.png)で確認できる。
+**保存先**　`main` と `release/1.25.9` の `game.html`、`latest.json`、`releases/1.25.9/`、`tests/v1.25.9-facilities.html`。ゲーム内の変更前後は[比較写真](releases/1.25.9/FACILITIES-GUIDE.png)で確認できる。
 
 | 修正 | 完了事項 | 確認結果 |
 | --- | --- | --- |
@@ -13,6 +13,8 @@
 
 **配布物の確認結果**　[配布ZIP](releases/1.25.9/monster-biyori-1.25.9.zip)のゲーム本体はブラウザ版と一致。屋台と小屋の4方向、比較写真、説明を収録した。既存ファイル248件の内容を保持し、全262件を展開検証した。`latest.json` のSHA-256はランチャー用HTMLと一致。
 
-**残作業**　公開先での配信確認。
+**公開確認**　[ゲーム本体を配信したコミット](https://github.com/lion000097/monster-biyori/commit/ca5f2ccb3c3f23a38a709d7ed0acf256d618887d) と [GitHub Pagesの配信記録](https://github.com/lion000097/monster-biyori/actions/runs/45131869152)。公開URLの本体・版別HTML・更新情報・ランチャー用HTML・配布ZIP・比較写真を取得してSHA-256を照合した。ZIPから起動・保存できた。公開先のブラウザ版とランチャー用HTMLは1280pxと390pxの両方で旧セーブを読み込み、再保存後も一致した。
 
-**次の操作**　`main` に反映してGitHub Pagesの完了を待ち、公開URLのゲーム本体・ランチャー用HTML・更新情報・配布ZIP・比較写真を照合する。公開先で旧セーブの読み込みと再保存を確認する。
+**残作業**　なし。
+
+**次の操作**　次回の更新は、公開済みの1.25.9とその時点の `main` を起点にする。
