@@ -2481,6 +2481,72 @@ function ranchFrame130(type,column,row){
   sheet.cache.set(key,tile);
   return tile;
 }
+const joinedGrassFrames=new Map();
+let grassTopTexture;
+function grassCanopyTexture(){
+  const leaves=ranchFrame130('flowerGrassBlock',0,0);
+  return pixelSprite(240,160,g=>{
+    // Overlap upright leaf clusters from the existing artwork. Repeat the
+    // 160×80 field in world coordinates so rotations introduce no seams.
+    const patches=[[65,61],[83,58],[53,72],[79,76],[64,81],[118,64],[103,82]];
+    function stamp(sx,sy,x,y,rx,ry){
+      g.save();g.beginPath();g.ellipse(x,y,rx,ry,0,0,2*Math.PI);g.clip();
+      g.drawImage(leaves,sx-rx,sy-ry,2*rx,2*ry,x-rx,y-ry,2*rx,2*ry);g.restore();
+    }
+    g.fillStyle='#829a31';g.fillRect(0,0,240,160);
+    for(let row=-1;row<11;row++)for(let col=-1;col<13;col++){
+      const r=(row+5)%5,c=(col+8)%8,seed=13*c+17*r+3*r*c;
+      const [sx,sy]=patches[seed%patches.length];
+      stamp(sx,sy,col*20+7+(r%2)*7+seed%4,row*16+6+seed%5,16,13);
+    }
+    const blossoms=[[39,55,22,26],[105,64,90,14],[73,39,55,57],
+      [107,44,129,44],[125,83,149,7],[33,89,98,72]];
+    for(let dy=-80;dy<=160;dy+=80)for(let dx=-160;dx<=240;dx+=160){
+      for(const [sx,sy,x,y] of blossoms)stamp(sx,sy,x+dx,y+dy,8,8);
+    }
+  });
+}
+function flowerGrassArt(b,facing,tiles){
+  const face=validFacing(facing),base=ranchFrame130('flowerGrassBlock',face,0);
+  if(!tiles)return base;
+  const mask=Number(tiles.has(keyXY(b.x-1,b.y)))+2*Number(tiles.has(keyXY(b.x,b.y-1)))+
+    4*Number(tiles.has(keyXY(b.x+1,b.y)))+8*Number(tiles.has(keyXY(b.x,b.y+1)));
+  if(!mask)return base;
+  const phase=(b.x+b.y)&1,key=(face*16+mask)*2+phase;
+  if(joinedGrassFrames.has(key))return joinedGrassFrames.get(key);
+
+  // Project one continuous canopy. All tiles sample the same field texture,
+  // including when neighbouring saved blocks have different orientations.
+  if(!grassTopTexture)grassTopTexture=grassCanopyTexture();
+  // The 160px frame projects one tile to (80,40) and (-80,40).
+  // Pull only the exposed edges in from the tile boundary.
+  const u0=mask&1?0:.055,v0=mask&2?0:.055,u1=mask&4?1:.945,v1=mask&8?1:.945;
+  const tuft=[0,1,3,2,0,2,1,0,2,3,1];
+  const leaves=ranchFrame130('flowerGrassBlock',0,0);
+  const art=pixelSprite(160,160,g=>{
+    for(let x=0;x<160;x++){
+      const d=(x+.5-80)/80,backV=Math.max(v0,u0-d),frontV=Math.min(v1,u1-d);
+      if(backV>=frontV)continue;
+      const leftFace=v1<=u1-d,backShared=mask&(v0>=u0-d?2:1),frontShared=mask&(leftFace?8:4);
+      const leaf=tuft[(Math.floor(x/2)+phase*3)%tuft.length];
+      const back=Math.ceil(14+40*(2*backV+d)-.5)-(backShared?0:leaf);
+      const front=Math.ceil(14+40*(2*frontV+d)-.5);
+      if(!frontShared){
+        const along=(x+80*phase)%160;
+        const sx=(leftFace?19:91)+Math.floor(Math.min(along,159-along)*.63);
+        const sy=54+Math.floor(Math.min(sx,159-sx)*.48);
+        g.drawImage(leaves,sx,sy,1,31,x,front,1,39+leaf);
+      }
+      const h=front-back;
+      if(h>0)g.drawImage(grassTopTexture,x+phase*80,back+phase*40,1,h,x,back,1,h);
+    }
+    const [cx,cy]=[[64,56],[77,46],[96,52],[81,64]][face];
+    g.save();g.beginPath();g.arc(cx,cy,6,0,2*Math.PI);g.clip();
+    g.drawImage(leaves,85,96,12,12,cx-6,cy-6,12,12);g.restore();
+  });
+  joinedGrassFrames.set(key,art);
+  return art;
+}
 // The 768px bath uses the original 3×3 ground projection.
 const onsenTime130=()=>state.hour>=17&&state.hour<21;
 function onsenProject130(u,v,z=0){return [Math.round(96+(u-v)*29),Math.round(86+(u+v)*14.7-z)];}
@@ -2919,12 +2985,13 @@ function drawPicnicPaw257(active,pose,x,top,size){
  ctx.fillStyle='#f5ddb0';ctx.fillRect(px-1,py,3,2);
 }
 
-function drawLot(b,facing,level,preview=false,homeOpacity=0,now=0) {
+function drawLot(b,facing,level,preview=false,homeOpacity=0,now=0,grassTiles) {
   if(!facilitySheetReady)return;
   const m=buildingOf(b),rect=plotImageRect(b,m);
   const lit=b.type==='campfire124'&&!preview&&typeof campfireLit124==='function'&&campfireLit124(b);
   const vane=b.type==='shirovane130'&&!preview?shiroVaneWind130(now,state.day,weatherInfo().name,b.id):null;
-  const art=vane?shiroVaneSprite130(facing,vane.frame,vane.turn):lit?passiveCampfireSprite124(true,state.speed>0?Math.floor(now/172)%4:0,facing):
+  const art=b.type==='flowerGrassBlock'?flowerGrassArt(b,facing,grassTiles):
+    vane?shiroVaneSprite130(facing,vane.frame,vane.turn):lit?passiveCampfireSprite124(true,state.speed>0?Math.floor(now/172)%4:0,facing):
     b.type==='relicStand'&&!preview?standArt(level,validFacing(facing),displayedRelic(b)):spriteBuildingV161(b.type,level,facing);
   ctx.drawImage(art,rect.x,rect.y,rect.w,rect.h);
   if(!preview){
@@ -3799,12 +3866,13 @@ function placeBorderRow(plan){
   moveActorsOutOfWalls191();settleResidents(true);
   toast(B[added[0].type].name+'を'+added.length+'個並べたよ','success');renderUI(true);
 }
-function drawMapCursor(){
+function drawMapCursor(grassTiles){
   const d=mapPointer;
   if(d?.dragged&&d.borderType&&d.borderType===buildMode&&d.end){
     const plan=borderRowPlan(d,d.end);
     ctx.save();ctx.globalAlpha=.72;
-    for(const b of plan.cells){drawLot(b,plan.facing,1,true);drawGroundLoop(b,1,1);
+    if(d.borderType==='flowerGrassBlock')for(const b of plan.cells)grassTiles.add(keyXY(b.x,b.y));
+    for(const b of plan.cells){drawLot(b,plan.facing,1,true,0,0,grassTiles);drawGroundLoop(b,1,1);
       ctx.strokeStyle=plan.error?'#df5547':'#fff5bf';ctx.lineWidth=2;ctx.stroke();}
     ctx.restore();$('tileTag').textContent=plan.length+'個 ／ '+plan.total+'G　'+(plan.error||'離すと設置');return;
   }
@@ -3812,7 +3880,8 @@ function drawMapCursor(){
   const moving=moveMode!=null?state.buildings.find(b=>b.id===moveMode):null;
   if(moving||buildMode){const type=moving?.type||buildMode,b={type,x,y},m=buildingOf(b),level=moving?.level||(type==='worldtree'?state.villageLv:1);
     const valid=moving?.type==='worldtree'?canMoveWorldTree195(x,y):canBuild(x,y,moving?.id??null,!!moving,type);
-    ctx.save();ctx.globalAlpha=.73;drawLot(b,placementFacing,level,true);ctx.restore();
+    if(moving?.type==='flowerGrassBlock')grassTiles.delete(keyXY(moving.x,moving.y));
+    ctx.save();ctx.globalAlpha=.73;drawLot(b,placementFacing,level,true,0,0,grassTiles);ctx.restore();
     drawGroundLoop(b,m.w,m.h);ctx.fillStyle=valid?'#f6fdb830':'#f76e5860';ctx.fill();ctx.strokeStyle=valid?'#fff6cb':'#e8715c';ctx.lineWidth=2;ctx.stroke();drawEntranceRoadPreview1258(b,placementFacing,moving);return;
   }
   drawGroundLoop(hover,1,1);ctx.strokeStyle=terrainMode?(terrainMode.includes('Erase')?'#ffb6a0':'#9de0ff'):clearMode?'#ffed85':'#f8f0ccaa';ctx.lineWidth=1.5;ctx.stroke();
@@ -3889,7 +3958,10 @@ function drawWorld(now){
   drawFireflyWatch127({minX,minY,maxX,maxY});
   if($('roadCheck').open)drawWorkRoad(now);
   let visibleTree=null;
-  for(const b of state.buildings){const m=buildingOf(b),r=plotImageRect(b,m);if(r.x+r.w<left||r.x>right||r.y+r.h<top||r.y>bottom)continue;
+  const grassTiles=new Set();
+  for(const b of state.buildings){
+    if(b.type==='flowerGrassBlock')grassTiles.add(keyXY(b.x,b.y));
+    const m=buildingOf(b),r=plotImageRect(b,m);if(r.x+r.w<left||r.x>right||r.y+r.h<top||r.y>bottom)continue;
     visibleLots.push(b);
     if(b.type==='roseArch250'){
       const middle=b.x+b.y+1;
@@ -3898,7 +3970,7 @@ function drawWorld(now){
     }
     if(b.type==='worldtree')visibleTree=b;
     objects.push({depth:b.x+b.y+(m.w+m.h)/2,draw(){
-      drawLot(b,b.facing,b.level,false,litHomes.get(b),now);
+      drawLot(b,b.facing,b.level,false,litHomes.get(b),now,grassTiles);
       if(b.type==='workshop'&&Math.sin(now/400+b.id)>.45){const pos=projectGround(b.x+m.w*.55,b.y+m.h*.53);ctx.fillStyle='#fff2ab';ctx.fillRect(pos.x+2,pos.y-m.h*12,3,3)}
     }});
   }
@@ -3949,7 +4021,7 @@ function drawWorld(now){
   }
   for(const effect of swirls){const p=projectGround(effect.x/T,effect.y/T+.5);ctx.globalAlpha=clamp(effect.life,0,1);ctx.font='bold 15px sans-serif';ctx.fillStyle='#fff1b2';ctx.fillText(effect.text,p.x,p.y-14*(1-effect.life))}ctx.globalAlpha=1;
   ctx.restore();drawMapWeather(now,shootingStar,origin,visibleLots,litHomes);
-  ctx.save();ctx.translate(origin.x,origin.y);ctx.scale(zoom,zoom);drawMapCursor();ctx.restore();positionBuildingMenu();
+  ctx.save();ctx.translate(origin.x,origin.y);ctx.scale(zoom,zoom);drawMapCursor(grassTiles);ctx.restore();positionBuildingMenu();
 }
 
 const battleCanvas=$('battleCanvas'),battleCtx=battleCanvas.getContext('2d');battleCtx.imageSmoothingEnabled=false;
