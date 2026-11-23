@@ -1189,7 +1189,7 @@ if(inputLock&&!document.activeElement?.matches('.staff-select'))inputLock=false;
 if(!inputLock||(full&&!document.activeElement?.matches('#areaSelect213,#frontierReplayStage')))renderTab();
 if(refocusTurn)$('tabBody').querySelector('[data-turn-facility]')?.focus({preventScroll:true});
 updateEconHUD();
-$('buildMode').classList.toggle('active',!!(buildMode||moveMode||clearMode));if(buildMode)$('buildMode').innerHTML=`<span>🔨 「${B[buildMode].name}」を建設中！ ${buildMode==='acorn250'?'道の横の草地1マスに置いてね。':frontRoadOptional131(buildMode)?'正面に道がなくても置けるよ。足元はあとから塗り替えられるよ。':acceptsRoadFloor130(buildMode)?'草地や道の上に置けるよ。足元はあとから塗り替えられるよ。':'黄色い矢印のある正面を道に接してね。'}</span><button class="small-button secondary" data-action="cancelBuild">キャンセル ✕</button>`;
+$('buildMode').classList.toggle('active',!!(buildMode||moveMode||clearMode));if(buildMode)$('buildMode').innerHTML=`<span>🔨 「${B[buildMode].name}」を建設中！ ${Object.hasOwn(borderDecor,buildMode)?'始点からドラッグして、離すと1列に設置。':buildMode==='acorn250'?'道の横の草地1マスに置いてね。':frontRoadOptional131(buildMode)?'正面に道がなくても置けるよ。足元はあとから塗り替えられるよ。':acceptsRoadFloor130(buildMode)?'草地や道の上に置けるよ。足元はあとから塗り替えられるよ。':'黄色い矢印のある正面を道に接してね。'}</span><button class="small-button secondary" data-action="cancelBuild">キャンセル ✕</button>`;
 if(clearMode)$('buildMode').innerHTML=`<span>🪓 整地モード：木35G・石20G。撤去したい地形をクリック</span><button class="small-button secondary" data-action="toggleClear">終了 ✕</button>`;
 if(moveMode){const m=state.buildings.find(b=>b.id===moveMode);$('buildMode').innerHTML=`<span>🚚 ${m?B[m.type].name:'施設'}の移動先を選択中。${buildingOf(m).w}×${buildingOf(m).h}${m?.type==='acorn250'?'マス。道の横の草地に移動してね。':frontRoadOptional131(m?.type)?'マス。正面に道がなくても移動できるよ。':acceptsRoadFloor130(m?.type)?'マス。道の上にも置けるよ。':'の空き地で、正面を道に接してね。'}</span><button class="small-button secondary" data-action="cancelMove">キャンセル ✕</button>`}
 $('tileTag').textContent=clearMode?'🪓 整地モード：木35G ／ 石20G：クリックで撤去':moveMode?'🚚 移設先を選択中':buildMode?'🔨 建設する場所を選択中':selectedBuilding?'施設を選択中':'ドラッグで地図移動 ／ 🪓整地で木や石を撤去';$('zoomLabel').textContent=Math.round(zoom*100)+'%';
@@ -3452,7 +3452,53 @@ function drawMapWeather(now,star=null,origin=null,visibleLots=[],litHomes=new Ma
     ctx.fillStyle=kind==='雨'?'#cce6ed99':'#fffefbc0';for(let i=0;i<80;i++)ctx.fillRect((i*179+now/(kind==='雨'?9:27))%width,(i*107+now/(kind==='雨'?11:42))%height,kind==='雨'?1:3,kind==='雨'?8:3);
   }
 }
+function borderRowPlan(d,end){
+  const start=d.tile, type=d.borderType;
+  const dx=end.x-start.x,dy=end.y-start.y,horizontal=Math.abs(dx)>=Math.abs(dy);
+  const delta=horizontal?dx:dy, length=Math.abs(delta)+1;
+  const facing=length===1?placementFacing:(placementFacing&2)+(horizontal?0:1);
+  const price=constructionCost(type),total=length*price,cells=[];
+  let error='';
+  if(state.villageLv<B[type].unlock)error='まだ解放されていません';
+  else if(length+countBuildings(type)>facilityCountCap193(type))error='設置数の上限を超えます';
+  else if(total>state.coins)error='お金が足りません';
+  const step=Math.sign(delta);
+  for(let i=0;i<Math.min(length,Math.max(W-MIN_X,H-MIN_Y)+1);i++){
+    const x=start.x+(horizontal?i*step:0),y=start.y+(horizontal?0:i*step);
+    cells.push({x,y,type});
+    if(!error&&!canBuild(x,y,null,false,type))error='置けないマスがあります';
+  }
+  if(!error){
+    const covered=new Set(cells.map(b=>keyXY(b.x,b.y)));
+    if(losesRoad((x,y)=>covered.has(keyXY(x,y))))error='施設の入口をふさぎます';
+  }
+  return {cells,length,facing,price,total,error};
+}
+function placeBorderRow(plan){
+  if(plan.error){toast(plan.error,'error');return;}
+  const firstId=state.nextId,old=state.buildings,oldCoins=state.coins,expense=state.economy.expense;
+  const added=plan.cells.map((b,i)=>({...b,id:firstId+i,level:1,w:1,h:1,facing:plan.facing,constructionPaid:plan.price}));
+  state.buildings=old.concat(added);state.nextId+=added.length;
+  state.coins-=plan.total;bookExpense(plan.total);
+  if(!save(true)){
+    state.buildings=old;state.nextId=firstId;state.coins=oldCoins;state.economy.expense=expense;
+    toast('保存できませんでした','error');return;
+  }
+  rememberUndo1258({row:added,gold:plan.total,tiles:added.flatMap(b=>undoFootprint1258(b,decorPosition1258(b))),
+    label:B[added[0].type].name+' '+added.length+'個の設置'});
+  buildMode=null;selectedBuilding=null;hover=null;entranceTap1258=null;
+  moveActorsOutOfWalls191();settleResidents(true);
+  toast(B[added[0].type].name+'を'+added.length+'個並べたよ','success');renderUI(true);
+}
 function drawMapCursor(){
+  const d=mapPointer;
+  if(d?.dragged&&d.borderType&&d.borderType===buildMode&&d.end){
+    const plan=borderRowPlan(d,d.end);
+    ctx.save();ctx.globalAlpha=.72;
+    for(const b of plan.cells){drawLot(b,plan.facing,1,true);drawGroundLoop(b,1,1);
+      ctx.strokeStyle=plan.error?'#df5547':'#fff5bf';ctx.lineWidth=2;ctx.stroke();}
+    ctx.restore();$('tileTag').textContent=plan.length+'個 ／ '+plan.total+'G　'+(plan.error||'離すと設置');return;
+  }
   if(!hover)return;const {x,y}=hover;
   const moving=moveMode!=null?state.buildings.find(b=>b.id===moveMode):null;
   if(moving||buildMode){const type=moving?.type||buildMode,b={type,x,y},m=buildingOf(b),level=moving?.level||(type==='worldtree'?state.villageLv:1);
@@ -3655,7 +3701,7 @@ canvas.addEventListener('pointerdown',e=>{
     hover=tile.x>=MIN_X&&tile.y>=MIN_Y&&tile.x<W&&tile.y<H?tile:null;
     syncEntranceRoadPicker1258();
   }
-  mapPointer={id:e.pointerId,startX:e.clientX,startY:e.clientY,lastX:e.clientX,lastY:e.clientY,dragged:false};
+  mapPointer={tile:canvasCell(e),borderType:Object.hasOwn(borderDecor,buildMode)?buildMode:null,id:e.pointerId,startX:e.clientX,startY:e.clientY,lastX:e.clientX,lastY:e.clientY,dragged:false};
   canvas.setPointerCapture?.(e.pointerId);
 });
 canvas.addEventListener('pointermove',e=>{
@@ -3680,6 +3726,7 @@ canvas.addEventListener('pointermove',e=>{
   if(!mapPointer||mapPointer.id!==e.pointerId)return;
   const d=mapPointer,rect=canvas.getBoundingClientRect();
   if(Math.hypot(e.clientX-d.startX,e.clientY-d.startY)>5)d.dragged=true;
+  if(d.borderType){d.end=p;return;}
   if(d.dragged&&rect.width>0&&rect.height>0){
     stopWalkCamera();
     const drag=unprojectGround((e.clientX-d.lastX)*VW*T/(rect.width*zoom),(e.clientY-d.lastY)*VH*T/(rect.height*zoom));
@@ -3695,7 +3742,14 @@ function endMapPointer1257(e,tap=false){
     return;
   }
   if(!mapPointer||mapPointer.id!==e.pointerId)return;
-  const drag=mapPointer.dragged;mapPointer=null;
+  const d=mapPointer,drag=d.dragged;mapPointer=null;
+  if(d.borderType&&drag){
+    entranceTap1258=null;hover=null;
+    const rect=canvas.getBoundingClientRect();
+    if(tap&&buildMode===d.borderType&&e.clientX>=rect.left&&e.clientX<rect.right&&e.clientY>=rect.top&&e.clientY<rect.bottom)
+      placeBorderRow(borderRowPlan(d,canvasCell(e)));
+    renderUI(false);return;
+  }
   if(!tap||drag){if(e.pointerType==='touch'&&entranceTap1258){entranceTap1258=null;hover=null;syncEntranceRoadPicker1258();}return;}
   if(e.pointerType==='touch'&&(buildMode||moveMode!=null)&&!terrainMode&&!clearMode){
     if(!entranceTouchCommit1258(e))return;
@@ -12473,6 +12527,8 @@ function undoMapEdit1258(){
  if(e.b){
   if(e.before)[e.b.x,e.b.y,e.b.facing]=e.before;
   else state.buildings=state.buildings.filter(b=>b!==e.b);
+ }else if(e.row){
+  state.buildings=state.buildings.filter(b=>!e.row.includes(b));
  }else{
   const roads=e.terrain.map(({x,y})=>residentRoad(x,y));
   // Set all restored surfaces before checking the combined entrance topology.
