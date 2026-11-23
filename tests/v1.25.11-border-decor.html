@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><title>もんすたー日和 1.25.11 装飾の確認</title>
+<h1>木の柵・石の塀・花咲く草ブロック</h1>
+<button id="run">動作確認</button><pre id="result" aria-live="polite"></pre><div id="mount"></div>
+<script>
+'use strict';
+// Only the isolated game document receives this probe. No player save is touched.
+function borderProbe() {
+  const check=(ok,msg)=>{if(!ok)throw Error(msg);};
+  const types=['woodFence','stoneWall','flowerGrassBlock'];
+  window.borderQA={
+    ready:()=>facilitySheetReady,
+    seed(){
+      state.ranchName='柵のあるテスト牧場';state.speed=0;state.coins=7865;state.food=432;
+      state.adventure.stage=31;state.research.farm=3;state.treasures=[0,10];
+      state.monsters[0].name='こはく';
+      check(save(true),'1.25.10保存');return localStorage.getItem(SAVE_KEY);
+    },
+    snapshot(){return JSON.stringify([state.ranchName,state.speed,state.day,state.hour,state.coins,state.food,
+      state.magic,state.fame,state.villageLv,state.villageXp,state.buildings,state.monsters,state.staff,state.party,
+      state.research,state.treasures,state.paths,state.stoneTiles,state.adventure.stage]);},
+    run(){
+      function level(n){state.villageLv=state.worldTreeLevel=n;state.buildings.find(b=>b.type==='worldtree').level=n;renderUI(true);}
+      function empty(type){
+        for(let y=1;y<19;y++)for(let x=1;x<20;x++)if(canBuild(x,y,null,false,type)&&!isPath(x,y))return [x,y];
+        throw Error('設置用の空き地');
+      }
+      function progress(){return JSON.stringify([state.villageXp,state.fame,state.metrics.build,townPopularity211(),
+        achievementProgress193('buildings'),treeRequirementStatus193(state.villageLv+1),state.food,state.magic]);}
+      document.querySelector('[data-tab="build"]').click();
+      document.querySelector('[data-facility-role="tourism"]').click();
+      const button=type=>document.querySelector('[data-action="build"][data-id="'+type+'"]');
+      level(1);
+      check(!button(types[0]).disabled&&button(types[1]).disabled&&!button(types[2]).disabled,'Lv.1解放');
+      const locked=empty(types[1]),gold=state.coins;place(types[1],...locked);
+      check(state.coins===gold&&!getBuildingAt(...locked),'未解放の設置');
+      level(2);
+      const original=state.coins;
+      state.coins=29;renderUI(true);for(const type of types)check(button(type).disabled,'資金不足 '+type);
+      state.coins=original;renderUI(true);
+      for(const [i,type] of types.entries()){
+        const price=[30,55,40][i],pos=empty(type);
+        if(i)putTerrain(i===1?'road':'stone',...pos);
+        check(i===0?!isPath(...pos):isPath(...pos),'足元 '+type);
+        const before=progress(),beforeCoins=state.coins;
+        check(constructionCost(type)===price&&button(type).closest('.build-option').querySelector('.price').textContent.replace(/\s/g,'')===price+'G','表示価格 '+type);
+        button(type).click();check(buildMode===type,'装飾メニュー '+type);place(type,...pos);
+        let b=getBuildingAt(...pos);
+        check(b?.type===type&&state.coins===beforeCoins-price&&b.constructionPaid===price,'設置と実費 '+type);
+        check(b.w===1&&b.h===1&&progress()===before,'1×1と無効果 '+type);
+        check(!facilityActivities[type]&&!gardenKinds250[type]&&DECOR211[type]===0,'訪問・人気度 '+type);
+        check(!treeRequirements193(20).some(r=>r.type===type),'成長条件 '+type);
+        upgrade(b.id);check(b.level===1&&state.coins===beforeCoins-price,'強化なし '+type);
+        for(let f=0;f<4;f++){
+          setFacilityFacing({building:b,preview:false,direction:validFacing(b.facing)},f);
+          const art=spriteBuildingV161(type,1,f),pixels=art.getContext('2d').getImageData(0,0,art.width,art.height).data;
+          let opaque=0;for(let k=3;k<pixels.length;k+=4)if(pixels[k]>127)opaque++;
+          check(validFacing(b.facing)===f&&opaque>350&&opaque<art.width*art.height*.8,'四方向の透明画像 '+type+' '+f);
+        }
+        const next=empty(type);startMoving(b.id);moveBuilding(...next);
+        check(b.x===next[0]&&b.y===next[1],'移動 '+type);
+        check(undoMapEdit1258()&&b.x===pos[0]&&b.y===pos[1],'移動取り消し '+type);
+        check(progress()===before,'操作後の効果 '+type);
+      }
+      check(save(true),'装飾を保存');
+      return JSON.stringify(state.buildings.filter(b=>types.includes(b.type)));
+    },
+    placed(){return JSON.stringify(state.buildings.filter(b=>types.includes(b.type)));},
+    recover(){
+      window.confirm=()=>true;
+      for(const type of types){
+        const b=state.buildings.find(item=>item.type===type),gold=state.coins;
+        recoverBuilding(b.id);
+        check(!state.buildings.includes(b)&&state.coins===gold+Math.floor(b.constructionPaid*.65),'回収 '+type);
+      }
+    }
+  };
+}
+const result=document.getElementById('result'),mount=document.getElementById('mount');
+document.getElementById('run').onclick=async({currentTarget:button})=>{
+  const prefix='borderQA_'+crypto.randomUUID()+'_';
+  function clear(){for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);}
+  async function openGame(path,width){
+    const response=await fetch(path,{cache:'no-store'});if(!response.ok)throw Error(path+' '+response.status);
+    const end='})();\n<\/script>',source=await response.text();if(source.split(end).length!==2)throw Error('起動スクリプト');
+    const frame=document.createElement('iframe');frame.width=width;frame.height=844;
+    frame.srcdoc=source.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0;')
+      .replace(end,()=>borderProbe.toString()+'\nborderProbe();\n'+end);
+    const loaded=new Promise(resolve=>frame.onload=resolve);mount.replaceChildren(frame);await loaded;
+    const probe=frame.contentWindow.borderQA;
+    for(let i=0;i<240&&!probe?.ready();i++)await new Promise(r=>setTimeout(r,25));
+    if(!probe?.ready())throw Error('施設画像の読み込み');return probe;
+  }
+  button.disabled=true;result.textContent='';
+  try{
+    const old='../releases/1.25.10/game.html',saved=(await openGame(old,1280)).seed();
+    const expected=(await openGame(old,1280)).snapshot();
+    for(const path of ['../game.html','../releases/1.25.11/launcher-game.html'])for(const width of [1280,390]){
+      clear();localStorage.setItem(prefix+'save_v1',saved);
+      const q=await openGame(path,width);if(q.snapshot()!==expected)throw Error('1.25.10セーブの引き継ぎ');
+      const built=q.run(),reloaded=await openGame(path,width);
+      if(reloaded.placed()!==built)throw Error('設置した装飾の再読み込み');reloaded.recover();
+      result.textContent+=path+' / '+width+'px OK\n';
+    }
+    result.textContent+='すべて成功';
+  }catch(error){result.textContent+='失敗 '+error.stack;}finally{mount.replaceChildren();clear();button.disabled=false;}
+};
+</script></html>
