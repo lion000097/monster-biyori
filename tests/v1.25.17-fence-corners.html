@@ -59,6 +59,26 @@ function installFenceTest(){
       }
     }
   }
+  function mixedTurns(){
+    // Check the actual colour on both sides of every mixed bend.
+    for(const type of [wood,stone])for(const horizontal of [-1,1])for(const vertical of [-1,1]){
+      for(const horizontalType of [wood,stone]){
+        const verticalType=horizontalType===wood?stone:wood;
+        const tiles=new Map([[keyXY(0,0),type],[keyXY(horizontal,0),horizontalType],[keyXY(0,vertical),verticalType]]);
+        const art=fenceArt({type,x:0,y:0},0,tiles);
+        const pixels=art.getContext('2d').getImageData(0,0,160,160).data;
+        for(const [dx,dy,material] of [[horizontal,0,horizontalType],[0,vertical,verticalType]]){
+          const x=80+(dx-dy)*28,y=100+(dx+dy)*14-25;
+          let coloured=0,wooden=0;
+          for(let v=y-2;v<=y+2;v++)for(let u=x-2;u<=x+2;u++){
+            const k=(v*160+u)*4;if(pixels[k+3]<128)continue;
+            coloured++;if(pixels[k]-pixels[k+2]>65)wooden++;
+          }
+          check(coloured>=8&&(material===wood?wooden>coloured/2:wooden<coloured/2),'曲がり角での材質切替 '+type+' '+[dx,dy,material]);
+        }
+      }
+    }
+  }
   function examples(canvas){
     const g=canvas.getContext('2d');g.imageSmoothingEnabled=false;g.fillStyle='#b9d48a';g.fillRect(0,0,canvas.width,canvas.height);
     for(let i=0;i<3;i++){
@@ -127,7 +147,7 @@ function installFenceTest(){
       check(save(true),'編集後の保存');
     }finally{canvas.getBoundingClientRect=rect;canvas.setPointerCapture=capture;}
   }
-  window.fenceTest={ready:()=>facilitySheetReady&&lionReady,seed,snapshot,shapes,examples,edits};
+  window.fenceTest={ready:()=>facilitySheetReady&&lionReady,seed,snapshot,shapes,mixedTurns,examples,edits};
 }
 const run=document.getElementById('run'),result=document.getElementById('result'),mount=document.getElementById('mount');
 async function readGame(path){
@@ -158,7 +178,7 @@ run.onclick=async()=>{
         const prefix=scope+label+width+'_';localStorage.setItem(prefix+'save_v1',raw);
         q=await openGame(game,prefix,width);
         if(q.snapshot()!==before)throw Error('1.25.16のセーブ引き継ぎ');
-        q.examples(document.getElementById('examples'));q.shapes();q.edits(width===390?'touch':'mouse');
+        q.examples(document.getElementById('examples'));q.shapes();q.mixedTurns();q.edits(width===390?'touch':'mouse');
         const edited=q.snapshot();q=await openGame(game,prefix,width);
         if(q.snapshot()!==edited)throw Error('編集後の再読み込み');
         result.textContent+=label+' '+width+'px　成功\n';

@@ -2500,6 +2500,11 @@ const fenceArms=[
   {dx:-1,dy:0,bit:1},{dx:0,dy:-1,bit:2},
   {dx:1,dy:0,bit:4},{dx:0,dy:1,bit:8}
 ];
+function isMixedFenceTurn(tiles,x,y){
+  const left=tiles.get(keyXY(x-1,y)),right=tiles.get(keyXY(x+1,y));
+  const back=tiles.get(keyXY(x,y-1)),front=tiles.get(keyXY(x,y+1));
+  return Boolean(left)!==Boolean(right)&&Boolean(back)!==Boolean(front)&&(left||right)!==(back||front);
+}
 const joinedFenceFrames=new Map();
 function fenceArt(b,facing,tiles){
   let mask=0,materialChanges=0;
@@ -2511,17 +2516,30 @@ function fenceArt(b,facing,tiles){
     }
   }
   if(!mask||!ranchSheets130[b.type].img.naturalWidth)return ranchFrame130(b.type,validFacing(facing),0);
-  const key=b.type+':'+mask+':'+materialChanges;
+  let boundaryCaps=materialChanges,borrowedArms=0;
+  if(materialChanges){
+    // When only one end of a mixed span turns, change material at that
+    // corner post. Both tiles must use the same material along the span.
+    const hereTurns=isMixedFenceTurn(tiles,b.x,b.y);
+    for(const {dx,dy,bit} of fenceArms){
+      if(!(materialChanges&bit)||hereTurns===isMixedFenceTurn(tiles,b.x+dx,b.y+dy))continue;
+      boundaryCaps&=~bit;
+      if(hereTurns)borrowedArms|=bit;
+    }
+  }
+  const key=[b.type,mask,boundaryCaps,borrowedArms].join(':');
   if(joinedFenceFrames.has(key))return joinedFenceFrames.get(key);
   // Keep the exposed half of an end tile at its original length.
   const freeEnd=({1:4,2:8,4:1,8:2})[mask];
   const art=pixelSprite(160,160,g=>{
     for(const {dx,dy,bit} of fenceArms){
-      const right=dx-dy>0,frame=ranchFrame130(b.type,dx===0?1:0,0);
+      if(!(mask&bit)&&bit!==freeEnd)continue;
+      const otherMaterial=b.type==='woodFence'?'stoneWall':'woodFence';
+      const right=dx-dy>0,frame=ranchFrame130(borrowedArms&bit?otherMaterial:b.type,dx===0?1:0,0);
       if(mask&bit){
         const sx=right?0:80,sy=(dx+dy)*20;
-        if(materialChanges&bit){
-          // Give wood and stone their own finished end at the shared edge.
+        if(boundaryCaps&bit){
+          // On a straight material transition the original end caps meet midway.
           const cut=right?102:58,start=right?40:cut,width=right?cut-40:120-cut;
           g.drawImage(frame,sx+start-40,0,width,160,start,sy,width,160);
           const end=right?cut:0,w=right?160-cut:cut;
@@ -2529,7 +2547,7 @@ function fenceArt(b,facing,tiles){
         }else{
           g.drawImage(frame,sx,0,80,160,40,sy,80,160);
         }
-      }else if(bit===freeEnd){
+      }else{
         const sx=right?80:0;
         g.drawImage(frame,sx,0,80,160,sx,0,80,160);
       }
@@ -3924,7 +3942,7 @@ function placeBorderRow(plan){
   moveActorsOutOfWalls191();settleResidents(true);
   toast(B[added[0].type].name+'を'+added.length+'個並べたよ','success');renderUI(true);
 }
-function drawMapCursor(decorTiles,plan,moving){
+function drawMapCursor(decorTiles,plan,moving,previewFence){
   if(plan){
     ctx.save();ctx.globalAlpha=.72;
     if(buildMode==='flowerGrassBlock')for(const b of plan.cells)decorTiles.grass.add(keyXY(b.x,b.y));
@@ -3934,7 +3952,7 @@ function drawMapCursor(decorTiles,plan,moving){
   }
   if(!hover)return;const {x,y}=hover;
   if(moving||buildMode){const type=moving?.type||buildMode,b={type,x,y},m=buildingOf(b),level=moving?.level||(type==='worldtree'?state.villageLv:1);
-    const valid=moving?.type==='worldtree'?canMoveWorldTree195(x,y):canBuild(x,y,moving?.id??null,!!moving,type);
+    const valid=isFence(type)?previewFence:moving?.type==='worldtree'?canMoveWorldTree195(x,y):canBuild(x,y,moving?.id??null,!!moving,type);
     if(moving?.type==='flowerGrassBlock')decorTiles.grass.delete(keyXY(moving.x,moving.y));
     ctx.save();ctx.globalAlpha=.73;drawLot(b,placementFacing,level,true,0,0,decorTiles);ctx.restore();
     drawGroundLoop(b,m.w,m.h);ctx.fillStyle=valid?'#f6fdb830':'#f76e5860';ctx.fill();ctx.strokeStyle=valid?'#fff6cb':'#e8715c';ctx.lineWidth=2;ctx.stroke();drawEntranceRoadPreview1258(b,placementFacing,moving);return;
@@ -4089,7 +4107,7 @@ function drawWorld(now){
   }
   for(const effect of swirls){const p=projectGround(effect.x/T,effect.y/T+.5);ctx.globalAlpha=clamp(effect.life,0,1);ctx.font='bold 15px sans-serif';ctx.fillStyle='#fff1b2';ctx.fillText(effect.text,p.x,p.y-14*(1-effect.life))}ctx.globalAlpha=1;
   ctx.restore();drawMapWeather(now,shootingStar,origin,visibleLots,litHomes);
-  ctx.save();ctx.translate(origin.x,origin.y);ctx.scale(zoom,zoom);drawMapCursor(decorTiles,row,moving);ctx.restore();positionBuildingMenu();
+  ctx.save();ctx.translate(origin.x,origin.y);ctx.scale(zoom,zoom);drawMapCursor(decorTiles,row,moving,previewFence);ctx.restore();positionBuildingMenu();
 }
 
 const battleCanvas=$('battleCanvas'),battleCtx=battleCanvas.getContext('2d');battleCtx.imageSmoothingEnabled=false;
