@@ -78,8 +78,9 @@ function borderProbe() {
 }
 const result=document.getElementById('result'),mount=document.getElementById('mount');
 document.getElementById('run').onclick=async({currentTarget:button})=>{
-  const prefix='borderQA_'+crypto.randomUUID()+'_';
-  function clear(){for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);}
+  const scope='borderQA_'+crypto.randomUUID()+'_';
+  let prefix=scope+'old_';
+  function clear(){for(const k of Object.keys(localStorage))if(k.startsWith(scope))localStorage.removeItem(k);}
   async function openGame(path,width){
     const response=await fetch(path,{cache:'no-store'});if(!response.ok)throw Error(path+' '+response.status);
     const end='})();\n<\/script>',source=await response.text();if(source.split(end).length!==2)throw Error('起動スクリプト');
@@ -96,8 +97,14 @@ document.getElementById('run').onclick=async({currentTarget:button})=>{
     const old='../releases/1.25.10/game.html',saved=(await openGame(old,1280)).seed();
     const expected=(await openGame(old,1280)).snapshot();
     for(const path of ['../game.html','../releases/1.25.11/launcher-game.html'])for(const width of [1280,390]){
-      clear();localStorage.setItem(prefix+'save_v1',saved);
-      const q=await openGame(path,width);if(q.snapshot()!==expected)throw Error('1.25.10セーブの引き継ぎ');
+      // The retiring iframe saves on pagehide. Give each case its own storage namespace.
+      prefix=scope+(path.includes('launcher')?'launcher_':'web_')+width+'_';
+      localStorage.setItem(prefix+'save_v1',saved);
+      const q=await openGame(path,width),actual=q.snapshot();
+      if(actual!==expected){
+        const a=JSON.parse(actual),e=JSON.parse(expected),key=a.findIndex((v,i)=>JSON.stringify(v)!==JSON.stringify(e[i]));
+        throw Error('1.25.10セーブの引き継ぎ '+width+'px '+key+' '+JSON.stringify(e[key]).slice(0,160)+' → '+JSON.stringify(a[key]).slice(0,160));
+      }
       const built=q.run(),reloaded=await openGame(path,width);
       if(reloaded.placed()!==built)throw Error('設置した装飾の再読み込み');reloaded.recover();
       result.textContent+=path+' / '+width+'px OK\n';
