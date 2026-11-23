@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><title>もんすたー日和 1.25.8 動作確認</title>
+<h1>入口の道の確認・直前の編集を戻す</h1><button id="run">検証を開始</button>
+<pre id="result" aria-live="polite"></pre><div id="screens"></div>
+<script>
+'use strict';
+function fixture(){
+window.q1257={
+ ready(){return facilitySheetReady&&treeDecorationReady&&Object.values(ranchSheets130).every(x=>x.img.naturalWidth);},
+ seed(){
+  state.speed=0;state.ranchName='こもれび森の牧場';state.coins=190067;state.food=406;state.magic=320;state.day=17;
+  state.worldTreeLevel=state.villageLv=19;state.buildings.find(b=>b.type==='worldtree').level=19;
+  state.villageXp=villageThreshold(19)*.67;state.treasures=[0,10];state.treasureStock={0:2,10:1};
+  state.materialStock211[0]=820;ensureMaterials211();state.reserveRareMaterials=false;
+  state.exploreProgress=37;state.economy.ordersDone=2;state.paths.push('4,6');
+  toggleMonsterCollection138(state.monsters[0].id,'favorite');
+  state.buildings.push({type:'picnic257',x:3,y:6,id:state.nextId++,facing:0,level:1,constructionPaid:140});
+  state.research.farm=5;state.research.battle=4;
+  if(!save(true))throw Error('baseline seed');
+ },
+ snapshot(){return JSON.stringify([state.ranchName,state.speed,state.day,state.hour,state.coins,state.food,state.magic,state.fame,
+  state.villageLv,state.worldTreeLevel,state.villageXp,state.paths,state.stoneTiles,state.buildings,state.monsters,state.staff,state.research,state.party,
+  state.treasures,state.treasureStock,state.reserveRareMaterials,state.exploreProgress,state.economy.ordersDone,state.materialStock211]);},
+ beforeAmbient(){
+  const day=Array.from({length:384},(_,i)=>i+1).find(d=>weatherInfo(d).name==='晴れ');
+  Object.assign(state,{staff:[],guests:[],monsters:[],party:[],zones:[0,1,4,5],paths:[],ponds:[],removedDefaultPaths:[...DEFAULT_PATH_KEYS],
+   clearedPonds:[],clearedScenery:[],stoneTiles:{},speed:1,day,hour:13,coins:20000,villageLv:5,worldTreeLevel:5});
+  state.buildings=[];state.economy.festival=false;stopWalkCamera();hover=null;selectedBuilding=null;zoom=1;
+  for(let x=MIN_X;x<W;x++)for(let y=MIN_Y;y<H;y++){const k=keyXY(x,y);state.clearedPonds.push(k);state.clearedScenery.push(k);}
+  for(let x=2;x<=10;x++){const k=keyXY(x,7);state.paths.push(k);state.stoneTiles[k]=true;}
+ },
+ makeActor(x,y,kind=0){const m=makeMonster(state.nextId++,kind,x,y);state.monsters.push(m);monsterWalkTimer139(m).wait=1000;return m;},
+ shot(x,y,time=500){const p=unprojectGround(...(()=>{const g=projectGround(x,y);return [g.x,g.y]})());cameraX=p.x-VW/2;cameraY=p.y-VH/2;drawWorld(time);return canvas;},
+};q1257.freshEditor=()=>{
+ q1257.beforeAmbient();
+ // Safe, flat fixture. A true south-east approach only for the 2×2 home.
+ state.paths=['6,7','7,7','8,7','9,7','10,7'];
+ state.stoneTiles={'6,7':true,'7,7':true,'8,7':true};
+ buildMode=null;moveMode=null;clearMode=false;terrainMode=null;placementFacing=0;
+ selectedBuilding=null;selectedMonster=null;stopWalkCamera();
+};
+q1257.mouseForTile=(x,y)=>{
+ const rect=canvas.getBoundingClientRect(),glyph=projectGround(x+.5,y+.5),origin=mapScreenOrigin();
+ return {clientX:rect.left+(origin.x+glyph.x*zoom)*rect.width/(VW*T),clientY:rect.top+(origin.y+glyph.y*zoom)*rect.height/(VH*T)};
+};
+q1257.run=function*(only){
+ const check=(ok,msg)=>{if(!ok)throw Error(msg);}, j=o=>JSON.stringify(o);
+ if(!only||only==='preview'){
+  q1257.freshEditor();
+  const home={type:'home',x:6,y:5,facing:0};
+  const data=Array.from({length:4},(_,f)=>entranceRoadPreview1258(home,f));
+  check(data[0].connected===true&&!data[1].connected&&!data[2].connected&&!data[3].connected,'only real path-facade direction connects');
+  check(j(data[0].roads)===j([[6,7],[7,7]])&&data.slice(1).every(d=>d.roads.length===0),'per-direction tile lists reflect actual gameplay road');
+  const dataNext=entranceRoadPreview1258({...home,x:9},0);
+  check(j(dataNext.roads)===j([[9,7],[10,7]]),'prospective move uses destination, not origin');
+  const lamp=entranceRoadPreview1258({type:'lamp211',x:4,y:3,facing:1},1);
+  check(lamp.kind!==data[1].kind||lamp.status!==data[1].status,'optional road is not presented as a required disconnect');
+  const actual={...home,id:state.nextId++,level:1};state.buildings=[actual];const saved=localStorage.getItem(SAVE_KEY);
+  for(let f=1;f<4;f++){
+   setFacilityFacing({building:actual,direction:0,preview:false},f);
+   check(validFacing(actual.facing)===0,'failed rotation applied');
+  }
+  check(localStorage.getItem(SAVE_KEY)===saved,'failed preview or rotate wrote save');
+  check(entranceRoadPreview1258({type:'acorn250',x:6,y:6},0).kind==='all','acorn any-side rule retained');
+  check(entranceRoadPreview1258({type:'acorn250',x:6,y:7},0).status==='grass','acorn warns not to build on road');
+  state.buildings=[];buildMode='home';hover={x:6,y:5};
+  for(const f of [0,1]){
+   placementFacing=f;renderUI(true);syncEntranceRoadPicker1258();
+   const options=Array.from(facingPicker.querySelectorAll('[data-facing]'));
+   check(options.length===4&&options.filter(b=>b.dataset.roadStatus==='connected').length===1,'actual menu four facing labels');
+   check($('facingRoadStatus').textContent===data[f].text,'live picker mirrors active facing');
+   const art=q1257.shot(7.1,5.45,1000), status=$('facingRoadStatus');
+   yield {name:'entrance-preview-facing-'+f,canvas:art,lines:[status?.textContent,data[f].text]};
+  }
+  yield {name:'preview-build-move-four-directions'};
+ }
+ if(!only||only==='undo'){
+  q1257.freshEditor();
+  const initial=state.coins, pos=[11,7];
+  putTerrain('road',...pos);check(isPath(...pos),'real road create');
+  const once=state.coins;state.coins+=83;
+  const btn=$('undoEdit1258');check(btn&&!btn.disabled,'undo button enabled');
+  btn.click();check(!isPath(...pos)&&state.coins===initial+83,'road undo lost unrelated earnings or failed refund');
+  yield {name:'undo-road-actual-map',canvas:q1257.shot(9.1,7.1,900),lines:[$('undoStatus1258')?.textContent,btn.textContent]};
+  const left=state.coins;btn.click();check(!isPath(...pos)&&state.coins===left&&btn.disabled,'road undo double replay');
+  putTerrain('stone',...pos);check(state.stoneTiles[pos.join(',')]===true,'true stone placement');
+  putTerrain('road',...pos); // may or may not be a real conversion, depending on original road rule.
+  putTerrain('roadErase',...pos);check(!isPath(...pos),'real erase');
+  btn.click();check(isPath(...pos),'last road operation restored exactly once');
+  btn.click();check(isPath(...pos),'earlier history incorrectly replayed');
+  const beforeStroke=state.coins,pointList=[[11,8],[12,8]],rect=canvas.getBoundingClientRect,has=canvas.hasPointerCapture;
+  canvas.getBoundingClientRect=()=>({left:0,top:0,width:704,height:480,right:704,bottom:480});
+  canvas.hasPointerCapture=()=>true;
+  q1257.shot(9,7.5,900);terrainMode='stone';
+  const emit=(kind,p)=>canvas.dispatchEvent(Object.assign(new Event(kind,{bubbles:true,cancelable:true}),
+   {button:0,pointerType:'mouse',pointerId:53,...q1257.mouseForTile(...p)}));
+  try{emit('pointerdown',pointList[0]);emit('pointermove',pointList[1]);emit('pointerup',pointList[1]);}
+  finally{canvas.getBoundingClientRect=rect;canvas.hasPointerCapture=has;}
+  check(pointList.every(p=>state.stoneTiles[p.join(',')]===true)&&state.coins<beforeStroke,'real multi-tile paid brush stroke');
+  btn.click();check(pointList.every(p=>!isPath(...p)&&!state.stoneTiles[p.join(',')])&&state.coins===beforeStroke,'single undo atomically refunds and removes brush stroke');
+  const x=5,y=5;placementFacing=1;const coins=state.coins,exp=state.economy.expense,xp=state.villageXp,fame=state.fame;
+  place('lamp211',x,y);
+  const lamp=getBuildingAt(x,y);check(lamp?.type==='lamp211'&&state.coins<coins,'actual eligible decoration');
+  yield {name:'undo-decor-before',canvas:q1257.shot(6.9,6.15,920),lines:[$('undoStatus1258')?.textContent,btn.textContent]};
+  btn.click();check(!getBuildingAt(x,y)&&state.coins===coins&&state.villageXp===xp&&state.fame===fame&&state.economy.expense===exp,'proper reversal of exact decoration deltas');
+  yield {name:'undo-decor-after',canvas:q1257.shot(6.9,6.15,920),lines:[$('undoStatus1258')?.textContent,btn.textContent]};
+  place('lamp211',x,y);const keep=getBuildingAt(x,y);
+  setFacilityFacing({building:keep,direction:1,preview:false},3);check(keep.facing===3,'real decor rotation');
+  btn.click();check(keep.facing===1&&getBuildingAt(x,y)===keep,'rotation undo without deleting decor');
+  startMoving(keep.id);placementFacing=0;moveBuilding(5,4);check(getBuildingAt(5,4)===keep,'real decor move');
+  btn.click();check(keep.x===x&&keep.y===y&&keep.facing===1,'move undo with facing restoration');
+  putTerrain('road',12,7);check(isPath(12,7),'dependence fixture road');
+  state.buildings.push({type:'home',x:12,y:5,id:state.nextId++,facing:0,level:1});
+  const fragile=state.coins;btn.click();
+  check(isPath(12,7)&&state.coins===fragile,'unsafe undo disconnected new entrance or changed money');
+  btn.click();check(isPath(12,7)&&state.coins===fragile,'invalid undo replay');
+  if(!save(true)||!load())throw Error('save/reload');renderUI(true);
+  check(isPath(12,7)&&state.coins===fragile&&$('undoEdit1258').disabled,'undo history must not reload '+j([isPath(12,7),state.coins,fragile,$('undoEdit1258').disabled,Boolean(mapUndo1258&&mapUndo1258.owner===state)]));
+  yield {name:'one-step-roads-decor-undos-invalidation'};
+ }
+};
+
+window.q1257.roundtrip=()=>{if(!save(true)||!load())throw Error('再保存');};
+}
+const out=document.querySelector('#result'),mount=document.querySelector('#screens');
+function check(ok,label){if(!ok)throw Error(label);}
+function log(s){out.textContent+=s+'\n';}
+document.querySelector('#run').onclick=async ({currentTarget:button})=>{
+ out.textContent='';button.disabled=true;
+ const prefix='v1258_qa_'+crypto.randomUUID()+'_',key=prefix+'save_v1';
+ const clear=()=>{for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);};
+ async function read(path){const res=await fetch(path,{cache:'no-store'});check(res.ok,path+' HTTP '+res.status);return res.text();}
+ async function open(source,width){
+  const f=document.createElement('iframe');f.width=width;f.height=width===390?844:900;f.title='検証用牧場';
+  const end='})();\n<\/script>';check(source.split(end).length===2,'初期化スクリプト');
+  f.srcdoc=source.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0;')
+   .replace(end,()=>fixture.toString()+'\nfixture();\n'+end);
+  const loaded=new Promise((resolve,reject)=>{f.onload=resolve;f.onerror=reject;});mount.append(f);await loaded;
+  const w=f.contentWindow;for(let i=0;i<180&&!w.q1257?.ready();i++)await new Promise(r=>setTimeout(r,25));
+  check(w.q1257?.ready(),'ゲーム開始と施設画像');return {w,f};
+ }
+
+
+ try{
+  const [prior,latest]=await Promise.all([read('../releases/1.25.7/game.html'),read('../game.html')]);
+  for(const width of [1366,390]){
+   clear();
+   const old=await open(prior,width);old.w.q1257.seed();old.f.remove();
+   check(localStorage.getItem(key),'旧セーブが保存された');
+   const base=await open(prior,width);const snapshot=base.w.q1257.snapshot();base.f.remove();
+   const c=await open(latest,width);check(c.w.document.title.includes('1.25.8'),'版番号');
+   check(c.w.q1257.snapshot()===snapshot,'旧版からの引き継ぎ');c.w.q1257.roundtrip();
+   check(c.w.q1257.snapshot()===snapshot,'旧版セーブの再保存');
+   check(width!==390||c.w.document.documentElement.scrollWidth<=391,'モバイル表示のはみ出し');
+   const checks=[...c.w.q1257.run()].map(r=>r.name);
+   check(checks.includes('preview-build-move-four-directions')&&checks.includes('one-step-roads-decor-undos-invalidation'),'全観察モードを通過');
+   c.f.remove();
+   log(width+'px: 旧セーブ・四方向の入口・道と飾りの取消・二重適用防止');
+  }
+  log('すべて成功');
+ }catch(e){log('失敗 '+e.stack);}finally{mount.replaceChildren();clear();button.disabled=false;}
+};
+</script></html>
