@@ -1,0 +1,173 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>もんすたー日和 1.25.17 接続の動作確認</title>
+<style>body{font:16px system-ui;margin:1rem}canvas{max-width:100%;height:auto;image-rendering:pixelated}#mount{overflow:hidden}pre{white-space:pre-wrap}</style>
+<h1>石の塀と木の柵の接続</h1>
+<button id="run" type="button">動作確認</button>
+<pre id="result" aria-live="polite"></pre>
+<canvas id="examples" width="900" height="190" hidden aria-label="木の柵、石の塀、木と石を組み合わせた囲い"></canvas><div id="mount"></div>
+<script>
+'use strict';
+function installFenceTest(){
+  const wood='woodFence',stone='stoneWall';
+  const directions=[[-1,0],[0,-1],[1,0],[0,1]];
+  const check=(ok,label)=>{if(!ok)throw Error(label);};
+  function seed(){
+    state.speed=0;state.ranchName='石と木の庭';state.coins=7500;
+    state.villageLv=state.worldTreeLevel=2;state.buildings.find(b=>b.type==='worldtree').level=2;
+    for(let y=1;y<18;y++)for(let x=1;x<19;x++){
+      if(![[0,0],[0,1],[1,1],[1,0],[2,0]].every(([u,v])=>canBuild(x+u,y+v,null,false,stone)))continue;
+      for(const [u,v,type,f] of [[0,0,stone,3],[0,1,wood,2],[1,1,wood,1]]){
+        const tile={x:x+u,y:y+v},plan=borderRowPlan({tile,borderType:type},tile);
+        check(!plan.error,plan.error);placeBorderRow(plan);getBuildingAt(tile.x,tile.y).facing=f;
+      }
+      check(save(true),'1.25.16での保存');return;
+    }
+    throw Error('検証用の空き地');
+  }
+  function snapshot(){
+    return JSON.stringify([state.version,state.ranchName,state.coins,state.food,state.magic,state.villageLv,
+      state.villageXp,state.party,state.monsters.map(m=>[m.id,m.kind,m.lv,m.iv,m.equipment12512]),state.staff.map(a=>a.id),
+      state.buildings,state.paths,state.stoneTiles,state.adventure.stage,state.equipmentStock12512]);
+  }
+  function shapes(){
+    const center={x:-3,y:-9};
+    for(const type of [wood,stone]){
+      const other=type===wood?stone:wood,b={...center,type};
+      for(let neighbours=0;neighbours<81;neighbours++){
+        let n=neighbours;
+        const tiles=new Map([[keyXY(b.x,b.y),type],[keyXY(b.x+1,b.y+1),other]]),arms=[];
+        for(const [dx,dy] of directions){
+          const digit=n%3;n=Math.floor(n/3);arms.push(digit);
+          if(digit)tiles.set(keyXY(b.x+dx,b.y+dy),digit===1?type:other);
+        }
+        const art=fenceArt(b,3,tiles),count=arms.filter(Boolean).length;
+        if(!count){
+          for(let f=0;f<4;f++)check(fenceArt(b,f,tiles)===ranchFrame130(type,f,0),'単独と斜めの向き');
+          continue;
+        }
+        check(art===fenceArt(b,0,tiles),'保存した向きに依存しない接続');
+        const pixels=art.getContext('2d').getImageData(0,0,160,160).data;
+        directions.forEach(([dx,dy],i)=>{
+          const sign=dx-dy,depth=dx+dy;
+          // Sample the upper rail (or the face of the wall) just inside the tile edge.
+          const x=80+sign*35,y=Math.round(100+depth*17.5)-25;
+          let solid=0;
+          for(let v=y-3;v<=y+3;v++)for(let u=x-2;u<=x+2;u++)if(pixels[(v*160+u)*4+3]>127)solid++;
+          const expected=!!arms[i]||(count===1&&!!arms[(i+2)%4]);
+          check((solid>5)===expected,type+' 隣接='+neighbours+' 向き='+i+' 不透明画素='+solid);
+        });
+      }
+    }
+  }
+  function examples(canvas){
+    const g=canvas.getContext('2d');g.imageSmoothingEnabled=false;g.fillStyle='#b9d48a';g.fillRect(0,0,canvas.width,canvas.height);
+    for(let i=0;i<3;i++){
+      const cells=[],tiles=new Map();
+      for(let y=0;y<4;y++)for(let x=0;x<4;x++){
+        if(x>0&&x<3&&y>0&&y<3)continue;
+        const type=i===0?wood:i===1?stone:(x===0||y===3)?wood:stone;
+        cells.push({x,y,type});tiles.set(keyXY(x,y),type);
+      }
+      for(const b of cells.sort((a,b)=>(a.x+a.y)-(b.x+b.y))){
+        const p=projectGround(b.x,b.y);
+        g.drawImage(fenceArt(b,0,tiles),i*300+150+p.x*1.2-38.4,41+p.y*1.2-48,76.8,76.8);
+      }
+    }
+    canvas.hidden=false;
+  }
+  function edits(pointerType){
+    const root=state.buildings.find(b=>b.type===stone),{x,y}=root,coins=state.coins,cost=constructionCost(stone);
+    const at=(u,v)=>keyXY(x+u,y+v);
+    cameraX=x+1.5-VW/(2*zoom);cameraY=y+1-VH/(2*zoom);
+    function drawn(){
+      const observed=new Map(),original=fenceArt;
+      fenceArt=(b,f,tiles)=>{
+        const mask=directions.reduce((sum,[dx,dy],i)=>sum+(tiles.has(keyXY(b.x+dx,b.y+dy))?2**i:0),0);
+        const art=original(b,f,tiles);observed.set(keyXY(b.x,b.y),{mask,art});return art;
+      };
+      try{drawWorld(800);}finally{fenceArt=original;}
+      return observed;
+    }
+    const initial=drawn();
+    check(initial.get(at(0,0))?.mask===8&&initial.get(at(0,1))?.mask===6,'旧セーブの混合L字');
+    document.querySelector('[data-tab="build"]').click();
+    document.querySelector('[data-facility-role="decor"]').click();
+    const pick=()=>document.querySelector('[data-action="build"][data-id="stoneWall"]').click();
+    const rect=canvas.getBoundingClientRect,capture=canvas.setPointerCapture;
+    canvas.getBoundingClientRect=()=>({left:0,top:0,width:VW*T,height:VH*T,right:VW*T,bottom:VH*T});
+    canvas.setPointerCapture=()=>{};
+    function pointer(name,u,v){
+      const p=projectGround(x+u+.5,y+v+.5),o=mapScreenOrigin();
+      canvas.dispatchEvent(new PointerEvent(name,{bubbles:true,pointerId:7,pointerType,button:0,
+        clientX:o.x+p.x*zoom,clientY:o.y+p.y*zoom}));
+    }
+    function drag(cancel){
+      pointer('pointerdown',1,0);pointer('pointermove',2,0);
+      const preview=drawn();
+      check(preview.get(at(0,0))?.mask===12&&preview.get(at(1,0))?.mask===13,'列の設置予告と既設の角');
+      pointer(cancel?'pointercancel':'pointerup',2,0);
+    }
+    try{
+      pick();drag(true);
+      check(drawn().get(at(0,0)).art===initial.get(at(0,0)).art&&state.coins===coins,'キャンセル');
+      drag(false);const closed=drawn();
+      check(closed.get(at(0,0))?.mask===12&&closed.get(at(1,0))?.mask===13&&state.coins===coins-2*cost,'列設置と費用');
+      check(undoMapEdit1258()&&drawn().get(at(0,0)).art===initial.get(at(0,0)).art&&state.coins===coins,'列の取り消し');
+      pick();drag(false);
+      const middle=getBuildingAt(x+1,y),target=[];
+      for(let v=-3;v<=3&&!target.length;v++)for(let u=-3;u<=3;u++){
+        if(Math.abs(v)>=2&&canBuild(x+u,y+v,middle.id,true,stone)&&!occupiedUndo1258(x+u,y+v,1,1)){target.push(u,v);break;}
+      }
+      check(target.length,'移動先');startMoving(middle.id);pointer('pointermove',...target);
+      const ghost=drawn();check(ghost.get(at(0,0))?.mask===8&&!ghost.has(at(1,0)),'移動予告で接続が外れる');
+      moveBuilding(x+target[0],y+target[1]);check(drawn().get(at(0,0))?.mask===8,'移動後の接続');
+      check(undoMapEdit1258()&&drawn().get(at(0,0))?.mask===12,'移動を戻すと再接続');
+      window.confirm=()=>true;recoverBuilding(middle.id);
+      check(!getBuildingAt(x+1,y)&&drawn().get(at(0,0))?.mask===8,'回収後の角');
+      check(save(true),'編集後の保存');
+    }finally{canvas.getBoundingClientRect=rect;canvas.setPointerCapture=capture;}
+  }
+  window.fenceTest={ready:()=>facilitySheetReady&&lionReady,seed,snapshot,shapes,examples,edits};
+}
+const run=document.getElementById('run'),result=document.getElementById('result'),mount=document.getElementById('mount');
+async function readGame(path){
+  const r=await fetch(path);if(!r.ok)throw Error(path+' HTTP '+r.status);return r.text();
+}
+async function openGame(source,prefix,width){
+  const end='})();\n<'+ '/script>';
+  if(source.split(end).length!==2)throw Error('起動スクリプト');
+  const frame=document.createElement('iframe');frame.width=width;frame.height=850;frame.title='検証用の牧場';
+  const loaded=new Promise(resolve=>{frame.onload=resolve;});
+  frame.srcdoc=source.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0;')
+    .replace(end,()=>'\n('+installFenceTest.toString()+')();\n'+end);
+  mount.replaceChildren(frame);await loaded;
+  for(let i=0;i<300&&!frame.contentWindow.fenceTest?.ready();i++)await new Promise(r=>setTimeout(r,25));
+  if(!frame.contentWindow.fenceTest?.ready())throw Error('牧場の起動');
+  return frame.contentWindow.fenceTest;
+}
+run.onclick=async()=>{
+  const scope='fence12517_'+crypto.randomUUID()+'_',base=scope+'old_';
+  run.disabled=true;result.textContent='';
+  try{
+    const old=await readGame('../releases/1.25.16/game.html');
+    let q=await openGame(old,base,1280);q.seed();q=await openGame(old,base,1280);
+    const before=q.snapshot(),raw=localStorage.getItem(base+'save_v1');
+    for(const [label,file] of [['通常版','game.html'],['更新用','launcher-game.html']]){
+      const game=await readGame('../releases/1.25.17/'+file);
+      for(const width of [1280,390]){
+        const prefix=scope+label+width+'_';localStorage.setItem(prefix+'save_v1',raw);
+        q=await openGame(game,prefix,width);
+        if(q.snapshot()!==before)throw Error('1.25.16のセーブ引き継ぎ');
+        q.examples(document.getElementById('examples'));q.shapes();q.edits(width===390?'touch':'mouse');
+        const edited=q.snapshot();q=await openGame(game,prefix,width);
+        if(q.snapshot()!==edited)throw Error('編集後の再読み込み');
+        result.textContent+=label+' '+width+'px　成功\n';
+      }
+    }
+    result.textContent+='すべて成功';
+  }catch(error){result.textContent+='失敗 '+error.stack;}finally{
+    mount.replaceChildren();for(const k of Object.keys(localStorage))if(k.startsWith(scope))localStorage.removeItem(k);
+    run.disabled=false;
+  }
+};
+</script></html>
