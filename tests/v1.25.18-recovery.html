@@ -73,7 +73,9 @@ run.onclick=async()=>{
     test(completed.some(([,k])=>k==='success')&&!b.building&&b.coins===a.coins+65&&b.metric===a.metric+65&&b.income===a.income+65,'成功時の返金');
     test(b.log.length===35&&b.log[0].msg.includes('回収')&&b.log[34].msg==='original-33'&&JSON.stringify(b.log)===JSON.stringify(saved.log),'回収ログを直ちに保存');
     api=await load(html,prefix,width);const reloaded=JSON.parse(api.sample());
-    test(!reloaded.building&&reloaded.coins===b.coins&&JSON.stringify(reloaded.log)===JSON.stringify(b.log),'直後の再読込');
+    // A successful page load inserts the usual welcome line and retains the newest 34 prior records.
+    test(!reloaded.building&&reloaded.coins===b.coins&&reloaded.log[0]?.msg.startsWith('🌿 おかえり！')&&
+      JSON.stringify(reloaded.log.slice(1))===JSON.stringify(b.log.slice(0,34)),'直後の再読込');
    }
    result.textContent+=version+'　成功\n';
   }
