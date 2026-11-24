@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><title>1.25.29 市民の通常雇用</title>
+<h1>市民の通常雇用とセーブ引き継ぎ</h1>
+<button id="run" type="button">確認を開始</button><pre id="result" role="status"></pre><div id="mount"></div>
+<script>
+'use strict';
+const output=document.querySelector('#result'),mount=document.querySelector('#mount');
+const hireButton='button[data-action="hire"]';
+function check(ok,message){if(!ok)throw Error(message);}
+
+function fixture(){
+  function withStaffRoll(sex,slot,action){
+    const original=makeStaff;
+    makeStaff=function(...args){
+      const random=Math.random,rolls=[sex,slot];
+      Math.random=()=>rolls.length?rolls.shift():random();
+      try{return original(...args);}finally{Math.random=random;}
+    };
+    try{return action();}finally{makeStaff=original;}
+  }
+  window.qa={
+    withStaffRoll,
+    setCoins(n){state.coins=n;renderUI(true);},
+    prepare(){state.speed=0;state.ranchName='市民の引き継ぎ牧場';state.coins=5000;renderUI(true);},
+    save:()=>save(true),
+    copySave(from,to){localStorage.setItem(SAVE_KEY.replace(from,to),localStorage.getItem(SAVE_KEY));},
+    coins:()=>state.coins,
+    staff:()=>state.staff.map(w=>({id:w.id,name:w.name,portrait:w.portrait,job:w.job,gender:w.gender})),
+    snapshot:()=>JSON.stringify([state.ranchName,state.coins,state.food,state.magic,state.villageLv,state.villageXp,
+      state.staff.map(w=>[w.id,w.name,w.gender,w.portrait,w.job,w.level,w.workXp]),state.nextId,
+      state.monsters.map(m=>[m.id,m.kind,m.name,m.level]),state.buildings.map(b=>[b.id,b.type,b.x,b.y,b.level]),
+      state.adventure.stage,state.starterGuide,state.catalog.citizens,citizenCatalogNames()]),
+    art:worker=>citizenArt(worker).toDataURL(),
+    seen:()=>state.catalog.citizens.includes('リュミ'),
+    allSlots(){
+      const female=[...FEMALE_NAMES,'リュミ'];
+      return [[.49,MALE_NAMES,'男'],[.5,female,'女']].every(([sex,names,gender])=>
+        new Set(names).size===names.length&&names.every((name,i)=>[.01,.99].every(edge=>{
+          const w=withStaffRoll(sex,(i+edge)/names.length,()=>makeStaff(100,'keeper',10,9));
+          return w.name===name&&w.gender===gender&&w.portrait===name;
+        })));
+    },
+    starters:()=>withStaffRoll(.7,.999,()=>initial().staff.map(w=>w.portrait))
+  };
+}
+async function openGame(source,prefix,width){
+  const frame=document.createElement('iframe'),end='})();\n<'+ '/script>';
+  frame.width=width;frame.height=800;frame.title='確認用の牧場';
+  check(source.includes(end),'ゲームの初期化位置');
+  const ready=new Promise(resolve=>{frame.onload=resolve;});
+  frame.srcdoc=source.replaceAll('monster_biyori_',prefix)
+    .replace('<script>','<script>window.requestAnimationFrame=()=>0;')
+    .replace(end,()=>'\n('+fixture.toString()+')();\n'+end);
+  mount.replaceChildren(frame);await ready;
+  const win=frame.contentWindow,d=frame.contentDocument,qa=win.qa;
+  check(qa,'ゲームの起動');
+  function click(selector){const el=d.querySelector(selector);check(el&&!el.disabled,'操作 '+selector);el.click();}
+  function tab(key){
+    if(width<600){click('[data-mobile-dock12521="more"]');click('[data-mobile-open12521="'+key+'"]');}
+    else click('.tab[data-tab="'+key+'"]');
+  }
+  function rename(id,name){win.prompt=()=>name;click('[data-v18-action="renameStaff"][data-id="'+id+'"]');}
+  return {qa,win,d,tab,click,rename};
+}
+async function exercise(previous,current,prefix,width){
+  let ui=await openGame(previous,prefix,width);
+  ui.click('#ranchGuideDialog [data-guide-stop]');ui.qa.prepare();ui.tab('staff');
+  check(ui.qa.save(),'1.25.28のセーブ');
+  const beforeHire=prefix+'beforeHire_';
+  ui.qa.copySave(prefix,beforeHire);
+  ui.click(hireButton+'[data-id="lumi"]');
+  const id=ui.qa.staff().find(w=>w.portrait==='リュミ').id;
+  ui.rename(id,'あおリボン');
+  const job=ui.d.querySelector('.staff-select[data-staff="'+id+'"]');
+  job.value='study';job.dispatchEvent(new ui.win.Event('change',{bubbles:true}));
+  check(ui.qa.save(),'旧版の改名・担当変更を保存');
+  ui=await openGame(previous,prefix,width);
+  const baseline=ui.qa.snapshot(),art=ui.qa.art({portrait:'リュミ'});
+  ui=await openGame(current,prefix,width);
+  check(ui.d.title.includes('1.25.29')&&ui.qa.snapshot()===baseline,'旧セーブの牧場・職員・図鑑・案内進捗');
+  ui.tab('staff');
+  check(ui.d.querySelector('[data-staff-sprite="'+id+'"]').toDataURL()===art,'雇用済みリュミの姿');
+  check(ui.qa.save(),'更新後に再保存');ui=await openGame(current,prefix,width);
+  check(ui.qa.snapshot()===baseline,'再保存後の引き継ぎ');
+  ui=await openGame(current,beforeHire,width);ui.tab('staff');
+  const buttons=ui.d.querySelectorAll(hireButton);
+  check(buttons.length===1&&buttons[0].textContent.includes('新しく雇う')&&!buttons[0].dataset.id,'通常雇用ボタンはひとつ');
+  check(!ui.qa.seen(),'雇用前のセーブではリュミは未登録');
+  check(ui.qa.allSlots(),'男女の全候補と均等な抽選区間');
+  const starters=ui.qa.starters();
+  check(starters.length===2&&starters.every(name=>name==='リュミ'),'初期職員2枠も同じ抽選');
+  const starting=ui.qa.staff().length,cost=210+105*starting,funds=ui.qa.coins();
+  ui.qa.setCoins(cost-1);ui.d.querySelector(hireButton).click();
+  check(ui.d.querySelector(hireButton).disabled&&ui.qa.staff().length===starting&&ui.qa.coins()===cost-1,'資金不足');
+  ui.qa.setCoins(funds);
+  ui.qa.withStaffRoll(.7,.999,()=>ui.click(hireButton));
+  const w=ui.qa.staff().at(-1);
+  check(w.name==='リュミ'&&w.portrait==='リュミ'&&w.gender==='女'&&ui.qa.coins()===funds-cost,'通常料金でリュミを雇用');
+  check(ui.qa.seen()&&ui.d.querySelector('[data-staff-sprite="'+w.id+'"]').toDataURL()===art,'職員一覧と市民登録');
+  ui.tab('bestiary');ui.click('[data-action="atlas"][data-id="citizen"]');
+  check(ui.d.querySelector('canvas[data-v18-citizen-name="リュミ"]').toDataURL()===art,'市民図鑑の肖像');
+  ui.tab('staff');ui.qa.withStaffRoll(.1,.01,()=>ui.click(hireButton));
+  check(ui.qa.staff().at(-1).name==='ハル'&&ui.d.querySelector(hireButton).disabled,'ほかの市民の通常雇用と定員');
+  ui.rename(w.id,'花リボン');check(ui.qa.save(),'新規雇用したリュミを保存');
+  ui=await openGame(current,beforeHire,width);
+  const saved=ui.qa.staff().find(a=>a.id===w.id);
+  check(saved.name==='花リボン'&&saved.portrait==='リュミ'&&saved.job===w.job,'通常雇用後の改名・再読込');
+}
+async function checkNickname(legacy,current,prefix){
+  let ui=await openGame(legacy,prefix,1280);
+  ui.click('#ranchGuideDialog [data-guide-stop]');ui.qa.prepare();ui.tab('staff');
+  const original=ui.qa.staff()[0],picture=ui.qa.art(original);
+  ui.rename(original.id,'リュミ');check(ui.qa.save(),'1.25.27の同名職員を保存');
+  ui=await openGame(current,prefix,1280);ui.tab('staff');
+  ui.qa.withStaffRoll(.7,.999,()=>ui.click(hireButton));
+  const alias=ui.qa.staff().find(w=>w.id===original.id),newHire=ui.qa.staff().at(-1);
+  check(alias.name===newHire.name&&alias.portrait===original.portrait&&ui.qa.art(alias)===picture,'同じ名前をつけた従来の職員の肖像');
+  check(newHire.portrait==='リュミ'&&ui.qa.art(newHire)!==picture,'新しく抽選されたリュミは元の肖像');
+}
+async function read(path){const r=await fetch(path);check(r.ok,path);return r.text();}
+document.querySelector('#run').onclick=async function(){
+  this.disabled=true;output.textContent='';
+  const prefix='qaRandomLumi_'+Math.random().toString(36).slice(2)+'_';
+  function clean(){mount.replaceChildren();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);}
+  try{
+    const previous=await read('../releases/1.25.28/game.html'),legacy=await read('../releases/1.25.27/game.html');
+    for(const name of ['game.html','launcher-game.html']){
+      const current=await read('../releases/1.25.29/'+name);
+      for(const width of [1280,390]){
+        clean();await exercise(previous,current,prefix,width);
+        output.textContent+=name+' '+width+'px　抽選・通常雇用・図鑑・セーブ引き継ぎ　合格\n';
+      }
+      clean();await checkNickname(legacy,current,prefix);
+      output.textContent+=name+'　1.25.27の同名職員との共存　合格\n';
+    }
+    output.textContent+='すべて合格';
+  }catch(e){output.textContent+='失敗 '+e.stack;}
+  finally{clean();this.disabled=false;}
+};
+</script></html>
