@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><title>1.25.19 牧場案内の動作確認</title>
+<h1>しろガオの牧場案内</h1>
+<button id="run">動作確認</button><pre id="result" role="status"></pre><div id="mount"></div>
+<script>
+'use strict';
+const run=document.querySelector('#run'), result=document.querySelector('#result'), mount=document.querySelector('#mount');
+function check(ok,label){if(!ok)throw Error(label);}
+// Expose only observations and synthetic canvas input inside this disposable ranch.
+function probe(){
+  canvas.setPointerCapture=()=>{};
+  window.guideTest={
+    task:()=>$('ranchGuideTask').textContent,
+    step:()=>state.starterGuide,
+    plot:()=>guideMarker?.tile,
+    buildings:()=>state.buildings.map(b=>({id:b.id,type:b.type,x:b.x,y:b.y,facing:validFacing(b.facing)})),
+    money:()=>state.coins,
+    direction:()=>placementFacing,
+    tap(point,kind){
+      const r=canvas.getBoundingClientRect(),o=mapScreenOrigin(),p=projectGround(point.x+.5,point.y+.5);
+      const clientX=r.left+(o.x+p.x*zoom)*r.width/(VW*T),clientY=r.top+(o.y+p.y*zoom)*r.height/(VH*T);
+      for(const type of ['pointerdown','pointerup'])canvas.dispatchEvent(new PointerEvent(type,{
+        bubbles:true,cancelable:true,pointerType:kind,pointerId:31,button:0,buttons:type==='pointerdown'?1:0,clientX,clientY
+      }));
+    }
+  };
+}
+async function openRanch(html,prefix,width,touch=false,inspect=true){
+  const frame=document.createElement('iframe');frame.width=width;frame.height=780;
+  const boot='window.requestAnimationFrame=()=>0;'+(touch?'Object.defineProperty(navigator,"maxTouchPoints",{value:1});':'');
+  let source=html.replaceAll('monster_biyori_',prefix).replace('<script>','<script>'+boot);
+  if(inspect){
+    const end='})();\n<'+ '/script>';
+    source=source.replace(end,()=>'('+probe.toString()+')();\n'+end);
+  }
+  const ready=new Promise(resolve=>{frame.onload=resolve;});
+  frame.srcdoc=source;mount.replaceChildren(frame);await ready;
+  const doc=frame.contentDocument,q=selector=>doc.querySelector(selector);
+  const click=selector=>{const el=q(selector);check(el&&!el.disabled,'有効な操作 '+selector);el.click();};
+  const ui={win:frame.contentWindow,doc,q,click,api:frame.contentWindow.guideTest};
+  if(inspect)check(ui.api,'ゲームと案内の初期化');
+  return ui;
+}
+async function getPage(path){const r=await fetch(path);check(r.ok,path);return r.text();}
+async function play(html,prefix,width,kind){
+  const touch=kind==='touch',load=()=>openRanch(html,prefix,width,touch);
+  let ui=await load(),api=ui.api;
+  const hit=()=>ui.click('[data-ranch-guide-target]');
+  const next=()=>ui.click('#ranchGuideNext');
+  const find=type=>api.buildings().filter(b=>b.type===type);
+  const gold=api.money();
+  check(api.step()==='welcome'&&ui.q('dialog').open,'新規の自動表示');
+  check(ui.q('#ranchGuideDialog').getBoundingClientRect().width<=width,'会話の横幅');
+  next();check(api.step()==='facilities','施設タブを案内');hit();hit();hit();
+  check(api.step()==='ranch'&&api.task().includes('向きを変え'),'設置前の回転');
+  hit();check(api.direction()===1&&api.step()==='placeRanch','選んだ向きを反映');
+  const bad=find('farm')[0];api.tap(bad,kind);if(touch)api.tap(bad,kind);
+  check(!find('ranch').length&&api.step()==='placeRanch','設置失敗で先に進まない');
+  const tile=api.plot();check(tile,'道沿いの建設候補');api.tap(tile,kind);
+  if(touch){check(!find('ranch').length,'タッチ1回は下見');api.tap(tile,kind);}
+  check(find('ranch').length===1&&find('ranch')[0].facing===1&&api.money()===gold,'無料で素材牧場を設置');
+  ui=await load();api=ui.api;
+  check(api.step()==='inspect'&&find('ranch').length===1,'再読込して建設後から再開');
+  api.tap(find('ranch')[0],kind);check(ui.q('[data-ranch-guide-target]')?.hasAttribute('data-menu-facing'),'建物直下の操作');
+  hit();
+  const blocked=ui.q('#facilityFacing .needs-road');
+  if(blocked){
+    blocked.click();
+    check(api.step()==='inspect'&&find('ranch')[0].facing===1,'正面に道がない方向では進まない');
+  }
+  const direction=Number(ui.q('[data-ranch-guide-target]').dataset.facing);hit();
+  check(find('ranch')[0].facing===direction&&api.step()==='shopIntro','設置後の向きを確定');
+  next();hit();hit();const shop=api.plot();check(shop,'お店の建設候補');
+  api.tap(shop,kind);if(touch)api.tap(shop,kind);
+  check(find('shop').length===1&&api.money()===gold&&api.step()==='finish','無料のお店と完了会話');
+  next();ui=await load();api=ui.api;
+  check(!ui.q('dialog').open&&ui.q('#ranchGuideGoal').hidden,'完了後の再読込');
+  ui.click('#helpBtn');ui.click('[data-start-ranch-guide]');next();
+  check(api.step()==='inspect','既設の施設で再案内');
+  api.tap(find('ranch')[0],kind);hit();hit();
+  check(api.step()==='finish'&&find('shop').length===1&&find('ranch').length===1&&api.money()===gold,'再案内で買い直さない');
+  next();ui.click('#helpBtn');ui.click('[data-start-ranch-guide]');ui.click('dialog [data-guide-stop]');
+  ui=await load();check(ui.api.step()==='done'&&ui.q('#ranchGuideGoal').hidden&&!ui.q('dialog').open,'スキップの保存');
+}
+run.onclick=async()=>{
+  const prefix='qa12519_'+crypto.randomUUID()+'_';run.disabled=true;result.textContent='';
+  try{
+    const old=await getPage('../releases/1.25.18/game.html');
+    const regular=await getPage('../releases/1.25.19/game.html'),launcher=await getPage('../releases/1.25.19/launcher-game.html');
+    const legacy=prefix+'legacy_';
+    await openRanch(old,legacy,390,false,false);
+    const before=JSON.parse(localStorage.getItem(legacy+'save_v1'));
+    check(before&&!Object.hasOwn(before,'starterGuide'),'旧版のセーブを使用');
+    const migrated=await openRanch(regular,legacy,390);
+    check(migrated.q('#ranchGuideGoal').hidden&&!migrated.q('dialog').open&&migrated.api.money()===before.coins,'1.25.18セーブの互換性');
+    check(migrated.api.buildings().every((b,i)=>b.id===before.buildings[i].id&&b.type===before.buildings[i].type),'旧版の配置を保持');
+    result.textContent='1.25.18のセーブ読み込み OK\n';
+    await play(regular,prefix+'pc_',1280,'mouse');result.textContent+='通常版・マウス操作 OK\n';
+    await play(launcher,prefix+'mobile_',390,'touch');result.textContent+='ランチャー向け版・390pxタッチ操作 OK\nすべて合格';
+  }catch(e){result.textContent+='失敗 '+e.stack;}
+  finally{mount.replaceChildren();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);run.disabled=false;}
+};
+</script></html>
