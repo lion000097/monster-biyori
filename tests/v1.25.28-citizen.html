@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><title>1.25.28 市民の動作確認</title>
+<h1>市民リュミの動作確認</h1>
+<button id="run" type="button">確認を開始</button><pre id="result" role="status"></pre><div id="mount"></div>
+<script>
+'use strict';
+const result=document.querySelector('#result'),mount=document.querySelector('#mount');
+function check(ok,label){if(!ok)throw Error(label);}
+function fixture(){
+  const resident=()=>state.staff.find(w=>w.portrait==='リュミ');
+  window.qaCitizen={
+    seed(){
+      state.ranchName='引き継ぎ確認牧場';state.coins=3600;state.speed=0;
+      const first=state.staff[0];rememberCitizenPortrait(first);first.name='テスト職員';addCitizen(first);
+      return save(true);
+    },
+    snapshot:()=>JSON.stringify([state.ranchName,state.staff.map(w=>[w.id,w.name,w.portrait,w.gender,w.job,w.level]),state.coins,state.monsters.map(m=>[m.id,m.kind,m.name]),state.buildings.map(b=>[b.id,b.type,b.x,b.y,b.level]),state.adventure.stage,state.starterGuide]),
+    staff:()=>state.staff.map(w=>({id:w.id,name:w.name,gender:w.gender,portrait:w.portrait,job:w.job})),
+    coins:()=>state.coins,
+    setCoins(value){state.coins=value;renderUI(true);},
+    tile:name=>citizenArt({portrait:name}).toDataURL(),
+    paintedWorker:()=>citizenArt(resident()).toDataURL(),
+    mapSize(worker){
+      const actor=worker?resident():state.staff[0],art=citizenArt(actor);
+      const draw=ctx.drawImage;
+      let size;
+      ctx.drawImage=function(image,...args){
+        if(image===art)size=args.slice(-2);
+        return draw.call(this,image,...args);
+      };
+      try{drawMapActor(actor,false,1000);}finally{ctx.drawImage=draw;}
+      return size?.join('x');
+    },
+    move(){
+      const w=resident(),start=[w.x,w.y];
+      for(let i=0;i<180;i++){
+        planStaffActivity(w);stepActors(.1);
+        if(Math.hypot(w.x-start[0],w.y-start[1])>.1)return true;
+      }
+      return false;
+    },
+    setName(name){window.prompt=()=>name;},
+    saved:()=>save(true),
+    duplicate(){hire(true);},
+    catalog:()=>[...state.catalog.citizens]
+  };
+}
+async function page(path){
+  const r=await fetch(path);check(r.ok,path);return r.text();
+}
+async function open(html,prefix,width){
+  const frame=document.createElement('iframe');frame.width=width;frame.height=800;frame.title='確認用の牧場';
+  const end='})();\n<'+ '/script>';check(html.includes(end),'ゲームの初期化');
+  const ready=new Promise(resolve=>{frame.onload=resolve;});
+  frame.srcdoc=html.replaceAll('monster_biyori_',prefix)
+    .replace('<script>','<script>window.requestAnimationFrame=()=>0;')
+    .replace(end,()=> '\n('+fixture.toString()+')();\n'+end);
+  mount.replaceChildren(frame);await ready;
+  const d=frame.contentDocument,api=frame.contentWindow.qaCitizen;
+  check(api,'牧場を起動');
+  function click(selector){const el=d.querySelector(selector);check(el&&!el.disabled,'操作 '+selector);el.click();}
+  function tab(key){
+    if(width<600){click('[data-mobile-dock12521="more"]');click('[data-mobile-open12521="'+key+'"]');}
+    else click('.tab[data-tab="'+key+'"]');
+  }
+  return {d,api,click,tab,win:frame.contentWindow};
+}
+async function exercise(old,current,width,prefix){
+  let ui=await open(old,prefix,width);
+  ui.click('#ranchGuideDialog [data-guide-stop]');check(ui.api.seed(),'旧版セーブ');
+  ui=await open(old,prefix,width);
+  const snapshot=ui.api.snapshot(),oldMembers=ui.api.staff(),oldTile=ui.api.tile('ナギ'),oldTraveler=ui.api.tile('旅人アン');
+  ui=await open(current,prefix,width);
+  let {api,d}=ui;
+  check(d.title.includes('1.25.28')&&api.snapshot()===snapshot,'旧版の牧場・職員・所持金・チュートリアル');
+  check(api.tile('ナギ')===oldTile&&api.tile('旅人アン')===oldTraveler,'既存市民と旅人の原画');
+  ui.tab('staff');
+  const button='button[data-action="hire"][data-id="lumi"]';
+  const normal='button[data-action="hire"]:not([data-id])';
+  const cost=210+105*oldMembers.length,initialCoins=api.coins(),art=api.tile('リュミ');
+  const portrait=d.querySelector('[data-lumi-portrait]');
+  check(portrait.width===64&&portrait.height===64&&portrait.toDataURL()===art,'雇用前の64ドットの原画');
+  check(art!==oldTile&&art!==oldTraveler,'専用の絵');
+  const bounds=d.querySelector(button).getBoundingClientRect();
+  check(bounds.width>0&&bounds.left>=-1&&bounds.right<=width+1,'市民画面の表示幅');
+  api.setCoins(cost-1);check(d.querySelector(button).disabled,'資金不足');api.duplicate();
+  check(api.staff().length===oldMembers.length&&api.coins()===cost-1,'資金不足で雇用しない');
+  api.setCoins(initialCoins);
+  ui.click(button);
+  const w=api.staff().find(s=>s.portrait==='リュミ');
+  check(w?.name==='リュミ'&&w.gender==='女'&&api.coins()===initialCoins-cost,'通常料金で女性市民が加入');
+  check(!d.querySelector(button)&&d.querySelector('[data-staff-sprite="'+w.id+'"]').toDataURL()===art,'職員一覧と専用の原画');
+  api.duplicate();check(api.staff().length===oldMembers.length+1&&api.coins()===initialCoins-cost,'二重雇用を防ぐ');
+  check(api.mapSize(true)==='36x36'&&api.mapSize(false)==='36x36','牧場の市民は同じ描画サイズ');
+  const select=d.querySelector('.staff-select[data-staff="'+w.id+'"]');
+  select.value='gather';select.dispatchEvent(new ui.win.Event('change',{bubbles:true}));
+  check(api.staff().find(s=>s.id===w.id).job==='gather'&&api.move(),'担当変更と道の移動');
+  ui.tab('bestiary');ui.click('[data-action="atlas"][data-id="citizen"]');
+  check(d.querySelector('canvas[data-v18-citizen-name="リュミ"]').toDataURL()===art&&api.catalog().includes('リュミ'),'市民図鑑');
+  ui.tab('staff');api.setName('あおリボン');ui.click('[data-v18-action="renameStaff"][data-id="'+w.id+'"]');
+  check(!d.querySelector(button)&&api.paintedWorker()===art&&api.saved(),'改名しても同じ市民');
+  ui=await open(current,prefix,width);api=ui.api;d=ui.d;ui.tab('staff');
+  const loaded=api.staff().find(s=>s.id===w.id);
+  check(loaded?.name==='あおリボン'&&loaded.portrait==='リュミ'&&loaded.job==='gather'&&api.paintedWorker()===art&&!d.querySelector(button),'再読込後の名前・専用グラフィック・役職');
+  ui.click(normal);check(api.staff().length===oldMembers.length+2,'通常雇用');
+  ui.win.confirm=()=>true;ui.click('[data-v192="fire"][data-id="'+w.id+'"]');
+  check(d.querySelector(button)&&api.catalog().includes('リュミ'),'退職後の再雇用と図鑑');
+  ui.click(button);check(api.staff().filter(s=>s.portrait==='リュミ').length===1,'再雇用');
+}
+document.querySelector('#run').onclick=async function(){
+  this.disabled=true;result.textContent='';
+  const prefix='qaLumi_'+Math.random().toString(36).slice(2)+'_';
+  const clean=()=>{mount.replaceChildren();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);};
+  try{
+    const old=await page('../releases/1.25.27/game.html');
+    for(const version of ['game.html','launcher-game.html']){
+      const current=await page('../releases/1.25.28/'+version);
+      for(const width of [1280,390]){
+        clean();await exercise(old,current,width,prefix);
+        result.textContent+=version+' '+width+'px　雇用・原画・歩行・図鑑・改名・再読込　合格\n';
+      }
+    }
+    result.textContent+='すべて合格';
+  }catch(e){result.textContent+='失敗 '+e.stack;}
+  finally{clean();this.disabled=false;}
+};
+</script></html>
