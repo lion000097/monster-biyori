@@ -165,7 +165,8 @@ if(location.protocol==='https:'||location.protocol==='http:'){
 .guide-head small{color:#4b695d;font-size:13px}
 .guide-head h2{margin:2px 0 0;font-size:23px;line-height:1.35}
 .guide-head .button{flex:none;min-height:36px;font-size:13px}
-.guide-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;margin:0 16px;padding:3px;border:1px solid #cdddcf;border-radius:10px;background:#eaf1e9}
+.guide-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;margin:0 16px;padding:3px;border:1px solid #cdddcf;border-radius:10px;background:#eaf1e9}
+@media(max-width:480px){.guide-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .guide-tabs button{min-width:0;min-height:38px;padding:5px 3px;border:0;border-radius:7px;background:transparent;color:#395e4e;font:inherit;font-size:14px;font-weight:700;line-height:1.35}
 .guide-tabs [aria-selected="true"]{background:#256f5c;color:white}
 #modalContent :focus-visible,.help-topic-link:focus-visible{outline:2px solid #186a68;outline-offset:2px}
@@ -4439,7 +4440,7 @@ document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{tab
 document.querySelectorAll('[data-speed]').forEach(b=>b.addEventListener('click',()=>{state.speed=+b.dataset.speed;document.querySelectorAll('[data-speed]').forEach(el=>el.classList.toggle('on',el===b));renderUI(true)}));
 document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const action=b.dataset.action,id=b.dataset.id;if(action==='build'){terrainMode=null;if(buildMode===id)buildMode=null;else{moveMode=null;clearMode=false;buildMode=id;placementFacing=0;selectedBuilding=null;selectedMonster=null;toast(`🔨 ${B[id].name}を建てる位置を選ぼう`)}renderUI(true)}else if(action==='cancelBuild'){buildMode=null;renderUI(true)}else if(action==='moveBuilding')startMoving(+id);else if(action==='cancelMove')cancelMoving();else if(action==='toggleClear'){terrainMode=null;toggleClearMode()}else if(action==='recoverBuilding')recoverBuilding(+id);else if(action==='zoomIn')setZoom(zoom*1.2);else if(action==='zoomOut')setZoom(zoom/1.2);else if(action==='zoomReset')setZoom(1);else if(action==='showAdventure'){tab='adventure';renderUI(true);$('tabBody').scrollTop=0}else if(action==='upgrade')upgrade(+id);else if(action==='egg')buyEgg();else if(action==='hire')hire();else if(action==='research')doResearch(id);else if(action==='selectMonster')openMonsterDetails(+id,b);else if(action==='export')exportSave();else if(action==='reset')reset();else if(action==='import')$('importInput').click();else if(action==='pan'){const d={left:[-11,0],right:[11,0],up:[0,-10],down:[0,10]}[id];if(d)cameraMove(...d)}else if(action==='walkCamera')startWalkCamera(+id);else if(action==='centerMap'){stopWalkCamera();cameraX=VW/2-VW/(2*zoom);cameraY=VH/2-VH/(2*zoom);limitCamera();renderUI(false)}else if(action==='adventureStart')startAdventure();else if(action==='adventureAuto'){state.adventure.auto=!state.adventure.auto;state.adventure.cooldown=0;message(state.adventure.auto?'🔁 自動冒険を始めるよ！':'⏹️ 自動冒険を停止したよ。');renderUI(true);save(true)}else if(action==='atlas'){atlasCategory=id;renderUI(true)}else if(action==='showManagement'){tab='management';renderUI(true)}else if(action==='completeOrder')completeOrder(Number(id));else if(action==='treasureOrder')deliverTreasureOrder(Number(id));else if(action==='festival')hostFestival();else if(action==='trainMonster')trainMonster(+id);else if(action==='equipCharm')equipCharm(+id);else if(action==='toggleParty')toggleParty(+id)});
 document.addEventListener('pointerdown',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('focusin',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('change',e=>{if(e.target.matches('.staff-select[data-staff]')){let s=state.staff.find(o=>o.id===+e.target.dataset.staff);if(s&&JOBS[e.target.value]){if(s.job!==e.target.value&&(s.jobTarget211?.rest||s.job==='explore'||e.target.value==='explore')){cancelPlotWalk(s);s.jobTarget211=null;s.jobTask212=null;s.jobCooldown211=0;s.act='待機中'}s.job=e.target.value;s.path=[];if(s.job==='explore')seek(s,s.job);message(`🧑‍🌾 ${s.name}の担当が「${JOBS[s.job].label}」になったよ。`,'success');save(true)}inputLock=false;renderUI(true)}if(e.target.id==='importInput')importSave(e.target.files[0])});document.addEventListener('focusout',e=>{if(e.target.matches('.staff-select'))inputLock=false});
-const helpTopics = {staff:'市民の役職', tree:'世界樹の成長XP', basics:'基本とセーブ'};
+const helpTopics = {staff:'市民の役職', tree:'世界樹の成長XP', adventure:'冒険と育成', basics:'基本とセーブ'};
 let helpOpener;
 let monsterDetails=null;
 
@@ -4535,7 +4536,7 @@ function treeHelp() {
       <div><dt>職員を1人雇う</dt><dd>+6.5 XP</dd></div>
       <div><dt>施設を1段階強化する</dt><dd>+13 XP</dd></div>
       <div><dt>冒険の通常戦に勝つ</dt><dd>+18.2 XP</dd></div>
-      <div><dt>冒険のボス戦に勝つ</dt><dd>+61.75 XP</dd></div>
+      <div><dt>冒険で各ボスに初めて勝つ</dt><dd>+61.75 XP</dd></div>
     </dl>
     <p>施設の建設、区画の解放、木や石の撤去、たまごの孵化、注文・特別注文の納品、牧場まつりの開催でも加算されるよ。</p>
     <h3>世界樹のレベルを上げるには</h3>
@@ -4543,6 +4544,13 @@ function treeHelp() {
     <p>Lv.10で枝に小鳥が来て、Lv.15で実が光るよ。Lv.20になると、昼のつぼみが19時から翌朝6時まで夜の花を咲かせるよ。</p>
     <aside class="guide-note"><h3>Lv.1 → Lv.2 の例</h3>
       <p><strong>${villageThreshold(1)} XP</strong>と、${buildings}用意しよう。成長費用は<strong>${cost.coins} G</strong>と<strong>キラキラ${cost.magic}個</strong>だよ。</p></aside>`;
+}
+
+function adventureHelp() {
+  return '<div class="guide-basics"><section><h3>出撃編成とバトル</h3><p>'+guideLessons.adventure.body+
+    '</p><p>編成を空にすると、レベルの高い仲間から3匹までが出発するよ。各エリアの5戦目はボス戦だよ。</p></section>'+
+    '<section><h3>経験値と特訓</h3><p>'+guideLessons.training.body+
+    '</p><p>「仲間」で育てたい子を選んでも、同じ育成カルテが開くよ。手に入れた装備もここで付け替えられるよ。</p></section></div>';
 }
 
 function basicHelp() {
@@ -4613,7 +4621,7 @@ $('renameRanch').addEventListener('click', event => {
 });
 
 function showModal(topic, opener) {
-  const pages = {staff:staffHelp, tree:treeHelp, basics:basicHelp};
+  const pages = {staff:staffHelp, tree:treeHelp, adventure:adventureHelp, basics:basicHelp};
   const buttons = Object.entries(helpTopics).map(([id,label]) =>
     `<button type="button" role="tab" id="help-tab-${id}" aria-controls="help-page-${id}" data-guide-tab="${id}">${label}</button>`).join('');
   const panels = Object.keys(helpTopics).map(id =>
@@ -4652,6 +4660,7 @@ function hideModal() {
     if(Math.abs(window.scrollY-sheet.pageY)>1)window.scrollTo(window.scrollX,sheet.pageY);
   }
   helpOpener = null;
+  if(sheet && state.starterGuide==='training')renderStarterGuide();
   if(state?.pendingExploreEgg && state.pendingExploreEgg!==deferredEggOffer) queueMicrotask(()=>{if(window.document?.getElementById("modal"))syncExploreEggOffer()});
 }
 
@@ -13469,7 +13478,30 @@ window.addEventListener('pointercancel',renderUndo1258);
 // The optional checkpoint belongs to this ranch. Saves made before the guide opt in through Help.
 const guideDialog=$('ranchGuideDialog'), guideBar=$('ranchGuideGoal'), guideNext=$('ranchGuideNext');
 const guideBuildStages=new Set(['welcome','facilities','ranch','placeRanch','inspect','shopIntro','shop']);
-const guideStages=new Set([...guideBuildStages,'finish']);
+const guideLessons={
+  adventure:{
+    title:'仲間と冒険に出かけよう！',
+    body:'「冒険」の<strong>出撃編成</strong>で、連れていきたい仲間を3匹まで選ぼう。<strong>「出発する」</strong>を押すと戦いは自動で進むよ。勝つと出撃した仲間に経験値が入り、次のステージに進めるよ。',
+    button:'育成カルテを見てみる',next:'openTraining'
+  },
+  training:{
+    title:'仲間を育てよう',
+    body:'仲間は牧場で過ごしたり、冒険に勝ったりすると経験値がたまるよ。早く育てたい子は、育成カルテの<strong>「特訓」</strong>を試してね。ごはんと45Gを使って経験値となかよし度を上げられるよ。',
+    button:'世界樹を見にいく',next:'findTree'
+  },
+  treeXp:{
+    title:'世界樹の成長XPを集めよう',
+    body:'牧場の時計が<strong>1時間</strong>進むたびに、世界樹の成長XPがたまるよ。施設の建設・強化や、たまごの孵化でも増えるんだ。冒険では<strong>通常戦の勝利で18.2 XP</strong>、<strong>各ボスの初勝利で61.75 XP</strong>もらえるよ。',
+    button:'世界樹の育て方へ',next:'treeGrowth'
+  },
+  treeGrowth:{
+    title:'世界樹のレベルを上げよう',
+    body:'「牧場のようす」の世界樹欄で、次のレベルに必要な施設と軒数を確認しよう。対象の施設は、建てた分をすべて今の強化上限まで育ててね。<strong>成長XP・おかね・キラキラ</strong>もそろったら、<strong>「世界樹を成長させる」</strong>を押そう。',
+    button:'最後の案内へ',next:'guideHelp'
+  }
+};
+// "finish" was saved by 1.25.19–25 after placing the shop.
+const guideStages=new Set([...guideBuildStages,'finish','openAdventure','openTraining','findTree','guideHelp',...Object.keys(guideLessons)]);
 let guideOwner=null, guideKey='', guideTarget=null, guideMarker=null, guidePlot=null;
 $('ranchGuidePortrait').src=lionImage.src;
 
@@ -13550,7 +13582,7 @@ function noteGuideFacing(target,direction) {
   if(state.starterGuide==='ranch'&&buildMode==='ranch'&&target.preview&&target.direction!==direction)
     saveGuideStage('placeRanch');
   if(state.starterGuide==='inspect'&&!target.preview&&menuFacing&&validFacing(target.building.facing)===direction)
-    saveGuideStage(guideFirstBuilding('shop')?'finish':'shopIntro');
+    saveGuideStage(guideFirstBuilding('shop')?'openAdventure':'shopIntro');
 }
 
 function revealGuideTarget(focus=false) {
@@ -13583,14 +13615,18 @@ function showGuideSpeech(step) {
     heading='つぎは、お店を開こう！';
     body='素材牧場で集めた素材は、<strong>お店</strong>に来た旅人が買ってくれるよ。'+(firstFree200('shop')?'お店も1軒目は無料だよ。':'');
     next='お店へ';
+  }else if(step==='guideHelp'){
+    heading='しろガオの牧場案内はここまで！';
+    body='分からないことがあったら、'+(mobileMedia12521?.matches?'画面下の「ほか」にある':'画面上の')+
+      '<strong>「あそびかた」</strong>をチェックしてね。冒険と育成、世界樹の成長XPをいつでも見直せるよ。';
+    next='あそびかたを開く';
   }else{
-    heading='お店の準備ができたよ！';
-    body='仲間が素材を集めたら、旅人がお買いものに来るのを眺めてみてね。案内は<strong>「あそびかた」</strong>からいつでも開けるよ。';
-    next='牧場にもどる';
+    const lesson=guideLessons[step];
+    heading=lesson.title;body=lesson.body;next=lesson.button;
   }
   $('ranchGuideTitle').textContent=heading;$('ranchGuideSpeech').innerHTML=body;guideNext.textContent=next;
-  guideDialog.querySelector('[data-guide-stop]').hidden=step==='finish';
-  canvas.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'});
+  guideDialog.querySelector('[data-guide-stop]').textContent=step==='guideHelp'?'牧場にもどる':'スキップ';
+  if(step==='welcome'||step==='shopIntro')canvas.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'});
   if(!guideDialog.open)guideDialog.showModal();
   guideNext.focus({preventScroll:true});
 }
@@ -13599,18 +13635,32 @@ function renderStarterGuide() {
   if(!state)return;
   if(guideOwner!==state){guideOwner=state;guideKey='';guidePlot=null;}
   let step=state.starterGuide;
+  if(step==='openTraining'&&monsterDetails){saveGuideStage('training');step='training';}
   const active=guideStages.has(step)&&!$('modal').classList.contains('show');
   if(!active && !guideKey && !guideTarget && guideBar.hidden && !guideDialog.open)return;
   let goal=null;
   if(active) {
     const ranch=guideFirstBuilding('ranch');
+    const tree=guideFirstBuilding('worldtree');
     if(step==='facilities'&&buildMode==='ranch')step='ranch';
     if(ranch&&['facilities','ranch','placeRanch'].includes(step))step='inspect';
     if(!ranch&&step==='inspect')step='ranch';
-    if(step==='shop'&&guideFirstBuilding('shop'))step='finish';
+    if(step==='finish'||(step==='shop'&&guideFirstBuilding('shop')))step='openAdventure';
+    if(step==='openAdventure'&&tab==='adventure')step='adventure';
+    if(step==='openTraining'&&!state.monsters.length)step='training';
+    if(step==='findTree'&&(!tree||selectedBuilding===tree.id))step='treeXp';
     if(step!==state.starterGuide)saveGuideStage(step);
     if(step==='inspect')goal=guideInspect(ranch);
-    else if(!['welcome','shopIntro','finish'].includes(step))goal=guideConstruction(step==='shop'?'shop':'ranch',step);
+    else if(['facilities','ranch','placeRanch','shop'].includes(step))goal=guideConstruction(step==='shop'?'shop':'ranch',step);
+    else if(step==='openAdventure'||(step==='openTraining'&&tab!=='adventure')){
+      const selector=mobileMedia12521?.matches?'[data-mobile-dock12521="adventure"]':'.tab[data-tab="adventure"]';
+      goal={key:'open-adventure',target:document.querySelector(selector),title:'「冒険」を開こう',hint:'ここで出かける仲間を選べるよ。'};
+    }else if(step==='openTraining'){
+      goal={key:'open-training',target:$('tabBody').querySelector('.party-unit [data-action="selectMonster"]'),
+        title:'仲間の「詳細」で育成カルテを開こう',hint:'経験値や「特訓」を見たら、「閉じる」で案内に戻ってね。'};
+    }else if(step==='findTree'){
+      goal={key:'find-tree',target:canvas,marker:{building:tree},title:'地図の世界樹を選ぼう',hint:'金色の印が目印だよ。木を選んで成長条件を見てみよう。'};
+    }
   }
   const target=goal?.target||null, changed=guideKey!==(goal?.key||step);
   if(guideTarget!==target) {
@@ -13654,7 +13704,13 @@ function drawGuideMarker() {
 
 guideNext.addEventListener('click',()=>{
   const step=state.starterGuide;
-  const next=step==='welcome'?(guideFirstBuilding('ranch')?'inspect':'facilities'):step==='shopIntro'?'shop':'done';
+  if(step==='guideHelp'){
+    stopStarterGuide();
+    showModal('adventure',mobileMedia12521?.matches?$('mobileMoreToggle12521'):$('helpBtn'));
+    return;
+  }
+  const next=step==='welcome'?(guideFirstBuilding('ranch')?'inspect':'facilities'):step==='shopIntro'?'shop':guideLessons[step]?.next;
+  if(!next)return;
   saveGuideStage(next);renderStarterGuide();
 });
 function stopStarterGuide(){saveGuideStage('done');renderStarterGuide();}
