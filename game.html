@@ -11740,11 +11740,9 @@ renderTab=function(){
   const control=$('facilityRoles');
   if(control){
    $('tabBody').prepend(control);
-   if(guideBuildStages.has(state.starterGuide)){
-    const order=guideFirstBuilding('ranch')?['shop','ranch']:['ranch','shop'];
-    const cards=order.map(type=>$('tabBody').querySelector('[data-action="build"][data-id="'+type+'"]')?.closest('.build-option'));
-    control.after(...cards.filter(Boolean));
-   }
+   const order=guideFirstBuilding('ranch')&&!guideFirstBuilding('shop')?['shop','ranch']:['ranch','shop'];
+   const cards=order.map(type=>$('tabBody').querySelector('[data-action="build"][data-id="'+type+'"]')?.closest('.build-option'));
+   control.after(...cards.filter(Boolean));
   }
  }
  if(tab==='monster'){addHatchStatus137();addSort137('monster');addMonsterBadges138()}
@@ -13477,7 +13475,6 @@ window.addEventListener('pointercancel',renderUndo1258);
 
 // The optional checkpoint belongs to this ranch. Saves made before the guide opt in through Help.
 const guideDialog=$('ranchGuideDialog'), guideBar=$('ranchGuideGoal'), guideNext=$('ranchGuideNext');
-const guideBuildStages=new Set(['welcome','facilities','ranch','placeRanch','inspect','shopIntro','shop']);
 const guideLessons={
   adventure:{
     title:'仲間と冒険に出かけよう！',
@@ -13496,12 +13493,13 @@ const guideLessons={
   },
   treeGrowth:{
     title:'世界樹のレベルを上げよう',
-    body:'「牧場のようす」の世界樹欄で、次のレベルに必要な施設と軒数を確認しよう。対象の施設は、建てた分をすべて今の強化上限まで育ててね。<strong>成長XP・おかね・キラキラ</strong>もそろったら、<strong>「世界樹を成長させる」</strong>を押そう。',
+    body:'地図の世界樹を選ぶと、次のレベルに足りないものが分かるよ。対象の施設を必要な軒数まで建てて、どの棟も今の強化上限まで育てよう。<strong>成長XP・おかね・キラキラ</strong>もそろったら、木の下の<strong>「世界樹を成長」</strong>を押してね。',
     button:'最後の案内へ',next:'guideHelp'
   }
 };
 // "finish" was saved by 1.25.19–25 after placing the shop.
-const guideStages=new Set([...guideBuildStages,'finish','openAdventure','openTraining','findTree','guideHelp',...Object.keys(guideLessons)]);
+const guideStages=new Set(['welcome','facilities','ranch','placeRanch','inspect','shopIntro','shop','finish',
+  'openAdventure','openTraining','findTree','guideHelp',...Object.keys(guideLessons)]);
 let guideOwner=null, guideKey='', guideTarget=null, guideMarker=null, guidePlot=null;
 $('ranchGuidePortrait').src=lionImage.src;
 

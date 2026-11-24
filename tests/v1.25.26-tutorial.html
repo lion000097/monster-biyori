@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><title>1.25.26 牧場案内の動作確認</title>
+<h1>しろガオの牧場案内</h1>
+<button id="run">動作確認</button><pre id="result" role="status"></pre><div id="mount"></div>
+<script>
+'use strict';
+const run=document.querySelector('#run'), result=document.querySelector('#result'), mount=document.querySelector('#mount');
+function check(ok,label){if(!ok)throw Error(label);}
+// Expose only observations and synthetic canvas input inside this disposable ranch.
+function probe(){
+  canvas.setPointerCapture=()=>{};
+  window.guideTest={
+    task:()=>$('ranchGuideTask').textContent,
+    step:()=>state.starterGuide,
+    plot:()=>guideMarker?.tile,
+    buildings:()=>state.buildings.map(b=>({id:b.id,type:b.type,x:b.x,y:b.y,facing:validFacing(b.facing)})),
+    money:()=>state.coins,
+    tab:()=>tab,
+    balances:()=>JSON.stringify([state.coins,state.food,state.magic,state.villageXp,state.party,state.battle,state.adventure.stage,state.monsters.map(m=>[m.id,m.lv,m.xp])]),
+    choices:()=>[...$('tabBody').querySelectorAll('.build-option [data-action="build"]')].map(b=>b.dataset.id),
+    upper:tile=>{const p=projectGround(tile.x+.5,tile.y+.5),o=mapScreenOrigin();
+      return tile.x+tile.y+1<ZONE_W+ZONE_H && (o.y+p.y*zoom)/(VH*T)<.56;},
+
+    direction:()=>placementFacing,
+    tap(point,kind){
+      const r=canvas.getBoundingClientRect(),o=mapScreenOrigin(),p=projectGround(point.x+.5,point.y+.5);
+      const clientX=r.left+(o.x+p.x*zoom)*r.width/(VW*T),clientY=r.top+(o.y+p.y*zoom)*r.height/(VH*T);
+      for(const type of ['pointerdown','pointerup'])canvas.dispatchEvent(new PointerEvent(type,{
+        bubbles:true,cancelable:true,pointerType:kind,pointerId:31,button:0,buttons:type==='pointerdown'?1:0,clientX,clientY
+      }));
+    }
+  };
+}
+async function openRanch(html,prefix,width,touch=false,inspect=true){
+  const frame=document.createElement('iframe');frame.width=width;frame.height=780;
+  const boot='window.requestAnimationFrame=()=>0;'+(touch?'Object.defineProperty(navigator,"maxTouchPoints",{value:1});':'');
+  let source=html.replaceAll('monster_biyori_',prefix).replace('<script>','<script>'+boot);
+  if(inspect){
+    const end='})();\n<'+ '/script>';
+    source=source.replace(end,()=>'('+probe.toString()+')();\n'+end);
+  }
+  const ready=new Promise(resolve=>{frame.onload=resolve;});
+  frame.srcdoc=source;mount.replaceChildren(frame);await ready;
+  const doc=frame.contentDocument,q=selector=>doc.querySelector(selector);
+  const click=selector=>{const el=q(selector);check(el&&!el.disabled,'有効な操作 '+selector);el.click();};
+  const ui={win:frame.contentWindow,doc,q,click,api:frame.contentWindow.guideTest};
+  if(inspect)check(ui.api,'ゲームと案内の初期化');
+  return ui;
+}
+async function getPage(path){const r=await fetch(path);check(r.ok,path);return r.text();}
+async function play(html,prefix,width,kind){
+  const touch=kind==='touch',load=()=>openRanch(html,prefix,width,touch);
+  let ui=await load(),api=ui.api;
+  const hit=()=>{const el=ui.q('[data-ranch-guide-target]');check(el&&el.getClientRects().length,'案内先のボタンが見える '+api.step());ui.click('[data-ranch-guide-target]');};
+  const next=()=>ui.click('#ranchGuideNext');
+  const find=type=>api.buildings().filter(b=>b.type===type);
+  const gold=api.money();
+  check(api.step()==='welcome'&&ui.q('dialog').open,'新規の自動表示');
+  check(ui.q('#ranchGuideDialog').getBoundingClientRect().width<=width,'会話の横幅');
+  next();check(api.step()==='facilities','施設タブを案内');hit();
+  check(api.choices().slice(0,2).join(',')==='ranch,shop','一覧の最上部に素材牧場・お店');
+  hit();check(api.choices()[0]==='ranch','生産カテゴリーの先頭');hit();
+  check(api.step()==='ranch'&&api.task().includes('向きを変え'),'設置前の回転');
+  hit();check(api.direction()===1&&api.step()==='placeRanch','選んだ向きを反映');
+  const bad=find('farm')[0];api.tap(bad,kind);if(touch)api.tap(bad,kind);
+  check(!find('ranch').length&&api.step()==='placeRanch','設置失敗で先に進まない');
+  const tile=api.plot();check(tile&&api.upper(tile),'素材牧場は初期エリア・画面の上方');api.tap(tile,kind);
+  if(touch){check(!find('ranch').length,'タッチ1回は下見');api.tap(tile,kind);}
+  check(find('ranch').length===1&&find('ranch')[0].facing===1&&api.money()===gold,'無料で素材牧場を設置');
+  ui=await load();api=ui.api;
+  check(api.step()==='inspect'&&find('ranch').length===1,'再読込して建設後から再開');
+  api.tap(find('ranch')[0],kind);check(ui.q('[data-ranch-guide-target]')?.hasAttribute('data-menu-facing'),'建物直下の操作');
+  hit();
+  const blocked=ui.q('#facilityFacing .needs-road');
+  if(blocked){
+    blocked.click();
+    check(api.step()==='inspect'&&find('ranch')[0].facing===1,'正面に道がない方向では進まない');
+  }
+  const direction=Number(ui.q('[data-ranch-guide-target]').dataset.facing);hit();
+  check(find('ranch')[0].facing===direction&&api.step()==='shopIntro','設置後の向きを確定');
+  next();hit();check(api.choices()[0]==='shop','商売カテゴリーの先頭');hit();
+  const shop=api.plot();check(shop&&api.upper(shop),'お店は初期エリア・画面の上方');
+  api.tap(shop,kind);if(touch)api.tap(shop,kind);
+  check(find('shop').length===1&&api.money()===gold&&api.step()==='openAdventure','お店が完成して冒険へ');
+  const before=api.balances();
+  const reload=async()=>{ui=await load();api=ui.api;};
+  const speech=()=>ui.q('#ranchGuideSpeech').textContent;
+  const resume=async stage=>{await reload();check(api.step()===stage&&ui.q('dialog').open,'途中再開 '+stage);};
+  hit();check(api.step()==='adventure'&&api.tab()==='adventure'&&speech().includes('出撃編成'),'冒険の実画面と説明');
+  await resume('adventure');next();
+  check(api.step()==='openTraining','カルテへ案内');
+  // On reload the game opens its normal build tab. The guide must lead back to the party.
+  if(api.tab()!=='adventure')hit();
+  hit();
+  check(api.step()==='training'&&ui.q('#monsterDetailTitle').textContent.includes('育成カルテ')&&ui.q('[data-action="trainMonster"]'),'出撃編成から育成カルテへ');
+  ui.click('#modalClose');check(ui.q('dialog').open&&speech().includes('45G'),'特訓の説明');
+  await resume('training');next();
+  check(api.step()==='findTree'&&api.task().includes('世界樹'),'地図の世界樹を案内');
+  const tree=find('worldtree')[0];
+  api.tap({x:tree.x+2,y:tree.y+2},kind);
+  check(api.step()==='treeXp'&&speech().includes('1時間')&&speech().includes('各ボスの初勝利'),'世界樹選択・XP獲得条件');
+  await resume('treeXp');next();
+  check(api.step()==='treeGrowth'&&speech().includes('施設')&&speech().includes('キラキラ'),'世界樹の成長手順');
+  await resume('treeGrowth');next();
+  await resume('guideHelp');check(speech().includes('分からない')&&speech().includes('あそびかた'),'最後にヘルプを案内');
+  if(touch)check(speech().includes('ほか'),'スマホの実メニュー名');
+  next();check(ui.q('#help-tab-adventure').getAttribute('aria-selected')==='true','完了画面からヘルプの冒険と育成を開く');
+  ui.click('#help-tab-tree');check(ui.q('#help-page-tree').textContent.includes('各ボスに初めて勝つ'),'ヘルプのボスXPも初勝利限定');
+  ui.click('#modalClose');
+  check(api.balances()===before,'案内だけで出撃・支払い・育成が発生しない');
+  await reload();check(api.step()==='done'&&!ui.q('dialog').open&&ui.q('#ranchGuideGoal').hidden,'完了後の再読込');
+  check(api.choices().slice(0,2).join(',')==='ranch,shop','完了後も2施設を一覧の先頭に表示');
+  if(touch){ui.click('#mobileMoreToggle12521');ui.click('[data-mobile-open12521="help"]');}else ui.click('#helpBtn');
+  ui.click('[data-start-ranch-guide]');next();
+  check(api.step()==='inspect','既設の施設を使って再案内');api.tap(find('ranch')[0],kind);hit();hit();
+  check(api.step()==='openAdventure'&&find('shop').length===1&&find('ranch').length===1&&api.money()===gold,'再案内で重複建設なし');
+  hit();ui.click('dialog [data-guide-stop]');await reload();
+  check(api.step()==='done'&&!ui.q('dialog').open,'追加案内の途中スキップを保存');
+  result.textContent+=width+'px '+kind+' 素材牧場 ('+tile.x+','+tile.y+')・お店 ('+shop.x+','+shop.y+')、案内・直接ヘルプ・途中再開 OK\n';
+}
+async function legacySaves(old,regular,prefix){
+  const oldGame=await openRanch(old,prefix,390,true,false);
+  oldGame.click('dialog [data-guide-stop]');
+  const key=prefix+'save_v1',saved=JSON.parse(localStorage.getItem(key));
+  check(saved.starterGuide==='done','実際の1.25.25のセーブ');
+  for(const stage of ['done',undefined,'finish','guideHelp']){
+    const scenario=prefix+String(stage)+'_',snapshot={...saved,starterGuide:stage};
+    localStorage.setItem(scenario+'save_v1',JSON.stringify(snapshot));
+    const ui=await openRanch(regular,scenario,390,true),api=ui.api;
+    check(api.money()===saved.coins&&api.buildings().every((b,i)=>b.id===saved.buildings[i].id&&b.type===saved.buildings[i].type&&b.x===saved.buildings[i].x&&b.y===saved.buildings[i].y),'旧版の配置と資金');
+    if(stage==='finish')check(api.step()==='openAdventure'&&!ui.q('#ranchGuideGoal').hidden,'旧最終会話から追加案内に接続');
+    else if(stage==='guideHelp'){
+      ui.click('dialog [data-guide-stop]');check(api.step()==='done'&&!ui.q('dialog').open&&!ui.q('.modal.show'),'最終画面から牧場に戻る');
+    }else check(!ui.q('dialog').open&&ui.q('#ranchGuideGoal').hidden,'既存の牧場を中断しない');
+  }
+  result.textContent+='旧版の進捗・建物・資金、完了画面の2通りの出口 OK\n';
+}
+run.onclick=async()=>{
+  const prefix='qa12526_'+crypto.randomUUID()+'_';run.disabled=true;result.textContent='検証中…\n';
+  try{
+    const old=await getPage('../releases/1.25.25/game.html');
+    const regular=await getPage('../releases/1.25.26/game.html'),launcher=await getPage('../releases/1.25.26/launcher-game.html');
+    await legacySaves(old,regular,prefix+'legacy_');
+    for(const [name,html] of [['通常版',regular],['更新用',launcher]]){
+      result.textContent+=name+'\n';
+      await play(html,prefix+name+'pc_',1280,'mouse');
+      await play(html,prefix+name+'mobile_',390,'touch');
+    }
+    result.textContent+='すべて合格';
+  }catch(e){result.textContent+='失敗 '+e.stack;}
+  finally{mount.replaceChildren();for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);run.disabled=false;}
+};
+</script></html>
