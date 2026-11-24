@@ -1,0 +1,84 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><title>もんすたー日和 1.25.18 施設回収の動作確認</title>
+<h1>施設回収時の保存確認</h1><button>動作確認</button><pre aria-live="polite"></pre><div id="mount"></div>
+<script>
+'use strict';
+function hooks() {
+ let fail=false,accept=true;
+ const nativeSet=Storage.prototype.setItem;const notices=[];
+ Storage.prototype.setItem=function(k,v){
+  if(fail&&k===SAVE_KEY)throw new DOMException('Test save write rejection','QuotaExceededError');
+  return nativeSet.call(this,k,v);
+ };
+ window.confirm=()=>accept;
+ const nativeToast=toast;
+ toast=function(msg,kind){notices.push([msg,kind]);return nativeToast(msg,kind);};
+ const recoveryId=76501;
+ window.recoveryTest={
+  seed(){
+   state.speed=0;
+   const b={type:'woodFence',id:recoveryId,x:-2,y:-4,level:1,w:1,h:1,facing:0,constructionPaid:100};
+   state.buildings=state.buildings.concat(b);state.log=Array.from({length:35},(_,i)=>({t:'test',msg:'original-'+i}));
+   selectedBuilding=recoveryId;moveMode=recoveryId;
+   if(!save(true))throw Error('初期保存');
+  },
+  recover(blocked,confirmed){
+   fail=blocked;accept=confirmed;notices.length=0;
+   const button=document.createElement('button');button.dataset.action='recoverBuilding';button.dataset.id=String(recoveryId);
+   document.body.append(button);
+   try{button.click();}finally{button.remove();fail=false;}
+   return notices.slice();
+  },
+  sample(){
+   return JSON.stringify({
+    building:state.buildings.find(b=>b.id===recoveryId)||null,coins:state.coins,
+    metric:state.metrics.coins,income:state.economy.income,log:state.log,
+    selectedBuilding,moveMode,savedAt:state.savedAt
+   });
+  },
+  saved(){return localStorage.getItem(SAVE_KEY);}
+ };
+}
+const run=document.querySelector('button'),result=document.querySelector('pre'),mount=document.querySelector('#mount');
+const test=(ok,label)=>{if(!ok)throw Error(label);};
+async function load(html,prefix,width){
+ const ending='})();\n<'+ '/script>';
+ const frame=document.createElement('iframe');frame.width=width;frame.height=180;
+ const loaded=new Promise(resolve=>{frame.onload=resolve;});
+ frame.srcdoc=html.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0;')
+  .replace(ending,()=>'\n('+hooks.toString()+')();\n'+ending);
+ mount.replaceChildren(frame);await loaded;
+ const api=frame.contentWindow.recoveryTest;test(api,'牧場の起動');return api;
+}
+run.onclick=async()=>{
+ const scope='test12518_'+crypto.randomUUID()+'_';
+ run.disabled=true;result.textContent='';
+ try{
+  for(const [version,path,width] of [
+   ['旧版','../releases/1.25.17/game.html',1280],
+   ['通常版','../releases/1.25.18/game.html',1280],
+   ['更新用','../releases/1.25.18/launcher-game.html',390]
+  ]){
+   const res=await fetch(path);test(res.ok,path);const html=await res.text();
+   const prefix=scope+version+'_';let api=await load(html,prefix,width);api.seed();
+   const raw=api.saved(),start=api.sample(),a=JSON.parse(start);
+   if(version==='旧版'){
+    const notices=api.recover(true,true);
+    test(!JSON.parse(api.sample()).building&&api.saved()===raw&&notices.some(([,k])=>k==='success'),'旧版の不具合を再現');
+   }else{
+    test(api.recover(false,false).length===0&&api.sample()===start&&api.saved()===raw,'キャンセルの尊重');
+    const denied=api.recover(true,true);
+    test(api.sample()===start&&api.saved()===raw,'拒否時はログ末尾・資金・施設・選択も維持');
+    test(denied.some(([m,k])=>k==='error'&&m.includes('取り消しました'))&&!denied.some(([,k])=>k==='success'),'拒否時は成功表示なし');
+    const completed=api.recover(false,true),b=JSON.parse(api.sample()),saved=JSON.parse(api.saved());
+    test(completed.some(([,k])=>k==='success')&&!b.building&&b.coins===a.coins+65&&b.metric===a.metric+65&&b.income===a.income+65,'成功時の返金');
+    test(b.log.length===35&&b.log[0].msg.includes('回収')&&b.log[34].msg==='original-33'&&JSON.stringify(b.log)===JSON.stringify(saved.log),'回収ログを直ちに保存');
+    api=await load(html,prefix,width);const reloaded=JSON.parse(api.sample());
+    test(!reloaded.building&&reloaded.coins===b.coins&&JSON.stringify(reloaded.log)===JSON.stringify(b.log),'直後の再読込');
+   }
+   result.textContent+=version+'　成功\n';
+  }
+  result.textContent+='すべて成功';
+ }catch(e){result.textContent+='失敗 '+e.stack;}
+ finally{mount.replaceChildren();for(const k of Object.keys(localStorage))if(k.startsWith(scope))localStorage.removeItem(k);run.disabled=false;}
+};
+</script>
