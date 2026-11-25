@@ -52,7 +52,7 @@ if(location.protocol==='https:'||location.protocol==='http:'){
 .econ-chart span:before{content:attr(data-value);position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);font-size:8px;color:#486d5c;font-weight:900;white-space:nowrap}
 @media(max-width:900px){.econ-snapshot{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
-.treasure-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}.treasure-card{background:#f2f5eb;border:1px solid #e0e9d7;border-radius:9px;min-width:0;text-align:center;padding:8px 4px}.treasure-card.found{background:#fffaf0;border-color:#ebdcaf}.treasure-pixel{display:block;margin:0 auto 6px;width:48px;height:48px;image-rendering:pixelated}.featured-treasure .treasure-pixel.unknown{filter:brightness(0);opacity:.55}
+.treasure-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}.treasure-card{background:#f2f5eb;border:1px solid #e0e9d7;border-radius:9px;min-width:0;text-align:center;padding:8px 4px}.treasure-card.found{background:#fffaf0;border-color:#ebdcaf}.treasure-pixel{display:block;margin:0 auto 6px;width:48px;height:48px;image-rendering:pixelated}
 .treasure-pixel.unknown{filter:grayscale(1) brightness(.42)}.treasure-name{font-size:10px;font-weight:900;overflow-wrap:anywhere}.treasure-rarity{font-size:9px;font-weight:800;color:#749385;margin-top:4px}.treasure-rarity.r-sr{color:#547ca6}.treasure-rarity.r-ssr{color:#bd7b31}.treasure-rarity.r-r{color:#7d8f8b}
 @media(max-width:520px){.treasure-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
@@ -674,7 +674,7 @@ function toggleBossLoop(stage) {
   if(!state.battle){selectedBattleStage=stage;startAdventure();}
   else{save(true);renderUI(true);}
 }
-const GAME_APP_VERSION='1.25.38';
+const GAME_APP_VERSION='1.25.39';
 const PUBLIC_ADVENTURE_END=50, PUBLIC_TREE_MAX=20;
 const adventureComplete=(a=state.adventure)=>a.stage>PUBLIC_ADVENTURE_END;
 const publicAdventureStage=(a=state.adventure)=>Math.min(a.stage,PUBLIC_ADVENTURE_END);
@@ -6151,7 +6151,7 @@ treasureGalleryHTML=function(){
   for(const [key,t] of visible){
     const i=Number(key),found=owned.has(i),special=isBossRelic(t);
     const method=t.source||'冒険の宝箱から確率で入手';
-    html+='<div class="treasure-card '+(found?'found ':'')+(t.bookNo?'featured-treasure ':'')+(special?'boss-relic192 ':'')+(t.rarity==='UR'?'rainbow-relic192':'')+'">'+
+    html+='<div class="treasure-card '+(found?'found ':'')+(special?'boss-relic192 ':'')+(t.rarity==='UR'?'rainbow-relic192':'')+'">'+
     '<canvas class="treasure-pixel '+(found?'':'unknown')+'" width="64" height="64" aria-hidden="true" data-treasure-index="'+i+'"></canvas>'+
     '<div class="treasure-name">'+(found?esc(t.name):'？？？？')+'</div>'+
     '<div class="treasure-rarity r-'+t.rarity.toLowerCase()+'">'+(special?(t.rarity==='UR'?'🌈 UR':'🥇 SSR'):(found?t.rarity:'未発見'))+' · No.'+(t.raid?'R'+String(-i).padStart(2,'0'):String(bookNumber(i,t)).padStart(2,'0'))+'</div>'+
