@@ -4,8 +4,9 @@
 - 保存先　GitHub `lion000097/monster-biyori` の `main`、`releases/1.25.42/`、`tests/v1.25.42-yuguru-rarity.html`。
 - 完了事項　幼体はSRで既存のSR相当の能力補正、成体はURのまま。仲間図鑑で幼体・成体とそれぞれの色違いを別枠に表示。進化素材とレイド報酬は変更なし。
 - 確認結果　既存セーブの個体・色違い・図鑑・装備・所持品の維持を確認。Chromiumの通常版・更新用HTMLをデスクトップ幅とスマホ幅で検証し、全4条件に合格。ZIP全368項目を確認。
-- 残作業　公開後の配信ファイル照合。
-- 次の操作　Pagesの成功を確認し、通常版・版固定HTML・ランチャー用HTML・更新情報・配布ZIPを検証版と照合する。
+- 公開結果　検証済みコミット `b0d4a9dfb22a1fd79cdff58810bb5f5d6e75eec6` を反映。[GitHub Pagesの公開記録](https://github.com/lion000097/monster-biyori/actions/runs/45641778285)。公開の通常版・版固定HTML・ランチャー用HTML・更新情報・配布ZIPはすべて検証版とSHA-256が一致。
+- 残作業　なし。
+- 次の操作　次回はこのメモと公開中の `latest.json` を確認する。
 
 # 1.25.41　ユグルの進化を公開
 
