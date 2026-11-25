@@ -1,11 +1,12 @@
 # 1.25.39　お宝図鑑の未発見シルエット
 
 - 対象バージョン　公開1.25.38から1.25.39。起点は `421a4d95f15c48d3ea794057d4f6ecb6471b6f08`。
-- 保存先　GitHub `lion000097/monster-biyori` の `release/1.25.39`。ゲーム本体は `game.html`、版固定HTML・ランチャー更新用HTML・配布ZIP・比較画像は `releases/1.25.39/`、更新情報は `latest.json`。
+- 保存先　GitHub `lion000097/monster-biyori` の `main` と `release/1.25.39`。ゲーム本体は `game.html`、版固定HTML・ランチャー更新用HTML・配布ZIP・比較画像は `releases/1.25.39/`、更新情報は `latest.json`。
 - 完了事項　SSR「月花のオルゴール」とUR「星渡りの天球儀」の黒塗りを外し、未発見の濃淡を既存のお宝と統一。ブラウザーのタイトルとフッターも1.25.39に更新。既存の図鑑番号で所持・展示を引き継ぐ。
 - 確認結果　PC幅1280px・スマホ幅390pxで通常版とランチャー更新用の4条件に合格。未発見と入手後の実際の図鑑を比較し、1.25.38の所持数・展示状態、宝箱入手、再読込後のカラー原画を確認。配布ZIPの全352項目を照合。詳細は `releases/1.25.39/TESTING.md`、確認画像は `releases/1.25.39/treasure-silhouettes.png`。
-- 残作業　公開ブランチへの反映と配信ファイルの照合。
-- 次の操作　検証済みコミットを `main` に反映し、GitHub Pagesの完了後に公開ファイルを照合する。
+- 公開結果　GitHub Pages の[公開処理](https://github.com/lion000097/monster-biyori/actions/runs/45626283548)が成功。公開コミット `230748dbfdca1ad7e3ed73d9ccf2b9a37d060cf8`。通常版・版固定HTML・ランチャー更新用HTML・更新情報・配布ZIP・比較画像の6点を公開URLから取得し、すべて検証済みファイルとSHA-256が一致。
+- 残作業　なし。
+- 次の操作　次回の依頼時に、このメモと公開中の `latest.json` を確認する。
 
 # 1.25.38　お宝図鑑のNo.56・57
 
