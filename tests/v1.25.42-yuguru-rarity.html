@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><title>1.25.42 ユグルの進化テスト</title>
+<h1>ユグルの進化テスト</h1>
+<button id="run" type="button">動作確認</button>
+<pre id="result" role="status"></pre>
+<div id="mount"></div>
+<script>
+'use strict';
+const mount=document.querySelector('#mount'), result=document.querySelector('#result');
+function check(value,label){if(!value)throw Error(label);}
+function same(a,b,label){
+  if(JSON.stringify(a)!==JSON.stringify(b))
+    throw Error(label+'\n実際 '+JSON.stringify(a)+'\n期待 '+JSON.stringify(b));
+}
+function instrument() {
+  const stand = () => state.buildings.find(b => b.type === 'relicStand');
+  const all = () => [...state.monsters, ...state.restingMonsters];
+  window.evolutionQA = {
+    ready: () => villageSheetReady && facilitySheetReady,
+    seed() {
+      state.speed = 0;
+      state.villageLv = 20;
+      state.adventure.stage = 51;
+      state.adventure.auto = false;
+      state.adventure.bossLoop = null;
+      state.autoEquipment12512 = false;
+      const raid = yuguruProgress();
+      Object.assign(raid, { clears: 1, normalEggs: 3, shinyEggs: 2, eggSeen: true });
+      state.eggs = [];
+      placeRaidEggs();
+      state.eggs.forEach(e => { e.time = e.need; });
+      hatchEggs();
+      const young = state.monsters.filter(m => m.kind === yuguruKind);
+      if (young.length !== 5) throw Error('The old version must hatch five real raid eggs');
+      const [normal, spare, waiting] = young.filter(m => !m.shiny);
+      const [shiny, barn] = young.filter(m => m.shiny);
+      normal.name = 'こはく';
+      Object.assign(normal, { lv: 42, xp: 17, iv: { hp: 84, attack: 59, defense: 100 },
+        equip: true, equipment12512: 'yuguruBand', favorite138: true, protected138: true });
+      Object.assign(barn, { name: 'もみじ', lv: 24, xp: 13, equip: true, equipment12512: 'dew' });
+      state.party = [normal.id, shiny.id];
+      if (!transferBarn(barn.id, null).ok) throw Error('Could not deposit the shiny hatchling');
+      recordTreasure(-101);
+      recordTreasure(-1);
+      delete state.treasureStock[-1]; // Older saves can have discovery without an explicit stock entry.
+      state.buildings.push({ id: state.nextId++, type: 'relicStand', level: 1, x: 8, y: 6, facing: 0, relic: -1 });
+      renderUI(true);
+      if (!save(true)) throw Error('Old save failed');
+      return { normal: normal.id, spare: spare.id, waiting: waiting.id, shiny: shiny.id, barn: barn.id,
+        other: state.monsters.find(m => m.kind !== yuguruKind).id };
+    },
+    snapshot() {
+      return {
+        residents: all().map(m => ({ id: m.id, kind: m.kind, name: m.name, shiny: m.shiny, lv: m.lv, xp: m.xp,
+          iv: { ...m.iv }, stats: allyStats(m), item: equipmentItem12512(m), bond: m.bond, trait: m.trait,
+          favorite: !!m.favorite138, protected: !!m.protected138, element: m.element, resting: state.restingMonsters.includes(m) })),
+        party: [...state.party], copies: [-1, -2, -101].map(treasureCopies), stand: displayedRelic(stand()),
+        friends: [...state.catalog.friends], shinies: [...state.catalog.shinies], treasures: [...state.treasures]
+      };
+    },
+    award(id) {
+      startYuguru();
+      if (!state.battle?.raid) throw Error('Raid did not start');
+      const rolls = [.99, .99, id === -1 ? 0 : .99, id === -2 ? 0 : .99, .99];
+      const random = Math.random;
+      Math.random = () => rolls.shift() ?? .99;
+      try { finishYuguru(state.battle, true); } finally { Math.random = random; }
+    },
+    setStand(id) { return setStandRelic(stand(), id); },
+    attempt(id) { evolveYuguru(id); },
+    verifyRanks() {
+      const m=state.monsters.find(m=>m.kind===yuguruKind), adult={...m,kind:yuguruAdultKind};
+      if(SPECIES[m.kind].rarity!=='SR（スーパーレア）'||SPECIES[adult.kind].rarity!=='UR（ウルトラレア）')throw Error('レアリティ');
+      for(const key of Object.keys(m.iv))if(!(allyStats(adult)[key]>allyStats(m)[key]))throw Error('能力補正');
+    },
+    kinds() { return [yuguruKind, yuguruAdultKind]; },
+    battleWithAdults(shinyYoungId, shinyAdultId) {
+      if (!transferBarn(shinyYoungId, shinyAdultId).ok) throw Error('Could not field the adult from the barn');
+      const party = crewParty();
+      if (party.length !== 2 || party.some(m => m.kind !== yuguruAdultKind) || !party.some(m => m.shiny))
+        throw Error('Expected both adult forms in the party');
+      startYuguru();
+      if (state.battle?.ourMax !== battlePartyHealth(party)) throw Error('Adult party battle health');
+      const now = performance.now();
+      drawWorld(now); drawBattle(now); adventureTick(false);
+    },
+    async checkArt(referenceUrl) {
+      const ref = new Image();
+      ref.src = referenceUrl;
+      await ref.decode();
+      const boss = enemy17(yuguruEnemy);
+      const shiny = raidSprite('adultShiny');
+      const reference = document.createElement('canvas');
+      reference.width = reference.height = 192;
+      reference.getContext('2d').drawImage(ref, 0, 0);
+      if (shiny.toDataURL() !== reference.toDataURL()) throw Error('Shiny master mismatch');
+      const normalPixels = boss.getContext('2d').getImageData(0, 0, 192, 192).data;
+      const shinyPixels = shiny.getContext('2d').getImageData(0, 0, 192, 192).data;
+      let differences = 0;
+      for (let i = 0; i < normalPixels.length; i += 4) {
+        if (normalPixels[i+3] !== shinyPixels[i+3]) throw Error('Adult silhouette mismatch');
+        if (normalPixels[i] !== shinyPixels[i]) differences++;
+      }
+      if (differences < 3000) throw Error('Missing autumn foliage');
+      for (const [source, variant] of [[boss, false], [shiny, true]]) {
+        const ally = spriteMonsterHD(yuguruAdultKind, variant);
+        const g = reference.getContext('2d');
+        g.save(); g.clearRect(0, 0, 192, 192); g.translate(192, 0); g.scale(-1, 1);
+        g.drawImage(source, 0, 0); g.restore();
+        if (ally.toDataURL() !== reference.toDataURL() || spriteMonster64(yuguruAdultKind, variant) !== ally) {
+          throw Error('Adult party or map sprite mismatch');
+        }
+        if (spriteMonsterHD(yuguruKind, variant).width !== 96 || ally.width !== 192) throw Error('Wrong form size');
+      }
+      for (let i = 0; i < 2000; i++) {
+        if (randomEggKind() === yuguruAdultKind) throw Error('Adult in normal egg supply');
+      }
+    }
+  };
+}
+async function getGame(path){
+  const response=await fetch(path);
+  check(response.ok,path+' '+response.status);
+  return response.text();
+}
+async function openGame(html,prefix,width){
+  const frame=document.createElement('iframe');
+  frame.width=width; frame.height=width===390?844:900;
+  const boot='window.requestAnimationFrame=()=>0;window.qaErrors=[];'+
+    'window.addEventListener("error",e=>qaErrors.push(e.message));'+
+    'window.addEventListener("unhandledrejection",e=>qaErrors.push(String(e.reason)));';
+  const marker='})();\n<'+ '/script>';
+  check(html.includes(marker),'ゲームの起動位置');
+  // All ranch, backup and import storage in the test frame has a unique prefix.
+  const source=html.replaceAll('monster_biyori_',prefix)
+    .replace('<script>','<script>'+boot)
+    .replace(marker,()=>'('+instrument.toString()+')();\n'+marker);
+  const loaded=new Promise(resolve=>{frame.onload=resolve;});
+  frame.srcdoc=source;
+  mount.replaceChildren(frame);
+  await loaded;
+  const win=frame.contentWindow, doc=frame.contentDocument, qa=win.evolutionQA;
+  check(qa,'ゲーム初期化');
+  for(let i=0;!qa.ready()&&i<200;i++)await new Promise(resolve=>setTimeout(resolve,30));
+  check(qa.ready(),'画像の読み込み');
+  const q=selector=>doc.querySelector(selector);
+  const click=selector=>{
+    const el=q(selector);
+    check(el&&!el.disabled&&el.getClientRects().length>0,'操作できるボタン '+selector);
+    el.click();
+  };
+  const tab=name=>{
+    const selector='.tab[data-tab="'+name+'"]';
+    if(width===390&&!q(selector).getClientRects().length)click('[data-mobile-dock12521="adventure"]');
+    click(selector);
+  };
+  return {qa,q,click,tab,win,doc,dispose(){
+    const errors=[...win.qaErrors];
+    frame.remove();
+    same(errors,[],'ブラウザー例外');
+  }};
+}
+async function verify(oldHtml,newHtml,width){
+  const prefix='evolution-qa-'+crypto.randomUUID()+'-';
+  const art=new URL('../releases/1.25.41/yuguru-adult-shiny.png',location.href).href;
+  let ui;
+  try{
+    ui=await openGame(oldHtml,prefix,width);
+    ui.click('#ranchGuideDialog [data-guide-stop]');
+    const ids=ui.qa.seed(),before=ui.qa.snapshot();
+    ui.dispose();ui=null;
+    ui=await openGame(newHtml,prefix,width);
+    check(ui.doc.title.includes('1.25.42'),'バージョン');
+    ui.qa.verifyRanks();
+    const migrated=ui.qa.snapshot();
+    same(migrated.residents.map(m=>m.kind===ui.qa.kinds()[0]?m.stats:null).filter(Boolean).every((v,i)=>Object.keys(v).every(k=>v[k]<before.residents.filter(m=>m.kind===ui.qa.kinds()[0])[i].stats[k])),true,'旧幼体の能力補正');
+    same({...migrated,residents:migrated.residents.map((m,i)=>({...m,stats:before.residents[i].stats}))},before,'旧版の孵化・放牧・牧舎・編成・展示と旧在庫');
+    const [young,adult]=ui.qa.kinds();
+    same(adult,young+1,'既存の種族ID');
+    await ui.qa.checkArt(art);
+    const button=id=>'[data-evolve-yuguru="'+id+'"]';
+    const detail=id=>ui.click('#monsterRow-'+id);
+    const close=()=>ui.click('#modalClose');
+    const snap=()=>ui.qa.snapshot();
+    ui.tab('monster');detail(ids.normal);
+    check(ui.q(button(ids.normal)).disabled,'展示中の唯一のSSRを確保');
+    check(ui.q('#monsterDetailBody').textContent.includes('展示中 1個'),'展示中の案内');close();
+    detail(ids.shiny);
+    check(ui.q(button(ids.shiny)).disabled&&!ui.q('#monsterDetailBody').textContent.includes('世界樹の心雫'),'未発見のUR');close();
+    ui.qa.award(-1);
+    ui.qa.attempt(ids.shiny);ui.qa.attempt(ids.other);
+    same(snap().copies,[2,0,1],'SSRを色違い・別種には使えない');
+    detail(ids.other);check(!ui.q('[data-evolve-yuguru]'),'別種の育成カルテ');close();
+    ui.tab('adventure');ui.click('#partyDetail-'+ids.normal);
+    const preFailure=snap(),storageKey=prefix+'save_v1',saved=localStorage.getItem(storageKey);
+    check(saved,'旧版と新版が同じセーブを使用');
+    const original=ui.win.Storage.prototype.setItem;
+    ui.win.Storage.prototype.setItem=function(key,value){
+      if(key===storageKey)throw new DOMException('QA','QuotaExceededError');
+      return original.call(this,key,value);
+    };
+    try{ui.click(button(ids.normal));}finally{ui.win.Storage.prototype.setItem=original;}
+    same(snap(),preFailure,'保存失敗で個体・在庫・図鑑を復元');
+    same(localStorage.getItem(storageKey),saved,'失敗時の保存内容');
+    ui.click(button(ids.normal));
+    check(ui.q('#monsterDetailSpecies').textContent.includes('ユグル（成体）'),'編成からの通常進化');
+    check(!ui.q(button(ids.normal)),'進化済みの操作を終了');
+    ui.qa.attempt(ids.normal);
+    same(snap().copies,[1,0,1],'連続操作でも1個消費');same(snap().stand,-1,'展示を保持');close();
+    ui.tab('monster');detail(ids.spare);
+    check(ui.q(button(ids.spare)).disabled,'残る1個は展示中');close();
+    check(ui.qa.setStand(null),'展示を取り外す');detail(ids.spare);ui.click(button(ids.spare));close();
+    check(!ui.qa.setStand(-1),'所持0個では再展示できない');
+    ui.qa.award(-2);
+    ui.qa.attempt(ids.waiting);
+    detail(ids.waiting);check(ui.q(button(ids.waiting)).disabled,'通常個体にはURを使えない');close();
+    same(snap().copies,[0,1,1],'URを取り置く');
+    ui.click('#barnOpen');ui.click('[data-barn-side="rest"]');
+    ui.click('.barn-row summary');
+    check(ui.q('.barn-row').textContent.includes('世界樹の心雫'),'牧舎で色違いの進化素材を案内');
+    ui.click(button(ids.barn));
+    check(!ui.q(button(ids.barn)) && ui.q('.barn-row').textContent.includes('ユグル（成体）'),'牧舎の色違いが成体になる');close();
+    check(!ui.qa.setStand(-2),'消費済みURは再展示できない');
+    detail(ids.shiny);check(ui.q(button(ids.shiny)).disabled,'URの二重消費を防止');close();
+    const after=snap();
+    same(after.copies,[0,0,1],'正しいお宝だけを消費');
+    same(after.party,before.party,'編成を維持');
+    same(after.residents,before.residents.map(m=>[ids.normal,ids.spare,ids.barn].includes(m.id)?{...m,kind:adult}:migrated.residents.find(r=>r.id===m.id)),'名前・個体値・能力・装備・保護・放牧先を維持');
+    same(after.friends,[...before.friends,adult],'幼体と成体の図鑑');
+    same(after.shinies,[...before.shinies,adult],'幼体と成体の色違い図鑑');
+    same(after.treasures,[...before.treasures,-2],'消費後のお宝発見記録');
+    ui.dispose();ui=null;
+    ui=await openGame(newHtml,prefix,width);
+    same(snap(),after,'再読み込み');
+    ui.tab('raid');
+    for(const [id,name] of [[-1,'ユグルの琥珀角'],[-2,'世界樹の心雫']]){
+      const canvas=ui.q('[data-raid-relic="'+id+'"]');
+      check(canvas.dataset.discovered==='true'&&canvas.parentElement.textContent.includes(name),'消費後の撃破ドロップ表示 '+name);
+    }
+    ui.tab('bestiary');ui.click('[data-compare-kind="'+adult+'"]');
+    same(ui.doc.querySelectorAll('#modalContent .color-pair canvas').length,2,'図鑑で通常色・色違いを比較');close();
+    ui.qa.award(-2);
+    same(snap().copies,[0,1,1],'再入手で1個に戻る');
+    check(ui.qa.setStand(-2),'再入手後は展示できる');
+    ui.qa.battleWithAdults(ids.shiny,ids.barn);
+  }finally{
+    try{if(ui)ui.dispose();}finally{
+      for(const key of Object.keys(localStorage))if(key.startsWith(prefix))localStorage.removeItem(key);
+    }
+  }
+}
+document.querySelector('#run').addEventListener('click',async event=>{
+  const run=event.currentTarget;run.disabled=true;result.textContent='';
+  try{
+    for(const file of ['game.html','launcher-game.html']){
+      const [oldHtml,newHtml]=await Promise.all([getGame('../releases/1.25.41/'+file),getGame('../releases/1.25.42/'+file)]);
+      for(const width of [1280,390]){
+        result.textContent+='確認中 '+file+' '+width+'px\n';
+        await verify(oldHtml,newHtml,width);
+        result.textContent+='合格 '+file+' '+width+'px\n';
+      }
+    }
+    result.textContent+='全4条件に合格';
+  }catch(e){result.textContent+='失敗 '+(e.stack||e);}
+  finally{run.disabled=false;}
+});
+</script></html>
