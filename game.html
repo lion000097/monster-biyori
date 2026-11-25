@@ -650,7 +650,7 @@ function drawStoneTile(g,seed,parity) {
 // Capture the mode at departure; turning the loop off cannot upgrade an in-flight reward.
 const loopBossBattles12524=new WeakSet();
 function canRepeatBoss(stage,a=state.adventure) {
-  return Number.isSafeInteger(stage)&&stage>=5&&stage%5===0&&stage<a.stage;
+  return Number.isSafeInteger(stage)&&stage>=5&&stage<=PUBLIC_ADVENTURE_END&&stage%5===0&&stage<a.stage;
 }
 function normalizeBossLoop(save) {
   const a=save.adventure;
@@ -668,7 +668,10 @@ function toggleBossLoop(stage) {
   if(!state.battle){selectedBattleStage=stage;startAdventure();}
   else{save(true);renderUI(true);}
 }
-const GAME_APP_VERSION='1.25.34';
+const GAME_APP_VERSION='1.25.35';
+const PUBLIC_ADVENTURE_END=50, PUBLIC_TREE_MAX=20;
+const adventureComplete=(a=state.adventure)=>a.stage>PUBLIC_ADVENTURE_END;
+const publicAdventureStage=(a=state.adventure)=>Math.min(a.stage,PUBLIC_ADVENTURE_END);
 const MIN_MAP_ZOOM=.15, MAX_MAP_ZOOM=2.8;
 const W=44,H=30,T=32,ZONE_W=11,ZONE_H=10,MIN_X=-22,MIN_Y=-20,SAVE_KEY='monster_biyori_save_v1';
 const $=id=>document.getElementById(id);
@@ -1785,12 +1788,13 @@ for(let el of body.querySelectorAll('[data-staff-sprite]')){const w=state.staff.
 let hasLab=buildingLevel('lab');let html=`<div class="info-card"><strong>🔮 研究ツリー</strong><br>${hasLab?'おかねとキラキラで研究。レベルが高いほど、1回の上昇幅は小さくなるよ。':'研究を始めるには「ふしぎ研究所」を建てよう。村Lv.5で解放！'}<br>現在のキラキラ： <strong>${num(state.magic)} ✨</strong></div>`;
 for(let [id,r] of Object.entries(RESEARCH)){let level=state.research[id],{magic,coins}=researchCost(id,level);html+=`<div class="research-option"><div class="research-header"><span>${r.icon} ${r.name}</span><span class="research-level">Lv.${level}</span></div><div class="research-desc">${r.desc}：現在 +${smallValue1256(researchBonus1256(id,level))}% → 次 +${smallValue1256(researchBonus1256(id,level+1))}%</div><div class="research-bottom"><span class="price">${num(coins)}G ＋ ✨${num(magic)}</span><button class="small-button" data-action="research" data-id="${id}" ${!hasLab||state.coins<coins||state.magic<magic?'disabled':''}>研究する</button></div></div>`}body.innerHTML=html;
 }else if(tab==='adventure'){
-let a=state.adventure,battle=state.battle,n=battle?.stage||a.bossLoop||a.stage,e=stageMonsterInfo(n);const foes=battle?.foes||previewEncounterV161(n).foes;const shownEnemy=foes.find(f=>f.hp>0)||foes[0]||{index:e.index,name:e.enemy.name};const world=Math.floor((n-1)/5)+1,stage=((n-1)%5)+1;
+let a=state.adventure,battle=state.battle,n=battle?.stage||a.bossLoop||publicAdventureStage(a),complete=adventureComplete(a),e=stageMonsterInfo(n);const foes=battle?.foes||previewEncounterV161(n).foes;const shownEnemy=foes.find(f=>f.hp>0)||foes[0]||{index:e.index,name:e.enemy.name};const world=Math.floor((n-1)/5)+1,stage=((n-1)%5)+1;
 let html=`<div class="adventure-stage"><div class="fight-row"><span>${battle?.raid?'🌿 レイド　世界樹の聖域':`🌍 エリア ${world}${frontierAreaForStage(n) ? '　'+esc(frontierAreaForStage(n).biome) : ''} · ${stageLabel(n)}`}</span><span>${battle?.raid?'伝説級':e.boss?'👑 ボス':'通常戦'+recommendedPartyText(n)}</span></div><div class="fight-banner"><canvas width="96" height="96" data-stage-enemy="${shownEnemy.index}"></canvas><strong>${esc(shownEnemy.name)}</strong><span class="pill">敵 ${foes.length}体</span></div>`;
-if(battle){html+=`<div class="fight-row"><span>敵 HP</span><span>${num(battle.foes?totalEnemyHp(battle.foes):battle.hp)} / ${num(battle.foes?battle.foes.reduce((sum,f)=>sum+f.maxHp,0):battle.maxHp)}</span></div><div class="battle-track"><div style="width:${clamp((battle.foes?totalEnemyHp(battle.foes):battle.hp)/(battle.foes?battle.foes.reduce((sum,f)=>sum+f.maxHp,0):battle.maxHp)*100,0,100)}%"></div></div><div class="fight-row"><span>🐾 味方 HP</span><span>${num(battle.ourHp)} / ${num(battle.ourMax)}</span></div><div class="battle-track"><div style="width:${clamp(battle.ourHp/battle.ourMax*100,0,100)}%;background:#59ac8c"></div></div><p class="help">${esc(battle.log)}<br>戦闘は1倍速で約1.8秒ごとに進むよ。牧場の成長速度は変わらないよ。</p>`;}else html+=`<p class="help">敵HP ${num(shownEnemy.maxHp||e.hp)} / 攻撃 ${shownEnemy.atk||e.atk}　${e.boss?'撃破で大きな報酬！':'勝つと次のステージが開放！'}</p>`;
+if(!battle&&complete&&!a.bossLoop)html+='<p class="help" role="status">🏁 10-5クリア！ 冒険はここまで公開中。撃破済みボスは再戦・周回できるよ。</p>';
+else if(battle){html+=`<div class="fight-row"><span>敵 HP</span><span>${num(battle.foes?totalEnemyHp(battle.foes):battle.hp)} / ${num(battle.foes?battle.foes.reduce((sum,f)=>sum+f.maxHp,0):battle.maxHp)}</span></div><div class="battle-track"><div style="width:${clamp((battle.foes?totalEnemyHp(battle.foes):battle.hp)/(battle.foes?battle.foes.reduce((sum,f)=>sum+f.maxHp,0):battle.maxHp)*100,0,100)}%"></div></div><div class="fight-row"><span>🐾 味方 HP</span><span>${num(battle.ourHp)} / ${num(battle.ourMax)}</span></div><div class="battle-track"><div style="width:${clamp(battle.ourHp/battle.ourMax*100,0,100)}%;background:#59ac8c"></div></div><p class="help">${esc(battle.log)}<br>戦闘は1倍速で約1.8秒ごとに進むよ。牧場の成長速度は変わらないよ。</p>`;}else html+=`<p class="help">敵HP ${num(shownEnemy.maxHp||e.hp)} / 攻撃 ${shownEnemy.atk||e.atk}　${e.boss?'撃破で大きな報酬！':'勝つと次のステージが開放！'}</p>`;
 const eggFoe=!battle?.raid && frontierAreaForStage(n) && frontierEggEnemy(foes);
 if(eggFoe)html+='<p class="mini-note">🥚 勝つと「'+esc(eggFoe.name)+'のたまご」が見つかることがあるよ。</p>';
-html+=`<button class="wide-button" data-action="adventureStart" ${battle||a.bossLoop?'disabled':''}>${battle?'⚔️ 自動戦闘中…':'🚩 '+stageLabel(n)+' に出発する'}</button><button class="wide-button" style="background:${a.auto?'#c78555':'#5e8c99'}" data-action="adventureAuto" ${a.bossLoop||battle?.raid?'disabled':''}>${a.auto?'⏹️ 自動周回を止める':'🔁 クリア後も次へ自動で出発'}</button></div>`;
+html+=`<button class="wide-button" data-action="adventureStart" ${battle||a.bossLoop||complete?'disabled':''}>${battle?'⚔️ 自動戦闘中…':complete?'🏁 10-5までクリア済み':'🚩 '+stageLabel(n)+' に出発する'}</button><button class="wide-button" style="background:${a.auto?'#c78555':'#5e8c99'}" data-action="adventureAuto" ${a.bossLoop||battle?.raid||complete?'disabled':''}>${a.auto?'⏹️ 自動周回を止める':'🔁 クリア後も次へ自動で出発'}</button></div>`;
 html+=`<div class="section-label">出撃編成（3匹まで）</div><p class="help">選択が0匹ならレベル順に3匹を自動編成。属性の相性と装備で戦闘が有利になるよ。敵属性：${ELEM_ICON[enemyElement(shownEnemy.index)]} ${enemyElement(shownEnemy.index)}</p>`;
 html+=state.monsters.map(m=>{
   const inParty=state.party.includes(m.id);
@@ -4375,7 +4379,7 @@ function drawWorld(now){
 }
 
 const battleCanvas=$('battleCanvas'),battleCtx=battleCanvas.getContext('2d');battleCtx.imageSmoothingEnabled=false;
-function drawBattle(now){const g=battleCtx;g.setTransform(3,0,0,3,0,0);g.clearRect(0,0,400,140);const p=(c,x,y,w,h)=>{g.fillStyle=c;g.fillRect(x,y,w,h)};let n=state.battle?state.battle.stage:state.adventure.stage,info=stageMonsterInfo(n),b=state.battle;
+function drawBattle(now){const g=battleCtx;g.setTransform(3,0,0,3,0,0);g.clearRect(0,0,400,140);const p=(c,x,y,w,h)=>{g.fillStyle=c;g.fillRect(x,y,w,h)};let n=state.battle?state.battle.stage:publicAdventureStage(),info=stageMonsterInfo(n),b=state.battle;
 // layered hand-authored pixel background
 p('#b7dddc',0,0,400,140);p('#d4ecde',0,0,400,30);p('#91c7ce',0,36,400,22);for(let i=0;i<9;i++){let x=(i*73+18)%400;p('#edf5dc',x,11+i%3*8,22,4);p('#f9f7dc',x+5,8+i%3*8,13,3)}
 for(let i=0;i<11;i++){let x=i*43-21,y=53+(i%3)*5;p('#70ac9a',x,y,60,36);p('#8ac0a1',x+7,y-10,25,14)}
@@ -4507,7 +4511,7 @@ canvas.addEventListener('wheel', event => {
 }, {passive:false});
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.tab;renderUI(true)}));
 document.querySelectorAll('[data-speed]').forEach(b=>b.addEventListener('click',()=>{state.speed=+b.dataset.speed;document.querySelectorAll('[data-speed]').forEach(el=>el.classList.toggle('on',el===b));renderUI(true)}));
-document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const action=b.dataset.action,id=b.dataset.id;if(action==='build'){terrainMode=null;if(buildMode===id)buildMode=null;else{moveMode=null;clearMode=false;buildMode=id;placementFacing=0;selectedBuilding=null;selectedMonster=null;toast(`🔨 ${B[id].name}を建てる位置を選ぼう`)}renderUI(true)}else if(action==='cancelBuild'){buildMode=null;renderUI(true)}else if(action==='moveBuilding')startMoving(+id);else if(action==='cancelMove')cancelMoving();else if(action==='toggleClear'){terrainMode=null;toggleClearMode()}else if(action==='recoverBuilding')recoverBuilding(+id);else if(action==='zoomIn')setZoom(zoom*1.2);else if(action==='zoomOut')setZoom(zoom/1.2);else if(action==='zoomReset')setZoom(1);else if(action==='showAdventure'){tab='adventure';renderUI(true);$('tabBody').scrollTop=0}else if(action==='upgrade')upgrade(+id);else if(action==='egg')buyEgg();else if(action==='hire')hire();else if(action==='research')doResearch(id);else if(action==='selectMonster')openMonsterDetails(+id,b);else if(action==='export')exportSave();else if(action==='reset')reset();else if(action==='import')$('importInput').click();else if(action==='pan'){const d={left:[-11,0],right:[11,0],up:[0,-10],down:[0,10]}[id];if(d)cameraMove(...d)}else if(action==='walkCamera')startWalkCamera(+id);else if(action==='centerMap'){stopWalkCamera();cameraX=VW/2-VW/(2*zoom);cameraY=VH/2-VH/(2*zoom);limitCamera();renderUI(false)}else if(action==='adventureStart')startAdventure();else if(action==='adventureAuto'){if(state.battle?.raid)return;state.adventure.auto=!state.adventure.auto;state.adventure.cooldown=0;message(state.adventure.auto?'🔁 自動冒険を始めるよ！':'⏹️ 自動冒険を停止したよ。');renderUI(true);save(true)}else if(action==='atlas'){atlasCategory=id;renderUI(true)}else if(action==='showManagement'){tab='management';renderUI(true)}else if(action==='completeOrder')completeOrder(Number(id));else if(action==='treasureOrder')deliverTreasureOrder(Number(id));else if(action==='festival')hostFestival();else if(action==='trainMonster'){if(!b.disabled)trainMonster(+id,$('monsterTrainingCount12530')?.valueAsNumber??1)}else if(action==='equipCharm')equipCharm(+id);else if(action==='toggleParty')toggleParty(+id)});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const action=b.dataset.action,id=b.dataset.id;if(action==='build'){terrainMode=null;if(buildMode===id)buildMode=null;else{moveMode=null;clearMode=false;buildMode=id;placementFacing=0;selectedBuilding=null;selectedMonster=null;toast(`🔨 ${B[id].name}を建てる位置を選ぼう`)}renderUI(true)}else if(action==='cancelBuild'){buildMode=null;renderUI(true)}else if(action==='moveBuilding')startMoving(+id);else if(action==='cancelMove')cancelMoving();else if(action==='toggleClear'){terrainMode=null;toggleClearMode()}else if(action==='recoverBuilding')recoverBuilding(+id);else if(action==='zoomIn')setZoom(zoom*1.2);else if(action==='zoomOut')setZoom(zoom/1.2);else if(action==='zoomReset')setZoom(1);else if(action==='showAdventure'){tab='adventure';renderUI(true);$('tabBody').scrollTop=0}else if(action==='upgrade')upgrade(+id);else if(action==='egg')buyEgg();else if(action==='hire')hire();else if(action==='research')doResearch(id);else if(action==='selectMonster')openMonsterDetails(+id,b);else if(action==='export')exportSave();else if(action==='reset')reset();else if(action==='import')$('importInput').click();else if(action==='pan'){const d={left:[-11,0],right:[11,0],up:[0,-10],down:[0,10]}[id];if(d)cameraMove(...d)}else if(action==='walkCamera')startWalkCamera(+id);else if(action==='centerMap'){stopWalkCamera();cameraX=VW/2-VW/(2*zoom);cameraY=VH/2-VH/(2*zoom);limitCamera();renderUI(false)}else if(action==='adventureStart')startAdventure();else if(action==='adventureAuto'){if(state.battle?.raid||adventureComplete())return;state.adventure.auto=!state.adventure.auto;state.adventure.cooldown=0;message(state.adventure.auto?'🔁 自動冒険を始めるよ！':'⏹️ 自動冒険を停止したよ。');renderUI(true);save(true)}else if(action==='atlas'){atlasCategory=id;renderUI(true)}else if(action==='showManagement'){tab='management';renderUI(true)}else if(action==='completeOrder')completeOrder(Number(id));else if(action==='treasureOrder')deliverTreasureOrder(Number(id));else if(action==='festival')hostFestival();else if(action==='trainMonster'){if(!b.disabled)trainMonster(+id,$('monsterTrainingCount12530')?.valueAsNumber??1)}else if(action==='equipCharm')equipCharm(+id);else if(action==='toggleParty')toggleParty(+id)});
 document.addEventListener('pointerdown',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('focusin',e=>{if(e.target.matches('.staff-select'))inputLock=true});document.addEventListener('change',e=>{if(e.target.matches('.staff-select[data-staff]')){let s=state.staff.find(o=>o.id===+e.target.dataset.staff);if(s&&JOBS[e.target.value]){if(s.job!==e.target.value&&(s.jobTarget211?.rest||s.job==='explore'||e.target.value==='explore')){cancelPlotWalk(s);s.jobTarget211=null;s.jobTask212=null;s.jobCooldown211=0;s.act='待機中'}s.job=e.target.value;s.path=[];if(s.job==='explore')seek(s,s.job);message(`🧑‍🌾 ${s.name}の担当が「${JOBS[s.job].label}」になったよ。`,'success');save(true)}inputLock=false;renderUI(true)}if(e.target.id==='importInput')importSave(e.target.files[0])});document.addEventListener('focusout',e=>{if(e.target.matches('.staff-select'))inputLock=false});
 const helpTopics = {staff:'市民の役職', tree:'世界樹の成長XP', adventure:'冒険と育成', basics:'基本とセーブ'};
 let helpOpener;
@@ -5019,27 +5023,27 @@ function stageEncounter(n){const boss=(n%5)===0;const world=Math.floor((n-1)/5);
 function totalEnemyHp(foes){return foes.reduce((s,f)=>s+Math.max(0,f.hp),0)}
 function rewardTreasure(stage,boss){ensureV16Data();if(Math.random()>(boss?.95:.5))return null;const id=rollTreasure194();recordTreasure(id);return id}
 stageMonsterInfo=function(n){const enc=stageEncounter(n);const foe=enc.foes[0];return {index:foe.index,enemy:ENEMIES[foe.index],hp:Math.round(totalEnemyHp(enc.foes)),atk:foe.atk,boss:enc.boss,count:enc.foes.length,encounter:enc}}
-startAdventure=function(){if(state.battle)return toast('冒険中だよ！','error');if(!state.monsters.length)return toast('先に仲間を増やそう','error');const n=selectedBattleStage||state.adventure.stage,enc=stageEncounter(n),party=crewParty();autoEquipParty12512(party,enc.boss);const hp=battlePartyHealth(party);state.battle={stage:n,foes:enc.foes,ourHp:hp,ourMax:hp,round:0,log:'パーティが出発！',skills:[],status:'',boss:enc.boss,chestChance:enc.chestChance};if(enc.boss&&state.adventure.bossLoop===n&&canRepeatBoss(n))loopBossBattles12524.add(state.battle);for(const f of enc.foes)if(!state.catalog.enemies.includes(f.index))state.catalog.enemies.push(f.index);message('⚔️ '+stageLabel(n)+' '+(enc.boss?'ボス':'敵'+enc.foes.length+'体')+' に挑戦！');renderUI(true)}
+startAdventure=function(){if(state.battle)return toast('冒険中だよ！','error');if(!state.monsters.length)return toast('先に仲間を増やそう','error');const n=selectedBattleStage||state.adventure.stage;if(!Number.isSafeInteger(n)||n<1||n>PUBLIC_ADVENTURE_END)return;const enc=stageEncounter(n),party=crewParty();autoEquipParty12512(party,enc.boss);const hp=battlePartyHealth(party);state.battle={stage:n,foes:enc.foes,ourHp:hp,ourMax:hp,round:0,log:'パーティが出発！',skills:[],status:'',boss:enc.boss,chestChance:enc.chestChance};if(enc.boss&&state.adventure.bossLoop===n&&canRepeatBoss(n))loopBossBattles12524.add(state.battle);for(const f of enc.foes)if(!state.catalog.enemies.includes(f.index))state.catalog.enemies.push(f.index);message('⚔️ '+stageLabel(n)+' '+(enc.boss?'ボス':'敵'+enc.foes.length+'体')+' に挑戦！');renderUI(true)}
 updateBattleStats=function(){
  if(state.battle?.raid){const b=state.battle;$('battleStageBadge').textContent='伝説級レイド ・ ユグル';
   lastBattleText='第'+b.round+'ラウンド　味方HP '+Math.ceil(b.ourHp)+' / '+b.ourMax+'　ユグルHP '+b.foes[0].hp+' / '+b.foes[0].maxHp+'　'+b.log;
   $('battleStats').textContent=lastBattleText;return;}
- let b=state.battle,n=b?b.stage:state.adventure.bossLoop||state.adventure.stage;const info=stageMonsterInfo(n);const enemyHp=b?Math.ceil(totalEnemyHp(b.foes))+'/'+b.foes.reduce((s,f)=>s+f.maxHp,0):Math.ceil(info.hp)+' / '+Math.ceil(info.hp);const live=b?b.foes.filter(f=>f.hp>0).length:info.count||1;const s=b?`⚔️ Round ${b.round}　味方 ${Math.ceil(b.ourHp)} / ${b.ourMax} HP ・ 敵 ${enemyHp}（残り${live}体）　${b.log||''}`:'🌿 次の相手：'+(info.boss?'ボス ':'')+(info.count?info.count+'体':'1体')+'　｜　冒険タブから出発すると自動で戦うよ';$('battleStageBadge').textContent=stageLabel(n)+(info.boss?' 👑ボス戦':' 🌿冒険'+recommendedPartyText(n));if(s!==lastBattleText){$('battleStats').textContent=s;lastBattleText=s}}
+ let b=state.battle,n=b?b.stage:state.adventure.bossLoop||publicAdventureStage();const info=stageMonsterInfo(n);const enemyHp=b?Math.ceil(totalEnemyHp(b.foes))+'/'+b.foes.reduce((s,f)=>s+f.maxHp,0):Math.ceil(info.hp)+' / '+Math.ceil(info.hp);const live=b?b.foes.filter(f=>f.hp>0).length:info.count||1;const s=b?`⚔️ Round ${b.round}　味方 ${Math.ceil(b.ourHp)} / ${b.ourMax} HP ・ 敵 ${enemyHp}（残り${live}体）　${b.log||''}`:!state.adventure.bossLoop&&adventureComplete()?'🏁 10-5までクリア済み。冒険タブからボスに再戦できるよ。':'🌿 次の相手：'+(info.boss?'ボス ':'')+(info.count?info.count+'体':'1体')+'　｜　冒険タブから出発すると自動で戦うよ';$('battleStageBadge').textContent=stageLabel(n)+(info.boss?' 👑ボス戦':' 🌿冒険'+recommendedPartyText(n));if(s!==lastBattleText){$('battleStats').textContent=s;lastBattleText=s}}
 adventureTick=function(silent){if(!state.battle){
   const a=state.adventure;
-  if(a.auto||a.bossLoop){
+  if(a.auto&&!adventureComplete(a)||a.bossLoop){
    if(a.cooldown>0)a.cooldown--;
    else{if(a.bossLoop)selectedBattleStage=a.bossLoop;startAdventure();}
   }
   return;
  }
  const b=state.battle,party=crewParty();b.round++;let heal=0,skill=[],critical=false;for(let m of party){let target=b.foes.find(f=>f.hp>0);if(!target)break;let el=m.element||KIND_ELEMENTS[m.kind]||'草',effective=affinity(el,enemyElement(target.index));let largeBonus=SPECIES[m.kind]?.large?1.24:1;let base=(allyStats(m).attack/10)*(TRAITS[m.trait||0].attack||1)*researchMultiplier('battle')*equipmentStats12512(m).attack*effective*largeBonus*equipmentOpeningAttack12513(b,m)*(m.gift212===1?1.12:1);heal+=equipmentRoundRecovery12513(b,m);if(Math.random()<.16){heal+=2+Math.floor(m.lv*.18)+equipmentStats12512(m).heal+equipmentSupportHeal12513(b,m);skill.push(m.name+'が応援！')}const variance=.82+Math.random()*.45,crit=equipmentCritical12513(m);critical||=crit>1;let dmg=Math.max(1,Math.round(base*variance*crit));target.hp=Math.max(0,target.hp-dmg);if(!silent&&Math.random()<.08)skill.push(m.name+' → '+target.name+' -'+dmg);if(target.hp<=0&&!state.catalog.defeated.includes(target.index))state.catalog.defeated.push(target.index)}
- if(b.foes.every(f=>f.hp<=0)){if(b.raid){finishYuguru(b,true);return;}showBattleOutcome("CLEAR",b.stage);const stage=b.stage,boss=b.boss,reward=Math.floor((boss?260:86)*(1+Math.floor((stage-1)/5)*.48)+stage*14),xp=boss?(loopBossBattles12524.has(b)?2:18):7;const repeatBoss=canRepeatBoss(stage);const earned=repeatBoss?0:gainCoins(reward);if(!repeatBoss){state.food+=boss?20:6;state.magic+=boss?5:1;gainFame1256(boss?6:2);villageAdd(boss?95:28);}for(const m of party){m.xp+=xp;m.happy=clamp(m.happy+2,1,100)}state.adventure.clears++;state.adventure.stage=Math.max(state.adventure.stage,stage+1);state.metrics.explore++;const count=b.foes.length;let chest=(boss||Math.random()<b.chestChance);let treasureId=chest?rewardTreasure(stage,boss):null;if(boss)awardTalentFruit();awardBattleEgg(b);if(boss&&Math.random()<.18){state.charms++;markEquipmentSeen12513('legacy');message('🧿 ボスに勝って「おまもり」を見つけた！','success')}if(boss)rollBossEquipmentBlueprint12513(stage,silent);if(treasureId!==null){const t=TREASURE_ITEMS[treasureId];message(`🎁 宝箱から「${t.icon} ${t.name}」を手に入れた！`, 'success')}message('🏆 '+stageLabel(stage)+' '+(boss?'ボス':'ステージ')+'クリア！ 敵'+count+'体を突破'+(earned?' +'+earned+'G':''),'success');state.battle=null;state.adventure.cooldown=state.adventure.auto||state.adventure.bossLoop?4:0;save(true);if(!silent&&tab==='adventure')renderUI(true);return}
+ if(b.foes.every(f=>f.hp<=0)){if(b.raid){finishYuguru(b,true);return;}showBattleOutcome("CLEAR",b.stage);const stage=b.stage,boss=b.boss,reward=Math.floor((boss?260:86)*(1+Math.floor((stage-1)/5)*.48)+stage*14),xp=boss?(loopBossBattles12524.has(b)?2:18):7;const repeatBoss=canRepeatBoss(stage);const earned=repeatBoss?0:gainCoins(reward);if(!repeatBoss){state.food+=boss?20:6;state.magic+=boss?5:1;gainFame1256(boss?6:2);villageAdd(boss?95:28);}for(const m of party){m.xp+=xp;m.happy=clamp(m.happy+2,1,100)}state.adventure.clears++;state.adventure.stage=Math.max(state.adventure.stage,stage+1);if(adventureComplete())state.adventure.auto=false;state.metrics.explore++;const count=b.foes.length;let chest=(boss||Math.random()<b.chestChance);let treasureId=chest?rewardTreasure(stage,boss):null;if(boss)awardTalentFruit();awardBattleEgg(b);if(boss&&Math.random()<.18){state.charms++;markEquipmentSeen12513('legacy');message('🧿 ボスに勝って「おまもり」を見つけた！','success')}if(boss)rollBossEquipmentBlueprint12513(stage,silent);if(treasureId!==null){const t=TREASURE_ITEMS[treasureId];message(`🎁 宝箱から「${t.icon} ${t.name}」を手に入れた！`, 'success')}message('🏆 '+stageLabel(stage)+' '+(boss?'ボス':'ステージ')+'クリア！ 敵'+count+'体を突破'+(earned?' +'+earned+'G':''),'success');state.battle=null;state.adventure.cooldown=state.adventure.auto||state.adventure.bossLoop?4:0;save(true);if(!silent&&tab==='adventure')renderUI(true);return}
  let foe=0;const liveFoes=b.foes.filter(f=>f.hp>0);const protect=party.filter(m=>m.element==='土').length;const defense=party.reduce((sum,m)=>sum+allyStats(m).defense+equipmentStats12512(m).defense,0)/Math.max(1,party.length);for(const f of liveFoes){const bossStrike=f.boss&&b.round%3===0;let dmg=Math.max(1,Math.round((f.atk+Math.floor(Math.random()*5)-2)*(bossStrike?1.75:1)*(1-Math.min(.28,protect*.08))*110/(100+defense)));foe+=dmg}foe=equipmentMoonGuard12513(b,party,foe);b.ourHp=Math.min(b.ourMax,Math.max(0,b.ourHp-foe+heal));b.skills=skill;b.status=b.boss&&b.round%3===0?'ボスの強攻撃！':'';b.log=(critical?'会心！ ':'')+(heal?`回復 +${heal} `:'')+'敵の攻撃 '+foe+'ダメージ'; if(b.raid && b.round%3===0)b.log='世界樹の息吹！ '+b.log;
  if(b.ourHp<=0){if(b.raid){finishYuguru(b,false);return;}showBattleOutcome('LOSE',b.stage);state.battle=null;state.adventure.cooldown=0;
  if(state.adventure.bossLoop){state.adventure.bossLoop=null;message('ボス周回を終了したよ。');save(true);}message('💔 '+stageLabel(b.stage)+' で敗北。施設強化や大型モンスター育成で再挑戦しよう！','error');if(!silent&&tab==='adventure')renderUI(true);return}}
 
-drawBattle=function(now){const g=battleCtx;g.setTransform(3,0,0,3,0,0);g.clearRect(0,0,400,140);const p=(c,x,y,w,h)=>{g.fillStyle=c;g.fillRect(x,y,w,h)};let n=state.battle?state.battle.stage:state.adventure.stage,info=state.battle?{boss:state.battle.boss,foes:state.battle.foes}:stageEncounter(n),b=state.battle;
+drawBattle=function(now){const g=battleCtx;g.setTransform(3,0,0,3,0,0);g.clearRect(0,0,400,140);const p=(c,x,y,w,h)=>{g.fillStyle=c;g.fillRect(x,y,w,h)};let n=state.battle?state.battle.stage:publicAdventureStage(),info=state.battle?{boss:state.battle.boss,foes:state.battle.foes}:stageEncounter(n),b=state.battle;
  p('#bddfe0',0,0,400,140);p('#dff1e7',0,0,400,32);for(let i=0;i<12;i++){let x=(i*41)%400;p('#f0f7df',x,9+i%2*6,18,3)}p('#8ec487',0,78,400,62);p('#9ed18f',0,92,400,48);for(let i=0;i<28;i++){let x=(i*71+3)%400,y=96+(i*31)%36;p(i%3===0?'#f6edba':'#72b76b',x,y,3,2)}
  const party=crewParty(); for(let i=0;i<party.length;i++){const m=party[i],cx=34+i*46,cy=90-(i===1?14:0),hop=b?Math.sin(now/225+i*1.7)*2:Math.sin(now/650+i*2)*1.2;const large=SPECIES[m.kind]?.large;const size=large?54:40;g.drawImage(large?spriteMonster64(m.kind,!!m.shiny):spriteMonsterHD(m.kind,!!m.shiny),cx,cy+hop,size,size); if(m.shiny){g.fillStyle='#392f70';g.fillRect(cx-1,cy+hop-12,42,11);g.fillStyle='#fff47c';g.font='bold 9px monospace';g.fillText('★ SHINY',cx+1,cy+hop-4)}}
  const foes=(b?b.foes:info.foes)||[]; const live=foes.filter(f=>f.hp>0); const count=Math.max(1,foes.length); live.forEach((f,i)=>{const boss=f.boss;const big=boss||['🐲','🐉','🧊'].includes(f.icon);const cols=Math.min(3,count),rows=Math.ceil(count/3);const baseX=boss?278:238+(i%cols)*46,baseY=boss?34:40+Math.floor(i/cols)*34;const hop=b?Math.sin(now/280+i)*1.3:Math.sin(now/800+i)*1.6;const sz=boss?74:(big?42:34);g.drawImage(spriteEnemy(f.index,boss),baseX,baseY+hop,sz,sz);p('#fff1c5',baseX+2,baseY+sz+1,Math.max(18,sz-6),4);p('#d45a63',baseX+2,baseY+sz+1,Math.max(2,(Math.max(0,f.hp)/f.maxHp)*(Math.max(18,sz-6))),4);g.fillStyle='#274f51';g.font='bold 8px sans-serif';g.fillText(f.name,baseX,baseY-3)})
@@ -5050,7 +5054,8 @@ const _renderUI=renderUI; renderUI=function(full=false){ensureV16Data(); _render
 const _renderTab=renderTab; renderTab=function(){_renderTab();const body=$('tabBody');if(tab==='build'){const tools=`<div class="info-card"><strong>🧱 施設サイズと地形ツール</strong><br>黄色い矢印が示す施設の正面に、道を1マス以上つなげよう。どんぐりの屋台は道の横の草地1マスに置いてね。街灯、風見飾り、水浴び鉢、きのこの腰かけは正面に道がなくても置けるよ。仲間と職員は道を歩くよ。道・池は1マスずつ置くか、ドラッグでまっすぐ1列まとめて置けるよ。装飾品と露天風呂は道の上にも置けるよ。置いたあとも道や石のタイルを敷けるよ。「道けし」で元の草地に戻せるよ。<div class="facility-actions" style="margin-top:8px;flex-wrap:wrap"><button class="small-button ${terrainMode==='road'?'primary':''}" data-v16-action="terrain" data-id="road">🛣️ 道を置く</button><button class="small-button ${terrainMode==='stone'?'primary':'secondary'}" data-v16-action="terrain" data-id="stone">🧱 石のタイル（100G）</button><button class="small-button secondary" data-v16-action="terrain" data-id="roadErase">🧽 道けし</button><button class="small-button ${terrainMode==='pond'?'primary':''}" data-v16-action="terrain" data-id="pond">💧 池を置く</button><button class="small-button secondary" data-v16-action="terrain" data-id="pondErase">🪣 池うめ</button><button class="small-button secondary" data-v16-action="terrainOff">✖ 解除</button></div></div>`;body.insertAdjacentHTML('afterbegin',tools); body.querySelectorAll('.build-option').forEach(el=>{const id=el.querySelector('[data-action="build"]')?.dataset.id,spec=B[id];if(!spec)return;const info=el.querySelector('.option-info');if(info){let meta=document.createElement('div');meta.className='option-desc';meta.textContent=`サイズ ${spec.w||2}×${spec.h||2} マス ・ 土台 ${((spec.w||2)+(spec.h||2))*T}×${((spec.w||2)+(spec.h||2))*T/2}px`;info.appendChild(meta)}})}
  else if(tab==='management'){
   const progress=treeGrowthStatus1257(),level=progress.level;
-  body.insertAdjacentHTML('afterbegin',`<div class="info-card" id="managementTreeGrowth"><strong>🌳 世界樹 Lv.${level} → Lv.${level+1} の成長条件</strong>${treeGrowthNotice1257(progress)}${treeGrowthFacilities1257(progress)}${treeGrowthTotals1257(progress)}<span style="color:#506d5c">装飾以外の解放済み施設をそろえ、建設済みの全棟を現在の強化上限まで育てよう。条件がそろったら世界樹で成長できます。</span></div>`);
+  if(progress.capped)body.insertAdjacentHTML('afterbegin','<div class="info-card" id="managementTreeGrowth">'+treeGrowthNotice1257(progress)+'</div>');
+  else body.insertAdjacentHTML('afterbegin',`<div class="info-card" id="managementTreeGrowth"><strong>🌳 世界樹 Lv.${level} → Lv.${level+1} の成長条件</strong>${treeGrowthNotice1257(progress)}${treeGrowthFacilities1257(progress)}${treeGrowthTotals1257(progress)}<span style="color:#506d5c">装飾以外の解放済み施設をそろえ、建設済みの全棟を現在の強化上限まで育てよう。条件がそろったら世界樹で成長できます。</span></div>`);
  }
 }
 
@@ -5269,7 +5274,7 @@ const _v17Stats=$('battleStats');if(_v17Stats){_v17Stats.textContent='AUTO BATTL
 drawBattle=function(now){
  const g=battleCtx;g.setTransform(3,0,0,3,0,0);g.clearRect(0,0,400,106);g.imageSmoothingEnabled=false;
  const box=(c,x,y,w,h)=>{g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))};
- const b=state.battle,n=b?.stage||state.adventure.bossLoop||state.adventure.stage,enc=b?{foes:b.foes,boss:b.boss}:previewEncounterV161(n),foes=enc.foes||[],boss=!!enc.boss,live=foes.filter(f=>f.hp>0);
+ const b=state.battle,n=b?.stage||state.adventure.bossLoop||publicAdventureStage(),enc=b?{foes:b.foes,boss:b.boss}:previewEncounterV161(n),foes=enc.foes||[],boss=!!enc.boss,live=foes.filter(f=>f.hp>0);
  // sky, far mountains, sandy grass, pixelated horizon
  box('#a6d9df',0,0,400,49);box('#c7e7dd',0,21,400,22);
  for(let i=0;i<10;i++){let x=i*50-6;box('#91c6ad',x,36+(i%2)*3,59,12);box('#7daf89',x,43+(i%3)*3,50,7)}
@@ -5636,7 +5641,7 @@ function awardBattleEgg(battle) {
   }
 }
 function canRevisitFrontierStage(stage) {
-  return Number.isSafeInteger(stage) && stage%5 !== 0 && !!frontierAreaForStage(stage) && stage < state.adventure.stage;
+  return Number.isSafeInteger(stage) && stage<=PUBLIC_ADVENTURE_END && stage%5 !== 0 && !!frontierAreaForStage(stage) && stage < state.adventure.stage;
 }
 let chosenFrontierReplay = (firstFrontierArea-1)*5 + 1;
 function frontierReplayControls() {
@@ -6001,8 +6006,8 @@ function boss192(area){
   return {area,stage,name:foe?.name||'未知のボス',biome:frontierAreaForStage(stage)?.biome ?? earlyBiomes[(area-1)%earlyBiomes.length],label:stageLabel(stage)};
 }
 function registerRelics192(count){
-  // List every named area's relics from the start. Repeating areas still grow with progress.
-  const total=Math.max(namedEncounterAreas.length,Math.floor(count)||0);
+  // Keep stable IDs for previously found relics beyond the published stages.
+  const total=Math.max(PUBLIC_ADVENTURE_END/5,Math.floor(count)||0);
   for(let a=Math.floor((TREASURE_ITEMS.length-RELIC_START192)/2)+1;a<=total;a++){
     const boss=boss192(a);
     const owner=boss.name;
@@ -6015,14 +6020,14 @@ load=function(){
   try{
     const raw=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
     const relicMax=(raw?.treasures||[]).filter(x=>Number.isInteger(x)&&x>=RELIC_START192).reduce((a,b)=>Math.max(a,b),RELIC_START192-1);
-    registerRelics192(Math.max(Math.ceil((raw?.adventure?.stage||1)/5),Math.ceil((relicMax-RELIC_START192+1)/2)));
+    registerRelics192(Math.max(Math.ceil((relicMax-RELIC_START192+1)/2)));
   }catch(e){registerRelics192()}
   const ok=loadBefore192();
-  if(ok)registerRelics192(Math.ceil((state.adventure.stage||1)/5));
+  if(ok&&adventureComplete())state.adventure.auto=false;
   return ok;
 };
 function rareBossLoot192(stage,rand=Math.random){
-  if(stage%5!==0)return [];
+  if(stage<5||stage>PUBLIC_ADVENTURE_END||stage%5!==0)return [];
   const area=stage/5;
   registerRelics192(area);
   ensureV16Data(state);
@@ -6044,7 +6049,7 @@ const tickBefore192=adventureTick;
 adventureTick=function(silent){
   const fight=state.battle, previousStage=state.adventure.stage;
   tickBefore192(silent);
-  if(!silent&&state.adventure.stage>previousStage&&(state.adventure.stage-1)%5===0){
+  if(!silent&&state.adventure.stage>previousStage&&!adventureComplete()&&(state.adventure.stage-1)%5===0){
     const stage=state.adventure.stage;
     message('🗺️ '+stageLabel(stage)+' 到達！ 遠征先「'+expeditionName(Math.floor((stage-1)/5))+'」を解放','success');
   }
@@ -6064,7 +6069,7 @@ startAdventure=function(){
   if(!selectedBattleStage)return startBefore192();
   const target=selectedBattleStage;
   try{
-    const boss=Number.isSafeInteger(target)&&target>=5&&target%5===0&&target<=state.adventure.stage;
+    const boss=Number.isSafeInteger(target)&&target>=5&&target%5===0&&target<=publicAdventureStage();
     if(state.battle||(!boss&&!canRevisitFrontierStage(target)))return;
     state.adventure.auto=false;
     startBefore192();
@@ -6100,11 +6105,12 @@ spriteTreasureV161=function(index){
   return sprite;
 };
 treasureGalleryHTML=function(){
-  registerRelics192(Math.ceil((state.adventure?.stage||1)/5));
+  registerRelics192();
   ensureV16Data(state);
   const owned=new Set(state.treasures||[]);
-  let html='<div class="info-card"><strong>🎁 お宝図鑑</strong><br><span class="big-count">'+owned.size+'</span> / '+(TREASURE_ITEMS.length+yuguruRelics.length)+' 種<br>ボス限定SSRはまれに入手、URはごくまれに入手。再挑戦でも入手可能。</div><div class="treasure-grid">';
-  for(const [key,t] of Object.entries(TREASURE_ITEMS)){
+  const visible=Object.entries(TREASURE_ITEMS).filter(([id,t])=>!t.bossStage||t.bossStage<=PUBLIC_ADVENTURE_END||owned.has(Number(id)));
+  let html='<div class="info-card"><strong>🎁 お宝図鑑</strong><br><span class="big-count">'+visible.filter(([id])=>owned.has(Number(id))).length+'</span> / '+visible.length+' 種<br>ボス限定SSRはまれに入手、URはごくまれに入手。再挑戦でも入手可能。</div><div class="treasure-grid">';
+  for(const [key,t] of visible){
     const i=Number(key),found=owned.has(i),special=isBossRelic(t);
     const method=t.source||'冒険の宝箱から確率で入手';
     html+='<div class="treasure-card '+(found?'found ':'')+(special?'boss-relic192 ':'')+(t.rarity==='UR'?'rainbow-relic192':'')+'">'+
@@ -6119,7 +6125,7 @@ treasureGalleryHTML=function(){
 // unchanged row: it would reset scroll and interrupt an in-flight touch/press.
 function renderBossPicker192(root){
  const {stage,bossLoop}=state.adventure,battle=state.battle,blocked=!!(battle||bossLoop);
- const max=Math.floor((stage||1)/5),renderKey=[stage,bossLoop,!!battle,battle?.stage].join(':');
+ const max=Math.floor(publicAdventureStage()/5),renderKey=[stage,bossLoop,!!battle,battle?.stage].join(':');
  let panel=root.querySelector('.boss-panel192');
  if(panel?.dataset.bossRender===renderKey)return;
  registerRelics192(max);
@@ -6213,7 +6219,7 @@ document.addEventListener('click',e=>{
   }
   if(b.dataset.v192==='fight'){
     const stage=Number(b.dataset.stage);
-    if(!Number.isInteger(stage)||stage<5||stage%5!==0||stage>state.adventure.stage)return;
+    if(!Number.isInteger(stage)||stage<5||stage%5!==0||stage>publicAdventureStage())return;
     if(state.battle||state.adventure.bossLoop)return;
     selectedBattleStage=stage;
     startAdventure();
@@ -6334,7 +6340,9 @@ function treeSpot193(save){
 }
 function ensureWorldTree193(save){
   if(!save)return false;
-  save.villageLv=Math.max(1,Math.floor(Number(save.worldTreeLevel)||Number(save.villageLv)||1));
+  const previous=Math.max(1,Math.floor(Number(save.worldTreeLevel)||Number(save.villageLv)||1));
+  if(previous>PUBLIC_TREE_MAX)save.worldTreeLegacyLevel12535=Math.max(previous,Number(save.worldTreeLegacyLevel12535)||0);
+  save.villageLv=Math.min(previous,PUBLIC_TREE_MAX);
   save.worldTreeLevel=save.villageLv;
   let b=save.buildings.find(v=>v.type==='worldtree');
   if(!b){
@@ -6389,6 +6397,7 @@ villageAdd=function(amount){
   state.villageXp=Math.max(0,(Number(state.villageXp)||0)+(Number(amount)||0));
 };
 function growWorldTree193(){
+  if(state.villageLv>=PUBLIC_TREE_MAX)return toast('世界樹はLv.20が現在の上限だよ');
   if(!state.buildings.some(b=>b.type==='worldtree')){
     toast('先に6×6マスの空地へ世界樹を設置してね','error');return;
   }
@@ -6625,9 +6634,9 @@ renderTab=function(){
     const wrap=document.createElement('div');
     wrap.className='info-card worldtree-panel193';
     wrap.innerHTML=facilityThumbnail('worldtree',lvl,(buildMode==='worldtree'||(tree&&moveMode===tree.id))?placementFacing:tree?.facing)+'<strong>世界樹 Lv.'+lvl+'（6×6）</strong><br>'+
-      '成長 '+Math.floor(state.villageXp)+' / '+villageThreshold(lvl)+' XP<br>'+
+      (progress.capped?treeGrowthNotice1257(progress):'成長 '+Math.floor(state.villageXp)+' / '+villageThreshold(lvl)+' XP<br>'+
       treeGrowthNotice1257(progress)+treeGrowthFacilities1257(progress)+
-      '成長費用：'+cost.coins+'G ＋ ✨'+cost.magic+
+      '成長費用：'+cost.coins+'G ＋ ✨'+cost.magic)+
       (tree && selectedBuilding===tree.id?treeGrowthBenefits(lvl):'')+
       '<div class="facility-actions" style="margin-top:8px">'+
       (tree?'<button class="small-button secondary" data-v193="focus">世界樹を選択</button>':
@@ -6649,7 +6658,9 @@ renderTab=function(){
 };
 // Display-only view of the same gate used by growWorldTree193.
 function treeGrowthStatus1257(){
-  const level=state.villageLv,needed=villageThreshold(level),cost=treeCost193(level);
+  const level=state.villageLv,needed=villageThreshold(level);
+  if(level>=PUBLIC_TREE_MAX)return {level,needed,cost:{coins:0,magic:0},requirements:[],capped:true,ready:false};
+  const cost=treeCost193(level);
   const raw=treeRequirementStatus193(level+1);
   const counts=new Map();
   for(const b of state.buildings)counts.set(b.type,(counts.get(b.type)||0)+1);
@@ -6674,6 +6685,7 @@ function treeGrowthFacilityGap1257(r){
           r.upgradesMissing?'強化が必要 '+n(r.upgradesMissing)+'軒':''].filter(Boolean).join('・');
 }
 function treeGrowthNotice1257(progress){
+  if(progress.capped)return '<section class="tree-growth-notice1257"><strong>🌳 世界樹 Lv.20</strong>現在の上限に達したよ。</section>';
   const {ready,hasTree,gaps:g}=progress,n=treeGrowthNumber1257;
   if(ready)return '<section class="tree-growth-notice1257" data-ready="true"><strong>✓ 成長条件がそろいました</strong>世界樹を成長させられます。</section>';
   const lines=[
@@ -6687,7 +6699,8 @@ function treeGrowthNotice1257(progress){
   return '<section class="tree-growth-notice1257" data-ready="false"><strong>あと何が足りない？</strong><ul>'+
     lines.map(line=>'<li>'+line+'</li>').join('')+'</ul></section>';
 }
-function treeGrowthTotals1257({needed,cost}){
+function treeGrowthTotals1257({needed,cost,capped}){
+  if(capped)return '';
   const n=treeGrowthNumber1257;
   return '<p>成長XP '+n(Math.floor(state.villageXp))+' / '+n(needed)+'<br>'+
     'おかね '+n(Math.floor(state.coins))+' / '+n(cost.coins)+' G<br>'+
@@ -6716,7 +6729,11 @@ function renderTreeSummary() {
   $('villageNext').textContent = xp.toLocaleString('ja-JP') + ' / ' + needed.toLocaleString('ja-JP');
   $('treeMeter').max = needed;
   $('treeMeter').value = Math.min(needed, xp);
-  $('treeNextLevel').textContent = 'Lv.' + (level + 1) + ' への成長条件';
+  $('treeNextLevel').textContent = progress.capped?'成長上限':'Lv.' + (level + 1) + ' への成長条件';
+  $('villageNext').parentElement.hidden=progress.capped;
+  $('treeMeter').hidden=progress.capped;
+  $('treeCostCoins').closest('.tree-cost').hidden=progress.capped;
+  $('treeBenefits').hidden=progress.capped;
   updateMenuHTML($('treeGrowthNotice1257'),treeGrowthNotice1257(progress));
   const list = requirements.map(treeTargetRow).join('');
   if ($('treeTargets').innerHTML !== list) $('treeTargets').innerHTML = list;
@@ -8565,7 +8582,7 @@ function expeditionIcon(index) {
 }
 function reachedExpeditionStage(save = state) {
  const stage=Number(save?.adventure?.stage);
- return Number.isSafeInteger(stage)&&stage>0?Math.floor((stage-1)/5)+1:1;
+ return Number.isSafeInteger(stage)&&stage>0?Math.floor((Math.min(stage,PUBLIC_ADVENTURE_END)-1)/5)+1:1;
 }
 function expeditionGoal213(index = state.expeditionArea213) {
  const n=Math.max(0,Math.floor(Number(index)||0));
@@ -12615,6 +12632,7 @@ function buildingUpgradePreview(building) {
 }
 
 function treeGrowthBenefits(level) {
+  if(level>=PUBLIC_TREE_MAX)return '';
   const next=level+1, now=monsterTreeLimit135(level), after=monsterTreeLimit135(next);
   const lines=['放牧枠　'+now+' → '+after+'匹','市民枠　'+now+' → '+after+'人'];
   if (restingLimit(next)>restingLimit(level)) lines.push('おやすみ牧舎　'+restingLimit(level)+' → '+restingLimit(next)+'匹');
@@ -13437,7 +13455,7 @@ function renderBuildingMenu(target){
   if(progress)updateMenuHTML(notice,treeGrowthNotice1257(progress));
   let primary;
   if(isTree){
-    primary='<button type="button" data-v193="grow" '+(progress.ready?'':'disabled')+'>世界樹を成長</button>';
+    primary=progress.capped?'':'<button type="button" data-v193="grow" '+(progress.ready?'':'disabled')+'>世界樹を成長</button>';
   }else if(fixedScenic130(b.type)){
     primary='';
   }else{
