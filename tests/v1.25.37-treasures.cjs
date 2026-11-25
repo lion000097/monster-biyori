@@ -69,7 +69,7 @@ function installFixture() {
 }
 
 async function run() {
-  const routes = {old:'releases/1.25.36/game.html', normal:'game.html', launcher:'releases/1.25.37/launcher-game.html'};
+  const routes = {old:'releases/1.25.36/game.html', normal:'releases/1.25.37/game.html', launcher:'releases/1.25.37/launcher-game.html'};
   const pages = new Map();
   for(const [key,file] of Object.entries(routes)){
     const html=fs.readFileSync(path.join(root,file),'utf8'), end=html.lastIndexOf('})();');

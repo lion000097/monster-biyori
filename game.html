@@ -52,8 +52,7 @@ if(location.protocol==='https:'||location.protocol==='http:'){
 .econ-chart span:before{content:attr(data-value);position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);font-size:8px;color:#486d5c;font-weight:900;white-space:nowrap}
 @media(max-width:900px){.econ-snapshot{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
-.treasure-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}.treasure-card{background:#f2f5eb;border:1px solid #e0e9d7;border-radius:9px;min-width:0;text-align:center;padding:8px 4px}.treasure-card.found{background:#fffaf0;border-color:#ebdcaf}.treasure-pixel{display:block;margin:0 auto 6px;width:48px;height:48px;image-rendering:pixelated}.featured-treasure:not([hidden]) ~ .treasure-card:nth-child(1 of .treasure-card:not(.featured-treasure,[hidden])){grid-column-start:1}
-.featured-treasure .treasure-pixel.unknown{filter:brightness(0);opacity:.55}
+.treasure-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}.treasure-card{background:#f2f5eb;border:1px solid #e0e9d7;border-radius:9px;min-width:0;text-align:center;padding:8px 4px}.treasure-card.found{background:#fffaf0;border-color:#ebdcaf}.treasure-pixel{display:block;margin:0 auto 6px;width:48px;height:48px;image-rendering:pixelated}.featured-treasure .treasure-pixel.unknown{filter:brightness(0);opacity:.55}
 .treasure-pixel.unknown{filter:grayscale(1) brightness(.42)}.treasure-name{font-size:10px;font-weight:900;overflow-wrap:anywhere}.treasure-rarity{font-size:9px;font-weight:800;color:#749385;margin-top:4px}.treasure-rarity.r-sr{color:#547ca6}.treasure-rarity.r-ssr{color:#bd7b31}.treasure-rarity.r-r{color:#7d8f8b}
 @media(max-width:520px){.treasure-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
@@ -675,7 +674,7 @@ function toggleBossLoop(stage) {
   if(!state.battle){selectedBattleStage=stage;startAdventure();}
   else{save(true);renderUI(true);}
 }
-const GAME_APP_VERSION='1.25.37';
+const GAME_APP_VERSION='1.25.38';
 const PUBLIC_ADVENTURE_END=50, PUBLIC_TREE_MAX=20;
 const adventureComplete=(a=state.adventure)=>a.stage>PUBLIC_ADVENTURE_END;
 const publicAdventureStage=(a=state.adventure)=>Math.min(a.stage,PUBLIC_ADVENTURE_END);
@@ -6018,11 +6017,11 @@ TREASURE_ITEMS.push({"name":"星辰の羅針盤","icon":"🧭","rarity":"UR","so
 const RELIC_START192=TREASURE_ITEMS.length;
 // Non-index keys preserve stage relic IDs, including those from older, longer adventures.
 const featuredTreasures = [
-  {id:-101, bookNo:'S01', name:'月花のオルゴール', icon:'🎵', rarity:'SSR', art:'moonflowerBox'},
-  {id:-102, bookNo:'S02', name:'星渡りの天球儀', icon:'🌌', rarity:'UR', art:'starGlobe'}
+  {id:-101, bookNo:56, name:'月花のオルゴール', icon:'🎵', rarity:'SSR', art:'moonflowerBox'},
+  {id:-102, bookNo:57, name:'星渡りの天球儀', icon:'🌌', rarity:'UR', art:'starGlobe'}
 ];
 for(const item of featuredTreasures){
-  TREASURE_ITEMS[item.id]={...item,source:'冒険1-1からの通常宝箱・遠征所からの探検'};
+  TREASURE_ITEMS[item.id]={...item,source:'全冒険（1-1〜10-5）の通常宝箱・すべての探検先'};
 }
 const regularTreasurePools = new Map();
 for(const id of [...Array(RELIC_START192).keys(), ...featuredTreasures.map(item=>item.id)]){
@@ -6137,10 +6136,17 @@ treasureGalleryHTML=function(){
   registerRelics192();
   ensureV16Data(state);
   const owned=new Set(state.treasures||[]);
-  const visible=[
-    ...featuredTreasures.map(item=>[item.id,TREASURE_ITEMS[item.id]]),
-    ...Object.entries(TREASURE_ITEMS).filter(([id,t])=>!t.bookNo && (!t.bossStage||t.bossStage<=PUBLIC_ADVENTURE_END||owned.has(Number(id))))
-  ];
+  // Legacy saves can still own stage relics beyond 10-5. Keep their identities
+  // and list them after the two numbered treasures, before the raid collection.
+  const bookNumber=(id,item)=>item.bookNo ??
+    (id+1+(id>=featuredTreasures[0].bookNo-1?featuredTreasures.length:0));
+  const visible=Object.entries(TREASURE_ITEMS)
+    .filter(([id,t])=>!t.bossStage||t.bossStage<=PUBLIC_ADVENTURE_END||owned.has(Number(id)))
+    .sort(([a,left],[b,right])=>{
+      if(left.raid && right.raid)return Number(b)-Number(a);
+      if(left.raid || right.raid)return left.raid?1:-1;
+      return bookNumber(Number(a),left)-bookNumber(Number(b),right);
+    });
   let html='<div class="info-card"><strong>🎁 お宝図鑑</strong><br><span class="big-count">'+visible.filter(([id])=>owned.has(Number(id))).length+'</span> / '+visible.length+' 種<br>ボス限定SSRはまれに入手、URはごくまれに入手。再挑戦でも入手可能。</div><div class="treasure-grid">';
   for(const [key,t] of visible){
     const i=Number(key),found=owned.has(i),special=isBossRelic(t);
@@ -6148,7 +6154,7 @@ treasureGalleryHTML=function(){
     html+='<div class="treasure-card '+(found?'found ':'')+(t.bookNo?'featured-treasure ':'')+(special?'boss-relic192 ':'')+(t.rarity==='UR'?'rainbow-relic192':'')+'">'+
     '<canvas class="treasure-pixel '+(found?'':'unknown')+'" width="64" height="64" aria-hidden="true" data-treasure-index="'+i+'"></canvas>'+
     '<div class="treasure-name">'+(found?esc(t.name):'？？？？')+'</div>'+
-    '<div class="treasure-rarity r-'+t.rarity.toLowerCase()+'">'+(special?(t.rarity==='UR'?'🌈 UR':'🥇 SSR'):(found?t.rarity:'未発見'))+' · No.'+(t.bookNo||(t.raid?'R'+String(-i).padStart(2,'0'):String(i+1).padStart(2,'0')))+'</div>'+
+    '<div class="treasure-rarity r-'+t.rarity.toLowerCase()+'">'+(special?(t.rarity==='UR'?'🌈 UR':'🥇 SSR'):(found?t.rarity:'未発見'))+' · No.'+(t.raid?'R'+String(-i).padStart(2,'0'):String(bookNumber(i,t)).padStart(2,'0'))+'</div>'+
     '<div class="relic-source192">入手：'+esc(method)+'</div></div>';
   }
   return html+'</div>';
