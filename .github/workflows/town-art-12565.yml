@@ -8,6 +8,7 @@ on:
       - tools/apply_v12565.py
       - .github/workflows/town-art-12565.yml
       - tests/v12565_chromium.cjs
+      - tests/v1.25.65-town-art.html
   workflow_dispatch:
 permissions:
   contents: write

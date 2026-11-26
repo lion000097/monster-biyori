@@ -17,6 +17,7 @@ const log=m=>document.querySelector('#logs').textContent+=m+'\n';
 const check=(ok,m)=>{if(!ok)throw Error(m)};
 const marker='})();\n</'+'script>';
 function gameChecks(){
+  const check=(ok,message)=>{if(!ok)throw Error(message)};
   const normalize=(type,face)=>townBuildingArt(type,1,face,{night:true,pulse:2});
   const pix=c=>c.getContext('2d').getImageData(0,0,c.width,c.height).data;
   function hash(c){
