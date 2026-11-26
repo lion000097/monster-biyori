@@ -1,0 +1,36 @@
+STARTUP []
+{
+  version: '1.26.0',
+  types: 15,
+  pop: [
+    45, 50, 50, 55,
+    55, 60, 60
+  ],
+  caps: [ 0, 1, 1, 2, 2, 3 ],
+  noUpgradeReq: [],
+  newReq: [
+    [ 'forestBakery1260', 5 ],
+    [ 'starHouse1260', 5 ],
+    [ 'mealGarden1260', 5 ],
+    [ 'grandTheater1260', 3 ],
+    [ 'dropAquarium1260', 2 ],
+    [ 'starRestaurant1260', 2 ]
+  ],
+  oldCaps: true
+}
+{
+  tests: [
+    '60 placements, four facings and exact construction prices',
+    'World Tree Lv20 through Lv30 reachable; optional lots never required',
+    'No-upgrade enforcement and per-facility upgrade cap',
+    'Garden same-area yield, reserve consumption, overflow and save/reload',
+    'Entrance, hidden interior and return to road in four commercial buildings',
+    '4/2-worker shifts, meals/materials, no double sales, daily caps, upkeep and scenic visitors',
+    'Concert requires four actual arrivals; moving a facility releases all visitors',
+    'Longhouse 5+5 seats, night arrivals and sleeping save/reload; garden unlock count',
+    'One information worker and real routed visit to a new attraction',
+    'Integrated scheduler and active-visit save/reload retain every resident'
+  ]
+}
+PASS town integration scenarios, milestone art and mobile UI
+PASS real 1.25.59 save migrates without resetting level, coins or residents
