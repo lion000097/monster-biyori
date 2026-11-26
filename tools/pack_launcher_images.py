@@ -13,14 +13,20 @@ from PIL import Image, features
 
 # Some indexed PNGs composite differently in Chromium even if decoded RGBA matches.
 KEEP_PNG = {'e10229bb54dce1994b451ce1d40031e449515ce283662e31ad0ced9b39ef3a9c'}
-PNG = re.compile(rb'data:image/png;base64,([A-Za-z0-9+/=]{20000,})')
+# The character decoder reads the PNG byte stream directly, including its filters.
+PNG = re.compile(
+    rb'''(?P<character>(?:indexImage|lionImage)\.src\s*=\s*['"])?'''
+    rb'data:image/png;base64,(?P<data>[A-Za-z0-9+/=]{20000,})'
+)
 
 def pack(blob):
     if not features.check('webp'):
         raise RuntimeError('Pillow WebP support is required')
     changes = []
     def lossless(match):
-        raw = base64.b64decode(match[1], validate=True)
+        if match['character']:
+            return match[0]
+        raw = base64.b64decode(match['data'], validate=True)
         if hashlib.sha256(raw).hexdigest() in KEEP_PNG:
             return match[0]
         image = Image.open(io.BytesIO(raw))

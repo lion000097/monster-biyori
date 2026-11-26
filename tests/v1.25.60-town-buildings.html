@@ -1,0 +1,91 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>検査開始待ち</title>
+<style>html{font:16px system-ui,sans-serif;color:#254635;background:#f0f4ea}body{max-width:62rem;margin:1rem}pre{white-space:pre-wrap}iframe{width:var(--size);height:780px;border:1px solid #9aad99}body[data-status=fail] h1{color:#aa302a}body[data-status=pass] h1{color:#157242}</style>
+<h1 id="heading">世界樹の成長・建物の確認</h1><pre id="log" role="status"></pre><main id="view"></main>
+<script>
+const hook="window.growthTest={\n state:()=>state, ready:()=>!!(facilitySheetReady && villageSheetReady && treeDecorationReady && colorIndices),\n seed(){const s=state;s.speed=0;s.starterGuide='done';s.villageLv=s.worldTreeLevel=20;s.buildings.find(b=>b.type==='worldtree').level=20;s.villageXp=321.75;s.coins=5000000000;s.magic=5500000;s.adventure.stage=51;s.adventure.clears=50;return save(true)},\n get meta(){return B}, active:monsterLimit, citizens:staffLimit, population:monsterTreeLimit135, caps:facilityCountCap193,\n needs:treeRequirementStatus193, grow:growWorldTree193, status:treeGrowthStatus1257, paint:renderTreeSummary, bulk:startTreeBulkUpgrade1255, upgrade,save,load,\n benefits:treeGrowthBenefits, notice:treeGrowthNotice1257, levelCap:facilityLevelCap193, cost:treeCost193,\n realPlots(wanted){\n   const s=state,assert=(ok,label)=>{if(!ok)throw Error(label)},x=-14,y=-12;\n   s.buildings=s.buildings.filter(b=>b.type==='worldtree');s.zones=ZONES.map((_,i)=>i);\n   for(let i=x-2;i<=x+8;i++)for(let j=y-2;j<=y+8;j++){const key=keyXY(i,j);s.clearedScenery.push(key);s.clearedPonds.push(key);s.ponds=s.ponds.filter(t=>t!==key);s.removedDefaultPaths.push(key);}\n   const roads=s.paths.filter(k=>{const [u,v]=k.split(',').map(Number);return u<x-2||v<y-2||u>x+8||v>y+8});\n   let i=0;\n   for(const [type,[bw,bh,gated]] of Object.entries(wanted)){\n     for(let f=0;f<4;f++){\n       const w=f%2?bh:bw,h=f%2?bw:bh;\n       const door=[[x+Math.floor(w/2),y+h],[x-1,y+Math.floor(h/2)],[x+Math.floor(w/2),y-1],[x+w,y+Math.floor(h/2)]][f];\n       s.paths=roads.concat([keyXY(...door)]);placementFacing=f;buildMode=type;\n       assert(canBuild(x,y,null,false,type),'construction preview '+type+' '+f);\n       \n       const b0=s.coins,price=constructionCost(type);place(type,x,y);\n       const building=s.buildings.find(b=>b.type===type);assert(building&&validFacing(building.facing)===f,'placed facing '+type+' '+f);\n       const size=buildingOf(building);assert(size.w===w&&size.h===h,'placed footprint '+type+' '+f);\n       assert(getBuildingAt(x+w-1,y+h-1)===building&&getBuildingAt(x+w,y+h-1)!==building,'occupied cells '+type);\n       assert(s.coins===b0-price,'construction price '+type);\n       if(!gated){const paid=s.coins;upgrade(building.id);assert(building.level===1&&s.coins===paid,'scenic upgrade prevention '+type);}\n       s.buildings=s.buildings.filter(b=>b!==building);\n     }\n     i++;\n   }\n   return i;\n },\n needed:villageThreshold, sprite:spriteBuildingV161, metaAt:b=>buildingOf(b), dayTick:tick,\n compare(){const s=state;return [s.villageLv,s.worldTreeLevel,s.villageXp,s.adventure.stage,s.adventure.clears,s.coins,s.magic,s.monsters.map(m=>[m.id,m.kind,m.shiny]),s.staff.map(a=>[a.id,a.name])]}\n};";
+const wanted={bubblePot:[1,1,false],artHut:[2,2,false],rainPavilion:[2,2,false],musicHall:[3,3,false],glowMushrooms:[1,1,false],theater:[6,4,true],aquarium:[6,4,true],restaurant:[4,4,true],bakery:[2,2,true],tradePost:[2,3,false],townHall:[2,3,false],guideOffice:[2,2,false],festivalPlaza:[5,5,false],starLodge:[3,2,true],kitchenGarden:[2,3,true]};
+function checkTownProgression(wanted){
+     const q=growthTest,s=q.state(),result=[];const check=(ok,msg)=>{if(!ok)throw new Error(msg)};
+     for(const [id,[w,h,gated]] of Object.entries(wanted)){
+       const spec=q.meta[id];check(spec&&spec.w===w&&spec.h===h,'building dimensions '+id);
+       check(spec.unlock>=15&&spec.unlock<=30,'unlock '+id);check(!['bakery','restaurant'].includes(id)||spec.unlock>=20,'commercial unlock '+id);
+       for(const lv of [15,19,20,21,24,25,26,27,29,30]){
+         const included=q.needs(lv+1).some(r=>r.type===id);
+         if(lv<30)check(included === (gated&&spec.unlock<=lv),'tree requirement '+lv+' '+id);
+       }
+     }
+     const moneyBuildings=['bakery','restaurant'];check(moneyBuildings.every(type=>q.caps(type,30)<=2),'high return caps');
+     for(const lv of [20,21,24,25,26,27,29,30]){
+       const residentCap=lv===20?45:lv<25?50:lv<30?55:60;
+       check(q.population(lv)===residentCap,'resident cap Lv'+lv);
+       check(q.caps('starLodge',lv)===(lv<21?0:lv<25?1:lv<30?2:3),'lodge count Lv'+lv);
+       check(q.caps('kitchenGarden',lv)===(lv<22?0:lv<27?1:2),'garden count Lv'+lv);
+       check(q.caps('farm',lv)===22 && q.caps('shop',lv)===10,'legacy facilities capped Lv'+lv);
+     }
+     for(const type of ['musicHall','theater','aquarium','restaurant','festivalPlaza'])check(q.caps(type,30)>=1&&q.caps(type,30)<=2,'large cap '+type);
+     for(const [type] of Object.entries(wanted)){
+       const distinct=new Set();for(let f=0;f<4;f++)distinct.add(q.sprite(type,1,f).toDataURL());check(distinct.size===4,'identical view '+type);
+     }
+     for(let f=0;f<4;f++){const arts=new Set([20,25,30].map(lv=>q.sprite('worldtree',lv,f).toDataURL()));check(arts.size===3,'worldtree milestones, facing '+f)}
+     s.battle=null;s.adventure.auto=false;const xp=s.villageXp;q.dayTick(true);check(s.villageXp>xp,'ongoing post-game XP');
+     let sequence=0;
+     for(let lv=20;lv<30;lv++){
+       const tree=s.buildings.find(b=>b.type==='worldtree'),need=q.needed(lv),charge=q.cost(lv);
+       for(const r of q.needs(lv+1)){
+         const list=s.buildings.filter(b=>b.type===r.type);
+         for(let n=list.length;n<r.need;n++){
+           const slot=sequence++,m=q.meta[r.type];
+           s.buildings.push({id:s.nextId++,type:r.type,x:-21+(slot%9)*7,y:-19+Math.floor(slot/9)*7,w:m.w,h:m.h,level:1,facing:0,constructionPaid:0});
+         }
+       }
+       s.villageXp=Math.max(s.villageXp,need+9);
+       check(q.needs(lv+1).some(r=>!r.ok),'unmet upgrades at Lv'+lv);
+       q.grow();check(s.villageLv===lv,'unmet gate blocks Lv'+lv);
+       q.bulk();check(q.needs(lv+1).every(r=>r.ok),'bulk meets every required upgrade Lv'+lv);
+       s.villageXp=need-1;q.grow();check(s.villageLv===lv,'missing experience blocks Lv'+lv);
+       s.villageXp=need+9;const balance=s.coins,magic=s.magic;q.grow();
+       check(s.villageLv===lv+1&&tree.level===lv+1&&s.worldTreeLevel===lv+1,'normal grow '+lv+'→'+(lv+1));
+       check(s.coins===balance-charge.coins&&s.magic===magic-charge.magic&&s.villageXp===9,'payment '+lv);
+       check(q.active()===q.citizens()&&q.active()===q.population(lv+1),'roster limit '+lv);
+       result.push(lv+1);
+     }
+     const capped=JSON.stringify(q.compare());q.grow();q.paint();check(JSON.stringify(q.compare())===capped,'no further upgrade');
+     check(q.status().capped&&q.notice(q.status()).includes('30'),'correct Lv30 cap');
+     check(s.adventure.stage===51,'completed adventure preserved');
+     check(q.save(true),'Lv30 saved');return result;
+}
+
+const params=new URLSearchParams(location.search);
+const out=document.getElementById('log'),container=document.getElementById('view');
+const prefix='growth_qa_'+crypto.randomUUID()+'_';
+const oldPath='../releases/1.25.59/game.html';
+const latestPath=params.get('launcher')==='1'?'../releases/1.25.60/launcher-game.html':'../releases/1.25.60/game.html';
+function log(line){out.textContent+=line+'\n'}
+const check=(ok,label)=>{if(!ok)throw Error(label)};
+async function source(loc){const resp=await fetch(loc,{cache:'no-store'});check(resp.ok,loc+' HTTP '+resp.status);return resp.text()}
+async function openGame(raw,width){
+  const marker='})();\n</'+'script>', html=raw.replaceAll('monster_biyori_',prefix);
+  check(html.split(marker).length===2,'ゲーム起動位置の確認');const frame=document.createElement('iframe');frame.style.setProperty('--size',width+'px');frame.title='検証用牧場 '+width+'px';
+  const init='window.requestAnimationFrame=()=>0;window.confirm=()=>true;window.addEventListener("error",event=>parent.postMessage({qa:'+JSON.stringify(prefix)+',message:event.message},"*"));';
+  frame.srcdoc=html.replace('<script>','<script>'+init).replace(marker,()=>hook+'\nwindow.checkTownProgression='+checkTownProgression.toString()+';\n'+marker);
+  const loaded=new Promise((resolve,reject)=>{frame.onload=resolve;frame.onerror=reject});container.replaceChildren(frame);await loaded;
+  const w=frame.contentWindow;for(let i=0;i<350&&!w.growthTest?.ready();i++)await new Promise(r=>setTimeout(r,40));check(w.growthTest?.ready(),'画像読み込み・初期化 '+width+'px');return w;
+}
+const errors=[];window.addEventListener('message',ev=>{if(ev.data?.qa===prefix){errors.push(ev.data.message);log(ev.data.message)}});
+async function run(){
+  document.title='確認中・世界樹と建物';log('既存版と候補版を読み込み中');
+  const [old,latest]=await Promise.all([source(oldPath),source(latestPath)]);
+  for(const width of params.has('width')?[Number(params.get('width'))]:[1280,390]){
+    check(Number.isInteger(width)&&width>=300&&width<=2800,'画面幅');log(width+'px　旧セーブを用意');
+    for(const k of Object.keys(localStorage))if(k.startsWith(prefix))localStorage.removeItem(k);
+    const oldWindow=await openGame(old,width);check(oldWindow.growthTest.seed(),'旧セーブ保存');const before=JSON.stringify(oldWindow.growthTest.compare());
+    const next=await openGame(latest,width);check(JSON.stringify(next.growthTest.compare())===before,'既存セーブが一致');log(width+'px　冒険全50面クリア済みのLv20セーブを引き継ぎ');
+    if(params.get('baseline')==='1')continue;
+    const result=next.checkTownProgression(wanted);check(result.length===10,'10段階の成長');const at30=JSON.stringify(next.growthTest.compare());
+    const reload=await openGame(latest,width);check(JSON.stringify(reload.growthTest.compare())===at30,'Lv30セーブ再読み込み');check(reload.growthTest.realPlots(wanted)===15,'全15種の配置・費用');
+    log(width+'px　新建物15種×4方向・強化条件・建設枠・放牧枠・市民枠・費用・Lv20→30・再読み込みが一致');
+  }
+  check(!errors.length,'実行時エラー '+errors.join(' / '));document.body.dataset.status='pass';document.title='PASS 世界樹・建物の動作確認';heading.textContent='確認完了';log('PASS');
+}
+run().catch(error=>{document.title='FAIL '+error.message;document.body.dataset.status='fail';heading.textContent='確認に失敗';log(error.stack||error.message)}).finally(()=>{container.replaceChildren();for(const key of Object.keys(localStorage))if(key.startsWith(prefix))localStorage.removeItem(key)});
+</script></html>
