@@ -16508,7 +16508,11 @@ function fullKitchenGarden12565(face){
 function transparentTownOrnament12565(type,face){
   const k=townArtKit(1,1,face),g=k.ctx;
   const [px,py]=k.pt(.50,.50,-2),cx=Math.round(px),ground=Math.round(py);
-  function pixel(dx,dy,color,w=1,h=1){k.pixel(cx+dx,ground+dy,color,w,h);}
+  function pixel(dx,dy,color,w=1,h=1){
+    const mirror=type==='glowMushrooms'&&(face===1||face===3);
+    const shift=type==='glowMushrooms'?[0,2,-1,1][face]:0;
+    k.pixel(cx+(mirror?-dx-w:dx)+shift,ground+dy,color,w,h);
+  }
   if(type==='bubblePot'){
     // No ground/grass/stone pixel: the road underneath remains visible.
     pixel(-11,-23,'#4b6060',23,4);
