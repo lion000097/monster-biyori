@@ -20,8 +20,8 @@ def embed(source, assets):
             pixels = b''.join(sheet.crop((f*size, 0, (f+1)*size, size)).tobytes() for f in range(4))
             colors = bytes(sheet.getpalette()[:3*(max(pixels)+1)])
             entries[path.stem] = [size, colors.hex(), base64.b64encode(zlib.compress(pixels, 9)).decode()]
-    if len(entries) != 15 or source.count(BEGIN) != 1 or source.count(END) != 1:
-        raise ValueError('Expected fifteen buildings and one atlas slot')
+    if len(entries) != 19 or source.count(BEGIN) != 1 or source.count(END) != 1:
+        raise ValueError('Expected nineteen buildings and decorations and one atlas slot')
     a = source.index(BEGIN) + len(BEGIN)
     b = source.index(END, a)
     return source[:a] + 'const townAtlases=' + json.dumps(entries, separators=(',', ':')) + ';' + source[b:]

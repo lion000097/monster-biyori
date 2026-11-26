@@ -1,0 +1,102 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>牧場の装飾4種の確認</title>
+<style>body{font:16px system-ui;color:#354c39}pre{white-space:pre-wrap}iframe{height:720px}</style>
+<h1>牧場の装飾4種の確認</h1><pre id="result"></pre><main></main>
+<script>
+const types=['picnic257','flowerbed211','bench211','lamp211'];
+const keyPrefix='garden_art_qa_'+crypto.randomUUID()+'_';
+const marker='})();\n</'+'script>';
+const check=(ok,message)=>{if(!ok)throw Error(message)};
+function hooks(){
+  const ink=canvas=>canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+  const hash=c=>ink(c).reduce((v,b)=>Math.imul(v^b,16777619)>>>0,2166136261);
+  function shape(type,face){
+    const site={type,x:0,y:0,facing:face,level:1};
+    const c=spriteBuildingV161(type,1,face),data=ink(c),rect=plotImageRect(site);
+    let top=c.height,bottom=0;
+    for(let i=3;i<data.length;i+=4)if(data[i]>127){
+      const row=Math.floor((i-3)/(4*c.width));top=Math.min(top,row);bottom=Math.max(bottom,row+1);
+    }
+    return {height:(bottom-top)*rect.h/c.height,foot:rect.y+bottom*rect.h/c.height};
+  }
+  return {
+    ready:()=>Boolean(facilitySheetReady&&villageSheetReady&&treeDecorationReady&&colorIndices&&lionReady),
+    seed(types){
+      state.speed=0;state.starterGuide='done';state.villageLv=state.worldTreeLevel=20;
+      state.buildings.find(b=>b.type==='worldtree').level=20;state.zones=ZONES.map((_,i)=>i);
+      state.coins=98765;state.magic=678;state.adventure.stage=32;
+      types.forEach((type,i)=>state.buildings.push({id:700+i,type,x:-14+i*3,y:-14,facing:i,w:1,h:1,level:[1,2,4,2][i]}));
+      return save(true);
+    },
+    saved(types){return JSON.stringify([state.coins,state.magic,state.worldTreeLevel,state.adventure.stage,state.paths,
+      state.monsters.map(m=>[m.id,m.kind,m.lv]),state.staff.map(a=>[a.id,a.name]),
+      state.buildings.filter(b=>types.includes(b.type)).map(b=>[b.id,b.type,b.level,b.facing,b.x,b.y])]);},
+    sprite:(id,level,f)=>spriteBuildingV161(id,level,f),hash,shape,
+    places(type,i){
+      const x=-15+3*i,y=-9;
+      state.buildings=state.buildings.filter(b=>b.x!==x||b.y!==y);
+      for(let u=x-1;u<=x+1;u++)for(let v=y-1;v<=y+1;v++){
+        const k=keyXY(u,v);state.clearedScenery.push(k);state.clearedPonds.push(k);state.removedDefaultPaths.push(k);
+        state.paths=state.paths.filter(p=>p!==k);state.ponds=state.ponds.filter(p=>p!==k);
+      }
+      tab='build';facilityRole='decor';buildMode=type;placementFacing=i;clearMode=false;terrainMode=null;
+      const [dx,dy]=[[0,1],[-1,0],[0,-1],[1,0]][i];state.paths.push(keyXY(x+dx,y+dy));
+      renderUI(true);renderFacingPicker();paintVillageCanvases();
+      const icon=$('tabBody').querySelector('[data-facility-art="'+type+'"]');
+      if(!icon)return false;
+      const target=spriteBuildingV161(type,1,i);
+      const thumbnail=pixelSprite(icon.width,icon.height,g=>g.drawImage(target,0,0,icon.width,icon.height));
+      if(hash(icon)!==hash(thumbnail)||!facingButtons.every(v=>v.art===spriteBuildingV161(type,1,v.direction)))return false;
+      const price=constructionCost(type),coins=state.coins;
+      if(!canBuild(x,y,null,false,type))return false;
+      place(type,x,y);const b=getBuildingAt(x,y);
+      if(!b||b.type!==type||validFacing(b.facing)!==i||coins-state.coins!==price)return false;
+      mapPickItems.length=0;drawLot(b,i,1);const picked=mapPickItems.at(-1);
+      if(picked?.building!==b||picked.art!==target||buildingOf(b).w!==1||buildingOf(b).h!==1)return false;
+      const rgba=ink(target),r=picked.rect;
+      for(let y=0;y<target.height;y++)for(let x=0;x<target.width;x++)if(rgba[4*(y*target.width+x)+3]>200){
+        return pickMapActorOrFacility({px:r.x+(x+.5)*r.w/target.width,py:r.y+(y+.5)*r.h/target.height})?.building===b;
+      }
+      return false;
+    },
+    save:()=>save(true)
+  };
+}
+window.instrument=source=>source.replaceAll('monster_biyori_',keyPrefix)
+  .replace('<script>','<script>window.requestAnimationFrame=()=>0;')
+  .replace(marker,()=>'window.gardenQA=('+hooks.toString()+')();\n'+marker);
+async function read(name){const r=await fetch(name);check(r.ok,name);return r.text()}
+async function openGame(html,width){
+  const frame=document.createElement('iframe');frame.width=width;
+  frame.srcdoc=html.includes('id="ranch-payload"')?html.replace('document.write(html)','document.write(parent.instrument(html))'):instrument(html);
+  document.querySelector('main').replaceChildren(frame);
+  for(let i=0;i<400;i++){if(frame.contentWindow?.gardenQA?.ready())return frame.contentWindow.gardenQA;await new Promise(r=>setTimeout(r,50))}
+  throw Error('ゲームと素材の起動');
+}
+async function run(){
+ const options=new URLSearchParams(location.search),width=Number(options.get('width')||1280),lite=options.has('launcher');
+ const [old,newer,images]=await Promise.all([read('../releases/1.25.61/game.html'),read('../releases/1.25.62/'+(lite?'launcher-game':'game')+'.html'),
+   Promise.all(types.map(async t=>{const im=new Image();im.src='../assets/town-buildings/'+t+'.png';await im.decode();return im}))]);
+ try{
+  let qa=await openGame(old,width);check(qa.seed(types),'前版の牧場を保存');qa=await openGame(old,width);
+  const before=qa.saved(types),oldHeights=[0,1,2,3].map(f=>qa.shape('lamp211',f));
+  const oldArt=types.map(t=>[0,1,2,3].map(f=>qa.hash(qa.sprite(t,1,f))));
+  qa=await openGame(newer,width);check(before===qa.saved(types),'配置・向き・レベル・所持金・仲間・進行の引き継ぎ');
+  for(let i=0;i<types.length;i++){
+   const id=types[i],s=images[i].height,hashes=new Set();
+   for(let f=0;f<4;f++){
+    const c=document.createElement('canvas');c.width=c.height=s;c.getContext('2d').drawImage(images[i],s*f,0,s,s,0,0,s,s);
+    const rendered=qa.sprite(id,1,f),a=c.getContext('2d').getImageData(0,0,s,s).data,b=rendered.getContext('2d').getImageData(0,0,s,s).data;
+    check(rendered.width===s&&rendered.height===s&&a.every((v,i)=>v===b[i]),id+' 原画と4方向の一致 '+f);
+    const hash=qa.hash(rendered);hashes.add(hash);check(hash!==oldArt[i][f],id+' の更新 '+f);
+    if(id==='lamp211'){const shape=qa.shape(id,f);check(shape.height>=oldHeights[f].height*1.8&&Math.abs(shape.foot-oldHeights[f].foot)<4,'街灯の高さと接地点 '+f)}
+    if(id==='bench211'||id==='lamp211')check(new Set([1,2,4].map(l=>qa.hash(qa.sprite(id,l,f)))).size===3,'既存の強化表示 '+id+f);
+   }
+   check(hashes.size===4,id+' の異なる4方向');
+  }
+  check(qa.save(),'新版を保存');qa=await openGame(newer,width);check(qa.saved(types)===before,'新版の再読込');
+  for(const type of types)for(let f=0;f<4;f++)check(qa.places(type,f),type+' 建築一覧・方向選択・1×1の実建築・タップ '+f);
+  document.body.dataset.status='pass';document.querySelector('#result').textContent='PASS '+width+'px '+(lite?'ランチャー版':'通常版')+'　16枚の原画・16通りの実建築・旧セーブを確認。';
+ }finally{document.querySelector('main').replaceChildren();for(const k of Object.keys(localStorage))if(k.startsWith(keyPrefix))localStorage.removeItem(k)}
+}
+run().catch(e=>{document.body.dataset.status='fail';document.querySelector('#result').textContent=e.stack||String(e)});
+</script></html>
