@@ -1,0 +1,15 @@
+--- a/game.html
++++ b/game.html
+@@ -7246,5 +7246,5 @@
+   if(tree&&x>=tree.x&&x<tree.x+6&&y>=tree.y&&y<tree.y+6)return false;
+   if(!pathOld195(x,y))return false;
+-  return !state.buildings.some(b=>b.x===x&&b.y===y&&townCatalog[b.type]?.role==='decor');
++  return !state.buildings.some(b=>b.x===x&&b.y===y&&townCatalog[b.type]?.role==='decor'&&!acceptsRoadFloor130(b.type));
+ };
+ // Use the hand-drawn 192x192 World Tree art on the actual world renderer.
+@@ -7791,4 +7791,5 @@
+ }
+ function acceptsRoadFloor130(type) {
++  if(type==='bubblePot'||type==='glowMushrooms')return true;
+   return type!=='acorn250' && !Object.hasOwn(townCatalog,type) && (type === 'relicStand' || isTownDecor(type));
+ }
