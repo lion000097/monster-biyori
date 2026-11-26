@@ -36,27 +36,29 @@ function hooks(){
     const b={type,x:-8,y:3,facing:f,level:1},m=buildingOf(b),r=plotImageRect(b);
     const c=spriteBuildingV161(type,1,f),size=c.width,data=ink(c);
     const polygon=[[0,0],[m.w,0],[m.w,m.h],[0,m.h]].map(([u,v])=>projectGround(b.x+u,b.y+v));
+    const underlay=roadOrnament(type);
     for(const corner of polygon){
       let found=false;
       for(let y=0;y<size;y++)for(let x=0;x<size;x++){
-        if(data[(y*size+x)*4+3]&&Math.hypot(r.x+x+.5-corner.x,r.y+y+.5-corner.y)<1.7)found=true;
+        if(data[(y*size+x)*4+3]&&Math.hypot(r.x+(x+.5)*r.w/size-corner.x,r.y+(y+.5)*r.h/size-corner.y)<1.7)found=true;
       }
-      assert(found,'四隅 '+type+' '+f);
+      // An upright ornament can project over the rear corner of its tile.
+      if(!underlay||corner!==polygon[0])assert(found!==underlay,'接地面の四隅 '+type+' '+f);
     }
     for(let x=0;x<size;x++){
-      const column=r.x+x+.5;
+      const column=r.x+(x+.5)*r.w/size;
       const ground=(a,b)=>a.y+(column-a.x)*(b.y-a.y)/(b.x-a.x);
       const lower=column<polygon[2].x?ground(polygon[3],polygon[2]):ground(polygon[2],polygon[1]);
       const upper=column<polygon[0].x?ground(polygon[3],polygon[0]):ground(polygon[0],polygon[1]);
       for(let y=0;y<size;y++){
-        const py=r.y+y+.5,alpha=data[4*(y*size+x)+3];
+        const py=r.y+(y+.5)*r.h/size,alpha=data[4*(y*size+x)+3];
         if(py>=lower)assert(!alpha,'隣の道の画素 '+type+' '+f+' '+x+','+y);
-        if(py>=upper&&py<lower)assert(alpha===255,'敷地の欠け '+type+' '+f);
+        if(!underlay&&py>=upper&&py<lower)assert(alpha===255,'敷地の欠け '+type+' '+f);
       }
     }
     mapPickItems.length=0;drawLot(b,f,1);const item=mapPickItems.at(-1);
     assert(item?.building===b&&item.rect.x===r.x&&item.rect.y===r.y,'マップの基準位置 '+type);
-    const p=projectGround(b.x+m.w/2,b.y+m.h/2);
+    const p=projectGround(b.x+m.w/2,b.y+m.h/2);if(underlay)p.y-=15;
     assert(pickMapActorOrFacility({px:p.x,py:p.y})?.building===b,'タップ判定 '+type);
     return c;
   }
@@ -65,7 +67,7 @@ function hooks(){
     const center=frontPoint(type,x,y,f,.5,.5).map(Math.floor);
     const corners=[[x,y],[x+m.w-1,y],[x,y+m.h-1],[x+m.w-1,y+m.h-1]];
     state.buildings=state.buildings.filter(b=>b.type==='worldtree');
-    state.paths=[keyXY(...center)];
+    state.paths=[keyXY(...center)];state.stoneTiles={};
     for(let i=x-2;i<x+9;i++)for(let j=y-2;j<y+9;j++){
       const k=keyXY(i,j);if(!state.clearedScenery.includes(k))state.clearedScenery.push(k);
       if(!state.clearedPonds.includes(k))state.clearedPonds.push(k);
@@ -75,14 +77,27 @@ function hooks(){
     assert(canBuild(x,y,null,false,type,f),'新規設置 '+type+' '+f);
     for(const corner of corners){
       state.paths.push(keyXY(...corner));
-      assert(!canBuild(x,y,null,false,type,f),'敷地の道を拒否 '+type+' '+f);
+      assert(canBuild(x,y,null,false,type,f)===roadOrnament(type),'既設道への配置 '+type+' '+f);
       state.paths.pop();
+    }
+    const tile=keyXY(x,y),underlay=roadOrnament(type);
+    if(underlay){
+      const mode=f%2?'road':'stone',stroke=terrainRowPlan12527({x,y},{x,y},mode);
+      assert(!stroke.error,'道を先に敷く '+mode+' '+stroke.error);
+      placeTerrainRow12527(stroke);
+      assert(isPath(x,y),'先に敷いた道 '+type+'/'+f+' '+mode+' '+JSON.stringify([stroke.error,stroke.after.length,state.paths.includes(tile),state.stoneTiles[tile]]));
     }
     const price=constructionCost(type),coins=state.coins;
     place(type,x,y);const placed=getBuildingAt(x,y);
     assert(placed?.type===type&&placed.facing===f&&coins-state.coins===price,'建築確定 '+type+' '+f);
     assert(corners.every(([u,v])=>getBuildingAt(u,v)===placed)&&!getBuildingAt(...center),'占有マス '+type);
-    assert(blocksTerrainBrush130('road',x,y)&&blocksTerrainBrush130('stone',x,y),'道を施設の下に追加できない '+type);
+    if(underlay){
+      assert(isPath(x,y)&&residentRoad(x,y),'建設済みの道を維持 '+type+' '+[isPath(x,y),residentRoad(x,y),isWalkable(x,y),pathOld195(x,y),blockedScenery(x,y),unlocked(x,y)].join(','));
+      assert(!!state.stoneTiles[tile]===(f%2===0),'建設前の石タイル '+type);
+      putTerrain('roadErase',x,y);assert(!isPath(x,y),'装飾の下の道を消す '+type);
+      putTerrain('road',x,y);assert(isPath(x,y)&&residentRoad(x,y),'装飾の後から道 '+type);
+      putTerrain('stone',x,y);assert(isPath(x,y)&&state.stoneTiles[tile],'装飾の後から石タイル '+type);
+    }else assert(blocksTerrainBrush130('road',x,y)&&blocksTerrainBrush130('stone',x,y),'施設の敷地を守る '+type);
     if(m.w!==m.h){
       const turn=(f+1)%4,other=buildingMeta(type,turn);
       const collision=m.w<other.w?[x+m.w,y]:[x,y+m.h];
@@ -101,8 +116,14 @@ function hooks(){
     }
     startMoving(placed.id);placementFacing=f;
     state.paths=[keyXY(...frontPoint(type,nx,ny,f,.5,.5).map(Math.floor)),keyXY(nx,ny)];
-    moveBuilding(nx,ny);assert(placed.x===x,'移設で道を覆わない '+type);
-    state.paths.pop();moveBuilding(nx,ny);assert(placed.x===nx&&placed.y===ny&&placed.facing===f,'移設 '+type);
+    moveBuilding(nx,ny);
+    if(underlay){
+      assert(isPath(nx,ny)&&placed.x===nx,'道の上へ移設 '+type);
+    }else{
+      assert(placed.x===x,'移設で道を覆わない '+type);
+      state.paths.pop();moveBuilding(nx,ny);
+    }
+    assert(placed.x===nx&&placed.y===ny&&placed.facing===f,'移設 '+type);
   }
   function gate(f,assert){
     const b={type:'festivalPlaza',x:-12,y:-13,facing:f,level:1};
@@ -135,11 +156,23 @@ function hooks(){
   }
   function legacyPaths(assert){
     for(const b of state.buildings.filter(b=>townCatalog[b.type]?.role==='decor')){
-      assert(pathOld195(b.x,b.y)&&!isPath(b.x,b.y),'既設装飾の下の道を保管');
+      assert(pathOld195(b.x,b.y)&&isPath(b.x,b.y),'既設装飾の下の道が見える');
       b.x++;assert(isPath(b.x-1,b.y),'移設後に元の道が戻る');b.x--;
     }
   }
-  return {types,ink,hash,seed,save:()=>save(true),fingerprint,geometry,plotTest,gate,effects,legacyPaths,
+  function checkGardensAndTrees(assert){
+    const legacy=[...Object.keys(facilityFrames).filter(hasLevelLot),'worldtree'];
+    for(const type of legacy)for(let f=0;f<4;f++)geometry(type,f,assert);
+    for(let f=0;f<4;f++){
+      const fingerprint=(level,hour)=>{state.hour=hour;return hash(spriteBuildingV161('worldtree',level,f));};
+      assert(fingerprint(24,10)!==fingerprint(25,10),'Lv25樹冠 '+f);
+      assert(fingerprint(25,10)===fingerprint(29,10),'Lv25から29の樹冠 '+f);
+      assert(fingerprint(29,10)!==fingerprint(30,10),'Lv30樹冠 '+f);
+      for(const level of [24,25,30])assert(fingerprint(level,10)!==fingerprint(level,21),'世界樹の夜の花 '+level+'/'+f);
+    }
+    return legacy.length;
+  }
+  return {types,ink,hash,seed,save:()=>save(true),fingerprint,geometry,plotTest,gate,effects,legacyPaths,checkGardensAndTrees,
     ready:()=>Boolean(facilitySheetReady&&villageSheetReady&&treeDecorationReady&&colorIndices&&lionReady)};
 }
 window.instrument=raw=>raw.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0;')
@@ -154,10 +187,10 @@ async function game(raw,width){
 async function read(url){const r=await fetch(url);check(r.ok,url);return r.text()}
 async function run(){
   const width=Number(q.get('width')||1280),lite=q.has('launcher');
-  const [old,next]=await Promise.all([read('../releases/1.25.63/game.html'),read('../releases/1.25.64/'+(lite?'launcher-game':'game')+'.html')]);
+  const [old,next]=await Promise.all([read(q.get('previous')||'../releases/1.25.63/game.html'),read('../releases/1.25.64/'+(lite?'launcher-game':'game')+'.html')]);
   let qa=await game(old,width);check(qa.seed(),'旧版で15種類を保存');qa=await game(old,width);
   const before=qa.fingerprint();qa=await game(next,width);check(qa.fingerprint()===before,'既存セーブ引き継ぎ');
-  qa.legacyPaths(check);check(qa.save(),'保存');qa=await game(next,width);check(qa.fingerprint()===before,'再読み込み');log('1.25.63の牧場・道・所持品・住人・冒険進行を引き継ぎ');
+  qa.legacyPaths(check);check(qa.save(),'保存');qa=await game(next,width);check(qa.fingerprint()===before,'再読み込み');log('旧版の牧場・道・所持品・住人・冒険進行を引き継ぎ');
   const sheets=await Promise.all(qa.types.map(async id=>{const img=new Image();img.src='../assets/town-buildings/'+id+'.png';await img.decode();return img}));
   for(const [i,id] of qa.types.entries()){
     const sheet=sheets[i],n=sheet.height,c=document.createElement('canvas');c.width=c.height=n;
@@ -170,6 +203,7 @@ async function run(){
     }
     check(directions.size===4,'4方向 '+id);log(id+'　4方向合格');
   }
+  log('従来施設 '+qa.checkGardensAndTrees(check)+'種の全方向と世界樹の成長・昼夜に合格');
   for(let f=0;f<4;f++){qa.gate(f,check);qa.effects(f,check);}
   log('正面の中央・両端の道から門を通過。演出を4方向で確認。');
   document.body.dataset.status='pass';log('PASS '+width+'px '+(lite?'軽量版':'通常版'));

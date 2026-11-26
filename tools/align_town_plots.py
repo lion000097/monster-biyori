@@ -78,7 +78,7 @@ class Plot:
     def line(self, points, color, width=1):
         self.draw.line([tuple(map(round,self.point(*p))) for p in points],self.color(color),width)
 
-    def floor(self, green=False):
+    def floor(self, green=False, kerb=False):
         # The outermost sample of each column belongs to a single tile.
         # Invert at pixel centres to get complementary edges on adjoining lots.
         px = self.image.load()
@@ -88,13 +88,13 @@ class Plot:
             for y in range(math.ceil(top-.5), math.ceil(bottom-.5)):
                 edge = bottom-(y+.5)
                 if green:
-                    tint = '#585b3c' if edge<1 else '#81905a' if edge<2.4 else '#a6ac71'
-                    if edge>=2.4 and (x*17+y*53)%37<3:
+                    tint = '#a6ac71'
+                    if (x*17+y*53)%37<3:
                         tint = '#90945a'
                 else:
-                    if edge<1:
+                    if kerb and edge<1:
                         tint='#795c4c'
-                    elif edge<3:
+                    elif kerb and edge<3:
                         tint='#bd9773' if x<self.w*32 else '#a7826a'
                     else:
                         u=(x+.5-self.h*32)/64+(y+3.5-self.size/2)/32
@@ -183,13 +183,13 @@ def project_garden(plot, image, contacts):
     # The open ground is a plane, so include the rear corner in the projection.
     left,near,right=contacts
     back=(left[0]+right[0]-near[0],left[1]+right[1]-near[1])
-    margin=.09
+    margin=0
     px=plot.image.load()
     source=image.load()
     for y in range(plot.size):
         for x in range(plot.size):
             dx=(x+.5-plot.h*32)/32
-            dy=(y+.5+5-plot.size/2)/16
+            dy=(y+.5-plot.size/2)/16
             u=((dy+dx)/2-margin)/(plot.w-2*margin)
             v=((dy-dx)/2-margin)/(plot.h-2*margin)
             sx=round(back[0]+u*(near[0]-left[0])+v*(near[0]-right[0]))
@@ -200,6 +200,7 @@ def project_garden(plot, image, contacts):
 
 def make_frames(name, refs):
     from festival_plaza_art import draw_plaza
+    from music_square_art import draw_music_square, cut_mushroom_turf
     frames,anchors=[],[]
     for face in range(4):
         # In the old sheets the two back views of these long structures were interchanged.
@@ -209,11 +210,13 @@ def make_frames(name, refs):
         if name=='festivalPlaza':
             draw_plaza(plot,refs[0])
         elif name in ('bubblePot','glowMushrooms'):
-            green=name=='glowMushrooms'
-            plot.floor(green)
-            # A low kerb and a centred object give each 1x1 ornament four ground corners.
+            # Reuse the original four views, removing the turf around the stems.
+            if name=='glowMushrooms':
+                image=cut_mushroom_turf(image)
             art=image.resize((52,52),Image.Resampling.NEAREST)
             plot.image.paste(art,(6,3),art.point([0]+[255]*255, 'L'))
+        elif name=='musicHall':
+            draw_music_square(plot)
         else:
             plot.floor(name=='kitchenGarden')
             if name=='kitchenGarden':
