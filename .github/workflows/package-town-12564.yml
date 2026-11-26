@@ -1,0 +1,30 @@
+name: Verify town footprints release 1.25.64
+on:
+  push:
+    branches: [qa/1.25.64-town-footprints]
+    paths: [.github/workflows/package-town-12564.yml]
+permissions:
+  contents: write
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            tools
+            releases/1.25.63
+            releases/1.25.64
+            .town-qa
+      - name: Assemble and check all release files against the browser-verified build
+        run: |
+          python3 .town-qa/package.py
+          python3 tools/release_preflight.py --root .
+      - name: Store the matching archive on the packaging branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add releases/1.25.64/monster-biyori-1.25.64.zip
+          git commit -m "Store verified 1.25.64 offline archive"
+          git push origin HEAD:refs/heads/qa/1.25.64-town-footprints
