@@ -1,0 +1,52 @@
+name: Build and verify 1.25.65 town art
+on:
+  push:
+    branches:
+      - feature/town-art-1.25.65
+    paths:
+      - tools/v12565_scene_patch.js
+      - tools/apply_v12565.py
+      - .github/workflows/town-art-12565.yml
+      - tests/v12565_chromium.cjs
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  check-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Apply the art change and build the offline release
+        run: python tools/apply_v12565.py
+      - name: Syntax-check the new JavaScript artwork
+        run: node --check tools/v12565_scene_patch.js
+      - name: Verify release ZIP, launcher and version SHA
+        run: python tools/release_preflight.py --root .
+      - name: Verify untouched save-key compatibility
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          now=Path('game.html').read_text()
+          old=Path('releases/1.25.64/game.html').read_text()
+          for mark in ['SAVE_KEY=',"LEGACY_SAVE_KEY12556=",'const townCatalog = {','const PUBLIC_ADVENTURE_END=50, PUBLIC_TREE_MAX=30']:
+              assert mark in now and mark in old, mark
+          for key in ['SAVE_KEY','LEGACY_SAVE_KEY12556']:
+              pattern=key+r"='[^']+'"
+              assert re.search(pattern,now)[0]==re.search(pattern,old)[0]
+          assert "GAME_APP_VERSION='1.25.65'" in now
+          assert 'type===\x27bubblePot\x27||type===\x27glowMushrooms\x27' in now
+          print('PASS 1.25.64 save keys and 1.25.65 renderer markers')
+          PY
+      - name: Commit verified files on the feature branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add game.html latest.json releases/1.25.65
+          if ! git diff --cached --quiet; then
+            git commit -m 'Build verified 1.25.65 game and offline package [skip ci]'
+            git push origin HEAD:feature/town-art-1.25.65
+          fi
