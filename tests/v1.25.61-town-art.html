@@ -1,0 +1,106 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>牧場の建物の作画確認</title>
+<style>body{font:16px system-ui;color:#284936;background:#f3f3e5;margin:1rem}pre{white-space:pre-wrap}iframe{border:1px solid #728c64;height:720px}body[data-status=fail]{color:#922e22}</style>
+<h1>牧場の建物15種の作画確認</h1><pre id="result" role="status"></pre><main></main>
+<script>
+const ids=['bubblePot','artHut','rainPavilion','glowMushrooms','townHall','bakery','starLodge','kitchenGarden','guideOffice','musicHall','tradePost','aquarium','festivalPlaza','theater','restaurant'];
+const prefix='town_art_qa_'+crypto.randomUUID()+'_';
+const marker='})();\n</'+'script>';
+const check=(test,message)=>{if(!test)throw Error(message)};
+const log=message=>document.querySelector('#result').textContent+=message+'\n';
+function hooks(){
+  const rgba=c=>c.getContext('2d').getImageData(0,0,c.width,c.height).data;
+  const hash=c=>rgba(c).reduce((n,b)=>Math.imul(n^b,16777619)>>>0,2166136261);
+  return {
+    ready:()=>Boolean(facilitySheetReady&&villageSheetReady&&treeDecorationReady&&colorIndices&&lionReady),
+    seed(ids){
+      state.speed=0;state.starterGuide='done';state.villageLv=state.worldTreeLevel=30;
+      state.buildings.find(b=>b.type==='worldtree').level=30;
+      state.zones=ZONES.map((_,i)=>i);state.coins=87654;state.magic=3210;state.villageXp=543.25;
+      state.adventure.stage=51;state.adventure.clears=50;
+      ids.forEach((type,i)=>{
+        const b={id:800+i,type,level:1,facing:i%4,x:-14+i%5*7,y:-13+Math.floor(i/5)*7};
+        if(type==='artHut')b.townPicture=2;
+        if(type==='bakery')b.townBread=[3,1];
+        if(type==='restaurant')b.townServed=7;
+        if(type==='starLodge')b.townTenants={monsters:state.monsters.slice(0,1).map(a=>a.id),citizens:state.staff.slice(0,1).map(a=>a.id)};
+        const {w,h}=buildingOf(b);b.w=w;b.h=h;state.buildings.push(b);
+      });
+      return save(true);
+    },
+    stateKey(ids){
+      const s=state;
+      return JSON.stringify([s.villageLv,s.worldTreeLevel,s.coins,s.magic,s.villageXp,s.adventure.stage,s.adventure.clears,
+        s.monsters.map(m=>[m.id,m.kind,m.shiny]),s.staff.map(a=>[a.id,a.name]),
+        s.buildings.filter(b=>ids.includes(b.type)).map(b=>[b.type,b.x,b.y,b.level,validFacing(b.facing),b.townPicture,b.townBread,b.townServed,b.townTenants])]);
+    },
+    save:()=>save(true),
+    sprite:(id,f)=>spriteBuildingV161(id,1,f),
+    variant:(id,f,v)=>hash(townBuildingArt(id,1,f,v)),
+    roof:f=>townRainCanopy(f),
+    effects:(id,face,hour,time)=>{
+      const side=320,c=document.createElement('canvas');c.width=c.height=side;
+      state.hour=hour;drawTownLandmarkEffects(c.getContext('2d'),{type:id,facing:face},{x:0,y:0,w:side,h:side},time);return hash(c);
+    },
+    hash, windowCount:()=>townWindowLights(state.buildings.find(b=>b.type==='starLodge'))
+  };
+}
+window.instrumentTownGame=function(source){
+  check(source.includes(marker),'ゲーム初期化位置');
+  return source.replaceAll('monster_biyori_',prefix).replace('<script>','<script>window.requestAnimationFrame=()=>0;')
+    .replace(marker,()=>'window.artQA=('+hooks.toString()+')();\n'+marker);
+};
+async function fetchText(p){const r=await fetch(p);check(r.ok,p);return r.text()}
+async function game(raw,width){
+  const f=document.createElement('iframe');f.width=width;f.title='検証用牧場';
+  f.srcdoc=raw.includes('id="ranch-payload"')?raw.replace('document.write(html)','document.write(parent.instrumentTownGame(html))'):instrumentTownGame(raw);
+  document.querySelector('main').replaceChildren(f);
+  for(let i=0;i<350;i++){
+    if(f.contentWindow?.artQA?.ready())return f.contentWindow.artQA;
+    await new Promise(r=>setTimeout(r,50));
+  }
+  throw Error('ゲームの起動・画像初期化');
+}
+async function sourceImages(){
+  return Promise.all(ids.map(id=>new Promise((ok,bad)=>{
+    const image=new Image();image.onload=()=>ok(image);image.onerror=()=>bad(Error(id));image.src='../assets/town-buildings/'+id+'.png';
+  })));
+}
+async function run(){
+  const q=new URLSearchParams(location.search),width=Number(q.get('width')||1280),lite=q.has('launcher');
+  const [old,newer,originals]=await Promise.all([fetchText('../releases/1.25.60/game.html'),fetchText('../releases/1.25.61/'+(lite?'launcher-game':'game')+'.html'),sourceImages()]);
+  const clean=()=>{for(const key of Object.keys(localStorage))if(key.startsWith(prefix))localStorage.removeItem(key)};
+  try{
+    let qa=await game(old,width);check(qa.seed(ids),'1.25.60の保存');
+    // Use the previous release's real reader once before comparing the two versions.
+    qa=await game(old,width);const before=qa.stateKey(ids),prior=ids.map(id=>[0,1,2,3].map(f=>qa.hash(qa.sprite(id,f))));
+    qa=await game(newer,width);check(qa.stateKey(ids)===before,'既存セーブの建物・向き・絵・在庫・住人・冒険進捗');
+    for(const [i,id] of ids.entries()){
+      const sheet=originals[i],size=sheet.height,directions=new Set();check(sheet.width===size*4,id);
+      for(let f=0;f<4;f++){
+        const c=document.createElement('canvas');c.width=c.height=size;
+        c.getContext('2d').drawImage(sheet,size*f,0,size,size,0,0,size,size);
+        const actual=qa.sprite(id,f),a=c.getContext('2d').getImageData(0,0,size,size).data,b=actual.getContext('2d').getImageData(0,0,size,size).data;
+        check(actual.width===size&&a.every((v,i)=>v===b[i]),id+'の向き'+f+'と原画の一致');
+        const v=qa.hash(actual);directions.add(v);check(v!==prior[i][f],id+'の絵の更新');
+      }
+      check(directions.size===4,id+'の4方向');
+    }
+    log('15種類×4方向の実ゲーム画像がすべて原画と一致。1.25.60からの60枚の差し替えを確認。');
+    for(let f=0;f<4;f++){
+      check(new Set(Array.from({length:11},(_,lights)=>qa.variant('starLodge',f,{lights}))).size===11,'0〜10人の窓 '+f);
+      check(new Set([0,1,3,5,7].map(pulse=>qa.variant('glowMushrooms',f,{night:true,pulse}))).size===5,'夜のきのこ '+f);
+      check(new Set([0,1,2,3].map(v=>qa.variant('festivalPlaza',f,{night:!!(v&1),festival:!!(v&2)}))).size===4,'お祭りの旗とランタン '+f);
+      if(f===0||f===3)check(new Set([0,1,2,3].map(paint=>qa.variant('artHut',f,{paint}))).size===4,'イーゼル '+f);
+      const roof=qa.roof(f),art=qa.sprite('rainPavilion',f);
+      const ink=c=>c.getContext('2d').getImageData(0,0,c.width,c.height).data.filter((v,i)=>i%4===3&&v).length;
+      check(ink(roof)>ink(art)*.22&&ink(roof)<ink(art)*.85,'東屋の屋根と柱 '+f);
+      check(new Set([100,1550,2900,3800].map(t=>qa.effects('aquarium',f,14,t))).size>=3,'水槽の泡 '+f);
+      if(f===0||f===3)check(qa.effects('theater',f,16,100)!==qa.effects('theater',f,17,100),'夕方の玄関灯 '+f);
+    }
+    check(qa.save(),'描画後の保存');qa=await game(newer,width);check(qa.stateKey(ids)===before,'再読込');
+    log('窓・展示絵・雨やどり・水槽・お祭り・きのこ・劇場の灯りとセーブの再読み込みを確認。');
+    document.body.dataset.status='pass';log('PASS '+width+'px '+(lite?'ランチャー版':'通常版'));
+  }finally{document.querySelector('main').replaceChildren();clean();}
+}
+run().catch(e=>{document.body.dataset.status='fail';log(e.stack||String(e))});
+</script></html>
