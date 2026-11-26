@@ -33,11 +33,14 @@ else:
     original=original.replace(marker,art+'\n'+marker)
     game.write_text(original)
 from pack_launcher_html import pack
+from pack_launcher_images import pack as minimize_embedded_images
 
 destination=ROOT/'releases'/NEW
 destination.mkdir(parents=True,exist_ok=True)
 shutil.copyfile(game,destination/'game.html')
-launcher=pack(game.read_text()).encode('utf-8')
+compressed_source, changed_images=minimize_embedded_images(game.read_bytes())
+launcher=pack(compressed_source.decode('utf-8')).encode('utf-8')
+print(f'Losslessly optimized {len(changed_images)} embedded images')
 assert len(launcher)<4*1024*1024, '4 MiB launcher limit exceeded'
 (destination/'launcher-game.html').write_bytes(launcher)
 digest=hashlib.sha256(launcher).hexdigest()
