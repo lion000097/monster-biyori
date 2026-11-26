@@ -1,0 +1,175 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>装飾4種と道の角度の確認</title>
+<style>body{font:16px system-ui;color:#354c39}pre{white-space:pre-wrap}iframe{height:720px}</style>
+<h1>装飾4種と道の角度の確認</h1><pre id="result"></pre><main></main>
+<script>
+const types=['picnic257','flowerbed211','bench211','lamp211'];
+const keyPrefix='garden_art_qa_'+crypto.randomUUID()+'_';
+const marker='})();\n</'+'script>';
+const check=(ok,message)=>{if(!ok)throw Error(message)};
+function hooks(){
+  const ink=canvas=>canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+  const hash=c=>ink(c).reduce((v,b)=>Math.imul(v^b,16777619)>>>0,2166136261);
+  function shape(type,face){
+    const site={type,x:0,y:0,facing:face,level:1};
+    const c=spriteBuildingV161(type,1,face),data=ink(c),rect=plotImageRect(site);
+    let top=c.height,bottom=0;
+    for(let i=3;i<data.length;i+=4)if(data[i]>127){
+      const row=Math.floor((i-3)/(4*c.width));top=Math.min(top,row);bottom=Math.max(bottom,row+1);
+    }
+    return {height:(bottom-top)*rect.h/c.height,foot:rect.y+bottom*rect.h/c.height};
+  }
+  return {
+    ready:()=>Boolean(facilitySheetReady&&villageSheetReady&&treeDecorationReady&&colorIndices&&lionReady),
+    seed(types){
+      state.speed=0;state.starterGuide='done';state.villageLv=state.worldTreeLevel=20;
+      state.buildings.find(b=>b.type==='worldtree').level=20;state.zones=ZONES.map((_,i)=>i);
+      state.coins=98765;state.magic=678;state.adventure.stage=32;
+      types.forEach((type,i)=>state.buildings.push({id:700+i,type,x:-14+i*3,y:-14,facing:i,w:1,h:1,level:[1,2,4,2][i]}));
+      return save(true);
+    },
+    saved(types){return JSON.stringify([state.coins,state.magic,state.worldTreeLevel,state.adventure.stage,state.paths,
+      state.monsters.map(m=>[m.id,m.kind,m.lv]),state.staff.map(a=>[a.id,a.name]),
+      state.buildings.filter(b=>types.includes(b.type)).map(b=>[b.id,b.type,b.level,b.facing,b.x,b.y])]);},
+    axes(){
+      const o=projectGround(0,0),a=projectGround(1,0),b=projectGround(0,1);
+      return [(a.y-o.y)/(a.x-o.x),(b.y-o.y)/(b.x-o.x)];
+    },
+    sprite:(id,level,f)=>spriteBuildingV161(id,level,f),hash,shape,
+    places(type,i){
+      const x=-15+3*i,y=-9;
+      state.buildings=state.buildings.filter(b=>b.x!==x||b.y!==y);
+      for(let u=x-1;u<=x+1;u++)for(let v=y-1;v<=y+1;v++){
+        const k=keyXY(u,v);state.clearedScenery.push(k);state.clearedPonds.push(k);state.removedDefaultPaths.push(k);
+        state.paths=state.paths.filter(p=>p!==k);state.ponds=state.ponds.filter(p=>p!==k);
+      }
+      tab='build';facilityRole='decor';buildMode=type;placementFacing=i;clearMode=false;terrainMode=null;
+      const [dx,dy]=[[0,1],[-1,0],[0,-1],[1,0]][i];state.paths.push(keyXY(x+dx,y+dy));
+      renderUI(true);renderFacingPicker();paintVillageCanvases();
+      const icon=$('tabBody').querySelector('[data-facility-art="'+type+'"]');
+      if(!icon)return false;
+      const target=spriteBuildingV161(type,1,i);
+      const thumbnail=pixelSprite(icon.width,icon.height,g=>g.drawImage(target,0,0,icon.width,icon.height));
+      if(hash(icon)!==hash(thumbnail)||!facingButtons.every(v=>v.art===spriteBuildingV161(type,1,v.direction)))return false;
+      const price=constructionCost(type),coins=state.coins;
+      if(!canBuild(x,y,null,false,type))return false;
+      place(type,x,y);const b=getBuildingAt(x,y);
+      if(!b||b.type!==type||validFacing(b.facing)!==i||coins-state.coins!==price)return false;
+      mapPickItems.length=0;drawLot(b,i,1);const picked=mapPickItems.at(-1);
+      if(picked?.building!==b||picked.art!==target||buildingOf(b).w!==1||buildingOf(b).h!==1)return false;
+      const rgba=ink(target),r=picked.rect;
+      for(let y=0;y<target.height;y++)for(let x=0;x<target.width;x++)if(rgba[4*(y*target.width+x)+3]>200){
+        return pickMapActorOrFacility({px:r.x+(x+.5)*r.w/target.width,py:r.y+(y+.5)*r.h/target.height})?.building===b;
+      }
+      return false;
+    },
+    save:()=>save(true)
+  };
+}
+window.instrument=source=>source.replaceAll('monster_biyori_',keyPrefix)
+  .replace('<script>','<script>window.requestAnimationFrame=()=>0;')
+  .replace(marker,()=>'window.gardenQA=('+hooks.toString()+')();\n'+marker);
+async function read(name){const r=await fetch(name);check(r.ok,name);return r.text()}
+async function openGame(html,width){
+  const frame=document.createElement('iframe');frame.width=width;
+  frame.srcdoc=html.includes('id="ranch-payload"')?html.replace('document.write(html)','document.write(parent.instrument(html))'):instrument(html);
+  document.querySelector('main').replaceChildren(frame);
+  for(let i=0;i<400;i++){if(frame.contentWindow?.gardenQA?.ready())return frame.contentWindow.gardenQA;await new Promise(r=>setTimeout(r,50))}
+  throw Error('ゲームと素材の起動');
+}
+function median(values){
+ const v=[...values].sort((a,b)=>a-b),m=Math.floor(v.length/2);
+ return v.length%2?v[m]:(v[m-1]+v[m])/2;
+}
+function measureSprite(canvas){
+ const size=canvas.width, rgba=canvas.getContext('2d').getImageData(0,0,size,size).data;
+ function edge(x,top){
+  for(let i=0;i<size;i++){
+   const y=top?i:size-i-1;
+   if(rgba[4*(y*size+x)+3]>127)return y;
+  }
+  throw Error('輪郭が見つからない '+x);
+ }
+ function slope(x0,x1,top){
+  const slopes=[];
+  for(let x=x0;x<x1;x++)for(let u=x+1;u<=x1;u++)slopes.push((edge(u,top)-edge(x,top))/(u-x));
+  return median(slopes);
+ }
+ function corner(x0,x1){
+  const points=[];
+  for(let x=x0;x<=x1;x++)points.push([x,edge(x,false)]);
+  const y=Math.max(...points.map(p=>p[1])),xs=points.filter(p=>p[1]===y).map(p=>p[0]);
+  return [xs.reduce((a,b)=>a+b,0)/xs.length,y];
+ }
+ function post(box){
+  const [x0,x1,y0,y1]=box;let sx=0,sy=0,n=0;
+  for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
+   const i=4*(y*size+x),r=rgba[i],g=rgba[i+1],b=rgba[i+2];
+   if(rgba[i+3]>0&&r>205&&g>135&&r-g>20&&g-b>16){sx+=x;sy+=y;n++}
+  }
+  check(n>=5,'木杭の切り口 '+box);return [sx/n,sy/n];
+ }
+ return {edge,slope,corner,post};
+}
+const benchProbes=[
+ [[60,90],[22,36],[37,70]],[[60,90],[32,40],[60,88]],
+ [[38,68],[86,96],[39,68]],[[36,68],[90,106],[58,88]]
+];
+// The light-colored end grain of the left, right and nearest log posts.
+const flowerCaps=[
+ [[10,16,45,48],[82,87,45,48],[44,50,63,67]],[[10,16,45,48],[82,87,45,48],[47,53,63,66]],
+ [[11,17,43,49],[80,87,43,49],[46,53,61,64]],[[10,16,45,50],[80,86,45,49],[45,51,63,66]]
+];
+function verifyProjection(canvas,id,face,axes){
+ const art=measureSprite(canvas),[positive,negative]=axes;
+ if(id==='bench211'){
+  const [back,arm,seat]=benchProbes[face],long=face%2===0?positive:negative,short=face%2===0?negative:positive;
+  for(const [range,top,expected] of [[back,true,long],[arm,true,short],[seat,false,long]])
+   check(Math.abs(art.slope(...range,top)-expected)<.015,'ベンチの背板・ひじ掛け・座板 '+face+' '+range);
+ }else if(id==='lamp211'){
+  for(const [x0,x1,m] of [[53,62,positive],[67,76,negative]]){
+   const intercepts=Array.from({length:x1-x0+1},(_,i)=>art.edge(x0+i,false)-m*(x0+i)),mid=median(intercepts);
+   check(intercepts.every(v=>Math.abs(v-mid)<=1),'街灯の石台 '+face);
+  }
+ }else{
+  const [left,right,near]=id==='picnic257'?
+   [art.corner(5,10),art.corner(85,91),art.corner(43,51)]:flowerCaps[face].map(box=>art.post(box));
+  for(const [side,m] of [[left,positive],[right,negative]]){
+   const error=Math.abs((side[1]-near[1])-(side[0]-near[0])*m);
+   check(error<=(id==='picnic257'?1.25:1),id+' の3つの角 '+face+' '+error);
+  }
+ }
+}
+
+async function run(){
+ const options=new URLSearchParams(location.search),width=Number(options.get('width')||1280),lite=options.has('launcher');
+ const [old,newer,images]=await Promise.all([read('../releases/1.25.62/game.html'),read('../releases/1.25.63/'+(lite?'launcher-game':'game')+'.html'),
+   Promise.all(types.map(async t=>{const im=new Image();im.src='../assets/town-buildings/'+t+'.png';await im.decode();return im}))]);
+ try{
+  let qa=await openGame(old,width);check(qa.seed(types),'前版の牧場を保存');qa=await openGame(old,width);
+  const before=qa.saved(types),oldShapes=Object.fromEntries(types.map(id=>[id,[0,1,2,3].map(f=>qa.shape(id,f))]));
+  for(let f=0;f<4;f++)check(Math.abs(measureSprite(qa.sprite('bench211',1,f)).slope(...benchProbes[f][0],true))<.35,'公開前版のベンチの背板 '+f);
+  const oldArt=types.map(t=>[0,1,2,3].map(f=>qa.hash(qa.sprite(t,1,f))));
+  qa=await openGame(newer,width);check(before===qa.saved(types),'配置・向き・レベル・所持金・仲間・進行の引き継ぎ');
+  for(let i=0;i<types.length;i++){
+   const id=types[i],s=images[i].height,hashes=new Set();
+   for(let f=0;f<4;f++){
+    const c=document.createElement('canvas');c.width=c.height=s;c.getContext('2d').drawImage(images[i],s*f,0,s,s,0,0,s,s);
+    const rendered=qa.sprite(id,1,f),a=c.getContext('2d').getImageData(0,0,s,s).data,b=rendered.getContext('2d').getImageData(0,0,s,s).data;
+    check(rendered.width===s&&rendered.height===s&&a.every((v,i)=>v===b[i]),id+' 原画と4方向の一致 '+f);
+    const hash=qa.hash(rendered);hashes.add(hash);
+    check((hash!==oldArt[i][f])===(id==='bench211'||id==='flowerbed211'&&f>=2),id+' 変更対象の向き '+f);
+    const axes=qa.axes();check(axes[0]===.5&&axes[1]===-.5,'牧場の道の角度');
+    verifyProjection(rendered,id,f,axes);
+    const shape=qa.shape(id,f);check(shape.foot===oldShapes[id][f].foot,id+' 接地点 '+f);
+    if(id==='lamp211')check(shape.height===65&&shape.height===oldShapes[id][f].height,'街灯の高さ '+f);
+    if(id==='bench211'||id==='lamp211')check(new Set([1,2,4].map(l=>qa.hash(qa.sprite(id,l,f)))).size===3,'既存の強化表示 '+id+f);
+   }
+   check(hashes.size===4,id+' の異なる4方向');
+  }
+  check(qa.save(),'新版を保存');qa=await openGame(newer,width);check(qa.saved(types)===before,'新版の再読込');
+  for(const type of types)for(let f=0;f<4;f++)check(qa.places(type,f),type+' 建築一覧・方向選択・1×1の実建築・タップ '+f);
+  document.body.dataset.status='pass';document.querySelector('#result').textContent='PASS '+width+'px '+(lite?'ランチャー版':'通常版')+'　道の両軸、装飾16方向の実画素・接地点・建築、旧セーブを確認。';
+ }finally{document.querySelector('main').replaceChildren();for(const k of Object.keys(localStorage))if(k.startsWith(keyPrefix))localStorage.removeItem(k)}
+}
+run().catch(e=>{document.body.dataset.status='fail';document.querySelector('#result').textContent=e.stack||String(e)});
+</script></html>
