@@ -25,7 +25,7 @@ def textured_panel(p, image, target, source):
 
 
 def pavement(p,reference):
-    p.floor()
+    p.floor(kerb=True)
     # All masonry, including the centre mosaic, turns with the property.
     rng=Random(2564)
     p.poly([(0,0,3),(5,0,3),(5,5,3),(0,5,3)],'#b79472')

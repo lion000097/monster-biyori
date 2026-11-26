@@ -1,0 +1,26 @@
+name: Verify revised 1.25.64 offline package
+on:
+  push:
+    branches: [build/revised-1.25.64]
+    paths:
+      - .release-12564/offline.patch
+      - .github/workflows/package-12564.yml
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct the locally verified offline package
+        run: |
+          git apply --binary .release-12564/offline.patch
+          echo "b15381f621e124669a5ebab3feb116670457a620a12f62586cdc49aec55a929a  releases/1.25.64/monster-biyori-1.25.64.zip" | sha256sum --check
+          python3 tools/release_preflight.py --root .
+      - name: Record the verified package on the build branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- releases/1.25.64/monster-biyori-1.25.64.zip
+          git commit -m 'Verify revised 1.25.64 offline package [skip ci]'
+          git push origin HEAD:refs/heads/build/revised-1.25.64

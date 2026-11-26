@@ -10,7 +10,7 @@ from PIL import Image
 BEGIN = '// BEGIN native town atlas\n'
 END = '\n// END native town atlas'
 
-def embed(source, assets):
+def atlas(assets):
     entries = {}
     for path in sorted(assets.glob('*.png')):
         with Image.open(path) as sheet:
@@ -20,11 +20,20 @@ def embed(source, assets):
             pixels = b''.join(sheet.crop((f*size, 0, (f+1)*size, size)).tobytes() for f in range(4))
             colors = bytes(sheet.getpalette()[:3*(max(pixels)+1)])
             entries[path.stem] = [size, colors.hex(), base64.b64encode(zlib.compress(pixels, 9)).decode()]
+    return entries
+
+def embed(source, assets):
+    entries = atlas(assets)
+    crowns = atlas(assets.parent/'world-tree')
+    if set(crowns) != {'crown25','crown30'}:
+        raise ValueError('Expected the two World Tree growth stages')
     if len(entries) != 19 or source.count(BEGIN) != 1 or source.count(END) != 1:
         raise ValueError('Expected nineteen buildings and decorations and one atlas slot')
     a = source.index(BEGIN) + len(BEGIN)
     b = source.index(END, a)
-    return source[:a] + 'const townAtlases=' + json.dumps(entries, separators=(',', ':')) + ';' + source[b:]
+    payload = '\n'.join('const '+name+'='+json.dumps(data,separators=(',', ':'))+';'
+                        for name,data in [('townAtlases',entries),('treeCrownAtlases',crowns)])
+    return source[:a] + payload + source[b:]
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
