@@ -19,6 +19,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: true
+      - name: Install lossless image packaging dependency
+        run: python -m pip install Pillow
       - name: Apply the art change and build the offline release
         run: python tools/apply_v12565.py
       - name: Syntax-check the new JavaScript artwork
