@@ -5,34 +5,59 @@ from pathlib import Path
 import re
 import zlib
 
-# Two printable symbols can hold 13 bits (91**2 >= 8192). The alphabet
-# omits '<' so a payload cannot form an HTML raw-text end tag.
-ALPHABET = bytes(c for c in range(33, 127) if c not in b'"<\\')
+# Every 27-bit word occupies exactly four UTF-8 bytes in an HTML raw-text node.
+# Most words need four ASCII characters. The rest use one two-byte character
+# at one of three positions and two ASCII digits. Avoid '<', CR and NUL.
+ALPHABET = "\t\n" + ''.join(chr(c) for c in range(32, 127) if c != ord('<'))
+RADIX = len(ALPHABET)  # 96
+ASCII_WORDS = RADIX ** 4
+UNICODE_START = 0xA0
+
+def encode_word(word):
+    if word < ASCII_WORDS:
+        digits = []
+        for _ in range(4):
+            word, digit = divmod(word, RADIX)
+            digits.append(ALPHABET[digit])
+        return ''.join(reversed(digits))
+    group, pair = divmod(word - ASCII_WORDS, RADIX ** 2)
+    letter, position = divmod(group, 3)
+    high, low = divmod(pair, RADIX)
+    digits = [ALPHABET[high], ALPHABET[low]]
+    digits.insert(position, chr(UNICODE_START + letter))
+    return ''.join(digits)
 
 def encode_payload(data):
-    output = bytearray()
+    words = []
     pending = bits = 0
     for byte in data:
         pending |= byte << bits
         bits += 8
-        if bits >= 13:
-            word = pending & 8191
-            output.extend((ALPHABET[word // 91], ALPHABET[word % 91]))
-            pending >>= 13
-            bits -= 13
+        if bits >= 27:
+            words.append(encode_word(pending & ((1 << 27) - 1)))
+            pending >>= 27
+            bits -= 27
     if bits:
-        output.extend((ALPHABET[pending // 91], ALPHABET[pending % 91]))
-    return output.decode('ascii')
+        words.append(encode_word(pending))
+    return ''.join(words)
 
 def decode_payload(text, length):
     values = {c: i for i, c in enumerate(ALPHABET)}
-    data = text.encode('ascii')
+    pos = pending = bits = 0
     output = bytearray()
-    pending = bits = 0
-    for pos in range(0, len(data), 2):
-        word = 91 * values[data[pos]] + values[data[pos + 1]]
-        pending |= word << bits
-        bits += 13
+    while pos < len(text):
+        word = group = 0
+        for digit in range(4):
+            char = text[pos]
+            pos += 1
+            if ord(char) >= UNICODE_START:
+                group = ASCII_WORDS + ((ord(char) - UNICODE_START) * 3 + digit) * RADIX ** 2
+            else:
+                word = word * RADIX + values[char]
+            if group and digit == 2:
+                break
+        pending |= (group + word) << bits
+        bits += 27
         while bits >= 8 and len(output) < length:
             output.append(pending & 255)
             pending >>= 8
@@ -48,13 +73,20 @@ document.addEventListener('DOMContentLoaded',()=>{
   for(const [i,c] of Array.from(ALPHABET).entries())lookup[c.charCodeAt(0)]=i;
   const bytes=new Uint8Array(PACKED_BYTES);
   let out=0, pending=0, bits=0;
-  for(let pos=0;pos<payload.length;pos+=2){
-    const word=91*lookup[payload.charCodeAt(pos)]+lookup[payload.charCodeAt(pos+1)];
-    pending|=word<<bits;
-    bits+=13;
+  for(let pos=0;pos<payload.length;){
+    let word=0, group=0;
+    for(let digit=0;digit<4;digit++){
+      const c=payload.charCodeAt(pos++);
+      if(c>=160)group=96**4+((c-160)*3+digit)*96**2;
+      else word=word*96+lookup[c];
+      if(group && digit===2)break;
+    }
+    // A word plus up to seven carry bits exceeds JavaScript's bitwise width.
+    pending+=(group+word)*2**bits;
+    bits+=27;
     while(bits>=8 && out<bytes.length){
-      bytes[out++]=pending&255;
-      pending>>>=8;
+      bytes[out++]=pending%256;
+      pending=Math.floor(pending/256);
       bits-=8;
     }
   }
@@ -80,7 +112,7 @@ def pack(source):
     return ("<!doctype html><html lang=ja><meta charset=utf-8><title>もんすたー日和</title>"
             '<script type="application/octet-stream" id="ranch-payload">' + data + '</script>'
             '<script id="ranch-inflater">' + inflater + '</script><script>(()=>{'
-            + f"const GAME_APP_VERSION='{version}';const ALPHABET={json.dumps(ALPHABET.decode())};"
+            + f"const GAME_APP_VERSION='{version}';const ALPHABET={json.dumps(ALPHABET)};"
             + f"const PACKED_BYTES={len(compressed)};" + BOOT
             + '})();</script></html>')
 
