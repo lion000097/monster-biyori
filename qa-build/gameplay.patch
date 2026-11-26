@@ -13,10 +13,170 @@
 +  if(type==='bubblePot'||type==='glowMushrooms')return true;
    return type!=='acorn250' && !Object.hasOwn(townCatalog,type) && (type === 'relicStand' || isTownDecor(type));
  }
-@@ -15928,5 +15929,5 @@
+@@ -11045,14 +11046,21 @@
+ 
+ function worldTreeMilestoneArt(tree, level, hour = state?.hour, progress = tickAccum, direction = 0) {
+-  if (level < 10 || !treeDecorationReady) return tree;
++  const crown = level >= 30 ? 30 : level >= 25 ? 25 : 0;
++  if (level < 10 || (!treeDecorationReady && !crown)) return tree;
+   const tier = level >= 20 ? 3 : level >= 15 ? 2 : 1;
+   const blooms = tier === 3 && (hour >= 19 || hour < 6);
+   // tickAccum advances with the ranch clock and freezes when the game is paused.
+   const pulse = blooms ? Math.floor(progress * 12) % 4 : 0;
+-  const cacheKey = direction * 8 + (blooms ? 4 + pulse : tier);
++  const cacheKey = [crown, direction, treeDecorationReady, blooms ? 4 + pulse : tier].join('/');
+   if (treeDecorationCache.has(cacheKey)) return treeDecorationCache.get(cacheKey);
+ 
+   const art = pixelSprite(tree.width, tree.height, g => {
+     g.drawImage(tree, 0, 0);
++    if (crown && tree.width === 384) {
++      const upper = townNativeFrame('crown' + crown, direction, worldTreeCrowns).canvas;
++      g.clearRect(32, 0, 320, 206);
++      g.drawImage(upper, 0, 0, 320, 206, 32, 0, 320, 206);
++    }
++    if (!treeDecorationReady) return;
+     function stamp(name, x, y, mirror = false) {
+       const [sourceX, width, height] = treeDecorationFrames[name];
+@@ -15604,9 +15612,12 @@
+ // Each atlas has four separately illustrated views in the game's rotation order.
+ const townSources=new Map(), townFrames=new Map(), townCanopies=new Map();
+-function townNativeFrame(type,face){
++// BEGIN native world tree crowns
++const worldTreeCrowns={};
++// END native world tree crowns
++function townNativeFrame(type,face,atlas=townAtlases){
+   const key=type+':'+face;
+   if(townFrames.has(key))return townFrames.get(key);
+   if(!townSources.has(type)){
+-    const [size,hex,encoded]=townAtlases[type];
++    const [size,hex,encoded]=atlas[type];
+     const pixels=inflateCharacter12523(Uint8Array.from(atob(encoded),c=>c.charCodeAt(0)));
+     const palette=Uint8Array.from(hex.match(/../g),word=>parseInt(word,16));
+@@ -15737,112 +15748,4 @@
+   paint.restore();
+ }
+-
+-const townCrownArt=(()=>{
+-  const treeCache=new WeakMap();
+-  const canopyPalette=[
+-    [[16,44,46],[28,79,74],[41,118,100],[71,154,120],[136,192,143],[192,216,157],[226,233,181]],
+-    [[51,49,51],[78,73,57],[125,96,60],[169,127,64],[206,163,75],[230,192,98],[249,217,138]]
+-  ];
+-  function leafTint(data,index,tier,strength){
+-    const r=data[index],g=data[index+1],b=data[index+2],luma=(r*.25+g*.60+b*.15)/242;
+-    const band=Math.max(0,Math.min(5.999,luma*6)),lo=Math.floor(band),f=band-lo,pal=canopyPalette[tier];
+-    for(let c=0;c<3;c++){
+-      const color=pal[lo][c]+(pal[lo+1][c]-pal[lo][c])*f;
+-      data[index+c]=Math.round(data[index+c]*(1-strength)+color*strength);
+-    }
+-  }
+-  function foliageCanopy(base,tier){
+-    const raw=base.getContext('2d').getImageData(64,80,256,112);
+-    const n=raw.width,h=raw.height,d=raw.data,leaf=new Uint8Array(n*h);
+-    for(let j=0;j<leaf.length;j++){
+-      const i=4*j,r=d[i],g=d[i+1],b=d[i+2];
+-      leaf[j]=d[i+3]>120&&g>r+8&&b<g+11&&g>28;
+-    }
+-    const full=document.createElement('canvas'),cut=document.createElement('canvas');
+-    full.width=full.height=384;cut.width=n;cut.height=h;
+-    const ctx=full.getContext('2d');ctx.drawImage(base,0,0);
+-    const lower=ctx.getImageData(64,80,n,h);
+-    for(let y=0;y<h;y++)for(let x=0;x<n;x++){
+-      const j=y*n+x,i=4*j;
+-      if(leaf[j]){
+-        leafTint(lower.data,i,tier,tier===0?.52:.58);
+-        leafTint(d,i,tier,tier===0?.72:.91);
+-        continue;
+-      }
+-      // Retain the native one-pixel dark edge on each harvested cluster, clear sky and bark.
+-      const adjacent=(x&&leaf[j-1])||(x<n-1&&leaf[j+1])||(y&&leaf[j-n])||(y<h-1&&leaf[j+n]);
+-      if(!adjacent||d[i]+d[i+1]+d[i+2]>262)d[i+3]=0;
+-    }
+-    ctx.putImageData(lower,64,80);cut.getContext('2d').putImageData(raw,0,0);
+-    return {old:full,leaf:cut};
+-  }
+-  function crownBough(k,points){
+-    k.stroke(points,'#543e35',9);
+-    k.stroke(points.map(([x,y])=>[x,y-1]),'#89623f',6);
+-    k.stroke(points.map(([x,y])=>[x-1,y-2]),'#c58a4c',3);
+-    for(let i=1;i<points.length-1;i++){
+-      const [x,y]=points[i];k.stroke([[x-3,y],[x-2,y+2],[x,y+3]],'#aa7748');
+-    }
+-  }
+-  function springCluster(k,x,y,long,index){
+-    const stems=['#827b4b','#737d53','#697e58'];
+-    k.stroke([[x,y],[x-2,y+3],[x-1,y+long-1]],stems[index%3]);
+-    for(let j=1;j<long;j+=3){
+-      const s=j%2?1:-1,xx=x-1+s,yy=y+j;
+-      k.pixel(xx-1,yy,'#739780',3,3);k.pixel(xx-2,yy-1,'#bdd1ad',3,2);
+-      k.pixel(xx-1,yy-2,'#f0e5bc',2,2);k.pixel(xx,yy-2,'#fff0c8');
+-    }
+-    k.pixel(x-1,y+long,'#b2c6a6',2,2);
+-  }
+-  function starFlower(k,x,y,size){
+-    const t=size,c=t>4?'#e3a859':'#e5bd73';
+-    k.stroke([[x-1,y-5],[x+1,y-8]],'#887c4a');
+-    k.polygon([[x,y-t],[x+2,y-2],[x+t,y-1],[x+3,y+1],[x+3,y+t-1],[x,y+3],[x-3,y+t-1],[x-2,y+1],[x-t,y-1],[x-2,y-2]],c,'#997549');
+-    k.stroke([[x,y-t+1],[x,y],[x-3,y-1]],'#fff1a6');
+-    k.pixel(x-1,y-1,'#fff3bb',2,2);k.pixel(x+1,y+1,'#f4d880',2,1);
+-  }
+-  function crown(base,level,facing=0){
+-    if(!base||level<25||base.width!==384||base.height!==384)return base;
+-    const dir=validFacing(facing),tier=Number(level>=30),key=tier*4+dir;
+-    let saved=treeCache.get(base);if(!saved){saved=new Map();treeCache.set(base,saved);}
+-    if(saved.has(key))return saved.get(key);
+-    const k=townArtKit(6,6,0),g=k.ctx,{old,leaf}=foliageCanopy(base,tier);
+-    const offset=[0,-3,2,4][dir],mirror=(dir===1||dir===3);
+-    const layer=(x,y,w,h,flip=false)=>{
+-      g.save();if(flip){g.translate(x+w,y);g.scale(-1,1);g.drawImage(leaf,0,0,w,h);}
+-      else g.drawImage(leaf,x,y,w,h);
+-      g.restore();
+-    };
+-    const center=190+offset;
+-    crownBough(k,[[center-27,149],[center-57,124],[center-64,108],[center-70,99]]);
+-    crownBough(k,[[center+22,148],[center+45,126],[center+67,115],[center+84,95]]);
+-    crownBough(k,[[center-2,130],[center+12,111],[center+8,92],[center+17,79]]);
+-    if(tier){
+-      crownBough(k,[[center+4,111],[center-14,88],[center-6,65],[center-13,53]]);
+-      layer(center-84,21,159,78,!mirror);
+-      layer(center-136,62,139,69,mirror);
+-      layer(center+1,53,139,72,!mirror);
+-      layer(center-91,65,187,75,mirror);
+-    }else{
+-      layer(center-67,47,150,72,mirror);
+-      layer(center-135,78,126,65,!mirror);
+-      layer(center+12,72,127,64,mirror);
+-    }
+-    g.drawImage(old,0,0);
+-    // Later crowns hang new flowers from the new limbs as well as the original lower boughs.
+-    if(tier===0){
+-      const clusters=[[-107,111,9],[-76,104,13],[-45,83,8],[-6,75,10],[38,82,9],
+-        [86,100,12],[110,102,8],[-84,153,10],[-56,147,7],[48,150,12],[97,155,9]];
+-      clusters.forEach(([rx,y,len],i)=>springCluster(k,center+rx+(mirror?2:0),y+(mirror?(i%3)-1:0),len,i));
+-    }else{
+-      const stars=[[-24,43,5],[36,50,4],[-72,87,6],[-109,96,4],[83,80,6],[103,97,4],
+-        [-32,102,4],[22,80,5],[-82,149,5],[22,142,5],[87,149,6]];
+-      stars.forEach(([rx,y,r],i)=>starFlower(k,center+(mirror?-rx:rx),y+(i%2&&mirror?2:0),r));
+-    }
+-    saved.set(key,k.canvas);return k.canvas;
+-  }
+-  return crown;
+-})();
+-function crownExpansionArt(base,level,facing=0){return townCrownArt(base,level,facing);}
+ 
+ // Visits use the same front doors, walking coordinates and return points as residents.
+@@ -15928,5 +15831,5 @@
    const seats={
      artHut:[[.53,.90]],rainPavilion:[[.35,.82],[.69,.84],[.50,.69]],
 -    musicHall:[[.50,.34],[.24,.68],[.73,.65],[.48,.86],[.79,.85]],
 +    musicHall:[[.27,.26],[.24,.60],[.61,.25],[.46,.78],[.79,.48]],
      tradePost:[[.28,.82],[.68,.84],[.48,.92]],townHall:[[.31,.86],[.64,.84]],
      festivalPlaza:[[.48,.44],[.31,.54],[.69,.56],[.49,.73],[.30,.76],[.72,.78]],
+@@ -16386,6 +16289,5 @@
+ spriteBuildingV161=function(type,level=1,facing=0){
+   if(Object.hasOwn(townAtlases,type))return townBuildingArt(type,level,validFacing(facing));
+-  const base=previousTownSprite(type,level,facing);
+-  return type==='worldtree'&&level>=25?crownExpansionArt(base,level,validFacing(facing)):base;
++  return previousTownSprite(type,level,facing);
+ };
+ spriteBuilding=spriteBuildingV161;
