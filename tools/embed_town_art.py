@@ -27,8 +27,8 @@ def embed(source, assets):
     crowns = atlas(assets.parent/'world-tree')
     if set(crowns) != {'crown25','crown30'}:
         raise ValueError('Expected the two World Tree growth stages')
-    if len(entries) != 19 or source.count(BEGIN) != 1 or source.count(END) != 1:
-        raise ValueError('Expected nineteen buildings and decorations and one atlas slot')
+    if len(entries) != 29 or source.count(BEGIN) != 1 or source.count(END) != 1:
+        raise ValueError('Expected twenty-nine buildings and decorations and one atlas slot')
     a = source.index(BEGIN) + len(BEGIN)
     b = source.index(END, a)
     payload = '\n'.join('const '+name+'='+json.dumps(data,separators=(',', ':'))+';'
