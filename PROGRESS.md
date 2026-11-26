@@ -1,3 +1,13 @@
+# 1.26.0　世界樹とにぎわう街（PR・未公開）
+
+- 対象バージョン　1.25.59 → 1.26.0。作業開始時の main は `1b5cae1`。
+- 保存先　`game.html`、`src/town-expansion.js`、`src/town-art.js`、`releases/1.26.0/`、`latest.json`。
+- 完了事項　新建物15種類、4方向、世界樹Lv30、50／55／60の定員、長屋と菜園、施設内行動・勤務・材料販売・維持費。価格や仕様は `releases/1.26.0/BUILDINGS.md`。
+- 確認結果　通常版・ランチャー版のChromiumで60通りの配置、Lv20→30の成長、強化対象、勤務・収支・移動中断・保存復元・旧版セーブ移行・390pxの表示を確認。配布前検査を通過。
+- 公開結果　`feature/town-expansion-lv30` ブランチのPRとして提供。本番main／Pagesは更新していません。
+- 残作業　最大人数での長時間プレイと端末実機での見た目・経済バランスの確認。本番反映する場合は公開手順に従います。
+- 次の操作　`src/` の変更は `python tools/embed_town_expansion.py`、画像を書き出すテストの後 `python tools/package_town_release.py` でHTML・ZIPを更新。公開前には必ず `tools/release_preflight.py`。
+
 # 1.25.59　冒険のドット絵
 
 - 対象バージョン　1.25.58 から 1.25.59。開始時の `main` は `6809558`。
