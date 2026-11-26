@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>1.25.65 建物の描き直し・道の検査</title>
+<style>
+body{font:16px system-ui,sans-serif;color:#283e31;background:#faf7eb;padding:16px}
+pre{white-space:pre-wrap;background:#e9eede;padding:12px;border-radius:10px}
+#gallery{display:grid;grid-template-columns:repeat(4,minmax(125px,1fr));gap:9px}
+article{background:white;border:1px solid #ccc6af;border-radius:10px;text-align:center;padding:7px}
+canvas{max-width:100%;image-rendering:pixelated}
+iframe{width:100%;height:450px;border:1px solid #b6bbae}
+</style>
+<h1>1.25.65 描き直し実画像と動作確認</h1>
+<p>画像は同じバージョンのゲーム内キャンバスから取得します。保存データに触れないよう検査は独立フレームで行います。</p>
+<pre id="logs">検査中...</pre><div id="gallery"></div><iframe title="ゲーム検証"></iframe>
+<script>
+const log=m=>document.querySelector('#logs').textContent+=m+'\n';
+const check=(ok,m)=>{if(!ok)throw Error(m)};
+const marker='})();\n</'+'script>';
+function gameChecks(){
+  const normalize=(type,face)=>townBuildingArt(type,1,face,{night:true,pulse:2});
+  const pix=c=>c.getContext('2d').getImageData(0,0,c.width,c.height).data;
+  function hash(c){
+    const data=pix(c);let n=2166136261;
+    for(let i=0;i<data.length;i++){n^=data[i];n=Math.imul(n,16777619)>>>0}
+    return n;
+  }
+  function test(){
+    const ids=['bubblePot','glowMushrooms','musicHall','kitchenGarden'];
+    const result=[],gallery=[];
+    for(const type of ids){
+      const sets=[];
+      for(let face=0;face<4;face++){
+        const c=normalize(type,face),a=pix(c);
+        check(c.width===(townCatalog[type].w+townCatalog[type].h)*32,'サイズ '+type);
+        check(a.some((v,i)=>i%4===3&&v>0),'絵が存在 '+type+'/'+face);
+        if(type==='bubblePot'||type==='glowMushrooms'){
+          const outer=[0,10,53,63].map(v=>a[(v*c.width+0)*4+3]);
+          check(outer.every(a=>a===0),'地面透過 '+type+'/'+face);
+        }
+        if(type==='musicHall'||type==='kitchenGarden'){
+          const meta=buildingMeta(type,face);
+          check(c.width===(meta.w+meta.h)*32,'四隅基準サイズ '+type+'/'+face);
+        }
+        sets.push(hash(c));gallery.push({type,face,png:c.toDataURL('image/png'),hash:sets.at(-1)});
+      }
+      check(new Set(sets).size>1,'4方向画像が同じ '+type);
+      result.push(type+': '+sets.length+'方向');
+    }
+    for(const type of ids.slice(0,2)){
+      const x=MIN_X+2,y=MIN_Y+2,entry={type,id:987654321,x,y,w:1,h:1,facing:0,level:1};
+      const stamp=keyXY(x,y);
+      state.buildings.push(entry);state.paths.push(stamp);
+      try{
+        check(acceptsRoadFloor130(type),'道を許可 '+type);
+        check(isPath(x,y),'装飾の下に道がある '+type);
+        check(!blocksTerrainBrush130('road',x,y),'装飾の下に道を引ける '+type);
+        check(!blocksTerrainBrush130('stone',x,y),'装飾の下に石のタイルを引ける '+type);
+      }finally{
+        state.buildings.pop();state.paths.pop();
+      }
+    }
+    result.push('道と石のタイルを2種類の装飾下に設置可能');
+    const others=Object.keys(townCatalog).filter(id=>!['festivalPlaza',...ids].includes(id));
+    for(const type of others)for(let f=0;f<4;f++){
+      const c=normalize(type,f);
+      check(c&&pix(c).length===c.width*c.height*4,'平らな敷地 '+type+'/'+f);
+    }
+    result.push('ほかの町施設 '+others.length+'種類×4方向の敷地');
+    const crowns=[];
+    for(const level of [25,30])for(let f=0;f<4;f++){
+      const c=spriteBuildingV161('worldtree',level,f);
+      check(c.width>=192&&c.height>=192,'世界樹 '+level+'/'+f);
+      crowns.push(hash(c));gallery.push({type:'worldtree',level,face:f,png:c.toDataURL('image/png'),hash:hash(c)});
+    }
+    check(crowns[0]!==crowns[4],'Lv25とLv30の樹冠が異なる');
+    result.push('世界樹 Lv25/Lv30 ×4方向、異なる絵');
+    return {result,gallery};
+  }
+  return {test,ready:()=>Boolean(state&&facilitySheetReady&&townCatalog)};
+}
+async function run(){
+ const response=await fetch('../game.html');
+ check(response.ok,'ゲームデータを取得できない');
+ const base=await response.text();
+ check(base.includes("GAME_APP_VERSION='1.25.65'"),'対象版が古い');
+ check(base.includes(marker),'JS挿入箇所が見つからない');
+ let payload=base.replace(marker,()=>'window.gameQA12565=('+gameChecks.toString()+')();\n'+marker);
+ const frame=document.querySelector('iframe');
+ frame.srcdoc=payload;
+ for(let n=0;n<300;n++){
+   if(frame.contentWindow?.gameQA12565?.ready())break;
+   await new Promise(r=>setTimeout(r,100));
+ }
+ check(frame.contentWindow?.gameQA12565?.ready(),'描画エンジンの読み込み');
+ const {result,gallery}=frame.contentWindow.gameQA12565.test();
+ document.querySelector('#logs').textContent='PASS\n'+result.join('\n');
+ const section=document.querySelector('#gallery');
+ for(const pic of gallery){
+   const card=document.createElement('article'),label=document.createElement('p'),image=document.createElement('img');
+   image.src=pic.png;image.style.width='100%';image.style.imageRendering='pixelated';
+   label.textContent=pic.type+(pic.level?' Lv'+pic.level:'')+' / 方向'+pic.face;
+   card.append(image,label);section.append(card);
+ }
+ document.body.dataset.status='pass';
+}
+run().catch(err=>{log('FAIL: '+(err.stack||err));document.body.dataset.status='fail'});
+</script></html>
