@@ -1,0 +1,44 @@
+name: Package ranch decorations 1.25.63
+on:
+  push:
+    branches: [qa/1.25.63-garden-angle]
+    paths: [.github/workflows/package-angle-12563.yml]
+permissions:
+  contents: write
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            tools
+            assets/town-buildings
+            releases/1.25.62
+            releases/1.25.63
+            .garden-angle
+      - name: Rebuild the verified browser and offline games
+        run: |
+          python -c 'from PIL import Image' || python -m pip install Pillow
+          python .garden-angle/build_angle.py .
+          python .garden-angle/package_angle.py .
+          python tools/release_preflight.py --root .
+      - name: Match the six files checked in the browser
+        shell: python
+        run: |
+          import hashlib, json
+          from pathlib import Path
+          expected=json.loads(Path('.garden-angle/checksums.json').read_text())
+          for name,wanted in expected.items():
+              actual=hashlib.sha256(Path(name).read_bytes()).hexdigest()
+              print(name, actual, flush=True)
+              if wanted != actual:
+                  raise SystemExit(f'Digest mismatch in {name}, expected {wanted}')
+      - name: Record checked artifacts on the packaging branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add game.html latest.json releases/1.25.63/game.html releases/1.25.63/launcher-game.html releases/1.25.63/monster-biyori-1.25.63.zip
+          git commit -m "Assemble validated 1.25.63 garden angles and offline release"
+          git push origin HEAD:refs/heads/qa/1.25.63-garden-angle
