@@ -12,7 +12,13 @@ NEW='1.25.65'
 game=ROOT/'game.html'
 original=game.read_text()
 if "GAME_APP_VERSION='1.25.65'" in original:
-    print('1.25.65 already applied; repackage only')
+    print('1.25.65 detected; refresh the embedded native pixel artwork')
+    start=original.index('// ==== Ver 1.25.65: flush town plots')
+    marker='// ==== End Ver 1.25.65 art update ===='
+    end=original.index(marker,start)+len(marker)
+    latest_art=(ROOT/'tools/v12565_scene_patch.js').read_text().strip('\n')
+    original=original[:start]+latest_art+original[end:]
+    game.write_text(original)
 else:
     assert original.count('1.25.64') == 3, 'Expected old version in title, footer and constant'
     original=original.replace('1.25.64','1.25.65')
