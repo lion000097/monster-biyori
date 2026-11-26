@@ -1,0 +1,52 @@
+name: Package town artwork 1.25.61
+on:
+  push:
+    branches: [qa/1.25.61-package]
+    paths: [.github/workflows/package-town-12561.yml]
+permissions:
+  contents: write
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            tools
+            releases/1.25.60
+            releases/1.25.61
+      - name: Assemble the offline game and retain all bundled materials
+        shell: python
+        run: |
+          from pathlib import Path
+          import copy, hashlib, zipfile
+          root=Path('.')
+          out=root/'releases/1.25.61'
+          prev=root/'releases/1.25.60/monster-biyori-1.25.60.zip'
+          game=(out/'launcher-game.html').read_bytes()
+          manifest={'sha256':hashlib.sha256(game).hexdigest()}
+          def new_entry(name):
+           info=zipfile.ZipInfo(name,(2026,11,27,0,0,0));info.create_system=3;info.external_attr=0o600<<16;return info
+          with zipfile.ZipFile(prev) as old,zipfile.ZipFile(out/'monster-biyori-1.25.61.zip','w') as new:
+           for i in old.infolist():
+            if i.filename=='game.html':data=game
+            elif i.filename=='CHANGELOG.md':data=(out/'CHANGELOG.md').read_bytes()
+            else:data=old.read(i)
+            new.writestr(copy.copy(i),data,compress_type=i.compress_type,compresslevel=9)
+           for name in ('CHANGELOG.md','TESTING.md'):
+            new.writestr(new_entry('releases/1.25.61/'+name),(out/name).read_bytes(),compress_type=zipfile.ZIP_DEFLATED,compresslevel=9)
+          with zipfile.ZipFile(prev) as old,zipfile.ZipFile(out/'monster-biyori-1.25.61.zip') as new:
+           assert len(new.namelist())==407 and new.testzip() is None
+           for item in old.namelist():
+            if item not in ('game.html','CHANGELOG.md'):assert old.read(item)==new.read(item),item
+          print((out/'monster-biyori-1.25.61.zip').stat().st_size,manifest['sha256'])
+      - name: Verify and record the ZIP on the packaging branch
+        run: |
+          python tools/release_preflight.py --root .
+          sha256sum releases/1.25.61/monster-biyori-1.25.61.zip
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add releases/1.25.61/monster-biyori-1.25.61.zip
+          git commit -m "Assemble verified offline 1.25.61 package"
+          git push origin HEAD:refs/heads/qa/1.25.61-package
