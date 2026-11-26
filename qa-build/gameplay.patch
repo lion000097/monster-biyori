@@ -13,3 +13,10 @@
 +  if(type==='bubblePot'||type==='glowMushrooms')return true;
    return type!=='acorn250' && !Object.hasOwn(townCatalog,type) && (type === 'relicStand' || isTownDecor(type));
  }
+@@ -15928,5 +15929,5 @@
+   const seats={
+     artHut:[[.53,.90]],rainPavilion:[[.35,.82],[.69,.84],[.50,.69]],
+-    musicHall:[[.50,.34],[.24,.68],[.73,.65],[.48,.86],[.79,.85]],
++    musicHall:[[.27,.26],[.24,.60],[.61,.25],[.46,.78],[.79,.48]],
+     tradePost:[[.28,.82],[.68,.84],[.48,.92]],townHall:[[.31,.86],[.64,.84]],
+     festivalPlaza:[[.48,.44],[.31,.54],[.69,.56],[.49,.73],[.30,.76],[.72,.78]],
