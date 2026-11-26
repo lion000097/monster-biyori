@@ -240,7 +240,48 @@ def write_sheet(name,frames):
     strip.save(ROOT/'assets/town-buildings'/f'{name}.png',transparency=0,optimize=True)
 
 
-if __name__=='__main__':
+def overlay_data(ref,base,face,mode):
+    from festival_plaza_art import draw_plaza
+    p=Plot(DIMENSIONS['festivalPlaza'],face,ref)
+    draw_plaza(p,ref,night=bool(mode&1),festival=bool(mode&2))
+    p.trim_front()
+    pixels=bytes(b if a!=b else 0 for a,b in zip(base.tobytes(),p.image.tobytes()))
+    return base64.b64encode(zlib.compress(pixels,9)).decode()
+
+
+def rebuild():
+    old=(ROOT/'releases/1.25.63/game.html').read_text()
+    windows=json.loads(re.search(r'const townWindowCenters=(.*?);',old,re.S)[1])
+    easels=[[58,100],None,None,[110,92]]
+    lamps=[[[54,224],[150,244]],[],[],[[172,244],[266,223]]]
+    streams=[[.155,.62,.825],[.20,.43],[.57,.80],[.175,.38,.845]]
+    data={}
     for name,refs in reference_art():
-        frames,_=make_frames(name,refs)
+        frames,anchors=make_frames(name,refs)
         write_sheet(name,frames)
+        def at(fit,p):
+            return [round(k) for k in fit.point(*p)]
+        if name=='starLodge':
+            data['townWindowCenters']=[[at(fit,p) for p in windows[i]] for i,fit in anchors]
+        elif name=='artHut':
+            data['townEaselCenters']=[at(fit,easels[i]) if easels[i] else None for i,fit in anchors]
+        elif name=='theater':
+            data['townTheaterLamps']=[[at(fit,p) for p in lamps[i]] for i,fit in anchors]
+        elif name=='aquarium':
+            data['townTankStreams']=[[[*at(fit,(f*fit.size,.86*fit.size)),at(fit,(f*fit.size,.64*fit.size))[1]]
+                                      for f in streams[i]] for i,fit in anchors]
+        elif name=='festivalPlaza':
+            data['townFestivalOverlays']=[[overlay_data(refs[0],base,f,mode) for mode in (1,2,3)]
+                                         for f,base in enumerate(frames)]
+    game=ROOT/'game.html'
+    source=game.read_text()
+    begin='// BEGIN projected town effects\n'
+    end='\n// END projected town effects'
+    a=source.index(begin)+len(begin)
+    b=source.index(end,a)
+    code='\n'.join('const '+key+'='+json.dumps(value,separators=(',',':'))+';' for key,value in sorted(data.items()))
+    game.write_text(source[:a]+code+source[b:])
+
+
+if __name__=='__main__':
+    rebuild()
