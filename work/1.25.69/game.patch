@@ -1,5 +1,5 @@
 diff --git a/game.html b/game.html
-index bd50a04..47d7c4a 100644
+index bd50a04..1524771 100644
 --- a/game.html
 +++ b/game.html
 @@ -6 +6 @@
@@ -168,19 +168,27 @@ index bd50a04..47d7c4a 100644
 @@ -6535 +6614 @@ function renderBossPicker192(root){
 -  setText(row.querySelector('small'),'👑 '+b.name+' · '+(done?'撃破済み':'挑戦可能'));
 +  setText(row.querySelector('small'),'👑 '+b.name+recommendedPartyText(b.stage)+' · '+(done?'撃破済み':'挑戦可能'));
-@@ -6950 +7029 @@ for(const [i,name] of areaTrophyNames.entries()){
+@@ -6944 +7023,2 @@ const areaTrophyNames=['草むらの観察家','沼辺の足跡読み','火山
+-  '潮騒の調査員','琥珀の語り部','雷雲の観測者','月鏡の見届け人','星図の編み手'];
++  '潮騒の調査員','琥珀の語り部','雷雲の観測者','月鏡の見届け人','星図の編み手',
++  '花鈴の観察家','潮硝子の採集家','灯石の探鉱家','霜織りの足跡読み','暁の空庭の語り部'];
+@@ -6950 +7030 @@ for(const [i,name] of areaTrophyNames.entries()){
 -const frontierFriendIds=frontierAreas.flatMap(area=>[...area.normal,area.boss])
 +const frontierFriendIds=originalFrontierAreas.flatMap(area=>[...area.normal,area.boss])
-@@ -11825,0 +11905,4 @@ spriteTreasureV161 = function(index) {
+@@ -9161 +9241,2 @@ function updateExpeditionPanel() {
+-  expeditionPanel.querySelector('[data-exp-next]').textContent = '次は ' + stageLabel(count * 5 + 1) + ' 到達で「' + expeditionName(count) + '」を解放';
++  expeditionPanel.querySelector('[data-exp-next]').textContent = count*5>=PUBLIC_ADVENTURE_END
++    ? '公開中の遠征先をすべて解放したよ。' : '次は ' + stageLabel(count * 5 + 1) + ' 到達で「' + expeditionName(count) + '」を解放';
+@@ -11825,0 +11907,4 @@ spriteTreasureV161 = function(index) {
 +    const frontier=item.bossStage/5-11;
 +    if(frontier>=0 && frontier<frontierRelicNames.length){
 +      return characterTile(frontierRelicSlot+frontier+(item.rarity==='UR'?5:0)) || previousTreasureArt(index);
 +    }
-@@ -14552,3 +14634,0 @@ function isBossRelic(item){return !!(item?.bossStage||item?.raid);}
+@@ -14552,3 +14636,0 @@ function isBossRelic(item){return !!(item?.bossStage||item?.raid);}
 -const yuguruKind=SPECIES.length, yuguruEnemy=ENEMIES.length;
 -SPECIES.push({id:'yuguru',name:'ユグル（幼体）',emoji:'🌿',color:'#78a771',dark:'#355745',light:'#e2edab',
 -  accent:'#e4c272',earn:11,rarity:'SR（スーパーレア）',large:true,wildEnemy:yuguruEnemy});
-@@ -14557,7 +14636,0 @@ rarityRank['UR（ウルトラレア）']=4;
+@@ -14557,7 +14638,0 @@ rarityRank['UR（ウルトラレア）']=4;
 -KIND_ELEMENTS[yuguruKind]='草';
 -// Append the adult form so existing species, eggs and catalog entries retain their IDs.
 -const yuguruAdultKind=SPECIES.length;
@@ -188,17 +196,17 @@ index bd50a04..47d7c4a 100644
 -KIND_ELEMENTS[yuguruAdultKind]='草';
 -const yuguru={name:'世界樹の古竜 ユグル',icon:'🌿',biome:'世界樹の聖域',element:'草',hp:16827,atk:626,boss:true,allyId:yuguruKind};
 -ENEMIES.push(yuguru);
-@@ -15144,0 +15218,2 @@ const yuguruArtRow=10,adventurePropsY=(yuguruArtRow+1)*adventureSceneHeight;
+@@ -15144,0 +15220,2 @@ const yuguruArtRow=10,adventurePropsY=(yuguruArtRow+1)*adventureSceneHeight;
 +const frontierScenery=new Image();
 +frontierScenery.src=frontierPanoramaURI;
-@@ -15146 +15221,2 @@ function drawAdventureBackground(g,stage,progress=0,raid=false){
+@@ -15146 +15223,2 @@ function drawAdventureBackground(g,stage,progress=0,raid=false){
 - if(!adventureArt.naturalWidth){
 + const later=!raid && stage>50,source=later?frontierScenery:adventureArt;
 + if(!source.naturalWidth){
-@@ -15150 +15226,2 @@ function drawAdventureBackground(g,stage,progress=0,raid=false){
+@@ -15150 +15228,2 @@ function drawAdventureBackground(g,stage,progress=0,raid=false){
 - const row=raid?yuguruArtRow:clamp(Math.floor((stage-1)/5),0,yuguruArtRow-1);
 + const area=Math.floor((stage-1)/5);
 + const row=raid?yuguruArtRow:later?area-10:clamp(area,0,yuguruArtRow-1);
-@@ -15152 +15229 @@ function drawAdventureBackground(g,stage,progress=0,raid=false){
+@@ -15152 +15231 @@ function drawAdventureBackground(g,stage,progress=0,raid=false){
 - g.drawImage(adventureArt,pan,row*adventureSceneHeight,adventureSceneWidth,adventureSceneHeight,
 + g.drawImage(source,pan,row*adventureSceneHeight,adventureSceneWidth,adventureSceneHeight,
