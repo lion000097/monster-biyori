@@ -1,0 +1,36 @@
+name: Verify 1.25.73 egg sources
+on:
+  push:
+    branches: [feature/egg-sources-1.25.73]
+    paths: ['.github/workflows/package-12573.yml']
+permissions:
+  contents: write
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            releases/1.25.72
+            releases/1.25.73
+            tests
+            tools
+            work/1.25.73
+      - name: Build both editions and verify the distribution
+        run: |
+          python3 work/1.25.73/build.py
+          python3 tools/release_preflight.py --root .
+      - name: Verify all four shared egg sources, boss drops and old saves
+        run: |
+          npm install --prefix "$RUNNER_TEMP/egg-browser" --no-save playwright@1.56.1
+          if command -v google-chrome >/dev/null; then export CHROMIUM="$(command -v google-chrome)"; else "$RUNNER_TEMP/egg-browser/node_modules/.bin/playwright" install --with-deps chromium; fi
+          NODE_PATH="$RUNNER_TEMP/egg-browser/node_modules" node tests/v1.25.73-egg-sources.cjs
+      - name: Store the verified candidate on the work branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --sparse -- game.html latest.json archive.html PROGRESS.md releases/1.25.73/
+          git commit -m 'Package the verified 1.25.73 egg sources [skip ci]'
+          git push origin HEAD:refs/heads/feature/egg-sources-1.25.73
