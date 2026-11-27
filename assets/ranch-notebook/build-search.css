@@ -1,0 +1,13 @@
+.build-filters80{min-width:0;margin:10px 12px 0;border:1px solid #bbcfbd;border-radius:10px;padding:7px 10px 10px;background:#f5f7ed;color:#365449}
+.build-filters80[hidden]{display:none}
+.build-filters80 legend{padding:0 5px;font-size:.9rem;font-weight:800}
+.build-fields80{display:flex;flex-wrap:wrap;gap:8px}
+.build-fields80 label{display:grid;gap:3px;font-size:.8rem;font-weight:700;flex:1 1 7em;min-width:0}
+.build-fields80 label:first-child{flex:2 1 10em}
+.build-fields80 input,.build-fields80 select,.build-result80 button{width:100%;box-sizing:border-box;min-height:36px;min-width:0;border:1px solid #a8bfaf;border-radius:7px;padding:4px 8px;font:inherit;background:#fffef8;color:#304d41}
+.build-fields80 input,.build-fields80 select{font-size:1rem}
+.build-checks80,.build-result80{display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap}
+.build-checks80{margin:5px 0}.build-checks80 label{display:inline-flex;align-items:center;min-height:34px;gap:3px;cursor:pointer}
+.build-checks80 input{accent-color:#3b695a}
+.build-result80{justify-content:space-between;font-size:.82rem}.build-result80 button{width:auto;cursor:pointer;min-height:32px}
+.build-filters80 :focus-visible{outline:2px solid #207269;outline-offset:2px}

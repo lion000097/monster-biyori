@@ -40,15 +40,29 @@ def update(source):
     source = replace(source, "if(a.kind==='water')ranchRoutines124.wateredBy=m;",
                      "if(a.kind==='water'){ranchRoutines124.wateredBy=m;recordObservation80('flowerbed211');}")
     source = replace(source, "a.actor.act=picnicAct257;}", "a.actor.act=picnicAct257;}\n    recordObservation80('picnic257');")
-    source = replace(source, "m.phase='use';m.stay=0;\n  actor.act=townSceneActs",
-                     "m.phase='use';m.stay=0;\n  if(type==='rainPavilion'&&weatherInfo().name==='雨')recordObservation80(type);\n  actor.act=townSceneActs")
+    source = replace(source, "actor.act=townSceneActs[type]||B[type].name+'を見学中';",
+                     "if(type==='rainPavilion'&&weatherInfo().name==='雨')recordObservation80(type);\n  actor.act=townSceneActs[type]||B[type].name+'を見学中';")
     source = replace(source, "if(site.type==='artHut'&&m.phase==='use'&&m.stay>=4)site.townPicture=((Math.floor(Number(site.townPicture))||0)+1)%4;",
                      "if(site.type==='artHut'&&m.phase==='use'&&m.stay>=4){site.townPicture=((Math.floor(Number(site.townPicture))||0)+1)%4;recordObservation80(site.type);}")
-    source = replace(source, "v.running=true;v.elapsed=0;\n    for(const m of inside)",
-                     "v.running=true;v.elapsed=0;\n    if(kind==='music'||kind==='chase')recordObservation80(v.site.type);\n    for(const m of inside)")
-    script = (FEATURE/'notebook.js').read_text()
-    styles = (FEATURE/'notebook.css').read_text()
-    marker = '// Load saved species only after the full roster has been registered.'
+    source = replace(source, "v.running=true;v.elapsed=0;",
+                     "v.running=true;v.elapsed=0;\n    if(kind==='music'||kind==='chase')recordObservation80(v.site.type);")
+    panel = '<div class="tab-body" id="tabBody">'
+    source = replace(source, panel, (FEATURE/'build-search.html').read_text()+panel)
+    source = replace(source, "if(id==='worldtree'||!roleIncludes(id))continue;",
+                     "if(id==='worldtree'||!roleIncludes(id)||!matchesBuildFilters80(id))continue;")
+    source = replace(source, "roleIncludes('worldtree')||tree?.id===selectedBuilding||buildMode==='worldtree'",
+                     "roleIncludes('worldtree')&&matchesBuildFilters80('worldtree')")
+    source = replace(source, "if (!roleIncludes(type)) facilityRole='all';",
+                     "if (!roleIncludes(type)) facilityRole='all';\n  if (!matchesBuildFilters80(type)) clearBuildFilters80();")
+    role = "const role=type==='ranch'?'production':'trade',roleName=facilityRoles[role].name;"
+    source = replace(source, role, """if (!matchesBuildFilters80(type)) return {key:'reset-search',target:$('buildReset80'),
+      title:'検索条件をリセットしよう',hint:'「'+name+'」を建築メニューに表示するよ。'};
+    """+role)
+    source = replace(source, "renderBefore12554();renderJourney12554();renderMapJourney12554();",
+                     "renderBefore12554();renderJourney12554();renderMapJourney12554();renderBuildFilters80();")
+    script = (FEATURE/'notebook.js').read_text()+(FEATURE/'build-search.js').read_text()
+    styles = (FEATURE/'notebook.css').read_text()+(FEATURE/'build-search.css').read_text()
+    marker = 'claimSave12556();\nconst didLoad=load();'
     source = replace(source, marker, script+'\n'+marker)
     return replace(source, '</head>', '<style>\n'+styles+'</style>\n</head>')
 
@@ -68,7 +82,7 @@ if __name__ == '__main__':
     (ROOT/'game.html').write_bytes(web)
     (NEW/'game.html').write_bytes(web)
     if '--web' not in sys.argv:
-        compact = pack(update(unpack_old()), binary_assets=True, dictionary=True, zstd_pack=True, wide_words=True).encode()
+        compact = pack(update(unpack_old()), binary_assets=True, dictionary=True, zstd_pack=True, wide_words=True, zstd_level=22).encode()
         print(f'Offline HTML {len(compact):,} / {4*1024*1024:,} bytes', flush=True)
         if len(compact) > 4*1024*1024:
             raise ValueError('Offline HTML is too large')

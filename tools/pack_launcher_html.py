@@ -221,7 +221,7 @@ def unbundle_assets(data, dictionary=False):
     return ''.join(restored)
 
 
-def pack(source, dense=False, binary_assets=False, dictionary=False, zstd_pack=False, wide_words=False):
+def pack(source, dense=False, binary_assets=False, dictionary=False, zstd_pack=False, wide_words=False, zstd_level=19):
     if dictionary and not binary_assets:
         raise ValueError('--word-dictionary requires --binary-assets')
     if binary_assets:
@@ -235,7 +235,7 @@ def pack(source, dense=False, binary_assets=False, dictionary=False, zstd_pack=F
     stripped = source[:start] + MARKER + source[end:]
     payload = bundle_assets(stripped, dictionary) if binary_assets else stripped.encode()
     if zstd_pack:
-        compressed = subprocess.run(['zstd', '-q', '-19', '-c'], input=payload, capture_output=True, check=True).stdout
+        compressed = subprocess.run(['zstd', '-q', '--ultra', f'-{zstd_level}', '-c'], input=payload, capture_output=True, check=True).stdout
     else:
         compressed = dense_zlib(payload) if dense else zlib.compress(payload, 9)
     if wide_words:
@@ -284,9 +284,10 @@ if __name__ == '__main__':
                         help='store embedded base64 data as binary and recompress native pixel streams')
     parser.add_argument('--word-dictionary', action='store_true', help='losslessly encode repeated game identifiers')
     parser.add_argument('--zstd', action='store_true', help='use Zstandard with the bundled offline decoder')
+    parser.add_argument('--zstd-level', type=int, choices=range(1,23), default=19, help='Zstandard compression level (default: 19)')
     parser.add_argument('--wide-words', action='store_true', help='store 64-bit words in nine UTF-8 bytes')
     args = parser.parse_args()
-    data = pack(args.source.read_text(), args.dense, args.binary_assets, args.word_dictionary, args.zstd, args.wide_words).encode()
+    data = pack(args.source.read_text(), args.dense, args.binary_assets, args.word_dictionary, args.zstd, args.wide_words, args.zstd_level).encode()
     if len(data) > 4 * 1024 * 1024:
         raise SystemExit(f'Launcher exceeds 4 MiB: {len(data):,} bytes')
     args.destination.write_bytes(data)
