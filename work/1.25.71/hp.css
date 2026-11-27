@@ -1,0 +1,16 @@
+<style>
+.battle-track,.yuguru-body [data-raid-health] progress{
+ --hp-fill:#ef997c;--hp-light:#ffdbac;--hp-shade:#b96761;
+ --hp-ribbon:linear-gradient(to bottom,var(--hp-light) 0 22%,var(--hp-fill) 22% 72%,var(--hp-shade) 72% 100%);
+ box-sizing:border-box;display:block;width:100%;height:12px;padding:1px;margin:5px 0 8px;
+ border:2px solid #765744;border-radius:3px;box-shadow:inset 0 0 0 1px #d9b980;
+ background:#443b3d;overflow:hidden;appearance:none
+}
+.battle-track.ally-hp,.yuguru-body [data-raid-health] progress.ally-hp{
+ --hp-fill:#87c78d;--hp-light:#d9f2ae;--hp-shade:#4c936f
+}
+.battle-track>div{height:100%;background:var(--hp-ribbon)}
+.yuguru-body [data-raid-health] progress::-webkit-progress-bar{background:#443b3d}
+.yuguru-body [data-raid-health] progress::-webkit-progress-value{background:var(--hp-ribbon)}
+.yuguru-body [data-raid-health] progress::-moz-progress-bar{background:var(--hp-ribbon)}
+</style>
