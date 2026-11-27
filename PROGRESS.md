@@ -1,3 +1,8 @@
+# 1.25.76　施設と装飾73種の描き直し
+
+- 対象　1.25.75で加わった施設28種と装飾45種。全4方向292図。個別の進捗と公開状態は[進捗メモ](releases/1.25.76/PROGRESS.md)。
+- 保存先　[73種の見本](releases/1.25.76/town-art.png)、[確認結果](releases/1.25.76/TESTING.md)、通常版 `game.html`、軽量版とZIP `releases/1.25.76/`。作業履歴は `art/town-redraw-1.25.76`。
+
 # 1.25.75　世界樹の施設と装飾73種
 
 - 保存先　[各段階の進捗](releases/1.25.75/PROGRESS.md)、[確認結果](releases/1.25.75/TESTING.md)。
