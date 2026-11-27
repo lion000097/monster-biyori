@@ -1,0 +1,55 @@
+name: Verify ranch notebook and building search 1.25.80
+on:
+  push:
+    branches: [verify/ranch-notebook-1.25.80]
+    paths:
+      - '.github/workflows/verify-ranch-notebook-12580.yml'
+      - 'work/ranch-notebook-12580/**'
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /game.html
+            /latest.json
+            /archive.html
+            /tools/
+            /releases/1.25.79/
+            /releases/1.25.80/
+            /assets/ranch-notebook/
+            /work/ranch-notebook-12580/
+            /tests/v1.25.80-notebook.cjs
+      - uses: actions/checkout@v4
+        with:
+          repository: facebook/zstd
+          ref: v1.5.7
+          path: compression-tool
+          persist-credentials: false
+      - name: Compile the release compressor
+        run: |
+          make --silent -C compression-tool/programs -j4 zstd
+          echo "$GITHUB_WORKSPACE/compression-tool/programs" >> "$GITHUB_PATH"
+      - name: Assemble and compare both editions, updater and ZIP
+        run: |
+          /usr/bin/python3 work/ranch-notebook-12580/build.py
+          /usr/bin/python3 work/ranch-notebook-12580/package.py
+          python3 tools/release_preflight.py --root .
+      - name: Test the games, saved first days, filters and actual file import on desktop and mobile layouts
+        run: |
+          npm install --prefix "$RUNNER_TEMP/notebook-browser" --no-save --package-lock=false playwright@1.56.1
+          export NODE_PATH="$RUNNER_TEMP/notebook-browser/node_modules"
+          export CHROMIUM="$(command -v google-chrome)"
+          node tests/v1.25.80-notebook.cjs
+      - name: Save verified distribution on this branch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add --sparse game.html archive.html latest.json releases/1.25.80/game.html releases/1.25.80/launcher-game.html releases/1.25.80/monster-biyori-1.25.80.zip
+          git commit -m 'Save verified browser and offline editions of 1.25.80 [skip ci]'
+          git push origin HEAD:refs/heads/verify/ranch-notebook-1.25.80
