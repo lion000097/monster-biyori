@@ -1,0 +1,53 @@
+name: Build and verify 1.25.74 candidate
+on:
+  push:
+    branches:
+      - build/monster-dex-1.25.74
+    paths:
+      - .github/workflows/build-monster-dex-12574.yml
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /game.html
+            /archive.html
+            /latest.json
+            /PROGRESS.md
+            /tools/pack_launcher_html.py
+            /tools/release_preflight.py
+            /releases/1.25.73/game.html
+            /releases/1.25.73/launcher-game.html
+            /releases/1.25.73/monster-biyori-1.25.73.zip
+            /work/1.25.74/
+      - name: Package and verify isolated release
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'fee2872e12aab3e2bc97af5421b51ce7a6bbd656fbb79f35d5e25f75164e522a  game.html' | sha256sum -c
+          echo '5b7eee6cd6569678f33afd2b76baefc2095e308d9d3288c362532437f5006c8d  releases/1.25.73/launcher-game.html' | sha256sum -c
+          export PYTHONPATH="$PWD/tools"
+          python work/1.25.74/edit.py game.html draft.html
+          python work/1.25.74/edit.py releases/1.25.73/launcher-game.html draft-launcher.html
+          python work/1.25.74/ship.py .
+          python tools/release_preflight.py --root .
+          npm install --no-save --package-lock=false playwright@1.56.1
+          CHROMIUM="$(command -v google-chrome)" node tests/v1.25.74-monster-dex.cjs
+      - name: Save only verified candidate files to build branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add --sparse game.html archive.html latest.json PROGRESS.md releases/1.25.74/ tests/v1.25.74-monster-dex.cjs
+          git commit -m 'Verify release candidate 1.25.74 [skip ci]'
+          python tools/release_preflight.py --commit HEAD
+          git ls-tree -r HEAD game.html archive.html latest.json PROGRESS.md releases/1.25.74/ tests/v1.25.74-monster-dex.cjs
+          sha256sum game.html archive.html latest.json PROGRESS.md releases/1.25.74/* tests/v1.25.74-monster-dex.cjs
+          git push origin HEAD:refs/heads/build/monster-dex-1.25.74
