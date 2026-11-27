@@ -33,7 +33,8 @@ def illustration_bank():
             mask = strip.crop((size*i, 0, size*(i+1), size)).getchannel('A')
             x, y, right, bottom = mask.getbbox()
             bounds.append([x, y, right-x, bottom-y])
-        encoded = round(size * .90)
+        # Retain every native pixel on small ornaments, especially fine cords and lettering.
+        encoded = size if size <= 96 else round(size * .90)
         stream = io.BytesIO()
         strip.resize((encoded*4, encoded), Image.Resampling.BOX).save(stream, 'WEBP', method=5, quality=62)
         entries[file.stem] = [size, bytes(colors).hex(), bounds, data_url(stream.getvalue(), 'webp')]

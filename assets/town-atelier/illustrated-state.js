@@ -74,12 +74,17 @@ function illustrateActivity(type,f,phase,item,rect,ctx,painting,ground){
   switch(type){
     case 'eggWatch':{
       if(!front)break;
-      const cx=flip?65:34,cy=73,rx=8,ry=6;
-      for(let dy=-ry;dy<=ry;dy++)for(let dx=-rx;dx<=rx;dx++)if(dx*dx/64+dy*dy/36<=1)px(cx+dx,cy+dy,dy<1?'#604532':'#997345');
+      const cx=flip?65:34,cy=73;
       for(let i=0;i<Math.min(3,phase);i++){
-        const x=cx-5+i*4,y=cy+(i%2?0:2);
-        const color=(item.eggs||0)&1<<i?'#ffd652':'#f8e5be';
-        line(x,y-3,x,y+1,color);line(x-1,y-1,x+1,y-1,color);px(x,y-2,'#fff4ce');
+        const offset=phase===1?0:(i-(Math.min(3,phase)-1)/2)*5;
+        const x=X(cx+offset),y=Y(cy+(i%2?0:1));
+        const shiny=!!((item.eggs||0)&1<<i);
+        const egg=['..12.','.1122','31122','32222','.333.'];
+        const shell=shiny?['','#fff1a0','#edbc49','#b68130']:['','#fff2ce','#e4c99a','#a38362'];
+        for(let row=0;row<egg.length;row++)for(let col=0;col<egg[row].length;col++){
+          const tone=Number(egg[row][col]);if(!tone)continue;
+          ctx.fillStyle=shell[tone];ctx.fillRect(x+col-2,y+row-3,1,1);
+        }
       }break;
     }
     case 'grainMill':{
