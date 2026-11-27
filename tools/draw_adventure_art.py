@@ -26,6 +26,15 @@ LANDSCAPES = [
     ('#666b9a', '#aeb4c6', '#8b96b0', '#737d9f', '#909aa0', '#6f7891', '#b5aba7', '#cfc5bf'),
     ('#8fb6ad', '#e5ddb0', '#a3bda1', '#7da18d', '#97a865', '#6c8b5d', '#cbb284', '#e5ce99'),
 ]
+# The second atlas contains only the five later areas, so existing panorama
+# coordinates and the raid props retain their original positions.
+FRONTIER_LANDSCAPES = [
+    ('#a6d1de', '#fff0c9', '#b8cba5', '#98b18b', '#a6b875', '#799767', '#ddc494', '#efd7a3'),
+    ('#88c9db', '#f9e2b1', '#93baba', '#66a5ab', '#a9bb93', '#6e9f92', '#d7c9a3', '#efe3bc'),
+    ('#514359', '#a17b75', '#80677b', '#66586f', '#9a807c', '#6f636a', '#b3957d', '#d2b292'),
+    ('#9baecd', '#f0e1da', '#b4c0d0', '#879caf', '#ccdad7', '#95afb5', '#d5d9d2', '#f3ece0'),
+    ('#c7abcf', '#ffdfae', '#c5b0b6', '#a998ab', '#a8b58c', '#829b82', '#d9c4a4', '#f4ddb4'),
+]
 LEAVES = ('#496e57', '#6e945b', '#91ad66', '#b7c777')
 FOREST = ('#3d675c', '#507e64', '#71a16f', '#98b47b')
 AMBER = ('#8a623d', '#b28040', '#d0a34c', '#e3be6a')
@@ -173,7 +182,56 @@ def star(draw, x, y, radius, color):
     draw.line((x, y - radius, x, y + radius), fill=color)
 
 
+def frontier_landmarks(draw, area):
+    rng = Random(area * 19)
+    if area == 11:
+        leaves = ('#966e77', '#b57f92', '#d59aa1', '#efbdb3')
+        for x in (39, 158, 272, 458, 547):
+            broadleaf(draw, x, 70, .7 + rng.random() * .32, leaves)
+        for x in range(5, WIDTH, 17):
+            wildflowers(draw, x, 75 + x % 3, '#73936a', '#ae9dcc' if x % 2 else '#e9a9a3')
+    elif area == 12:
+        draw.rectangle((0, 54, WIDTH, 67), fill='#81bcba')
+        for _ in range(60):
+            x, y = rng.randrange(WIDTH), rng.randrange(56, 68)
+            draw.line((x, y, x + rng.randrange(3, 16), y), fill='#bbdaca')
+        for x in (39, 153, 242, 374, 529):
+            rock(draw, x, 70, .85, ('#638e92', '#77aba5', '#9cc6b4', '#d7e2bf'))
+            rock(draw, x + 13, 72, .37)
+        for x in (80, 325, 548):
+            polygon(draw, x, 59, [(0, 0), (7, -14), (7, 0)], '#f4dfbe')
+            draw.line((x + 8, 45, x + 8, 61), fill='#8f806f')
+            draw.line((x - 3, 61, x + 12, 61), fill='#a68d72', width=2)
+    elif area == 13:
+        for x in (34, 118, 208, 285, 437, 532):
+            rock(draw, x, 73, 1.2, ('#574a5e', '#736273', '#947a86', '#b69895'))
+            for dx, h in [(-7, 10), (0, 21), (7, 13)]:
+                polygon(draw, x + dx, 69, [(-4, 0), (-5, -h + 5), (0, -h), (4, -h + 5), (3, 0)], '#d39664')
+                polygon(draw, x + dx, 69, [(0, -h), (3, -h + 5), (2, -1), (0, -4)], '#f4c57e')
+        for x in (0, 113, 215, 346, 469, 584):
+            polygon(draw, x, 0, [(-18, 0), (-5, 7), (1, 17), (6, 5), (22, 0)], '#6a556c')
+    elif area == 14:
+        for x in range(14, WIDTH, 27):
+            pine(draw, x, 72 + x % 3, rng.uniform(.45, 1.15), ICE, snowy=True)
+        for x in (81, 195, 344, 551):
+            rock(draw, x, 74, .67, ICE)
+        for _ in range(52):
+            draw.point((rng.randrange(WIDTH), rng.randrange(4, 64)), fill='#f0efdf')
+    else:
+        for x, y in [(29, 48), (138, 51), (251, 40), (382, 55), (527, 45)]:
+            polygon(draw, x, y, [(-20, 0), (-9, 6), (-2, 14), (3, 8), (15, 4), (22, 0)], '#a797a4')
+            polygon(draw, x, y, [(-21, 0), (-14, -4), (8, -5), (20, -2), (22, 0), (6, 2), (-12, 2)], '#bec5a2')
+            pine(draw, x + 2, y - 2, .27, ('#8b9d93', '#9cab92', '#b5ba95', '#dad1a5'))
+        for x in (63, 260, 443):
+            broken_columns(draw, x, 73)
+        for x in (16, 87, 141, 300, 385, 512, 571):
+            wildflowers(draw, x, 75, '#8b9e73', '#e6b69a')
+
+
 def landmarks(draw, area):
+    if area >= 11:
+        frontier_landmarks(draw, area)
+        return
     if area in (0, 1, 6, 10):
         colors = {0: LEAVES, 1: FOREST, 6: AMBER, 10: TREE}[area]
         for x, y, size in [(39, 70, .72), (79, 69, .56), (158, 68, .62),
@@ -275,7 +333,14 @@ def panorama(area, palette):
         ratio = ((y - 12) // 4 * 4) / 52
         tone = tuple(round(a + (b - a) * ratio) for a, b in zip(high, low))
         draw.line((0, y, WIDTH - 1, y), fill=tone)
-    if area == 5:
+    if area == 13:
+        for x in range(-19, WIDTH, 54):
+            polygon(draw, x, 0, [(-10, 0), (12, 0), (4, 8), (0, 15), (-3, 6)], '#5b4c62')
+    elif area == 15:
+        draw.ellipse((263, 16, 295, 48), fill='#ffedc2')
+        for x, y in ((36, 24), (155, 16), (352, 26), (496, 18)):
+            cloud(draw, x, y, .79, '#fce5c8', '#e6c4bf')
+    elif area == 5:
         for x in (-30, 72, 179, 278, 387, 484, 595):
             polygon(draw, x, 0, [(0, 0), (15, 0), (69, 59), (43, 59)], '#9ed0c4')
         for x in range(0, WIDTH, 41):
@@ -292,7 +357,7 @@ def panorama(area, palette):
         for x, y, size in [(5, 15, 1.16), (126, 9, .85), (310, 15, 1.28),
                            (453, 22, .89), (539, 8, .94)]:
             cloud(draw, x, y, size, horizon, distant)
-    tall = area in (2, 4, 7)
+    tall = area in (2, 4, 7, 13, 14)
     distant_points = [(x, rng.randrange(21, 41) if i % 2 else rng.randrange(43, 54))
                       for i, x in enumerate(range(0, WIDTH + 25, 32))]
     if tall:
@@ -307,7 +372,7 @@ def panorama(area, palette):
                                 (-22, -22), (-24, -12), (-39, 0)], '#bb826a')
         draw.line((247, 18, 249, 23, 258, 29, 265, 43, 280, 54), fill='#e5a077', width=3)
         cloud(draw, 217, 7, .64, '#e7b59b', '#cb9282')
-    if area == 4:
+    if area in (4, 14):
         for x, y in distant_points[1::2]:
             polygon(draw, x, y, [(0, 0), (10, 8), (16, 13), (9, 12), (4, 9),
                                  (-1, 11), (-5, 7), (-11, 9)], '#e7f0ed')
@@ -359,7 +424,7 @@ def panorama(area, palette):
             draw.line((px - 2, y - 2, px, y, px + 1, y - 3), fill=ground_shade)
             if x % 3 == 0:
                 draw.point((px + 1, y - 4), fill='#f4e2a4' if x % 4 else '#e2ac94')
-    if area in (0, 6, 10):
+    if area in (0, 6, 10, 11, 15):
         for x in (29, 77, 141, 210, 291, 377, 451, 492, 566):
             wildflowers(draw, x, 104 + x % 3, ground_shade, '#e6a48e')
     if area == 1:
