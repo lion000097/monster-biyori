@@ -1,0 +1,43 @@
+name: Verify town artwork 1.25.76
+on:
+  push:
+    branches: [verify/town-redraw-1.25.76]
+    paths:
+      - '.github/workflows/verify-town-art-12576.yml'
+      - 'work/town-art-12576/**'
+permissions:
+  contents: write
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /game.html
+            /latest.json
+            /archive.html
+            /tools/release_preflight.py
+            /tests/v1.25.76-town-art.cjs
+            /releases/1.25.75/game.html
+            /releases/1.25.75/monster-biyori-1.25.75.zip
+            /releases/1.25.76/
+            /work/town-art-12576/
+      - name: Assemble and compare all distribution files
+        run: |
+          /usr/bin/python3 work/town-art-12576/assemble.py
+          sha256sum --check work/town-art-12576/SHA256SUMS
+          python3 tools/release_preflight.py --root .
+      - name: Verify all views, live displays and saved ranches on desktop and mobile
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          CHROMIUM="$(command -v google-chrome)" node tests/v1.25.76-town-art.cjs
+      - name: Save the checked ZIP to the validation branch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add --sparse releases/1.25.76/monster-biyori-1.25.76.zip
+          git commit -m 'Save byte-verified town artwork package [skip ci]'
+          git push origin HEAD:refs/heads/verify/town-redraw-1.25.76
