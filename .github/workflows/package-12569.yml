@@ -1,0 +1,35 @@
+name: Verify 1.25.69 adventure and offline distribution
+on:
+  push:
+    branches: [feature/adventure-1.25.69]
+    paths: ['.github/workflows/package-12569.yml']
+permissions:
+  contents: write
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            assets/adventure
+            releases/1.25.68
+            releases/1.25.69
+            tests
+            tools
+            work/1.25.69
+      - name: Package the verified source
+        run: python3 work/1.25.69/build.py --apply-patch
+      - name: Check previous saves, 25 first clears, drops and the offline game
+        run: |
+          npm install --prefix "$RUNNER_TEMP/mb" --no-save playwright@1.56.1
+          if command -v google-chrome >/dev/null; then export CHROMIUM="$(command -v google-chrome)"; else "$RUNNER_TEMP/mb/node_modules/.bin/playwright" install --with-deps chromium; fi
+          NODE_PATH="$RUNNER_TEMP/mb/node_modules" node tests/v1.25.69-adventure.cjs
+      - name: Keep the tested release candidate
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --sparse -- game.html latest.json archive.html PROGRESS.md releases/1.25.69/
+          git commit -m 'Package and verify 1.25.69 adventure distribution [skip ci]'
+          git push origin HEAD:refs/heads/feature/adventure-1.25.69

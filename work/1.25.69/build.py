@@ -1,6 +1,7 @@
 """Reproduce the 1.25.69 distribution from the checked-in checkpoint."""
 import argparse
 import base64
+import copy
 import hashlib
 import io
 import json
@@ -78,7 +79,7 @@ def main(apply_patch):
         with ZipFile(target, 'w', compression=ZIP_DEFLATED, compresslevel=9) as out:
             for entry in old.infolist():
                 if entry.filename not in updates:
-                    out.writestr(entry, old.read(entry))
+                    out.writestr(copy.copy(entry), old.read(entry))
             for name, data in updates.items():
                 entry=ZipInfo(name, (2026,11,27,0,0,0));entry.compress_type=ZIP_DEFLATED;entry.external_attr=0o100644<<16
                 out.writestr(entry, data, compresslevel=9)
