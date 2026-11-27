@@ -1,0 +1,52 @@
+name: Verify detailed town artwork 1.25.78
+on:
+  push:
+    branches: [verify/town-details-1.25.78]
+    paths:
+      - '.github/workflows/verify-town-details-12578.yml'
+      - 'work/town-details-12578/**'
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /game.html
+            /latest.json
+            /archive.html
+            /assets/town-atelier/
+            /tools/
+            /tests/v1.25.76-town-art.cjs
+            /releases/1.25.75/game.html
+            /releases/1.25.76/game.html
+            /releases/1.25.77/
+            /releases/1.25.78/
+            /work/town-details-12578/
+      - name: Assemble the checked game and compare the complete distribution
+        run: |
+          zstd -q -d -f --patch-from releases/1.25.77/game.html work/town-details-12578/game.html.zst -o game.html
+          cp game.html releases/1.25.78/game.html
+          /usr/bin/python3 work/town-details-12578/package.py
+          sha256sum --check work/town-details-12578/SHA256SUMS
+          python3 tools/release_preflight.py --root .
+      - name: Verify three old saves and the map, preview, thumbnail and exhibits
+        env:
+          TOWN_ART_VERSION: 1.25.78
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          export CHROMIUM="$(command -v google-chrome)"
+          for baseline in 1.25.75 1.25.76 1.25.77; do
+            TOWN_ART_BASE="$baseline" node tests/v1.25.76-town-art.cjs
+          done
+      - name: Save the verified distribution to this branch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add --sparse game.html releases/1.25.78/game.html releases/1.25.78/monster-biyori-1.25.78.zip
+          git commit -m 'Save the verified web edition and archive for 1.25.78 [skip ci]'
+          git push origin HEAD:refs/heads/verify/town-details-1.25.78
