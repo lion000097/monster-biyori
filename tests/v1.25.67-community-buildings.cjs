@@ -151,10 +151,12 @@ function ranchChecks() {
       state.monsters.push(make(502,1),make(503,2));
       let frames=0,started=false,exited=false;const positions=new Set();
       for(let i=0;i<480;i++){
-        stepTownScenes(.1);const v=townSceneState(b);
+        if(started)stepActors(.1);else stepTownScenes(.1);
+        const v=townSceneState(b);
         if(v.running&&v.members.every(m=>m.phase==='use')){
           started=true;frames++;
           for(const m of v.members)check(areaContains(b,m.actor.x+.5,m.actor.y+.5)&&townIsCourtyard(m.walk,m.actor.x+.5,m.actor.y+.5),'仲間が敷地内にいる');
+          if(frames===5){cameraX=b.x-4;cameraY=b.y-4;limitCamera();drawWorld(performance.now());}
           const actor=v.members[0].actor;positions.add(Math.round(actor.x*10)+','+Math.round(actor.y*10));
         }
         if(started&&!v.members.length){exited=true;break;}
@@ -167,18 +169,19 @@ function ranchChecks() {
       for(let i=0;i<85;i++)stepTownScenes(.1);
       const v=townSceneState(rest.b);check(v.members.some(m=>m.phase==='use'),'最初の旅人が休憩');
       state.guests.push(traveler(802),traveler(803));
-      let together=false,left=false;
+      const travelers=state.guests.slice();let together=false,left=false;
       for(let i=0;i<350;i++){
-        stepTownScenes(.1);
+        if(together)stepActors(.1);else stepTownScenes(.1);
         const seated=v.members.filter(m=>m.phase==='use');
         if(seated.length>=2){
+          if(!together){cameraX=rest.b.x-4;cameraY=rest.b.y-4;limitCamera();drawWorld(performance.now());}
           together=true;
           for(const m of seated)check(townMemberPose(m.actor,36).seated&&areaContains(rest.b,m.actor.x+.5,m.actor.y+.5),'旅人が敷地内の席で休む');
           check(new Set(seated.map(m=>m.slot)).size===seated.length,'席の重複');
         }
         if(together&&!v.members.length){left=true;break;}
       }
-      check(together&&left&&state.guests.every(g=>g.phase212==='leave'),'遅れてきた旅人と集合・帰路 '+f);
+      check(together&&left&&travelers.every(g=>g.phase212==='leave'),'遅れてきた旅人と集合・帰路 '+f);
     }
     reset();const a=site('travelerRestPlaza').b,b=site('monsterPlayPlaza',x+5).b;
     state.hour=0;state.coins=5;townHour(true);
