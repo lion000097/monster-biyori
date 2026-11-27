@@ -19,6 +19,7 @@ jobs:
       - name: Build and preflight
         run: python3 build.py
       - name: Run browser checks
+        # Use game UI for fees; the simulation tick may add passive income.
         run: |
           npm install --prefix "$RUNNER_TEMP/mb" --no-save playwright@1.56.1
           if command -v google-chrome >/dev/null; then export CHROMIUM=$(command -v google-chrome); else "$RUNNER_TEMP/mb/node_modules/.bin/playwright" install --with-deps chromium; fi
