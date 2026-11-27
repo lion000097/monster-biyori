@@ -1,5 +1,5 @@
 diff --git a/game.html b/game.html
-index 0507bff..82f51ab 100644
+index 0507bff..ca2428c 100644
 --- a/game.html
 +++ b/game.html
 @@ -6 +6 @@
@@ -19,62 +19,67 @@ index 0507bff..82f51ab 100644
 @@ -2074 +2078 @@ updateEconHUD();
 -$('buildMode').classList.toggle('active',!!(buildMode||moveMode||clearMode));if(buildMode)$('buildMode').innerHTML=`<span>🔨 「${B[buildMode].name}」を建設中！ ${Object.hasOwn(borderDecor,buildMode)?'始点からドラッグして、離すと1列に設置。':buildMode==='acorn250'?'道の横の草地1マスに置いてね。':townCatalog[buildMode]?.role==='decor'?'道と重ならない空き地を選んでね。':frontRoadOptional131(buildMode)?'正面に道がなくても置けるよ。足元はあとから塗り替えられるよ。':acceptsRoadFloor130(buildMode)?'草地や道の上に置けるよ。足元はあとから塗り替えられるよ。':'黄色い矢印のある正面を道に接してね。'}</span><button class="small-button secondary" data-action="cancelBuild">キャンセル ✕</button>`;
 +$('buildMode').classList.toggle('active',!!(buildMode||moveMode||clearMode));if(buildMode)$('buildMode').innerHTML=`<span>🔨 「${B[buildMode].name}」を建設中！ ${Object.hasOwn(borderDecor,buildMode)?'始点からドラッグして、離すと1列に設置。':buildMode==='acorn250'?'道の横の草地1マスに置いてね。':townCatalog[buildMode]?.role==='decor'&&!roadOrnament(buildMode)?'道と重ならない空き地を選んでね。':frontRoadOptional131(buildMode)?'正面に道がなくても置けるよ。足元はあとから塗り替えられるよ。':acceptsRoadFloor130(buildMode)?'草地や道の上に置けるよ。足元はあとから塗り替えられるよ。':'黄色い矢印のある正面を道に接してね。'}</span><button class="small-button secondary" data-action="cancelBuild">キャンセル ✕</button>`;
-@@ -7976 +7980 @@ seek=function(actor,job){
+@@ -4085,0 +4090 @@ function drawMapActor(o,monster,now,star=null,origin=null) {
++  if(townPose?.seated){height=Math.round(size*.85);dy=-2;}
+@@ -7976 +7981 @@ seek=function(actor,job){
 -function workAtSite211(w,b){
 +function workAtSite211(w,b,job=w.job){
-@@ -7980 +7984 @@ function workAtSite211(w,b){
+@@ -7980 +7985 @@ function workAtSite211(w,b){
 - if(w.job==='gather'){
 + if(job==='gather'){
-@@ -7982 +7986 @@ function workAtSite211(w,b){
+@@ -7982 +7987 @@ function workAtSite211(w,b){
 - }else if(w.job==='keeper'){
 + }else if(job==='keeper'){
-@@ -7986 +7990 @@ function workAtSite211(w,b){
+@@ -7986 +7991 @@ function workAtSite211(w,b){
 - }else if(w.job==='sell'){
 + }else if(job==='sell'){
-@@ -7988 +7992 @@ function workAtSite211(w,b){
+@@ -7988 +7993 @@ function workAtSite211(w,b){
 - }else if(w.job==='study'){
 + }else if(job==='study'){
-@@ -7990 +7994 @@ function workAtSite211(w,b){
+@@ -7990 +7995 @@ function workAtSite211(w,b){
 - }else if(w.job==='explore'){
 + }else if(job==='explore'){
-@@ -8004 +8008 @@ function workAtSite211(w,b){
+@@ -8004 +8009 @@ function workAtSite211(w,b){
 - w.mastery[w.job]=(w.mastery[w.job]||0)+3;
 + w.mastery[job]=(w.mastery[job]||0)+3;
-@@ -8275 +8279,2 @@ function progressStaffWork212(dt){
+@@ -8275 +8280,2 @@ function progressStaffWork212(dt){
 -  const resting=!!w.jobTarget211?.rest,exploring=!resting&&!duty&&w.job==='explore';
 +  const job=w.jobTarget211?.referralJob||w.job;
 +  const resting=!!w.jobTarget211?.rest,exploring=!resting&&!duty&&job==='explore';
-@@ -8282,0 +8288 @@ function progressStaffWork212(dt){
+@@ -8282,0 +8289 @@ function progressStaffWork212(dt){
 +    if(w.jobTarget211.referralJob)w.expeditionVisit.referred=true;
-@@ -8287 +8293 @@ function progressStaffWork212(dt){
+@@ -8287 +8294 @@ function progressStaffWork212(dt){
 -   }else if(!resting)w.act='🔨 '+JOBS[w.job].label+'作業中';
 +   }else if(!resting)w.act='🔨 '+JOBS[job].label+'作業中';
-@@ -8296 +8302 @@ function progressStaffWork212(dt){
+@@ -8296 +8303 @@ function progressStaffWork212(dt){
 -    const foundTreasure=workAtSite211(w,building);
 +    const foundTreasure=workAtSite211(w,building,job);
-@@ -8764,3 +8770,3 @@ const staffRewardBefore212=workAtSite211;
+@@ -8764,3 +8771,3 @@ const staffRewardBefore212=workAtSite211;
 -workAtSite211=function(w,b){
 - const foundTreasure=staffRewardBefore212(w,b);
 - if(w.job==='gather'&&b.type==='greenhouse212')gainFood(foodProduction.greenhouseGatherBonus(b.level));
 +workAtSite211=function(w,b,job=w.job){
 + const foundTreasure=staffRewardBefore212(w,b,job);
 + if(job==='gather'&&b.type==='greenhouse212')gainFood(foodProduction.greenhouseGatherBonus(b.level));
-@@ -8807 +8813 @@ function treeRequirements193(nextLevel){
+@@ -8807 +8814 @@ function treeRequirements193(nextLevel){
 - return Object.entries(B)
 + const requirements=Object.entries(B)
-@@ -8812,0 +8819,2 @@ function treeRequirements193(nextLevel){
+@@ -8812,0 +8820,2 @@ function treeRequirements193(nextLevel){
 + if(nextLevel===5)requirements.push({type:'jobOffice',count:1,minLevel:1,label:B.jobOffice.name+' 1軒'});
 + return requirements;
-@@ -8920 +8928 @@ load=function(){
+@@ -8920 +8929 @@ load=function(){
 -   if(w.jobTarget211?.tradeDuty12543)w.act='待機中';
 +   if(w.jobTarget211?.tradeDuty12543||w.jobTarget211?.referralJob)w.act='待機中';
-@@ -13331 +13339 @@ function resumeExpeditionVisit(worker){
+@@ -8935 +8944 @@ load=function(){
+-   if(m.act==='💤 お昼寝中'||m.act==='🐾 追いかけっこ'||m.act===chaseInviteAct||m.act===chaseNoticeAct||Object.values(rainActivities).includes(m.act))m.act='🐾 おさんぽ';
++   if(m.act==='🐾 広場で追いかけっこ'||m.act===townSceneActs.monsterPlayPlaza||m.act==='💤 お昼寝中'||m.act==='🐾 追いかけっこ'||m.act===chaseInviteAct||m.act===chaseNoticeAct||Object.values(rainActivities).includes(m.act))m.act='🐾 おさんぽ';
+@@ -13331 +13340 @@ function resumeExpeditionVisit(worker){
 -  const {buildingId,remaining}=worker.expeditionVisit;
 +  const {buildingId,remaining,referred}=worker.expeditionVisit;
-@@ -13333 +13341 @@ function resumeExpeditionVisit(worker){
+@@ -13333 +13342 @@ function resumeExpeditionVisit(worker){
 -  if(worker.job!=='explore'||!Number.isFinite(remaining)||remaining<0||remaining>staffWorkSeconds)return;
 +  if((worker.job!=='explore'&&!referred)||!Number.isFinite(remaining)||remaining<0||remaining>staffWorkSeconds)return;
-@@ -13335,3 +13343,6 @@ function resumeExpeditionVisit(worker){
+@@ -13335,3 +13344,6 @@ function resumeExpeditionVisit(worker){
 -  const door=[worker.x,worker.y],walk=site&&beginPlotWalk(worker,site,door,remaining);
 -  if(!walk)return;
 -  worker.jobTarget211={id:buildingId,job:'explore',goal:door};
@@ -84,12 +89,12 @@ index 0507bff..82f51ab 100644
 +  if(referred)worker.jobTarget211.referralJob='explore';
 +  const walk=beginPlotWalk(worker,site,door,remaining);
 +  if(!walk){worker.jobTarget211=null;return;}
-@@ -13341,0 +13353 @@ function resumeExpeditionVisit(worker){
+@@ -13341,0 +13354 @@ function resumeExpeditionVisit(worker){
 +  if(referred)worker.expeditionVisit.referred=true;
-@@ -13420 +13432 @@ function beginPlotWalk(actor,site,door,seconds){
+@@ -13420 +13433 @@ function beginPlotWalk(actor,site,door,seconds){
 -  const bedroom=usesSleepingRoom(actor,site),exploring=actor.job==='explore'&&site.type==='expeditionOffice';
 +  const bedroom=usesSleepingRoom(actor,site),exploring=(actor.jobTarget211?.referralJob||actor.job)==='explore'&&site.type==='expeditionOffice';
-@@ -14990,0 +15003,17 @@ beginPlotWalk=function(w,b,door,seconds){
+@@ -14990,0 +15004,17 @@ beginPlotWalk=function(w,b,door,seconds){
 +// The office borrows a citizen for one job at a time. Their selected profession
 +// remains on the citizen, so changing it or loading an older ranch still works.
 +const officeJobs={home:'keeper',farm:'gather',greenhouse212:'gather',lab:'study',expeditionOffice:'explore'};
@@ -107,7 +112,7 @@ index 0507bff..82f51ab 100644
 + worker.jobTarget211={id:site.id,goal:pt,job:worker.job,referralJob:officeJobs[site.type]};
 + worker.path=path;worker.act='📋 '+B[site.type].name+'へお仕事の応援';
 +}
-@@ -14993,2 +15022,6 @@ seek=function(w,job){
+@@ -14993,2 +15023,6 @@ seek=function(w,job){
 - if(w.kind===undefined&&job==='sell'){startDuty12543(w);return;}
 - return seekBefore12543(w,job);
 + if(w.kind!==undefined)return seekBefore12543(w,job);
@@ -116,8 +121,74 @@ index 0507bff..82f51ab 100644
 +  referIdleCitizen(w);return;
 + }
 + if(job!=='sell')return seekBefore12543(w,job);
-@@ -15452,0 +15486,4 @@ function townBuildingInfo(b){
+@@ -15452,0 +15487,4 @@ function townBuildingInfo(b){
 +  if(b.type==='jobOffice'){
 +    const working=state.staff.filter(w=>w.jobTarget211?.referralJob);
 +    rows.push('紹介中 '+working.length+'人'+(working.length?' ・ '+working.map(w=>esc(w.name)+'（'+JOBS[w.jobTarget211.referralJob].label+'）').join('、'):''));
 +  }
+@@ -15913,0 +15952,2 @@ const townSceneRules = {
++  travelerRestPlaza:{people:['guest'],min:1,max:4,wait:15,stay:13},
++  monsterPlayPlaza:{people:['monster'],min:2,max:4,wait:22,stay:12},
+@@ -15928,0 +15969 @@ const townSceneActs={
++  travelerRestPlaza:'休憩広場のベンチでひと休み',monsterPlayPlaza:'遊び広場で仲間を待っている',
+@@ -15935 +15976 @@ const townSceneActs={
+-const townVenueGuests=new Set(['theater','aquarium','restaurant','bakery','guideOffice','treeGuesthouse']);
++const townVenueGuests=new Set(['travelerRestPlaza','theater','aquarium','restaurant','bakery','guideOffice','treeGuesthouse']);
+@@ -15992,0 +16034,8 @@ function townLocalPoint(site,u,v){
++function playgroundPoint(site,slot,elapsed){
++  // Two laps of the oval painted on the ground. Each visitor waits at their
++  // own starting point. The runners change direction after the first lap.
++  const lap=townSceneRules.monsterPlayPlaza.stay/2;
++  const t=Math.min(elapsed,lap*2),turn=t<=lap?t:2*lap-t;
++  const angle=turn*2*Math.PI/lap-slot*1.04;
++  return townLocalPoint(site,.5+.32*Math.sin(angle),.52-.29*Math.cos(angle));
++}
+@@ -15993,0 +16043 @@ function townSeat(site,slot,mode){
++  if(site.type==='monsterPlayPlaza')return playgroundPoint(site,slot,0);
+@@ -15994,0 +16045 @@ function townSeat(site,slot,mode){
++    travelerRestPlaza:[[.30,.30],[.51,.30],[.76,.48],[.76,.68]],
+@@ -16002 +16053 @@ function townSeat(site,slot,mode){
+-  if(!options||mode==='guided')return null;
++  if(!options||(mode==='guided'&&site.type!=='travelerRestPlaza'))return null;
+@@ -16073 +16124 @@ function townRelease(member,resumeGuest=true){
+-function townGroupMode(v){return v.mode==='music'||v.mode==='festival'||v.mode==='meeting';}
++function townGroupMode(v){return ['music','festival','meeting','chase'].includes(v.mode);}
+@@ -16080,0 +16132 @@ function townBeginRound(v){
++  if(type==='monsterPlayPlaza')mode='chase';
+@@ -16176,0 +16229 @@ function townEnter(m){
++    if(site.type==='travelerRestPlaza')walk.points.push(townLocalPoint(site,.50,.65));
+@@ -16242 +16295 @@ function townStepGroup(v,dt){
+-  const min=kind==='music'?4:kind==='meeting'?2:3;
++  const min=kind==='music'?4:kind==='meeting'||kind==='chase'?2:3;
+@@ -16248 +16301,2 @@ function townStepGroup(v,dt){
+-    if(inside.length<min||(kind==='music'&&!inside.some(m=>m.slot===0&&m.kind==='monster')))return;
++    if(inside.length<min||(kind==='music'&&!inside.some(m=>m.slot===0&&m.kind==='monster'))||
++       (kind==='chase'&&inside.length!==v.members.length))return;
+@@ -16251 +16305 @@ function townStepGroup(v,dt){
+-      m.actor.act=kind==='music'?(m.slot===0?'音楽堂で歌っている':'音楽に合わせてリズムを取っている'):
++      m.actor.act=kind==='chase'?'🐾 広場で追いかけっこ':kind==='music'?(m.slot===0?'音楽堂で歌っている':'音楽に合わせてリズムを取っている'):
+@@ -16256 +16310,10 @@ function townStepGroup(v,dt){
+-  if(v.elapsed<(kind==='music'?8.4:kind==='festival'?13.2:5.3)&&inside.length>=min)return;
++  if(kind==='chase'){
++    for(const m of inside){
++      const [x,y]=playgroundPoint(v.site,m.slot,v.elapsed);
++      const side=Math.sign((x-m.actor.x)-(y-m.actor.y));
++      if(side)m.side=side;
++      m.actor.x=x;m.actor.y=y;
++    }
++  }
++  const duration=kind==='festival'?13.2:townSceneRules[v.site.type].stay;
++  if(v.elapsed<duration&&inside.length>=min)return;
+@@ -16319,0 +16383,6 @@ function stepTownScenes(dt){
++    if(poll&&site.type==='travelerRestPlaza'&&townHoursAllow(site)&&v.members.length&&
++       v.members.length<townSceneRules.travelerRestPlaza.max){
++      const rule=townSceneRules.travelerRestPlaza;
++      const arrivals=townScenePeople(v,townStreetRoutes(townSceneDoors(site),14),rule,1,rule.max-v.members.length);
++      for(const item of arrivals)townJoin(v,item.actor,item.route);
++    }
+@@ -16336 +16405 @@ function townIsCourtyard(walk,x,y){
+-  return ['musicHall','festivalPlaza','rainPavilion'].includes(walk.site.type);
++  return ['musicHall','festivalPlaza','rainPavilion','travelerRestPlaza','monsterPlayPlaza'].includes(walk.site.type);
+@@ -16341,0 +16411,2 @@ function townMemberPose(actor,size){
++  if(type==='travelerRestPlaza')return {seated:true,icon:t>2&&t<3.2?'♪':''};
++  if(v.mode==='chase'&&v.running)return {side:m.side,dy:-Math.round(4*Math.abs(Math.sin(v.elapsed*9-m.slot)))};
