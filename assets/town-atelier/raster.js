@@ -96,6 +96,34 @@ function renderer(width,height,facing){
     }
     if(outline)for(let i=0;i<p.length;i++)edgeScreen(p[i],p[(i+1)%p.length],palette[Math.max(0,Math.min(23,light-8))]);
   }
+  function veneer(points, donor, sample, options={}){
+    const frame=townNativeFrame(donor,0),p=points.map(project),[a,b,c]=p;
+    const dx=b[0]-a[0],dy=b[1]-a[1],ex=c[0]-a[0],ey=c[1]-a[1],det=dx*ey-ex*dy;
+    if(Math.abs(det)<.05)return;
+    const fourth=[b[0]+c[0]-a[0],b[1]+c[1]-a[1]];
+    const xs=[...p,fourth].map(q=>q[0]),ys=[...p,fourth].map(q=>q[1]);
+    const [origin,along,up]=sample;
+    const px=frame.rgba,limit=frame.size,palette=options.mat&&palettes[options.mat];
+    for(let y=Math.max(0,Math.ceil(Math.min(...ys)));y<=Math.min(size-1,Math.floor(Math.max(...ys)));y++){
+      for(let x=Math.max(0,Math.ceil(Math.min(...xs)));x<=Math.min(size-1,Math.floor(Math.max(...xs)));x++){
+        let u=((x-a[0])*ey-(y-a[1])*ex)/det,v=(dx*(y-a[1])-dy*(x-a[0]))/det;
+        if(u<0||v<0||u>1||v>1)continue;
+        const z=a[2]+u*(b[2]-a[2])+v*(c[2]-a[2])+.4;
+        if(z<depth[y*size+x]-.02)continue;
+        if(options.repeatU)u=(u*options.repeatU)%1;
+        if(options.repeatV)v=(v*options.repeatV)%1;
+        const sx=Math.round(origin[0]+along[0]*u+up[0]*v),sy=Math.round(origin[1]+along[1]*u+up[1]*v),i=(sy*limit+sx)*4;
+        if(!px[i+3])continue;
+        let paint;
+        if(palette){
+          const lum=px[i]*.24+px[i+1]*.60+px[i+2]*.16;
+          const n=Math.max(0,Math.min(23,Math.round((lum-12)*.157+(options.tone||0))));
+          paint=tintColor(palette[n],Math.min(0,lum-55)*.58);
+        }else paint=tintColor((px[i]<<16)|(px[i+1]<<8)|px[i+2],options.brightness||0);
+        ink(x,y,z,paint);
+      }
+    }
+  }
   function finish(){
     const canvas=document.createElement('canvas');canvas.width=canvas.height=size;
     const g=canvas.getContext('2d'),im=g.createImageData(size,size);
@@ -103,11 +131,11 @@ function renderer(width,height,facing){
       if(depth[i]<-1e5)continue;
       const x=i%size,y=Math.floor(i/size);let c=color[i];
       // Ink the inner silhouette without expanding a decoration into the next tile.
-      if(x===0||y===0||x+1===size||y+1===size||depth[i-1]<-1e5||depth[i+1]<-1e5||depth[i-size]<-1e5||depth[i+size]<-1e5)c=tintColor(c,-42);
-      else if(depth[i]-depth[i+size]>9||depth[i]-depth[i+1]>10)c=tintColor(c,-16);
+      if(x===0||y===0||x+1===size||y+1===size||depth[i-1]<-1e5||depth[i+1]<-1e5||depth[i-size]<-1e5||depth[i+size]<-1e5)c=depth[i]<1? tintColor(c,-38):tintColor(c,-65);
+      else if(depth[i]-depth[i+size]>9||depth[i]-depth[i+1]>10)c=tintColor(c,-27);
       const j=i*4;im.data[j]=c>>16;im.data[j+1]=c>>8&255;im.data[j+2]=c&255;im.data[j+3]=255;
     }
     g.putImageData(im,0,0);return canvas;
   }
-  return {face,stroke,finish,project,facing};
+  return {face,stroke,veneer,finish,project,facing};
 }
