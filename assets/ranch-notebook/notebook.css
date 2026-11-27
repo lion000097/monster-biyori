@@ -1,0 +1,12 @@
+.observation-book{margin:10px 0;background:#fffcf3;border:1px solid #d5c7a4;border-left:4px solid #739483;border-radius:9px;padding:12px;color:#384c42}
+.observation-book header,.observation-book li{display:flex;align-items:center;gap:9px}
+.observation-book header{justify-content:space-between;flex-wrap:wrap}
+.observation-book h3,.observation-book p,.observation-book ol{margin:0}
+.observation-book h3{font-size:1.05rem}.observation-book header span,.observation-book small{color:#436955;font-weight:700}
+.observation-book>p,.observation-book li p{margin-top:4px;line-height:1.55}
+.observation-book ol{padding:0;list-style:none;margin-top:10px}
+.observation-book li{padding:9px 0;border-top:1px solid #ded7c2}
+.observation-book small{display:block;font-size:.78rem}
+.observation-art{display:grid;place-items:center;flex:0 0 48px;height:48px;background:#edf0dd;border-radius:8px}
+.observation-art .facility-art{width:46px;height:46px;image-rendering:pixelated}
+.observation-book .unseen .observation-art{background:#f1ecde;color:#726b55;font-size:1.3rem;font-weight:700}
