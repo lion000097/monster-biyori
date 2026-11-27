@@ -50,13 +50,16 @@ for (const [name,rotation] of wildEggColors) {
   const slot=characterArt.enemies[name], cell=characterArt.cells[slot], swatches=cell[1].match(/.{6}/g);
   cell[2]=swatches.map(hex=>wildShinySwatch(hex,rotation)).join('');
   const id='wild_'+name, kind=SPECIES.length;
-  const ranchEgg=index<originalFrontierAreas[0].normal[0];
+  const frontier=frontierAreas.find(area=>area.normal.includes(index)||area.boss===index);
+  const ranchEgg=!frontier;
+  const peerKind=frontier ? ENEMIES[frontier.normal[0]].allyId : ALLY_FROM_ENEMY171;
   const boss=enemy.boss || repeatEncounterAreas.some(area=>area.boss===index);
   // The fallback drawing also uses these colours before the indexed atlas is ready.
   const lightness=hex=>parseInt(hex.slice(0,2),16)*.299+parseInt(hex.slice(2,4),16)*.587+parseInt(hex.slice(4),16)*.114;
   swatches.sort((a,b)=>lightness(a)-lightness(b));
   SPECIES.push({id,name,emoji:enemy.icon,color:'#'+swatches[Math.floor(swatches.length/2)],
     dark:'#'+swatches[0],light:'#'+swatches.at(-1),accent:'#ffe7ab',wildEnemy:index,
+    hatchFame:1+Math.floor(peerKind/10),
     earn:boss?10:ranchEgg?4:6,rarity:boss?'とてもレア':ranchEgg?'めずらしい':'レア',large:cell[0]>64});
   KIND_ELEMENTS.push(enemyElement(index));
   enemy.allyId=kind;

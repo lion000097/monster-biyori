@@ -20,6 +20,8 @@ def update_game(html):
         '''  const wildRoll = Math.random();
   if (wildRoll < .22) kind = ALLY_FROM_ENEMY171 + Math.floor(Math.random()*ALLY_FROM_ENEMY_META171.length);
   else if (wildRoll < .42) kind = rnd(ranchWildEggKinds);''')
+    html = replace_once(html, 'gainFame1256(1+Math.floor(m.kind/10))',
+        'gainFame1256(SPECIES[m.kind].hatchFame ?? (1+Math.floor(m.kind/10)))')
     html = replace_once(html,
         '  return foes.map(foe => ENEMIES[foe.index]).find(enemy => enemy?.allyId >= firstFrontierKind);',
         '  return ENEMIES[foes[0]?.index];')
