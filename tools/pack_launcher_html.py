@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import re
 import struct
+import subprocess
 import zlib
 
 # Every 27-bit word occupies exactly four UTF-8 bytes in an HTML raw-text node.
@@ -220,7 +221,7 @@ def unbundle_assets(data, dictionary=False):
     return ''.join(restored)
 
 
-def pack(source, dense=False, binary_assets=False, dictionary=False):
+def pack(source, dense=False, binary_assets=False, dictionary=False, zstd_pack=False):
     if dictionary and not binary_assets:
         raise ValueError('--word-dictionary requires --binary-assets')
     if binary_assets:
@@ -233,9 +234,14 @@ def pack(source, dense=False, binary_assets=False, dictionary=False):
         raise ValueError('Unsafe or ambiguous inflater marker')
     stripped = source[:start] + MARKER + source[end:]
     payload = bundle_assets(stripped, dictionary) if binary_assets else stripped.encode()
-    compressed = dense_zlib(payload) if dense else zlib.compress(payload, 9)
+    if zstd_pack:
+        compressed = subprocess.run(['zstd', '-q', '-19', '-c'], input=payload, capture_output=True, check=True).stdout
+    else:
+        compressed = dense_zlib(payload) if dense else zlib.compress(payload, 9)
     data = encode_payload(compressed)
-    raw = zlib.decompress(decode_payload(data, len(compressed)))
+    encoded = decode_payload(data, len(compressed))
+    raw = (subprocess.run(['zstd', '-q', '-d', '-c'], input=encoded, capture_output=True, check=True).stdout
+           if zstd_pack else zlib.decompress(encoded))
     restored = (unbundle_assets(raw, dictionary) if binary_assets else raw.decode()).replace(MARKER, inflater)
     boot = BOOT.replace('const decoded=new TextDecoder().decode(inflateCharacter12523(bytes));', BINARY_BOOT) if binary_assets else BOOT
     if dictionary:
@@ -245,9 +251,16 @@ def pack(source, dense=False, binary_assets=False, dictionary=False):
   const template=packedText.slice(endHeader+1).replace(/\x01([\u0100-\u05af])/g,(_,code)=>words[code.charCodeAt(0)-256]);""")
     if restored != source:
         raise ValueError('Launcher round trip changed the game')
+    decoder = ''
+    if zstd_pack:
+        vendor = Path(__file__).parent / 'vendor'
+        license_text = (vendor / 'fzstd-0.1.1.LICENSE').read_text()
+        script = (vendor / 'fzstd-0.1.1.js').read_text()
+        decoder = '<script>/* fzstd 0.1.1\n' + license_text + '\n*/\n' + script + '</script>'
+        boot = boot.replace('inflateCharacter12523(bytes)', 'window.fzstd.decompress(bytes)')
     return ("<!doctype html><html lang=ja><meta charset=utf-8><title>もんすたー日和</title>"
             '<script type="application/octet-stream" id="ranch-payload">' + data + '</script>'
-            '<script id="ranch-inflater">' + inflater + '</script><script>(()=>{'
+            + decoder + '<script id="ranch-inflater">' + inflater + '</script><script>(()=>{'
             + f"const GAME_APP_VERSION='{version}';const ALPHABET={json.dumps(ALPHABET)};"
             + f"const PACKED_BYTES={len(compressed)};" + boot
             + '})();</script></html>')
@@ -260,8 +273,9 @@ if __name__ == '__main__':
     parser.add_argument('--binary-assets', action='store_true',
                         help='store embedded base64 data as binary and recompress native pixel streams')
     parser.add_argument('--word-dictionary', action='store_true', help='losslessly encode repeated game identifiers')
+    parser.add_argument('--zstd', action='store_true', help='use Zstandard with the bundled offline decoder')
     args = parser.parse_args()
-    data = pack(args.source.read_text(), args.dense, args.binary_assets, args.word_dictionary).encode()
+    data = pack(args.source.read_text(), args.dense, args.binary_assets, args.word_dictionary, args.zstd).encode()
     if len(data) > 4 * 1024 * 1024:
         raise SystemExit(f'Launcher exceeds 4 MiB: {len(data):,} bytes')
     args.destination.write_bytes(data)

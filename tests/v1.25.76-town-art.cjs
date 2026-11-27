@@ -135,7 +135,7 @@ function checks(){
       assert.deepEqual(await page.evaluate(()=>townArtCheck.snapshot()),original);
       const result=await page.evaluate(()=>townArtCheck.sprites(true));
       if(!compact)webPaint=result.hashes;
-      else if(testedVersion==='1.25.77')assert.deepEqual(result.hashes,webPaint);
+      else if(testedVersion.localeCompare('1.25.77','en',{numeric:true})>=0)assert.deepEqual(result.hashes,webPaint);
       assert.deepEqual(result.issues,[]);assert.equal(result.specs,oldArt.specs);assert.deepEqual(result.reference,oldArt.reference);
       const names=Object.keys(result.hashes);assert.equal(names.length,73);
       for(const id of names)for(let f=0;f<4;f++)assert.notEqual(result.hashes[id][f],oldArt.hashes[id][f],id+'/'+f);

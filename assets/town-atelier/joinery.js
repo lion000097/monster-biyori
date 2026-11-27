@@ -103,9 +103,20 @@ function workshop(spec,facing,phase){
       beam(at(1,0,-.35),at(1,1,-.35),1.45,mat,6,'');
       beam(at(0,1,-.75),at(1,1,-.75),1.72,'bark');
       beam(at(0,0,-.75),at(1,0,-.75),1.72,'bark');
+      const rafters=Math.max(2,Math.round(d/4.1));
+      for(let j=0;j<rafters;j++){
+        const v=(j+.5)/rafters,outer=at(1.035,v,-2.1);
+        beam(at(.94,v,-2.7),outer,1.03,'oak',4);
+        stroke([outer,[outer[0],outer[1]+.27,outer[2]+.46]],'honey',17);
+      }
     }
     beam([mid,back-.15,z+rise+.9],[mid,front+.15,z+rise+.9],2.1,mat,8,'');
     stroke([[mid-.10,back,z+rise+2.1],[mid-.10,front,z+rise+2.1]],mat,18);
+    const caps=Math.max(2,Math.round(d/4.7));
+    for(let j=0;j<caps;j++){
+      const yy=back+d*(j+.35)/caps;
+      stroke([[mid-.6,yy,z+rise+1.2],[mid,yy,z+rise+2.67],[mid+.59,yy,z+rise+1.18]],mat,11);
+    }
   }
   function opening(x,y,z,w,h,door=false,side=0){
     const delta=side===0?[0,.13]:side===1?[.13,0]:side===2?[0,-.13]:[-.13,0];
@@ -172,11 +183,27 @@ function workshop(spec,facing,phase){
     }
   }
   function canopy(x,y,z,w,d,mat='teal',stripe='cream',drop=4){
-    for(const u of [x+.7,x+w-.7])for(const v of [y+.8,y+d-.8])block(u-.4,v-.4,0,.8,.8,z+.6,'oak');
-    const bands=Math.max(3,Math.round(w/3));for(let i=0;i<bands;i++){
+    for(const u of [x+.7,x+w-.7])for(const v of [y+.8,y+d-.8]){
+      block(u-.4,v-.4,0,.8,.8,z+.6,'oak');
+      beam([u,v,z-4.7],[u+(u<x+w/2?2:-2),v,z-.5],.84,'honey',4);
+      lathe(u,v,z-3.9,[[0,.52],[.68,.52]],'brass',6);
+    }
+    const bands=Math.max(3,Math.round(w/3));
+    const sections=[[0,4],[.37,3.2],[.72,1.5],[1,0]];
+    for(let i=0;i<bands;i++){
       const a=x+w*i/bands,b=x+w*(i+1)/bands,c=i%2?stripe:mat;
-      face([[a,y,z+4],[b,y,z+4],[b,y+d,z],[a,y+d,z]],c,18,'weave',true);
-      face([[a,y+d,z],[b,y+d,z],[b,y+d,z-drop+1],[(a+b)/2,y+d+.22,z-drop],[a,y+d,z-drop+1]],c,13,'weave',true);
+      const mid=(a+b)/2;
+      for(let j=1;j<sections.length;j++){
+        const [v0,h0]=sections[j-1],[v1,h1]=sections[j];
+        const fold=(u,v,h)=>[u,y+d*v,z+h+(u===mid?.72:0)];
+        for(const [left,right,tone] of [[a,mid,20],[mid,b,16]]){
+          face([fold(left,v0,h0),fold(right,v0,h0),fold(right,v1,h1),fold(left,v1,h1)],c,tone-j+1,'weave');
+        }
+      }
+      const hem=u=>[u,y+d+.22,z-drop+((Math.abs(u-mid)/(b-a))*2)**2*.97];
+      const scallop=[a,a+(b-a)*.23,mid,a+(b-a)*.77,b].map(hem);
+      face([[b,y+d,z],[a,y+d,z],...scallop],c,14,'weave',true);
+      stroke(scallop.map(([u,v,h])=>[u,v+.13,h+.65]),i%2?mat:'pale',17);
     }
     beam([x-.2,y,z+4.5],[x+w+.2,y,z+4.5],1.1,'bark');
   }
