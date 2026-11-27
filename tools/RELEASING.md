@@ -7,3 +7,5 @@
 4. Gitで公開する場合は、公開用コミットを作った後 `python tools/release_preflight.py --commit HEAD --push origin` を使う。検査対象のコミットだけを検査成功後に main へ送る。GitHub APIで配信する場合も、候補ファイルの検査を成功させ、登録したファイルのハッシュが一致してから main を更新する。
 
 GitHub Pagesの既存設定やランチャーEXEには変更なし。ブラウザから直接mainへアップロードするなど、上記の手順を使わない更新に対してサーバー側で検査を強制するものではない。
+
+1.25.71以降の冒険の背景・宝箱・旗は `assets/adventure/trail-*` の原画を使う。原画差し替え時は `python tools/draw_adventure_art.py game.html --embed` で更新する。展開済みの軽量HTMLには `--launcher` を付ける。軽量版の背景には同じ16場面のAVIFと、読み込みに失敗した場合のWebPを内蔵する。

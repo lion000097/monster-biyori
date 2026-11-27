@@ -1,8 +1,7 @@
-"""Rebuild the 11–15 character bank and backgrounds in the self-contained game."""
+"""Rebuild the 11–15 character and treasure bank in the self-contained game."""
 import argparse
 import base64
 import colorsys
-import io
 import json
 from pathlib import Path
 import re
@@ -10,7 +9,6 @@ import zlib
 
 from PIL import Image
 from draw_frontier_relics import relic
-from draw_adventure_art import FRONTIER_LANDSCAPES, HEIGHT, WIDTH, panorama
 
 ROOT = Path(__file__).resolve().parents[1]
 SIZE = 96
@@ -56,23 +54,11 @@ def encode_sprites(sheet):
 def embed(html, launcher=False):
     sheet = Image.open(ROOT / 'assets/adventure/frontier-11-15.png').convert('RGBA')
     records, data = encode_sprites(sheet)
-    scenes = Image.new('RGB', (WIDTH, HEIGHT * 5))
-    for i, palette in enumerate(FRONTIER_LANDSCAPES):
-        scenes.paste(panorama(i + 11, palette), (0, i * HEIGHT))
-    raster = io.BytesIO()
-    if launcher:
-        scenes.save(raster, 'WEBP', lossless=True, method=6, exact=True)
-        if Image.open(io.BytesIO(raster.getvalue())).convert('RGB').tobytes() != scenes.tobytes():
-            raise ValueError('Lossless background conversion failed')
-        mime = 'webp'
-    else:
-        scenes.save(raster, 'PNG', optimize=True)
-        mime = 'png'
     render = 'const frontierCells=' + json.dumps(records, separators=(',', ':')) + ';\n'
-    render += "const frontierIndexData='" + data + "';\n"
-    render += "const frontierPanoramaURI='data:image/" + mime + ";base64," + base64.b64encode(raster.getvalue()).decode('ascii') + "';"
-    pattern = r'(/\* FRONTIER_ART_START \*/\n).*?(\n/\* FRONTIER_ART_END \*/)'
-    html, count = re.subn(pattern, lambda m: m[1] + render + m[2], html, flags=re.S)
+    render += "const frontierIndexData='" + data + "';"
+    # Old HTML editions store their own panorama immediately after these two lines.
+    pattern = r"^(/\* FRONTIER_ART_START \*/\n)const frontierCells=[^\n]+;\nconst frontierIndexData='[^']+';$"
+    html, count = re.subn(pattern, lambda m: m[1] + render, html, flags=re.M)
     if count != 1:
         raise ValueError('Missing or ambiguous frontier art markers')
     return html
