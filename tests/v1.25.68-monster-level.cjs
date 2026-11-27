@@ -8,7 +8,7 @@ const base=process.env.MB_URL||'http://127.0.0.1:8879';
  
 
   // Real 1.25.67 source, only exposing hooks inside the existing game closure.
-  const expose=s=>s.replace('claimSave12556();\nconst didLoad=load();','window.qa={get state(){return state}, save, tick, monsterLevelNeed135, openMonsterDetails, installSave138, trainMonster, addMonsterXP:typeof addMonsterXP==='function'?addMonsterXP:null, gainStaffExperience, publicAdventureStage};\nclaimSave12556();\nconst didLoad=load();');
+  const expose=s=>s.replace('claimSave12556();\nconst didLoad=load();','window.qa={get state(){return state}, save, tick, monsterLevelNeed135, openMonsterDetails, installSave138, trainMonster, addMonsterXP:typeof addMonsterXP==="function"?addMonsterXP:null, gainStaffExperience, publicAdventureStage};\nclaimSave12556();\nconst didLoad=load();');
   for (const [path,offline,width] of [['/game.html',false,390],['/releases/1.25.68/launcher-game.html',true,1280]]) {
    const ctx=await browser.newContext({viewport:{width,height:850}});
    const errors=[];

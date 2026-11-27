@@ -25,6 +25,7 @@ jobs:
           python3 -m http.server 8879 &
           pid=$!
           trap 'kill "$pid" || true' EXIT
+          curl --retry 10 --retry-connrefused -fsS http://127.0.0.1:8879/ -o /dev/null
           NODE_PATH="$RUNNER_TEMP/mb/node_modules" node tests/v1.25.68-monster-level.cjs
       - name: Record verified distribution
         run: |
