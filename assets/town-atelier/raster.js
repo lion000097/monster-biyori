@@ -88,8 +88,11 @@ function renderer(width,height,facing){
           const board=Math.floor(gy/2.8),grain=Math.floor(gy*2.1+Math.sin(gx*.42)*.7);
           shift=(Math.floor(gy*2)%6===0?-6:0)+(board%3-1);
           if((grain%4===0)&&(Math.floor(gx*2)+board*4)%12<7)shift-=3;
-        }else if(texture==='stone'||texture==='pavers'){
-          const along=texture==='pavers'?gx*2:(gx+gy)*2,up=texture==='pavers'?gy*2:gz;
+        }else if(texture==='pavers'){
+          const course=Math.floor(gy/3.6),seam=(gx+course%2*3.8)%7.6;
+          shift=(gy-course*3.6<.28||seam<.32)?-3:(course+Math.floor((gx+course%2*3.8)/7.6))%3-1;
+        }else if(texture==='stone'){
+          const along=(gx+gy)*2,up=gz;
           const layer=Math.floor(up/4.7),m=(along+(layer%2)*5.8+1364)%11.6;
           shift=up-layer*4.7<.8||m<1?-5:up-layer*4.7<1.7?2:(Math.floor((along+(layer%2)*5.8)/11.6)+layer*3)%4-1;
         }else if(texture==='weave'){shift=(t+row)%4===0?-1:0;}

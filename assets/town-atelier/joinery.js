@@ -29,7 +29,7 @@ function workshop(spec,facing,phase){
   function ball(x,y,z,rx,ry,rz,mat){
     lathe(x,y,z,[[ -rz*.99,rx*.12],[-rz*.68,rx*.71],[-rz*.19,rx],[rz*.30,rx*.96],[rz*.72,rx*.68],[rz,rx*.16]],mat,10,'',false,ry/rx);
   }
-  function beam(a,b,radius,mat='oak',n=6){
+  function beam(a,b,radius,mat='oak',n=6,texture='wood'){
     // Work in pixels of physical space. One horizontal unit spans ~2.5 pixels.
     const dir=b.map((v,i)=>(v-a[i])*(i===2?1:2.5)),len=Math.hypot(...dir);
     if(len<.02)return;
@@ -37,7 +37,7 @@ function workshop(spec,facing,phase){
     const u=l?[j/l,-i/l,0]:[1,0,0],v=[j*u[2]-k*u[1],k*u[0]-i*u[2],i*u[1]-j*u[0]];
     const offsets=Array.from({length:n},(_,q)=>u.map((t,m)=>(t*Math.cos(q*tau/n)+v[m]*Math.sin(q*tau/n))*radius/(m===2?1:2.5)));
     const first=offsets.map(p=>p.map((v,i)=>a[i]+v)),end=offsets.map(p=>p.map((v,i)=>b[i]+v));
-    for(let q=0;q<n;q++){const j=(q+1)%n;skin([first[q],first[j],end[j],end[q]],mat,'wood');}
+    for(let q=0;q<n;q++){const j=(q+1)%n;skin([first[q],first[j],end[j],end[q]],mat,texture);}
     skin(end,mat);skin([...first].reverse(),mat);
   }
   function panel(x,y,z,w,h,mat,side=0,texture='',edges=true){
@@ -82,6 +82,11 @@ function workshop(spec,facing,phase){
       face([[l+.48,yy,z],[rgt-.48,yy,z],[mid,yy,z+rise-.35]],'plaster',yy===front-.36?16:12);
       beam([l+.85,yy,z],[mid,yy,z+rise-.5],1.6,'oak');beam([mid,yy,z+rise-.5],[rgt-.85,yy,z],1.6,'oak');
       beam([mid,yy,z],[mid,yy,z+rise-.9],1.65,'oak');
+      const outside=yy===front-.36?yy+.26:yy-.26;
+      beam([l+.35,outside,z+.45],[rgt-.35,outside,z+.45],1.7,'bark',4);
+      if(w>13)for(const sign of [-1,1]){
+        beam([mid+sign*w*.13,outside,z+.85],[mid+sign*w*.26,outside,z+rise*.45],1.25,'bark',4);
+      }
     }
     for(const side of [-1,1]){
       const at=(u,v,off=0)=>[mid+side*w*.5*u,y+d*v,z+rise*(1-u)+off];
@@ -95,11 +100,12 @@ function workshop(spec,facing,phase){
         brightness,tone:Math.round((lev-15)*.50)
       });
       beam(at(1,0,-1.25),at(1,1,-1.25),2.25,'bark');
-      beam(at(1,0,-.55),at(1,1,-.55),1.1,'oak');
+      beam(at(1,0,-.35),at(1,1,-.35),1.45,mat,6,'');
       beam(at(0,1,-.75),at(1,1,-.75),1.72,'bark');
       beam(at(0,0,-.75),at(1,0,-.75),1.72,'bark');
     }
-    beam([mid,back-.15,z+rise+.85],[mid,front+.15,z+rise+.85],1.95,mat,8);
+    beam([mid,back-.15,z+rise+.9],[mid,front+.15,z+rise+.9],2.1,mat,8,'');
+    stroke([[mid-.10,back,z+rise+2.1],[mid-.10,front,z+rise+2.1]],mat,18);
   }
   function opening(x,y,z,w,h,door=false,side=0){
     const delta=side===0?[0,.13]:side===1?[.13,0]:side===2?[0,-.13]:[-.13,0];

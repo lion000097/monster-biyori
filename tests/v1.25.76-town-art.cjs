@@ -4,6 +4,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {chromium} = require('playwright');
 const root = process.env.TOWN_ART_ROOT || path.join(__dirname, '..');
+const baselineVersion = process.env.TOWN_ART_BASE || '1.25.75';
+const testedVersion = process.env.TOWN_ART_VERSION || '1.25.76';
 const marker = 'claimSave12556();\nconst didLoad=load();';
 const origin = 'https://town-art.test/';
 
@@ -112,7 +114,7 @@ function checks(){
   const browser=await chromium.launch({executablePath:process.env.CHROMIUM||'/usr/bin/chromium',args:['--no-sandbox']});
   try{
     const hook='window.townArtCheck=('+checks.toString()+')();\n';
-    let oldArt;
+    let oldArt,webPaint;
     for(const compact of [false,true]){
       const context=await browser.newContext({viewport:{width:compact?390:1120,height:816}}),page=await context.newPage(),errors=[];
       await page.addInitScript(({marker,hook})=>{
@@ -121,7 +123,8 @@ function checks(){
       page.on('pageerror',e=>errors.push(String(e)));
       await page.route('**/*',async route=>{
         const url=route.request().url();if(![origin+'old',origin+'new'].includes(url))return route.abort();
-        const old=url.endsWith('/old'),file=old?'releases/1.25.75/game.html':compact?'releases/1.25.76/launcher-game.html':'game.html';
+        const old=url.endsWith('/old');
+        const file=old?`releases/${baselineVersion}/game.html`:compact?`releases/${testedVersion}/launcher-game.html`:'game.html';
         const html=fs.readFileSync(path.join(root,file),'utf8');
         await route.fulfill({contentType:'text/html; charset=utf-8',body:compact&&!old?html:html.replace(marker,()=>hook+marker)});
       });
@@ -131,6 +134,8 @@ function checks(){
       await page.goto(origin+'new');await page.waitForFunction(()=>window.townArtCheck?.ready(),{},{timeout:50000});
       assert.deepEqual(await page.evaluate(()=>townArtCheck.snapshot()),original);
       const result=await page.evaluate(()=>townArtCheck.sprites(true));
+      if(!compact)webPaint=result.hashes;
+      else if(testedVersion==='1.25.77')assert.deepEqual(result.hashes,webPaint);
       assert.deepEqual(result.issues,[]);assert.equal(result.specs,oldArt.specs);assert.deepEqual(result.reference,oldArt.reference);
       const names=Object.keys(result.hashes);assert.equal(names.length,73);
       for(const id of names)for(let f=0;f<4;f++)assert.notEqual(result.hashes[id][f],oldArt.hashes[id][f],id+'/'+f);
