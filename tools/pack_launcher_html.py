@@ -1,8 +1,11 @@
 """Pack one self-contained game HTML as a reversible, offline launcher document."""
 import argparse
+import base64
+import binascii
 import json
 from pathlib import Path
 import re
+import struct
 import zlib
 
 # Every 27-bit word occupies exactly four UTF-8 bytes in an HTML raw-text node.
@@ -128,7 +131,77 @@ def dense_zlib(data):
         lib.libdeflate_free_compressor(compressor)
 
 
-def pack(source, dense=False):
+BINARY_MARKER = '@@RANCH_BINARY@@'
+BINARY_BOOT = """
+  const raw=inflateCharacter12523(bytes),view=new DataView(raw.buffer,raw.byteOffset,raw.byteLength);
+  let cursor=4+view.getUint32(0,true);
+  const template=new TextDecoder().decode(raw.subarray(4,cursor));
+  const decoded=template.replace(/@@RANCH_BINARY@@/g,()=>{
+    const length=view.getUint32(cursor,true);cursor+=4;
+    const end=cursor+length,parts=[];
+    if(end>raw.length)throw Error('Truncated launcher asset');
+    // Only the final chunk can contain base64 padding.
+    for(let i=cursor;i<end;i+=24576)
+      parts.push(btoa(String.fromCharCode(...raw.subarray(i,Math.min(i+24576,end)))));
+    cursor=end;
+    return parts.join('');
+  });
+  if(cursor!==raw.length)throw Error('Unexpected launcher asset length');
+"""
+
+
+def compact_sprite_streams(source):
+    """Re-encode just the two native indexed atlases; compare their pixel bytes."""
+    def replace(match):
+        bank = json.loads(match[2])
+        for item in bank.values():
+            old = base64.b64decode(item[2], validate=True)
+            pixels = zlib.decompress(old)
+            packed = dense_zlib(pixels)
+            if len(packed) < len(old):
+                if zlib.decompress(packed) != pixels:
+                    raise ValueError('Native sprite pixels changed')
+                item[2] = base64.b64encode(packed).decode('ascii')
+        return match[1] + json.dumps(bank, ensure_ascii=False, separators=(',', ':')) + ';'
+    return re.sub(r'^(const (?:townAtlases|treeCrownAtlases)=)(.+);$', replace, source, flags=re.M)
+
+
+def bundle_assets(source):
+    if BINARY_MARKER in source:
+        raise ValueError('Ambiguous binary marker')
+    assets = []
+    def replace(match):
+        encoded = match[0]
+        try:
+            raw = base64.b64decode(encoded, validate=True)
+        except (ValueError, binascii.Error):
+            return encoded
+        if base64.b64encode(raw).decode('ascii') != encoded:
+            return encoded
+        assets.append(raw)
+        return BINARY_MARKER
+    template = re.sub(r'[A-Za-z0-9+/=]{1500,}', replace, source).encode()
+    return b''.join(struct.pack('<I', len(part)) + part for part in [template, *assets])
+
+
+def unbundle_assets(data):
+    size = struct.unpack_from('<I', data)[0]
+    cursor = 4 + size
+    sections = data[4:cursor].decode().split(BINARY_MARKER)
+    restored = [sections[0]]
+    for text in sections[1:]:
+        size = struct.unpack_from('<I', data, cursor)[0]
+        cursor += 4
+        restored.extend((base64.b64encode(data[cursor:cursor+size]).decode('ascii'), text))
+        cursor += size
+    if cursor != len(data):
+        raise ValueError('Invalid asset bundle')
+    return ''.join(restored)
+
+
+def pack(source, dense=False, binary_assets=False):
+    if binary_assets:
+        source = compact_sprite_streams(source)
     version = re.search(r"GAME_APP_VERSION='([\d.]+)'", source)[1]
     start = source.index('/* Embedded, unmodified pako ')
     end = source.index('\n})();', source.index('  return module.exports.inflate;', start)) + len('\n})();')
@@ -136,16 +209,19 @@ def pack(source, dense=False):
     if MARKER in source or '</script' in inflater.lower():
         raise ValueError('Unsafe or ambiguous inflater marker')
     stripped = source[:start] + MARKER + source[end:]
-    compressed = dense_zlib(stripped.encode()) if dense else zlib.compress(stripped.encode(), 9)
+    payload = bundle_assets(stripped) if binary_assets else stripped.encode()
+    compressed = dense_zlib(payload) if dense else zlib.compress(payload, 9)
     data = encode_payload(compressed)
-    restored = zlib.decompress(decode_payload(data, len(compressed))).decode().replace(MARKER, inflater)
+    raw = zlib.decompress(decode_payload(data, len(compressed)))
+    restored = (unbundle_assets(raw) if binary_assets else raw.decode()).replace(MARKER, inflater)
+    boot = BOOT.replace('const decoded=new TextDecoder().decode(inflateCharacter12523(bytes));', BINARY_BOOT) if binary_assets else BOOT
     if restored != source:
         raise ValueError('Launcher round trip changed the game')
     return ("<!doctype html><html lang=ja><meta charset=utf-8><title>もんすたー日和</title>"
             '<script type="application/octet-stream" id="ranch-payload">' + data + '</script>'
             '<script id="ranch-inflater">' + inflater + '</script><script>(()=>{'
             + f"const GAME_APP_VERSION='{version}';const ALPHABET={json.dumps(ALPHABET)};"
-            + f"const PACKED_BYTES={len(compressed)};" + BOOT
+            + f"const PACKED_BYTES={len(compressed)};" + boot
             + '})();</script></html>')
 
 if __name__ == '__main__':
@@ -153,8 +229,10 @@ if __name__ == '__main__':
     parser.add_argument('source', type=Path)
     parser.add_argument('destination', type=Path)
     parser.add_argument('--dense', action='store_true', help='use libdeflate level 12 for a smaller offline HTML')
+    parser.add_argument('--binary-assets', action='store_true',
+                        help='store embedded base64 data as binary and recompress native pixel streams')
     args = parser.parse_args()
-    data = pack(args.source.read_text(), args.dense).encode()
+    data = pack(args.source.read_text(), args.dense, args.binary_assets).encode()
     if len(data) > 4 * 1024 * 1024:
         raise SystemExit(f'Launcher exceeds 4 MiB: {len(data):,} bytes')
     args.destination.write_bytes(data)
