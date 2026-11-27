@@ -55,6 +55,76 @@ function inspectCamera() {
   return {scale, scenes:Object.keys(state.observationDays80).length};
 }
 
+function checkSceneLocations() {
+  const expect=(pass,why)=>{if(!pass)throw Error(why);};
+  const add=(type,x,y)=>{
+    const site={id:state.nextId++,type,x,y,level:1,facing:0}; state.buildings.push(site); return site;
+  };
+  const reset=()=>{clearCameraTargets81();cameraResume81=false;cameraHold81=0;};
+  const check=site=>{
+    updateSceneCamera81();
+    expect(cameraScene81?.site===site,'target not actual '+site.type);
+    expect($('sceneCameraStatus81').textContent===observationScenes80[site.type].title,'missing title '+site.type);
+  };
+  const weather=name=>{while(weatherInfo().name!==name)state.day++;};
+  state.speed=1;
+  // Call the same polling path used by the simulation for each real change of weather or hour.
+  for(const [type,onHour,onWeather,offHour,offWeather] of [
+    ['acornLamp',21,'晴れ',12,'晴れ'],['birdClock',12,'晴れ',13,'晴れ'],
+    ['crystalHanger',16,'晴れ',13,'晴れ'],['butterflyPool',12,'晴れ',12,'雨'],
+    ['rainHarp',12,'雨',12,'晴れ'],['moonBasin',21,'晴れ',21,'雨']
+  ]) {
+    reset();const site=add(type,-14,-12);
+    weather(offWeather);state.hour=offHour;observeTownPhase80(site);
+    expect(!cameraNext81,'inactive phase '+type);
+    weather(onWeather);state.hour=onHour;observeTownPhase80(site);check(site);
+    reset();observeTownPhase80(site);expect(!cameraNext81,'repeated ambient poll '+type);
+    state.buildings.splice(state.buildings.indexOf(site),1);
+  }
+  reset();
+  const shelter=add('rainPavilion',9,15),sv=townVenue(shelter);
+  const guest={actor:{},kind:'monster',phase:'enter',venue:sv};sv.members=[guest];
+  weather('晴れ');townOnArrival(guest);expect(!cameraNext81,'dry shelter');
+  weather('雨');townOnArrival(guest);check(shelter);sv.members=[];
+  reset();
+  const art=add('artHut',11,14), artist={actor:{},kind:'monster',phase:'use',stay:3,venue:townVenue(art)};
+  townLeave(artist);expect(!cameraNext81,'unfinished picture');
+  artist.stay=4;townLeave(artist);check(art);
+  reset();
+  const plaza=add('monsterPlayPlaza',16,15),v=townVenue(plaza);
+  v.mode='chase';v.members=[0,1].map(slot=>({actor:{x:16,y:15},slot,kind:'monster',phase:slot?'road':'use',venue:v}));
+  townStepGroup(v,.1);expect(!cameraNext81,'late playmate');
+  v.members[1].phase='use';townStepGroup(v,.1);check(plaza);v.running=false;v.members=[];
+  reset();
+  weather('晴れ');state.hour=8;stepRanchScenes124(.05);reset();
+  const roads=state.paths.map(k=>k.split(',').map(Number)).filter(p=>residentRoad(...p));
+  const p=roads.find(q=>neighbors(...q).some(n=>residentRoad(...n))&&neighbors(...q).some(n=>!getBuildingAt(...n)&&!isPath(...n)));
+  const beside=neighbors(...p).find(q=>!getBuildingAt(...q)&&!isPath(...q)),bed=add('flowerbed211',...beside);
+  const first=makeMonster(state.nextId++,0,...p), second=makeMonster(state.nextId++,1,...p);
+  state.monsters.push(first,second);first.x=p[0];first.y=p[1];first.path=[];
+  const water={actor:first,kind:'water',site:bed,phase:'approach',goal:p};
+  ranchRoutines124.active.push(water);
+  expect(advanceRanchDecor124(water,.1),'watering started');check(bed);
+  ranchRoutines124.active.splice(ranchRoutines124.active.indexOf(water),1);
+  state.buildings.splice(state.buildings.indexOf(bed),1);reset();
+  state.hour=12;const rug=add('picnic257',...beside),other=neighbors(...p).find(q=>residentRoad(...q));
+  second.x=other[0];second.y=other[1];
+  const scene=beginPicnic257({site:rug,choice:[{actor:first,goal:p,route:[]},{actor:second,goal:other,route:[]}]});
+  picnicFlow257={ranch:state,day:state.day,played:true,poll:1,scene};
+  second.x+=.4;stepPicnic257(.1);expect(!cameraNext81,'picnic still approaching');
+  second.x=other[0];stepPicnic257(.1);check(rug);
+  const c=cameraCenter();mapPointer={};updateSceneCamera81();
+  expect(!cameraScene81&&cameraCenter().x===c.x,'held map stays still');
+  mapPointer=null;updateSceneCamera81();expect(cameraScene81,'camera resumed after pointer release');
+  if(walkCameraMotion1257.matches){
+    reset();offerCameraScene81(rug);updateSceneCamera81();
+    const center=cameraCenter(),size=buildingOf(rug);
+    expect(Math.abs(center.x-rug.x-size.w/2)<.005 && Math.abs(center.y-rug.y-size.h/2)<.005,'reduced motion jumps directly');
+  }
+  expect(state.observationDays80.picnic257===7,'existing first picnic day');
+  state.speed=0;renderUI(true);save(true);
+}
+
 function checkTime() {
   const expect=(v,s)=>{if(!v)throw Error(s);};
   const descriptors=[[performance,'now'],[document,'hidden'],[document,'visibilityState']].map(([o,k])=>[o,k,Object.getOwnPropertyDescriptor(o,k)]);
@@ -122,7 +192,7 @@ async function importFile(page,mobile,data) {
       p.on('pageerror',e=>{errors.push(e.message); console.error(e.message);});
       p.on('dialog',async dialog=>dialog.accept());
       const hook='window.oldFixture='+oldFixture.toString()+';window.inspectCamera='+inspectCamera.toString()+
-        ';window.checkTime='+checkTime.toString()+';window.initialRanchForTest81=()=>initial();'+
+        ';window.checkSceneLocations='+checkSceneLocations.toString()+';window.checkTime='+checkTime.toString()+';window.initialRanchForTest81=()=>initial();'+
         'window.ranchSave=()=>JSON.parse(readRanchSave12556());window.trySave=()=>save(true);\n';
       await p.addInitScript(({hook,marker})=>{
         const write=Document.prototype.write;
@@ -148,6 +218,8 @@ async function importFile(page,mobile,data) {
       assert(await toggle.isVisible());assert.equal(await toggle.getAttribute('aria-pressed'),'false');
       await toggle.click();assert.equal(await toggle.getAttribute('aria-pressed'),'true');
       const r=await p.evaluate(()=>inspectCamera());assert(r.scenes>=3);
+      await p.emulateMedia({reducedMotion:'reduce'});await p.evaluate(()=>checkSceneLocations());
+      await p.emulateMedia({reducedMotion:'no-preference'});
       await p.reload();await p.waitForFunction(()=>document.querySelector('#ranchName')?.textContent==='ひだまりの牧場');
       assert.equal(await toggle.getAttribute('aria-pressed'),'true');
       assert((await p.evaluate(()=>ranchSave())).playMillis81<120000);
@@ -155,6 +227,8 @@ async function importFile(page,mobile,data) {
         await p.locator('#mobileMoreToggle12521').click();await p.locator('[data-mobile-open12521=stats]').click();
       }
       assert(await p.locator('#ranchPlayTime81').isVisible());
+      const beforeTick=await p.locator('#ranchPlayTime81').textContent();
+      await p.waitForFunction(previous=>document.querySelector('#ranchPlayTime81').textContent!==previous,beforeTick);
       await p.evaluate(()=>checkTime());
       assert.match(await p.locator('#ranchPlayTime81').textContent(),/^1時間 01分 /);
       if(mobile)await p.locator('#mobileStats12521 [data-mobile-close12521]').click();
