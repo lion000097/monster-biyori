@@ -1,0 +1,51 @@
+name: Verify Komorebi House artwork 1.25.77
+on:
+  push:
+    branches: [verify/komorebi-materials-1.25.77]
+    paths:
+      - '.github/workflows/verify-komorebi-12577.yml'
+      - 'work/komorebi-12577/**'
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /game.html
+            /latest.json
+            /archive.html
+            /assets/town-atelier/
+            /tools/
+            /tests/v1.25.76-town-art.cjs
+            /releases/1.25.75/game.html
+            /releases/1.25.76/
+            /releases/1.25.77/
+            /work/komorebi-12577/
+      - name: Assemble the checked game and compare the complete distribution
+        run: |
+          zstd -q -d -f --patch-from releases/1.25.76/game.html work/komorebi-12577/game.html.zst -o game.html
+          cp game.html releases/1.25.77/game.html
+          /usr/bin/python3 work/komorebi-12577/package.py
+          sha256sum --check work/komorebi-12577/SHA256SUMS
+          python3 tools/release_preflight.py --root .
+      - name: Verify both old saves and the map, preview, thumbnail and exhibits
+        env:
+          TOWN_ART_VERSION: 1.25.77
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          export CHROMIUM="$(command -v google-chrome)"
+          for baseline in 1.25.75 1.25.76; do
+            TOWN_ART_BASE="$baseline" node tests/v1.25.76-town-art.cjs
+          done
+      - name: Save the verified distribution to this branch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add --sparse game.html releases/1.25.77/game.html releases/1.25.77/monster-biyori-1.25.77.zip
+          git commit -m 'Save the verified web edition and archive for 1.25.77 [skip ci]'
+          git push origin HEAD:refs/heads/verify/komorebi-materials-1.25.77
