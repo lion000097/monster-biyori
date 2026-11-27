@@ -1,0 +1,123 @@
+diff --git a/game.html b/game.html
+index bd50a04..3329f3a 100644
+--- a/game.html
++++ b/game.html
+@@ -6 +6 @@
+-<title>もんすたー日和 Ver.1.25.68 | まもの牧場シミュレーション</title>
++<title>もんすたー日和 Ver.1.25.69 | まもの牧場シミュレーション</title>
+@@ -620 +620 @@ html.monster-detail-open{overflow:hidden}
+-<footer class="footer">© もんすたー日和 Ver.1.25.68 — モンスターの上限Lv.150</footer>
++<footer class="footer">© もんすたー日和 Ver.1.25.69 — 花鈴の丘から暁の空庭へ</footer>
+@@ -713 +713 @@ function bossTargets12552(stage){
+- if(stage>=35&&stage<=50)keys.push('egg','shiny');
++ if(frontierAreaForStage(stage))keys.push('egg','shiny');
+@@ -774,2 +774,2 @@ function toggleBossLoop(stage,target='any') {
+-const GAME_APP_VERSION='1.25.68';
+-const PUBLIC_ADVENTURE_END=50, PUBLIC_TREE_MAX=30;
++const GAME_APP_VERSION='1.25.69';
++const PUBLIC_ADVENTURE_END=75, PUBLIC_TREE_MAX=30;
+@@ -2140,2 +2140,2 @@ let a=state.adventure,battle=state.battle,n=battle?.stage||a.bossLoop||publicAdv
+-let html=`<div class="adventure-stage"><div class="fight-row"><span>${battle?.raid?'🌿 レイド　世界樹の聖域':`🌍 エリア ${world}${frontierAreaForStage(n) ? '　'+esc(frontierAreaForStage(n).biome) : ''} · ${stageLabel(n)}`}</span><span>${battle?.raid?'伝説級':e.boss?'👑 ボス':'通常戦'+recommendedPartyText(n)}</span></div><div class="fight-banner"><canvas width="96" height="96" data-stage-enemy="${shownEnemy.index}"></canvas><strong>${esc(shownEnemy.name)}</strong><span class="pill">敵 ${foes.length}体</span></div>`;
+-if(!battle&&complete&&!a.bossLoop)html+='<p class="help" role="status">🏁 10-5クリア！ 冒険はここまで公開中。撃破済みボスは再戦・周回できるよ。</p>';
++let html=`<div class="adventure-stage"><div class="fight-row"><span>${battle?.raid?'🌿 レイド　世界樹の聖域':`🌍 エリア ${world}${frontierAreaForStage(n) ? '　'+esc(frontierAreaForStage(n).biome) : ''} · ${stageLabel(n)}`}</span><span>${battle?.raid?'伝説級':(e.boss?'👑 ボス':'通常戦')+recommendedPartyText(n)}</span></div><div class="fight-banner"><canvas width="96" height="96" data-stage-enemy="${shownEnemy.index}"></canvas><strong>${esc(shownEnemy.name)}</strong><span class="pill">敵 ${foes.length}体</span></div>`;
++if(!battle&&complete&&!a.bossLoop)html+='<p class="help" role="status">🏁 15-5クリア！ 冒険はここまで公開中。撃破済みボスは再戦・周回できるよ。</p>';
+@@ -2145 +2145 @@ if(eggFoe)html+='<p class="mini-note">🥚 勝つと「'+esc(eggFoe.name)+'の
+-html+=`<button class="wide-button" data-action="adventureStart" ${battle||a.bossLoop||complete?'disabled':''}>${battle?(journey12554.get(battle)?'🐾 冒険中…':'⚔️ 自動戦闘中…'):complete?'🏁 10-5までクリア済み':'🚩 '+stageLabel(n)+' に出発する'}</button><button class="wide-button" style="background:${a.auto?'#c78555':'#5e8c99'}" data-action="adventureAuto" ${a.bossLoop||battle?.raid||complete?'disabled':''}>${a.auto?'⏹️ 自動周回を止める':'🔁 クリア後も次へ自動で出発'}</button></div>`;
++html+=`<button class="wide-button" data-action="adventureStart" ${battle||a.bossLoop||complete?'disabled':''}>${battle?(journey12554.get(battle)?'🐾 冒険中…':'⚔️ 自動戦闘中…'):complete?'🏁 15-5までクリア済み':'🚩 '+stageLabel(n)+' に出発する'}</button><button class="wide-button" style="background:${a.auto?'#c78555':'#5e8c99'}" data-action="adventureAuto" ${a.bossLoop||battle?.raid||complete?'disabled':''}>${a.auto?'⏹️ 自動周回を止める':'🔁 クリア後も次へ自動で出発'}</button></div>`;
+@@ -4664 +4664 @@ if(b){const flash=Math.max(0,1-(Date.now()-(b.lastHitAt||0))/650);if(flash>0){g.
+-let lastBattleText='';function updateBattleStats(){let b=state.battle,n=b?b.stage:state.adventure.stage,info=stageMonsterInfo(n);const s=b?`⚔️ Round ${b.round}　味方 ${Math.ceil(b.ourHp)} / ${b.ourMax} HP ・ 敵 ${Math.ceil(b.hp)} / ${b.maxHp} HP　${b.log||''}`:'🌿 次の相手：'+info.enemy.name+'　｜　冒険タブから出発すると自動で戦うよ';$('battleStageBadge').textContent=stageLabel(n)+(info.boss?' 👑ボス戦':' 🌿冒険'+recommendedPartyText(n));if(s!==lastBattleText){$('battleStats').textContent=s;lastBattleText=s}}
++let lastBattleText='';function updateBattleStats(){let b=state.battle,n=b?b.stage:state.adventure.stage,info=stageMonsterInfo(n);const s=b?`⚔️ Round ${b.round}　味方 ${Math.ceil(b.ourHp)} / ${b.ourMax} HP ・ 敵 ${Math.ceil(b.hp)} / ${b.maxHp} HP　${b.log||''}`:'🌿 次の相手：'+info.enemy.name+'　｜　冒険タブから出発すると自動で戦うよ';$('battleStageBadge').textContent=stageLabel(n)+(info.boss?' 👑ボス戦':' 🌿冒険')+recommendedPartyText(n);if(s!==lastBattleText){$('battleStats').textContent=s;lastBattleText=s}}
+@@ -4937 +4937 @@ function basicHelp() {
+-    <section><h3>たまごと図鑑</h3><p>手持ちのたまごは最大9個。満杯のときに職員の探検や自動遠征、エリア7〜10の戦闘で色違いを見つけると、どのたまごと入れ替えるか選べるよ。「あとで選ぶ」を押したら「仲間」で受け取ってね。</p><p>エリア7〜10には、倒すとその種のたまごを残す敵がいるよ。各エリアのボスも仲間にできるよ。</p><p>通常のたまごは入手時に1/${NORMAL_SHINY_ODDS139}で色違いが決まるよ。「図鑑」では味方・敵・市民・素材を見られるよ。敵は出現エリアと発見状況を組み合わせて探せるよ。使い切った素材も発見済みのまま残るよ。</p></section>
++    <section><h3>たまごと図鑑</h3><p>手持ちのたまごは最大9個。満杯のときに職員の探検や自動遠征、エリア7〜15の戦闘で色違いを見つけると、どのたまごと入れ替えるか選べるよ。「あとで選ぶ」を押したら「仲間」で受け取ってね。</p><p>エリア7〜15には、倒すとその種のたまごを残す敵がいるよ。各エリアのボスも仲間にできるよ。</p><p>通常のたまごは入手時に1/${NORMAL_SHINY_ODDS139}で色違いが決まるよ。「図鑑」では味方・敵・市民・素材を見られるよ。敵は出現エリアと発見状況を組み合わせて探せるよ。使い切った素材も発見済みのまま残るよ。</p></section>
+@@ -5352 +5352 @@ updateBattleStats=function(){
+- let b=state.battle,n=b?b.stage:state.adventure.bossLoop||publicAdventureStage();const info=stageMonsterInfo(n);const enemyHp=b?Math.ceil(totalEnemyHp(b.foes))+'/'+b.foes.reduce((s,f)=>s+f.maxHp,0):Math.ceil(info.hp)+' / '+Math.ceil(info.hp);const live=b?b.foes.filter(f=>f.hp>0).length:info.count||1;const s=b?`⚔️ Round ${b.round}　味方 ${Math.ceil(b.ourHp)} / ${b.ourMax} HP ・ 敵 ${enemyHp}（残り${live}体）　${b.log||''}`:!state.adventure.bossLoop&&adventureComplete()?'🏁 10-5までクリア済み。冒険タブからボスに再戦できるよ。':'🌿 次の相手：'+(info.boss?'ボス ':'')+(info.count?info.count+'体':'1体')+'　｜　冒険タブから出発すると自動で戦うよ';$('battleStageBadge').textContent=stageLabel(n)+(info.boss?' 👑ボス戦':' 🌿冒険'+recommendedPartyText(n));if(s!==lastBattleText){$('battleStats').textContent=s;lastBattleText=s}}
++ let b=state.battle,n=b?b.stage:state.adventure.bossLoop||publicAdventureStage();const info=stageMonsterInfo(n);const enemyHp=b?Math.ceil(totalEnemyHp(b.foes))+'/'+b.foes.reduce((s,f)=>s+f.maxHp,0):Math.ceil(info.hp)+' / '+Math.ceil(info.hp);const live=b?b.foes.filter(f=>f.hp>0).length:info.count||1;const s=b?`⚔️ Round ${b.round}　味方 ${Math.ceil(b.ourHp)} / ${b.ourMax} HP ・ 敵 ${enemyHp}（残り${live}体）　${b.log||''}`:!state.adventure.bossLoop&&adventureComplete()?'🏁 15-5までクリア済み。冒険タブからボスに再戦できるよ。':'🌿 次の相手：'+(info.boss?'ボス ':'')+(info.count?info.count+'体':'1体')+'　｜　冒険タブから出発すると自動で戦うよ';$('battleStageBadge').textContent=stageLabel(n)+(info.boss?' 👑ボス戦':' 🌿冒険')+recommendedPartyText(n);if(s!==lastBattleText){$('battleStats').textContent=s;lastBattleText=s}}
+@@ -5838 +5838,2 @@ function recommendedPartyText(stage){
+- return stage>=1&&stage<=4?'・3匹の推奨Lv.'+stage:'';
++ const level=frontierAreaForStage(stage)?.levels?.[(stage-1)%5] ?? (stage>=1&&stage<=4?stage:0);
++ return level?'・3匹の推奨Lv.'+level:'';
+@@ -5889 +5890 @@ const frontierBossEggRate = .34, frontierWildEggRate = .08;
+-function registerFrontierArea(biome, icon, normal, boss) {
++function registerFrontierArea(biome, icon, normal, boss, levels) {
+@@ -5905 +5906 @@ function registerFrontierArea(biome, icon, normal, boss) {
+-  return {biome, icon, normal:normal.map(row => register(row, false)), boss:register(boss, true)};
++  return {biome, icon, normal:normal.map(row => register(row, false)), boss:register(boss, true), levels};
+@@ -5907 +5908 @@ function registerFrontierArea(biome, icon, normal, boss) {
+-const frontierAreas = [
++const originalFrontierAreas = [
+@@ -5932,0 +5934,43 @@ const frontierAreas = [
++const yuguruKind=SPECIES.length, yuguruEnemy=ENEMIES.length;
++SPECIES.push({id:'yuguru',name:'ユグル（幼体）',emoji:'🌿',color:'#78a771',dark:'#355745',light:'#e2edab',
++  accent:'#e4c272',earn:11,rarity:'SR（スーパーレア）',large:true,wildEnemy:yuguruEnemy});
++KIND_ELEMENTS[yuguruKind]='草';
++// Append the adult form so existing species, eggs and catalog entries retain their IDs.
++const yuguruAdultKind=SPECIES.length;
++SPECIES.push({...SPECIES[yuguruKind],id:'yuguruAdult',name:'ユグル（成体）',rarity:'UR（ウルトラレア）'});
++KIND_ELEMENTS[yuguruAdultKind]='草';
++const yuguru={name:'世界樹の古竜 ユグル',icon:'🌿',biome:'世界樹の聖域',element:'草',hp:16827,atk:626,boss:true,allyId:yuguruKind};
++ENEMIES.push(yuguru);
++
++const frontierAreas = [...originalFrontierAreas,
++  registerFrontierArea('花鈴の丘', '🪻', [
++    ['すずはなウサギ','🐇','草',211,22,['bell_rabbit','#8faac6','#4e4960','#efe3b7']],
++    ['たねぼうしウズラ','🐦','土',215,23],
++    ['花びらアゲハ','🦋','風',204,24],
++    ['ひなぎくコガネ','🌼','草',226,22]
++  ], ['花冠の大角ヒツジ','🐏','草',292,28,['blossom_ram','#c79d8e','#694a4d','#f6e5bc']], [84,85,87,88,90]),
++  registerFrontierArea('潮硝子の入り江', '🐚', [
++    ['しお玉ラッコ','🦦','水',224,23,['glass_otter','#77b9b7','#3e5e68','#d6efd0']],
++    ['巻貝ヤドカリ','🐚','土',239,22],
++    ['珊瑚タツノコ','🪸','水',217,25],
++    ['夕くちばしパフィン','🐧','風',225,24]
++  ], ['潮笛の海竜','🐉','水',308,29,['shell_wyrm','#52aaa8','#425777','#fad1ad']], [92,94,96,98,100]),
++  registerFrontierArea('灯石の鉱脈', '💎', [
++    ['灯鼻モグラ','💡','土',237,24,['lantern_mole','#bd7962','#543f4c','#ffce74']],
++    ['紫晶ヤモリ','🦎','光',233,25],
++    ['炭火ガ','🔥','火',226,26],
++    ['水晶カブト','🪲','土',251,23]
++  ], ['炉心の鎧アルマジロ','🛡️','火',326,31,['furnace_armadillo','#ad7953','#494654','#ffbf6d']], [102,103,105,106,108]),
++  registerFrontierArea('霜織りの針葉林', '❄️', [
++    ['雪襟オコジョ','❄️','水',247,25,['frost_ermine','#a5cbd5','#4c6482','#fff3d6']],
++    ['氷耳ノウサギ','🐰','風',244,26],
++    ['結晶ツノヤギ','🐐','土',263,24],
++    ['松ぼっくりライチョウ','🌲','草',251,26]
++  ], ['霜羽の大フクロウ','🦉','風',344,33,['frost_owl','#9daccd','#505473','#ede6db']], [110,111,113,114,116]),
++  registerFrontierArea('暁の空庭', '🌤️', [
++    ['あけぼのツバメ','🐦','風',259,26,['dawn_swallow','#c88c96','#654a64','#ffd89b']],
++    ['雲わたヒツジ','☁️','光',272,25],
++    ['朝虹トンボ','🪽','雷',251,28],
++    ['星耳フェネック','🦊','光',263,27]
++  ], ['暁冠の翼獅子','🦁','光',365,35,['dawn_lion','#d59c68','#80515d','#fff0b7']], [118,120,121,123,125])
++];
+@@ -5945 +5989 @@ const encounterEnemyIds=new Set();
+-for(let n=1;n<=namedEncounterAreas.length+repeatEncounterAreas.length;n++){
++for(let n=1;n<=namedEncounterAreas.length;n++){
+@@ -5947,2 +5991 @@ for(let n=1;n<=namedEncounterAreas.length+repeatEncounterAreas.length;n++){
+-  const numbers=n<=namedEncounterAreas.length?String(n):n+'・'+(n+repeatEncounterAreas.length)+'・…';
+-  enemyAtlasAreas.set(String(n),{label:'エリア'+numbers+'　'+area.biome,biome:area.biome,boss:area.boss,ids});
++  enemyAtlasAreas.set(String(n),{label:'エリア'+n+'　'+area.biome,biome:area.biome,boss:area.boss,ids});
+@@ -5951 +5994 @@ for(let n=1;n<=namedEncounterAreas.length+repeatEncounterAreas.length;n++){
+-const archiveEnemyIds=new Set(ENEMIES.flatMap((_,id)=>encounterEnemyIds.has(id)?[]:[id]));
++const archiveEnemyIds=new Set(ENEMIES.flatMap((_,id)=>encounterEnemyIds.has(id)||id===yuguruEnemy?[]:[id]));
+@@ -6358 +6401 @@ for(const item of featuredTreasures){
+-  TREASURE_ITEMS[item.id]={...item,source:'全冒険（1-1〜10-5）の通常宝箱・すべての探検先'};
++  TREASURE_ITEMS[item.id]={...item,source:'全冒険（1-1〜15-5）の通常宝箱・すべての探検先'};
+@@ -6535 +6578 @@ function renderBossPicker192(root){
+-  setText(row.querySelector('small'),'👑 '+b.name+' · '+(done?'撃破済み':'挑戦可能'));
++  setText(row.querySelector('small'),'👑 '+b.name+recommendedPartyText(b.stage)+' · '+(done?'撃破済み':'挑戦可能'));
+@@ -6950 +6993 @@ for(const [i,name] of areaTrophyNames.entries()){
+-const frontierFriendIds=frontierAreas.flatMap(area=>[...area.normal,area.boss])
++const frontierFriendIds=originalFrontierAreas.flatMap(area=>[...area.normal,area.boss])
+@@ -14552,3 +14594,0 @@ function isBossRelic(item){return !!(item?.bossStage||item?.raid);}
+-const yuguruKind=SPECIES.length, yuguruEnemy=ENEMIES.length;
+-SPECIES.push({id:'yuguru',name:'ユグル（幼体）',emoji:'🌿',color:'#78a771',dark:'#355745',light:'#e2edab',
+-  accent:'#e4c272',earn:11,rarity:'SR（スーパーレア）',large:true,wildEnemy:yuguruEnemy});
+@@ -14557,7 +14596,0 @@ rarityRank['UR（ウルトラレア）']=4;
+-KIND_ELEMENTS[yuguruKind]='草';
+-// Append the adult form so existing species, eggs and catalog entries retain their IDs.
+-const yuguruAdultKind=SPECIES.length;
+-SPECIES.push({...SPECIES[yuguruKind],id:'yuguruAdult',name:'ユグル（成体）',rarity:'UR（ウルトラレア）'});
+-KIND_ELEMENTS[yuguruAdultKind]='草';
+-const yuguru={name:'世界樹の古竜 ユグル',icon:'🌿',biome:'世界樹の聖域',element:'草',hp:16827,atk:626,boss:true,allyId:yuguruKind};
+-ENEMIES.push(yuguru);
