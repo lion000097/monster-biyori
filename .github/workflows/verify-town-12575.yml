@@ -1,0 +1,38 @@
+name: Verify World Tree 1.25.75
+on:
+  push:
+    branches: [build/town-73-1.25.75]
+    paths: ['.github/workflows/verify-town-12575.yml']
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /game.html
+            /archive.html
+            /latest.json
+            /tools/release_preflight.py
+            /tests/v1.25.75-town.cjs
+            /releases/1.25.74/game.html
+            /releases/1.25.75/
+            /work/1.25.75/
+      - name: Restore and validate exact tested ZIP
+        run: |
+          cat work/1.25.75/zip-aa work/1.25.75/zip-ab > releases/1.25.75/monster-biyori-1.25.75.zip
+          echo 'fff730995861285fc606cd67abd6fe6ebc9c428efd80ed656d5f951d7a207031  releases/1.25.75/monster-biyori-1.25.75.zip' | sha256sum -c
+          python tools/release_preflight.py --root .
+          npm install --no-save --package-lock=false playwright@1.56.1
+          CHROMIUM="$(command -v google-chrome)" node tests/v1.25.75-town.cjs
+      - name: Save verified candidate to staging
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add --sparse releases/1.25.75/monster-biyori-1.25.75.zip
+          git commit -m 'Verify town release package 1.25.75 [skip ci]'
+          git push origin HEAD:refs/heads/build/town-73-1.25.75
