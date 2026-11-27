@@ -87,64 +87,63 @@ function workshop(spec,facing,phase){
       const at=(u,v,off=0)=>[mid+side*w*.5*u,y+d*v,z+rise*(1-u)+off];
       const lev=light(side*rise,0,w);
       face([at(0,0),at(1,0),at(1,1),at(0,1)],mat,lev,'',true);
-      const rows=Math.max(2,Math.round((rise+w*.52)/4.3)),cols=Math.max(3,Math.round(d/3.1));
-      for(let j=0;j<rows;j++)for(let i=-1;i<cols;i++){
-        const start=Math.max(0,(i+(j%2)*.5)/cols),end=Math.min(1,(i+1+(j%2)*.5)/cols);
-        if(end-start<.012)continue;
-        const u0=j/rows,u1=(j+1)/rows,round=.14*(end-start),shade=((i*7+j*3+11)%5)-2;
-        const pts=[at(u0,start,.28),at(u1-.035,start,.30),at(u1,start+round,.3),at(u1,end-round,.3),at(u1-.035,end,.30),at(u0,end,.28)];
-        face(pts,mat,Math.min(21,lev+shade));
-        stroke([pts[1],pts[2],pts[3],pts[4],pts[5]],mat,Math.max(2,lev-6));
-        stroke([at(u0+.03,start+round,.5),at(u1-.05,start+round,.5)],mat,Math.min(23,lev+3));
-      }
-      // The glazed tile faces use the hand-painted texture of the art hut;
-      // its hue follows this building's material, and its texels stay native-sized.
-      r.veneer([at(0,1,1.05),at(0,0,1.05),at(1,1,1.05)],'artHut',[[48,47],[23.6,-11.8],[10.2,14.4]],
-        {mat,repeatU:d/11.9,repeatV:(w*.63+rise)/12.5,tone:Math.round((lev-15)*.43)-1});
-      beam(at(1,0,-.8),at(1,1,-.8),1.35,'bark');beam(at(0,1,.7),at(1,1,.7),1.15,'honey');
+      // Repeat a clean two-course patch of the original square tiles at native density.
+      // The teal glaze keeps its original pixels. Other roof colors use the same seams.
+      const brightness=Math.round((lev-15)*1.4);
+      r.veneer([at(0,1,.55),at(0,0,.55),at(1,1,.55)],[[51,48],[22,-11],[15,14]],{
+        mat:mat==='teal'?null:mat,repeatU:d/10.8,repeatV:(w*.92+rise*.52)/17,
+        brightness,tone:Math.round((lev-15)*.50)
+      });
+      beam(at(1,0,-1.25),at(1,1,-1.25),2.25,'bark');
+      beam(at(1,0,-.55),at(1,1,-.55),1.1,'oak');
+      beam(at(0,1,-.75),at(1,1,-.75),1.72,'bark');
+      beam(at(0,0,-.75),at(1,0,-.75),1.72,'bark');
     }
-    beam([mid,back-.15,z+rise+.85],[mid,front+.15,z+rise+.85],1.75,mat,8);
+    beam([mid,back-.15,z+rise+.85],[mid,front+.15,z+rise+.85],1.95,mat,8);
   }
   function opening(x,y,z,w,h,door=false,side=0){
     const delta=side===0?[0,.13]:side===1?[.13,0]:side===2?[0,-.13]:[-.13,0];
     const layer=(d)=>[x+delta[0]*d,y+delta[1]*d];
     let [a,b]=layer(1);
     const at=panel(a,b,z,w,h,'bark',side,'wood');
-    [a,b]=layer(3);const front=panel(a,b,z+.8,w,h-1,door?'oak':'glass',side,door?'wood':'',false);
+    [a,b]=layer(4);
+    const front=panel(a,b,z+.45,w,h-.5,door?'oak':'glass',side,'',false);
+    const source=door?[[28,87],[16.5,8.25],[0,-23.8]]:[[81,86.6],[12.6,-6.3],[0,-11.6]];
+    const atSurface=(u,v)=>{
+      const pt=front(u,v);pt[0]+=delta[0]*2;pt[1]+=delta[1]*2;return pt;
+    };
+    r.veneer([atSurface(0,0),atSurface(w,0),atSurface(0,h-.5)],source,{
+      brightness:light(...[[0,1,0],[1,0,0],[0,-1,0],[-1,0,0]][side])-15
+    });
     if(door){
-      for(const u of [.16,.33,.67,.84])stroke([front(w*u,.3),front(w*u,h-3)],'bark',9);
-      const p=front(w*.20,h*.55),q=front(w*.79,h*.80);
-      face([p,front(w*.79,h*.55),q,front(w*.20,h*.8)],'glass',13,'',true);
-      const knob=front(w*.8,h*.36);ball(...knob,.39,.39,.72,'brass');
+      beam(at(-.18,0),at(w+.18,0),1.1,'stone',4);
     }else{
-      stroke([front(w*.12,h*.38),front(w*.45,h*.79)],'glass',22);
-      stroke([front(w*.49,.3),front(w*.49,h-1.9)],'bark',8);
-      stroke([front(.1,h*.53),front(w-.1,h*.53)],'oak',9);
+      for(const u of [0,w])beam(at(u,0),at(u,h),.9,'bark',4);
+      beam(at(-.25,0),at(w+.25,0),1.35,'oak',4);
     }
-    if(h>5&&w>2.0){
-      const at=(u,v)=>{const pt=front(u,v);pt[0]+=delta[0]*3;pt[1]+=delta[1]*3;return pt;};
-      const source=door?[[31,102],[16,8],[0,-32]]:[[76,97],[12,-6],[0,-15]];
-      r.veneer([at(0,0),at(w,0),at(0,h-1.1)],'artHut',source,{brightness:light(...[[0,1,0],[1,0,0],[0,-1,0],[-1,0,0]][side])-15});
-    }
-    for(const u of [0,w])beam(at(u,0),at(u,h),1.12,'oak',4);
-    beam(at(-.4,0),at(w+.4,0),1.4,'honey',4);beam(at(-.25,h),at(w+.25,h),1.2,'honey',4);
   }
   function cottage(x,y,w,d,height,rise,mat='tile',opt={}){
-    const z=opt.z||0;block(x,y,z,w,d,3,'stone','stone');
-    block(x+.16,y+.16,z+3,w-.32,d-.32,height-3,opt.wall||'plaster',opt.wall==='oak'?'wood':'speckle');
-    for(const u of [x+.38,x+w-.38])for(const v of [y+.38,y+d-.38])block(u-.50,v-.50,z+2,1,1,height-1,'bark');
+    const z=opt.z||0,plinth=4.7;
+    block(x-.18,y-.18,z,w+.36,d+.36,plinth,'stone','stone');
+    const corners=[[x-.18,y-.18],[x+w+.18,y-.18],[x+w+.18,y+d+.18],[x-.18,y+d+.18]];
+    for(let i=0;i<4;i++){
+      const a=corners[i],b=corners[(i+1)%4];
+      r.veneer([[...a,z+.3],[...b,z+.3],[...a,z+plinth]],[[77,102.5],[18,-9],[0,-4.2]],
+        {repeatU:Math.hypot(b[0]-a[0],b[1]-a[1])/8.5,brightness:i%2?-2:3});
+    }
+    block(x+.14,y+.14,z+plinth,w-.28,d-.28,height-plinth,opt.wall||'plaster',opt.wall==='oak'?'wood':'speckle');
+    for(const u of [x+.38,x+w-.38])for(const v of [y+.38,y+d-.38])block(u-.60,v-.60,z+plinth,1.2,1.2,height-plinth,'bark');
     for(const v of [y-.02,y+d-.47]){
-      block(x,v,z+3,w,.54,1.4,'oak');
+      block(x,v,z+plinth,w,.54,1.25,'bark');
       block(x,v,z+height-3,w,.54,1.4,'oak');
     }
     for(const u of [x-.02,x+w-.47])block(u,y,z+height-3,.54,d,1.4,'oak');
     const doorW=Math.min(w*.39,6.5),dh=Math.min(20,height-2.8),doorX=x+w*(opt.door??.18);
-    // Use the original plaster-and-oak side panel as a material swatch.
-    // Corner posts and the entrance are placed separately for each floor plan.
-    for(const side of [1,3]){
+    // The plaster side includes the house's two blue mullioned windows.
+    if(opt.wall!=='oak')for(const side of [1,3]){
       const xx=side===1?x+w+.04:x-.04,sy=side===1?y:y+d,add=side===1?d:-d;
-      r.veneer([[xx,sy,z+3],[xx,sy+add,z+3],[xx,sy,z+height-.9]],'forestArchive',
-        [[65,112],[47,-23],[0,-34]],{brightness:side===1?-4:1});
+      r.veneer([[xx,sy,z+plinth],[xx,sy+add,z+plinth],[xx,sy,z+height-.7]],
+        [[75,96.4],[42,-21],[0,-18.9]],{brightness:light(...(side===1?[1,0,0]:[-1,0,0]))-13});
     }
     for(const v of [y+.02,y+d-.02]){
       const outward=v>y+1?.15:-.15;
@@ -153,15 +152,17 @@ function workshop(spec,facing,phase){
     }
     if(!opt.noDoor)opening(doorX,y+d,z+.4,doorW,dh,true);
     if(w>10&&!opt.noFront)opening(x+w*.65,y+d,z+height*.31,w*.24,Math.min(9,height*.38));
-    for(const side of [1,3]){
+    if(opt.wall==='oak')for(const side of [1,3]){
       const offset=side===1?y+d*.24:y+d*.76;
       opening(side===1?x+w:x,offset,z+height*.28,d*.42,Math.min(11,height*.43),false,side);
     }
     opening(x+w*.69,y,z+height*.32,w*.36,Math.min(9,height*.36),false,2);
     if(!opt.noRoof)gable(x-1,y-1,z+height,w+2,d+2,rise,mat);
     if(opt.chimney){
-      const cx=x+w*.75,cy=y+d*.21,ch=z+height+rise+3;
-      block(cx,cy,z+height,2.7,3.1,ch-z-height,'clay','stone');block(cx-.38,cy-.38,ch,3.46,3.86,1.7,'pale');block(cx+.35,cy+.35,ch+1.69,2,2.4,.2,'ink','',false);
+      const cx=x+w*.68,cy=y+d*.21,ch=z+height+rise+3;
+      block(cx,cy,z+height,3.9,4.2,ch-z-height,'brick','stone');
+      block(cx-.38,cy-.38,ch,4.66,4.96,2.1,'brick','stone');
+      block(cx+.45,cy+.45,ch+2.1,3,3.3,.12,'bark','',false);
     }
   }
   function canopy(x,y,z,w,d,mat='teal',stripe='cream',drop=4){
@@ -173,6 +174,6 @@ function workshop(spec,facing,phase){
     }
     beam([x-.2,y,z+4.5],[x+w+.2,y,z+4.5],1.1,'bark');
   }
-  function floor(){face([[.12,.12,0],[W-.12,.12,0],[W-.12,H-.12,0],[.12,H-.12,0]],'pale',16,'pavers');}
+  function floor(){face([[.12,.12,0],[W-.12,.12,0],[W-.12,H-.12,0],[.12,H-.12,0]],'paving',17,'pavers');}
   return {W,H,phase,r,block,ball,beam,lathe,panel,stroke,face,skin,crate,barrel,pot,tuft,planter,gable,opening,cottage,plankTable,canopy,floor};
 }

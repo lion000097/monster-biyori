@@ -2,17 +2,18 @@
 // Each face is rasterised on the same 2:1 grid as the ranch. Depth is shared by
 // trim, props and the main structure so the rear views have real occlusion.
 const swatches = {
-  bark:['432518','774123','ae6938','d59955'], oak:['55301d','9a572c','cf8950','f4bf76'],
-  honey:['764322','b87838','e6a857','ffdb8d'], pale:['967344','ccb17a','eed9a6','fff1c5'],
-  plaster:['99724b','c6aa77','ebd3a3','fff0c5'], tile:['692d24','a74a2d','d47743','f1a45e'],
+  bark:['210502','57280e','985529','c48b59'], oak:['391608','85441f','b87543','f3bf85'],
+  honey:['532a12','a76323','da9237','ffd489'], pale:['967344','ccb17a','eed9a6','fff1c5'],
+  plaster:['906b54','cba78c','f1d9bd','fff3dc'], tile:['692d24','a74a2d','d47743','f1a45e'],
   berry:['682d3e','a34e53','d87970','f4a693'], pine:['293e31','426848','779359','aec579'],
   moss:['455334','708147','9bb45a','d1d47a'], plum:['49384a','735577','a47a9b','d2a5bc'],
-  dusk:['36394f','565877','8186a4','b7bbca'], teal:['28504d','427f76','72a99a','acd4b4'],
-  stone:['62554d','948475','bcae97','e4d9be'], slate:['424b50','677477','98a29a','c9cec1'],
+  dusk:['36394f','565877','8186a4','b7bbca'], teal:['062827','26655b','418881','78b5ae'],
+  stone:['442e28','86665b','b8a196','e6d8d4'], slate:['424b50','677477','98a29a','c9cec1'],
   iron:['2e3433','51585a','79817c','a6b0a4'], brass:['6b4526','a57032','deb15a','ffde8a'],
   cream:['ac845b','d8b780','f4dfa8','fff4cc'], linen:['927662','c2a68d','e6d2b3','fff0d4'],
   indigo:['26394c','425879','69859c','a4b8bc'], water:['315c61','478c90','74bcc0','b8e4d4'],
-  glass:['355453','648c89','a8c9b8','e7f0cc'], clay:['794332','ac6a4c','d89969','f2bd8b'],
+  glass:['193739','41888f','86cbd4','ddf8f1'], clay:['794332','ac6a4c','d89969','f2bd8b'],
+  brick:['511b13','9f3827','db6544','ffae75'], paving:['777965','aaa48a','d9cbb0','eee3cc'],
   pink:['8c4356','bf6e7d','e99c9a','ffd2bb'], leaf:['345236','547a3d','88a252','bec86d'],
   earth:['604735','846140','ad8757','cdaa72'], gold:['845a26','bd8a37','e4b451','ffe398'],
   ink:['362b2a','524039','735748','9e7960'], white:['99958b','c1c0aa','e7e5d0','fff6dc'],
@@ -99,8 +100,8 @@ function renderer(width,height,facing){
     }
     if(outline)for(let i=0;i<p.length;i++)edgeScreen(p[i],p[(i+1)%p.length],palette[Math.max(0,Math.min(23,light-8))]);
   }
-  function veneer(points, donor, sample, options={}){
-    const frame=townNativeFrame(donor,0),p=points.map(project),[a,b,c]=p;
+  function veneer(points,sample,options={}){
+    const frame=townNativeFrame('komorebiMaterial',0,materialAtlas),p=points.map(project),[a,b,c]=p;
     const dx=b[0]-a[0],dy=b[1]-a[1],ex=c[0]-a[0],ey=c[1]-a[1],det=dx*ey-ex*dy;
     if(Math.abs(det)<.05)return;
     const fourth=[b[0]+c[0]-a[0],b[1]+c[1]-a[1]];
@@ -120,8 +121,8 @@ function renderer(width,height,facing){
         let paint;
         if(palette){
           const lum=px[i]*.24+px[i+1]*.60+px[i+2]*.16;
-          const n=Math.max(0,Math.min(23,Math.round((lum-12)*.157+(options.tone||0))));
-          paint=tintColor(palette[n],Math.min(0,lum-55)*.58);
+          const tone=Math.max(0,Math.min(23,Math.round((lum-35)*.145+(options.tone||0))));
+          paint=tintColor(palette[tone],Math.min(0,lum-60)*.78);
         }else paint=tintColor((px[i]<<16)|(px[i+1]<<8)|px[i+2],options.brightness||0);
         ink(x,y,z,paint);
       }
@@ -145,8 +146,12 @@ function renderer(width,height,facing){
       if(depth[i]<-1e5)continue;
       const x=i%size,y=Math.floor(i/size);let c=color[i];
       // Ink the inner silhouette without expanding a decoration into the next tile.
-      if(x===0||y===0||x+1===size||y+1===size||depth[i-1]<-1e5||depth[i+1]<-1e5||depth[i-size]<-1e5||depth[i+size]<-1e5)c=depth[i]<1? tintColor(c,-38):tintColor(c,-65);
-      else if(depth[i]-depth[i+size]>9||depth[i]-depth[i+1]>10)c=tintColor(c,-27);
+      if(x===0||y===0||x+1===size||y+1===size||depth[i-1]<-1e5||depth[i+1]<-1e5||depth[i-size]<-1e5||depth[i+size]<-1e5){
+        // At this scanline the unraised ground has a known projected depth.
+        const atGround=depth[i]-(y-(size-1-sw-sh))<2;
+        if(atGround)c=tintColor(c,-32);
+        else c=(Math.round((c>>16)*.40+9)<<16)|(Math.round((c>>8&255)*.38+4)<<8)|Math.round((c&255)*.39+4);
+      }else if(depth[i]-depth[i+size]>9||depth[i]-depth[i+1]>10)c=tintColor(c,-38);
       const j=i*4;im.data[j]=c>>16;im.data[j+1]=c>>8&255;im.data[j+2]=c&255;im.data[j+3]=255;
     }
     g.putImageData(im,0,0);return canvas;
