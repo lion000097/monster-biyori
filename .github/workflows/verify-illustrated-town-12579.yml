@@ -1,0 +1,53 @@
+name: Verify illustrated town artwork 1.25.79
+on:
+  push:
+    branches: [verify/illustrated-town-1.25.79]
+    paths:
+      - '.github/workflows/verify-illustrated-town-12579.yml'
+      - 'work/illustrated-town-12579/**'
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /game.html
+            /latest.json
+            /archive.html
+            /assets/town-atelier/
+            /tools/
+            /tests/v1.25.76-town-art.cjs
+            /releases/1.25.75/game.html
+            /releases/1.25.76/game.html
+            /releases/1.25.77/game.html
+            /releases/1.25.78/
+            /releases/1.25.79/
+            /work/illustrated-town-12579/
+      - name: Assemble the checked game and compare the complete distribution
+        run: |
+          zstd -q -d -f --patch-from releases/1.25.78/game.html work/illustrated-town-12579/game.html.zst -o game.html
+          cp game.html releases/1.25.79/game.html
+          /usr/bin/python3 work/illustrated-town-12579/package.py
+          sha256sum --check work/illustrated-town-12579/SHA256SUMS
+          python3 tools/release_preflight.py --root .
+      - name: Verify four old saves, maps, previews, exhibits and the offline bath sheet
+        env:
+          TOWN_ART_VERSION: 1.25.79
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          export CHROMIUM="$(command -v google-chrome)"
+          for baseline in 1.25.75 1.25.76 1.25.77 1.25.78; do
+            TOWN_ART_BASE="$baseline" node tests/v1.25.76-town-art.cjs
+          done
+      - name: Save the verified distribution to this branch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add --sparse game.html releases/1.25.79/game.html releases/1.25.79/monster-biyori-1.25.79.zip
+          git commit -m 'Save the verified web edition and archive for 1.25.79 [skip ci]'
+          git push origin HEAD:refs/heads/verify/illustrated-town-1.25.79
