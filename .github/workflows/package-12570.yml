@@ -1,0 +1,38 @@
+name: Verify 1.25.70 treasure artwork and saved collections
+on:
+  push:
+    branches: [fix/frontier-treasure-art-1.25.70]
+    paths: ['.github/workflows/package-12570.yml']
+permissions:
+  contents: write
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            assets/adventure
+            releases/1.25.69
+            releases/1.25.70
+            tests
+            tools
+            work/1.25.70
+      - name: Build the same game and offline distribution
+        run: |
+          python3 -m venv --system-site-packages "$RUNNER_TEMP/art-python"
+          "$RUNNER_TEMP/art-python/bin/python" -m pip install -q Pillow
+          "$RUNNER_TEMP/art-python/bin/python" work/1.25.70/build.py
+      - name: Check the ten book and stand images and a 1.25.69 save
+        run: |
+          npm install --prefix "$RUNNER_TEMP/art-browser" --no-save playwright@1.56.1
+          if command -v google-chrome >/dev/null; then export CHROMIUM="$(command -v google-chrome)"; else "$RUNNER_TEMP/art-browser/node_modules/.bin/playwright" install --with-deps chromium; fi
+          NODE_PATH="$RUNNER_TEMP/art-browser/node_modules" node tests/v1.25.70-treasure-art.cjs
+      - name: Keep the verified candidate
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --sparse -- game.html latest.json archive.html PROGRESS.md releases/1.25.70/
+          git commit -m 'Package and verify the 1.25.70 treasure artwork [skip ci]'
+          git push origin HEAD:refs/heads/fix/frontier-treasure-art-1.25.70
