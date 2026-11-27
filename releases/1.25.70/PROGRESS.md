@@ -1,4 +1,13 @@
-# 1.25.70　冒険11〜15面のボスのお宝
+# 1.25.70　冒険11〜15面のボスのお宝（公開済み）
+
+## 公開結果
+
+- 対象バージョン　1.25.70。公開したコミットは `22e79f6d`。
+- 保存先　GitHubの `main`、[実際のゲーム](https://lion000097.github.io/monster-biyori/game.html)、`releases/1.25.70/`。64pxの原寸画像は `assets/adventure/frontier-treasures-11-15.png`、途中の作業記録は `fix/frontier-treasure-art-1.25.70`。
+- 完了事項　ユーザー指定の原画10種を通常版・軽量版・配布ZIPに反映し公開した。左から11〜15面、上段SSR・下段UR。
+- 確認結果　[自動ビルドと旧セーブの検証](https://github.com/lion000097/monster-biyori/actions/runs/45958510341)、[Pagesでの公開](https://github.com/lion000097/monster-biyori/actions/runs/45958831814)が完了。候補コミット `277c3733` の配布・ソース14ファイルと手元の検査済みファイルが一致した。公開URLでも通常版、版別通常版、軽量版、ZIP、更新情報、配布一覧、原寸画像、変更履歴、検査記録の9ファイルのSHA-256が一致。公開された両方のHTMLでお宝図鑑を開き、全10枚の画素を原寸画像と照合した。
+- 残作業　なし。
+- 次の操作　次回の更新は公開済みの1.25.70とルートの `PROGRESS.md` から開始する。
 
 ## 原画の取り込み
 
