@@ -1,0 +1,7 @@
+#sceneCamera81{display:inline-flex;align-items:center;gap:5px;min-height:32px;padding:3px 8px;border:1px solid #9ebaa8;border-radius:9px;background:#fffdf4;color:#325748;font:inherit;font-size:12px;font-weight:750;cursor:pointer}
+#sceneCamera81[aria-pressed=true]{background:#366754;color:white;border-color:#366754}
+#sceneCamera81:focus-visible{outline:2px solid #1e7669;outline-offset:2px}
+#sceneCameraFlag81{font-size:.78em}
+#sceneCameraStatus81{position:absolute;bottom:8px;left:8px;z-index:3;max-width:calc(100% - 16px);box-sizing:border-box;border-radius:7px;padding:4px 8px;background:#fffdf3ed;color:#314d3f;box-shadow:0 1px 4px #213d3433;pointer-events:none;font-size:12px;font-weight:700}
+#sceneCameraStatus81[hidden]{display:none}
+@media(pointer:coarse){#sceneCamera81{min-height:38px}}
