@@ -1,6 +1,6 @@
 // Transient targets refer to live facilities. Only the opt-in is part of a ranch save.
 let cameraRanch81 = null, cameraScene81 = null, cameraNext81 = null;
-let cameraPhases81 = new WeakSet(), cameraLast81 = 0, cameraHold81 = 0;
+let cameraPhases81 = new WeakSet(), cameraLast81 = 0, cameraHold81 = 0, cameraResume81 = false;
 
 function clearCameraTargets81() {
   cameraScene81 = cameraNext81 = null;
@@ -10,6 +10,7 @@ function clearCameraTargets81() {
 function syncCameraRanch81() {
   if (cameraRanch81 === state) return;
   cameraRanch81 = state;
+  cameraResume81 = state.sceneCamera81===true;
   cameraPhases81 = new WeakSet();
   cameraHold81 = 0;
   clearCameraTargets81();
@@ -19,6 +20,7 @@ function manualCamera81() {
   if (!state?.sceneCamera81) return;
   clearCameraTargets81();
   cameraHold81 = performance.now()+6000;
+  cameraResume81 = true;
 }
 
 function cameraPause81(now) {
@@ -67,14 +69,21 @@ function renderCameraState81(reason='') {
   const label=$('sceneCameraStatus81');
   const caption=!enabled?'':reason?'観察を一時停止 · '+reason:cameraScene81?observationScenes80[cameraScene81.site.type].title:'次の場面を待っています';
   if (label.textContent!==caption) label.textContent=caption;
-  label.hidden=!enabled;
+  if (label.hidden===enabled) label.hidden=!enabled;
 }
 
 function updateSceneCamera81(now=performance.now()) {
   syncCameraRanch81();
   if (!state.sceneCamera81) return;
   const reason=cameraPause81(now);
-  if (reason) { clearCameraTargets81(); renderCameraState81(reason); return; }
+  if (reason) { clearCameraTargets81(); cameraResume81=true; renderCameraState81(reason); return; }
+  if (cameraResume81) {
+    cameraResume81=false;
+    for (const site of state.buildings) {
+      if (site.type!=='artHut' && Object.hasOwn(observationScenes80,site.type) && cameraSceneLive81(site))
+        offerCameraScene81(site);
+    }
+  }
   if (cameraScene81 && (now>=cameraScene81.until || !state.buildings.includes(cameraScene81.site) || !cameraSceneLive81(cameraScene81.site)))
     cameraScene81=null;
   if (cameraNext81 && (now>=cameraNext81.expires || !state.buildings.includes(cameraNext81.site) || !cameraSceneLive81(cameraNext81.site)))
@@ -102,12 +111,8 @@ $('sceneCamera81').addEventListener('click',()=>{
   state.sceneCamera81=!state.sceneCamera81;
   clearCameraTargets81();
   cameraHold81=0; cameraPhases81=new WeakSet();
-  if (state.sceneCamera81) {
-    for (const site of state.buildings) {
-      if (site.type!=='artHut' && Object.hasOwn(observationScenes80,site.type) && cameraSceneLive81(site))
-        offerCameraScene81(site);
-    }
-  }
-  renderCameraState81(state.sceneCamera81?cameraPause81(performance.now()):'');
+  cameraResume81=state.sceneCamera81;
+  if (state.sceneCamera81) updateSceneCamera81();
+  else renderCameraState81();
   save(true);
 });

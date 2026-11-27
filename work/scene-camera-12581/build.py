@@ -23,8 +23,16 @@ def replace(source, old, new, count=1):
 def update(source):
     source = replace(source, '1.25.80', '1.25.81', 3)
     source = replace(source, '牧場の観察手帳と建築検索</footer>', 'おまかせ観察カメラとプレイ時間</footer>')
-    source = replace(source, 'version:1,observationDays80:{},','version:1,sceneCamera81:false,observationDays80:{},')
-    source = replace(source, 'loadObservationDays80(state);','loadObservationDays80(state);state.sceneCamera81=state.sceneCamera81===true;')
+    source = replace(source, 'version:1,observationDays80:{},','version:1,playMillis81:0,sceneCamera81:false,observationDays80:{},')
+    source = replace(source, 'loadObservationDays80(state);','loadObservationDays80(state);normalizePlayTime81(state);state.sceneCamera81=state.sceneCamera81===true;')
+    resources = '<div class="resources" id="resources">'
+    source = replace(source,resources,'<div class="ranch-time81"><span>累計プレイ時間</span><strong id="ranchPlayTime81">0時間 00分 00秒</strong>'+
+                     '<small>牧場を画面に表示している実時間。旧セーブは1.25.81から計測。</small></div>'+resources)
+    source = replace(source,'const previousSavedAt=state.savedAt;','accountPlayTime81();const previousSavedAt=state.savedAt;')
+    source = replace(source,"if(raw===undefined)raw=JSON.stringify(state);","if(raw===undefined){accountPlayTime81();raw=JSON.stringify(state);}")
+    source = replace(source,'const previousState=state;','accountPlayTime81();const previousState=state;')
+    source = replace(source,"window.addEventListener('pagehide',()=>save(true));",
+                     "window.addEventListener('pagehide',()=>{pageAway81=true;save(true);});")
     weather = '<span class="world-tag" id="weatherTag">'
     source = replace(source, weather, '<button type="button" id="sceneCamera81" aria-pressed="false">📷 おまかせ観察カメラ <span id="sceneCameraFlag81">OFF</span></button>'+weather)
     output = '<output id="terrainRowStatus12527"'
@@ -32,7 +40,7 @@ def update(source):
     source = replace(source, 'function stopWalkCamera() {','function stopWalkCamera() {\n  manualCamera81();')
     source = replace(source, 'updateWalkCamera();','updateWalkCamera();updateSceneCamera81();')
     source = replace(source, 'function renderUI(full=false){if(!state)return;',
-                     'function renderUI(full=false){if(!state)return;\n  syncCameraRanch81();renderCameraState81(state.sceneCamera81?cameraPause81(performance.now()):"");')
+                     'function renderUI(full=false){if(!state)return;\n  renderPlayTime81();syncCameraRanch81();renderCameraState81(state.sceneCamera81?cameraPause81(performance.now()):"");')
     calls = [("recordObservation80('flowerbed211');","recordObservation80('flowerbed211',a.site);"),
              ("recordObservation80('picnic257');","recordObservation80('picnic257',s.site);"),
              ("recordObservation80(type);","recordObservation80(type,site);"),
@@ -52,21 +60,21 @@ def update(source):
 }
 
 """+source[end:]
-    script = (FEATURE/'camera.js').read_text()
+    script = (FEATURE/'camera.js').read_text()+(FEATURE/'play-time.js').read_text()
     styles = (FEATURE/'camera.css').read_text()
     marker = 'claimSave12556();\nconst didLoad=load();'
     source = replace(source, marker, script+'\n'+marker)
     return replace(source, '</head>', '<style>\n'+styles+'</style>\n</head>')
 
 
-def unpack_old():
-    html = (OLD/'launcher-game.html').read_text()
+def unpack_launcher(html):
     def script(id_):
         return re.search(f'id="{id_}">(.*?)</script>',html,re.S)[1]
     size = int(re.search(r'const PACKED_BYTES=(\d+);',html)[1])
     compressed = decode(script('ranch-payload'),size)
     raw = subprocess.run(['zstd','-qdc'],input=compressed,capture_output=True,check=True).stdout
-    return unbundle_assets(raw,dictionary=True).replace(MARKER,script('ranch-inflater'))
+    source = unbundle_assets(raw,dictionary=True)
+    return source.replace(MARKER,script('ranch-inflater')) if MARKER in source else source
 
 
 if __name__ == '__main__':
@@ -74,8 +82,8 @@ if __name__ == '__main__':
     (ROOT/'game.html').write_bytes(web)
     (NEW/'game.html').write_bytes(web)
     if '--web' not in sys.argv:
-        game = update(unpack_old())
-        compact = pack(game,binary_assets=True,dictionary=True,zstd_pack=True,wide_words=True,zstd_level=22).encode()
+        game = update(unpack_launcher((OLD/'launcher-game.html').read_text()))
+        compact = pack(game,binary_assets=True,dictionary=True,zstd_pack=True,wide_words=True,zstd_level=22,embedded_inflater=True).encode()
         print(f'Offline HTML {len(compact):,} / {4*1024*1024:,} bytes',flush=True)
         if len(compact)>4*1024*1024:
             raise ValueError('Offline HTML is too large')

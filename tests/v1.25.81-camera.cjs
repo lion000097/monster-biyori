@@ -44,7 +44,6 @@ function inspectCamera() {
     expect(!offerCameraScene81(hall)&&!cameraScene81&&cameraCenter().x===locked.x,'yield to '+mode);
   }
   buildMode=moveMode=terrainMode=followedMonster=null;clearMode=false;
-  expect(offerCameraScene81(hall),'automatically resumed after edits');
   updateSceneCamera81();expect(cameraScene81?.site===hall,'resumed concert');
   cameraMove(1,0);
   expect(!offerCameraScene81(hall)&&!cameraScene81,'manual navigation has priority');
@@ -56,6 +55,65 @@ function inspectCamera() {
   return {scale, scenes:Object.keys(state.observationDays80).length};
 }
 
+function checkTime() {
+  const expect=(v,s)=>{if(!v)throw Error(s);};
+  const descriptors=[[performance,'now'],[document,'hidden'],[document,'visibilityState']].map(([o,k])=>[o,k,Object.getOwnPropertyDescriptor(o,k)]);
+  const initial=Math.floor(performance.now());
+  let now=initial,hidden=false;
+  try {
+    Object.defineProperty(performance,'now',{configurable:true,value:()=>now});
+    Object.defineProperty(document,'hidden',{configurable:true,get:()=>hidden});
+    Object.defineProperty(document,'visibilityState',{configurable:true,get:()=>hidden?'hidden':'visible'});
+    accountPlayTime81();
+    const start=state.playMillis81;
+    const advance=(ms,speed)=>{
+      state.speed=speed;now+=ms;renderPlayTime81();return state.playMillis81-start;
+    };
+    const visible=on=>{hidden=!on;document.dispatchEvent(new Event('visibilitychange'));};
+    expect(advance(1500,1)===1500,'normal speed');
+    expect(advance(3500,4)===5000,'4x real time');
+    expect(advance(4500,0)===9500,'visible pause counts');
+    now+=500;visible(false);
+    expect(JSON.parse(readRanchSave12556()).playMillis81===start+10000,'hidden-save flush');
+    expect(advance(120000,4)===10000,'hidden tab excluded');
+    visible(true);expect(advance(2000,4)===12000,'return from hidden');
+    now+=1000;window.dispatchEvent(new Event('pagehide'));now+=5*3600000;
+    window.dispatchEvent(new Event('pageshow'));
+    expect(advance(1000,0)===14000,'page cache or closed interval excluded');
+    state.playMillis81=3661000;renderPlayTime81();
+    expect($('ranchPlayTime81').textContent==='1時間 01分 01秒','hours, minutes, seconds');
+    for (const value of [null,'31',-1,Infinity,NaN,9007199254740992]) {
+      const ranch={playMillis81:value};normalizePlayTime81(ranch);
+      expect(ranch.playMillis81===0,'malformed duration');
+    }
+    const valid={playMillis81:12345};normalizePlayTime81(valid);expect(valid.playMillis81===12345,'old valid count preserved');
+    const fresh=initialRanchForTest81();
+    expect(fresh.playMillis81===0&&!fresh.sceneCamera81,'new ranch starts clean');
+    expect(save(true),'play time saved');
+  } finally {
+    for(const [o,k,desc] of descriptors){if(desc)Object.defineProperty(o,k,desc);else delete o[k];}
+    pageAway81=false;playMark81=null;accountPlayTime81();
+  }
+}
+
+async function openHelp(page,mobile) {
+  if(!await page.locator('#help-tab-basics').isVisible()){
+    if(mobile){await page.locator('#mobileMoreToggle12521').click();await page.locator('[data-mobile-open12521=help]').click();}
+    else await page.locator('#helpBtn').click();
+  }
+  await page.locator('#help-tab-basics').click();
+}
+async function exportFile(page,mobile) {
+  await openHelp(page,mobile);const task=page.waitForEvent('download');
+  await page.locator('#help-page-basics [data-action=export]').click();
+  return JSON.parse(fs.readFileSync(await (await task).path(),'utf8'));
+}
+async function importFile(page,mobile,data) {
+  await openHelp(page,mobile);
+  await page.locator('#importInput').setInputFiles({name:'ranch.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(data))});
+  await page.waitForFunction(()=>!document.querySelector('#modal').classList.contains('show'));
+}
+
 (async()=>{
   const browser=await chromium.launch({executablePath:process.env.CHROMIUM||undefined,args:['--no-sandbox']});
   try{
@@ -64,7 +122,8 @@ function inspectCamera() {
       p.on('pageerror',e=>{errors.push(e.message); console.error(e.message);});
       p.on('dialog',async dialog=>dialog.accept());
       const hook='window.oldFixture='+oldFixture.toString()+';window.inspectCamera='+inspectCamera.toString()+
-        ';window.ranchSave=()=>JSON.parse(readRanchSave12556());\n';
+        ';window.checkTime='+checkTime.toString()+';window.initialRanchForTest81=()=>initial();'+
+        'window.ranchSave=()=>JSON.parse(readRanchSave12556());window.trySave=()=>save(true);\n';
       await p.addInitScript(({hook,marker})=>{
         const write=Document.prototype.write;
         Document.prototype.write=function(...parts){
@@ -82,6 +141,7 @@ function inspectCamera() {
       await p.goto(base+'/old');
       await p.waitForFunction(()=>typeof oldFixture==='function' && document.querySelector('#ranchName').textContent);
       assert(await p.evaluate(()=>oldFixture()));
+      const oldSave=await p.evaluate(()=>ranchSave());assert(!Object.hasOwn(oldSave,'playMillis81'));
       await p.goto(base+'/new');
       await p.waitForFunction(()=>document.querySelector('#ranchName')?.textContent==='ひだまりの牧場');
       const toggle=p.locator('#sceneCamera81');
@@ -90,11 +150,41 @@ function inspectCamera() {
       const r=await p.evaluate(()=>inspectCamera());assert(r.scenes>=3);
       await p.reload();await p.waitForFunction(()=>document.querySelector('#ranchName')?.textContent==='ひだまりの牧場');
       assert.equal(await toggle.getAttribute('aria-pressed'),'true');
+      assert((await p.evaluate(()=>ranchSave())).playMillis81<120000);
+      if(mobile){
+        await p.locator('#mobileMoreToggle12521').click();await p.locator('[data-mobile-open12521=stats]').click();
+      }
+      assert(await p.locator('#ranchPlayTime81').isVisible());
+      await p.evaluate(()=>checkTime());
+      assert.match(await p.locator('#ranchPlayTime81').textContent(),/^1時間 01分 /);
+      if(mobile)await p.locator('#mobileStats12521 [data-mobile-close12521]').click();
       await toggle.click();assert.equal(await toggle.getAttribute('aria-pressed'),'false');
       assert(await p.locator('#sceneCameraStatus81').isHidden());
+      await toggle.click();
+      const newSave=await exportFile(p,mobile);
+      assert(newSave.playMillis81>=3661000&&newSave.playMillis81<3721000);
+      assert.equal(newSave.sceneCamera81,true);
+      await importFile(p,mobile,oldSave);
+      const migrated=await exportFile(p,mobile);
+      assert(migrated.playMillis81>=0&&migrated.playMillis81<60000);assert.equal(migrated.sceneCamera81,false);
+      assert.deepEqual(migrated.observationDays80,oldSave.observationDays80);
+      assert.equal(migrated.coins,oldSave.coins);
+      await importFile(p,mobile,newSave);
+      const restored=await exportFile(p,mobile);
+      assert(restored.playMillis81>=newSave.playMillis81&&restored.playMillis81<newSave.playMillis81+60000);
+      assert.equal(restored.sceneCamera81,true);
+      assert.deepEqual(restored.observationDays80,newSave.observationDays80);
+      await p.reload();await p.waitForFunction(()=>document.querySelector('#ranchName')?.textContent==='ひだまりの牧場');
+      assert.equal(await toggle.getAttribute('aria-pressed'),'true');
+      const stale=await p.evaluate(()=>{
+        localStorage.setItem('monster_biyori_guarded_owner_v1','a-different-tab');
+        const before=localStorage.getItem('monster_biyori_guarded_save_v1');
+        const result=trySave();return {result,same:before===localStorage.getItem('monster_biyori_guarded_save_v1')};
+      });
+      assert.deepEqual(stale,{result:false,same:true});
       assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
       assert.deepEqual(errors,[]);await ctx.close();
-      console.log(mobile?'Offline mobile':'Web desktop','scene start, actual camera motion, edit/manual priority, old save and toggle passed');
+      console.log(mobile?'Offline mobile':'Web desktop','scene triggers, camera priority, play time, visibility, save migration, file round trips and ownership passed');
     }
   }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

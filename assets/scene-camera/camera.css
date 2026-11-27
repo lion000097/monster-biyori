@@ -5,3 +5,5 @@
 #sceneCameraStatus81{position:absolute;bottom:8px;left:8px;z-index:3;max-width:calc(100% - 16px);box-sizing:border-box;border-radius:7px;padding:4px 8px;background:#fffdf3ed;color:#314d3f;box-shadow:0 1px 4px #213d3433;pointer-events:none;font-size:12px;font-weight:700}
 #sceneCameraStatus81[hidden]{display:none}
 @media(pointer:coarse){#sceneCamera81{min-height:38px}}
+.ranch-time81{display:flex;align-items:baseline;flex-wrap:wrap;justify-content:space-between;gap:3px 8px;margin:8px 12px;padding:7px 9px;border-radius:7px;background:#edf4e9;color:#365548;font-size:12px}
+.ranch-time81 strong{font-variant-numeric:tabular-nums}.ranch-time81 small{flex-basis:100%;line-height:1.4;color:#4e6559}

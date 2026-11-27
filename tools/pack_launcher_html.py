@@ -221,9 +221,12 @@ def unbundle_assets(data, dictionary=False):
     return ''.join(restored)
 
 
-def pack(source, dense=False, binary_assets=False, dictionary=False, zstd_pack=False, wide_words=False, zstd_level=19):
+def pack(source, dense=False, binary_assets=False, dictionary=False, zstd_pack=False, wide_words=False,
+         zstd_level=19, embedded_inflater=False):
     if dictionary and not binary_assets:
         raise ValueError('--word-dictionary requires --binary-assets')
+    if embedded_inflater and not zstd_pack:
+        raise ValueError('--embedded-inflater requires the separate Zstandard decoder')
     if binary_assets:
         source = compact_sprite_streams(source)
     version = re.search(r"GAME_APP_VERSION='([\d.]+)'", source)[1]
@@ -232,7 +235,8 @@ def pack(source, dense=False, binary_assets=False, dictionary=False, zstd_pack=F
     inflater = source[start:end]
     if MARKER in source or '</script' in inflater.lower():
         raise ValueError('Unsafe or ambiguous inflater marker')
-    stripped = source[:start] + MARKER + source[end:]
+    # The Zstandard boot can decompress the complete game, including its sprite inflater.
+    stripped = source if embedded_inflater else source[:start] + MARKER + source[end:]
     payload = bundle_assets(stripped, dictionary) if binary_assets else stripped.encode()
     if zstd_pack:
         compressed = subprocess.run(['zstd', '-q', '--ultra', f'-{zstd_level}', '-c'], input=payload, capture_output=True, check=True).stdout
@@ -268,9 +272,14 @@ def pack(source, dense=False, binary_assets=False, dictionary=False, zstd_pack=F
         script = (vendor / 'fzstd-0.1.1.js').read_text()
         decoder = '<script>/* fzstd 0.1.1\n' + license_text + '\n*/\n' + script + '</script>'
         boot = boot.replace('inflateCharacter12523(bytes)', 'window.fzstd.decompress(bytes)')
+    inflater_tag = '<script id="ranch-inflater">' + inflater + '</script>'
+    if embedded_inflater:
+        inflater_tag = ''
+        boot = boot.replace("const inflateSource=document.getElementById('ranch-inflater').textContent;\n", '')
+        boot = boot.replace("const html=decoded.replace('@@LAUNCHER_INFLATER_SOURCE@@',()=>inflateSource);", "const html=decoded;")
     return ("<!doctype html><html lang=ja><meta charset=utf-8><title>もんすたー日和</title>"
             '<script type="application/octet-stream" id="ranch-payload">' + data + '</script>'
-            + decoder + '<script id="ranch-inflater">' + inflater + '</script><script>(()=>{'
+            + decoder + inflater_tag + '<script>(()=>{'
             + f"const GAME_APP_VERSION='{version}';const ALPHABET={json.dumps(ALPHABET)};"
             + f"const PACKED_BYTES={len(compressed)};" + boot
             + '})();</script></html>')
@@ -286,8 +295,10 @@ if __name__ == '__main__':
     parser.add_argument('--zstd', action='store_true', help='use Zstandard with the bundled offline decoder')
     parser.add_argument('--zstd-level', type=int, choices=range(1,23), default=19, help='Zstandard compression level (default: 19)')
     parser.add_argument('--wide-words', action='store_true', help='store 64-bit words in nine UTF-8 bytes')
+    parser.add_argument('--embedded-inflater', action='store_true', help='compress the game sprite inflater inside a Zstandard payload')
     args = parser.parse_args()
-    data = pack(args.source.read_text(), args.dense, args.binary_assets, args.word_dictionary, args.zstd, args.wide_words, args.zstd_level).encode()
+    data = pack(args.source.read_text(), args.dense, args.binary_assets, args.word_dictionary, args.zstd,
+                args.wide_words, args.zstd_level, args.embedded_inflater).encode()
     if len(data) > 4 * 1024 * 1024:
         raise SystemExit(f'Launcher exceeds 4 MiB: {len(data):,} bytes')
     args.destination.write_bytes(data)
