@@ -1,0 +1,27 @@
+diff --git a/game.html b/game.html
+index 0507bff..5882cdf 100644
+--- a/game.html
++++ b/game.html
+@@ -6 +6 @@
+-<title>もんすたー日和 Ver.1.25.66 | まもの牧場シミュレーション</title>
++<title>もんすたー日和 Ver.1.25.67 | まもの牧場シミュレーション</title>
+@@ -620 +620 @@ html.monster-detail-open{overflow:hidden}
+-<footer class="footer">© もんすたー日和 Ver.1.25.66 — 森の施設と世界樹の迎賓館</footer>
++<footer class="footer">© もんすたー日和 Ver.1.25.67 — お仕事紹介所とふたつの広場</footer>
+@@ -764 +764 @@ function toggleBossLoop(stage,target='any') {
+-const GAME_APP_VERSION='1.25.66';
++const GAME_APP_VERSION='1.25.67';
+@@ -860,0 +861,4 @@ const townCatalog = {
++  jobOffice:{name:'お仕事紹介所',icon:'📋',unlock:4,w:2,h:2,cost:650,limit:1,role:'production',desc:'仕事の時間になると、手の空いた市民を道でつながった仕事場の空き枠へ案内するよ。世界樹をLv.5に育てるには1軒建ててね。'},
++  forestClock:{name:'森の時計塔',icon:'🕰️',unlock:8,w:2,h:2,cost:960,limit:2,roadFloor:true,role:'decor',desc:'森に時刻を知らせる時計塔。短い針と長い針が牧場の時刻に合わせて動くよ。塔の下にも道を敷けるよ。'},
++  monsterPlayPlaza:{name:'まものの遊び広場',icon:'🐾',unlock:10,w:4,h:4,cost:2400,limit:3,upkeep:12,role:'care',desc:'仲間が正面から集まり、草地のコースで追いかけっこをするよ。'},
++  travelerRestPlaza:{name:'旅人の休憩広場',icon:'🪴',unlock:13,w:3,h:3,cost:2100,limit:3,upkeep:6,role:'tourism',desc:'道から立ち寄った旅人たちがベンチに集まってひと休み。休んだ旅人は、また旅に出るよ。'},
+@@ -2074 +2078 @@ updateEconHUD();
+-$('buildMode').classList.toggle('active',!!(buildMode||moveMode||clearMode));if(buildMode)$('buildMode').innerHTML=`<span>🔨 「${B[buildMode].name}」を建設中！ ${Object.hasOwn(borderDecor,buildMode)?'始点からドラッグして、離すと1列に設置。':buildMode==='acorn250'?'道の横の草地1マスに置いてね。':townCatalog[buildMode]?.role==='decor'?'道と重ならない空き地を選んでね。':frontRoadOptional131(buildMode)?'正面に道がなくても置けるよ。足元はあとから塗り替えられるよ。':acceptsRoadFloor130(buildMode)?'草地や道の上に置けるよ。足元はあとから塗り替えられるよ。':'黄色い矢印のある正面を道に接してね。'}</span><button class="small-button secondary" data-action="cancelBuild">キャンセル ✕</button>`;
++$('buildMode').classList.toggle('active',!!(buildMode||moveMode||clearMode));if(buildMode)$('buildMode').innerHTML=`<span>🔨 「${B[buildMode].name}」を建設中！ ${Object.hasOwn(borderDecor,buildMode)?'始点からドラッグして、離すと1列に設置。':buildMode==='acorn250'?'道の横の草地1マスに置いてね。':townCatalog[buildMode]?.role==='decor'&&!roadOrnament(buildMode)?'道と重ならない空き地を選んでね。':frontRoadOptional131(buildMode)?'正面に道がなくても置けるよ。足元はあとから塗り替えられるよ。':acceptsRoadFloor130(buildMode)?'草地や道の上に置けるよ。足元はあとから塗り替えられるよ。':'黄色い矢印のある正面を道に接してね。'}</span><button class="small-button secondary" data-action="cancelBuild">キャンセル ✕</button>`;
+@@ -8807 +8811 @@ function treeRequirements193(nextLevel){
+- return Object.entries(B)
++ const requirements=Object.entries(B)
+@@ -8812,0 +8817,2 @@ function treeRequirements193(nextLevel){
++ if(nextLevel===5)requirements.push({type:'jobOffice',count:1,minLevel:1,label:B.jobOffice.name+' 1軒'});
++ return requirements;
