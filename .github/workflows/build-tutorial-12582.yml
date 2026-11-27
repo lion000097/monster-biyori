@@ -1,0 +1,76 @@
+name: Build and verify tutorial 1.25.82
+on:
+  push:
+    branches: ['build/tutorial-1.25.82']
+permissions:
+  contents: write
+jobs:
+  check:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /work/tutorial-12582/
+            /tools/release_preflight.py
+            /archive.html
+            /PROGRESS.md
+      - name: Build exact approved version
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=7d638eab5371fe2491d7a4e623e91b804a94df84
+          s="$PWD/work/tutorial-12582"
+          p="$RUNNER_TEMP/mb12582"
+          mkdir -p "$p" "releases/1.25.82"
+          git show "$base:game.html" > "$p/baseline.html"
+          git show "$base:releases/1.25.81/launcher-game.html" > "$p/launcher-baseline.html"
+          git show "$base:releases/1.25.81/monster-biyori-1.25.81.zip" > "$p/base.zip"
+          test "$(git hash-object "$p/base.zip")" = cf8689f8868a71a0812aabc55e13922fb1a11fbc
+          git show "$base:archive.html" > "$p/archive-base.html"
+          git show "$base:PROGRESS.md" > "$p/progress-base.md"
+          curl --fail --silent --show-error --location --retry 2 https://codeload.github.com/facebook/zstd/tar.gz/refs/tags/v1.5.7 | tar -xz -C "$p"
+          make -C "$p/zstd-1.5.7/programs" -j2 zstd > /dev/null
+          export PATH="$p/zstd-1.5.7/programs:$PATH"
+          zstd --version
+          (
+            cd "$p"
+            PYTHONPATH="$s" python "$s/unpack.py"
+            for patch in patch_adventure_guide.py patch_guide_revisions.py patch_guide_scroll_training.py patch_tutorial_camera.py patch_guide_adventure_line.py; do
+              python "$s/$patch" baseline.html
+              python "$s/$patch" launcher-source-baseline.html
+            done
+            mv baseline.html game.html
+            git --git-dir="$GITHUB_WORKSPACE/.git" show "$base:game.html" > baseline.html
+            python "$s/pack_launcher_html.py" --binary-assets --word-dictionary --zstd --wide-words --embedded-inflater --zstd-level 22 launcher-source-baseline.html launcher-game.html
+          )
+          install -m644 "$p/game.html" game.html
+          install -m644 "$p/game.html" releases/1.25.82/game.html
+          install -m644 "$p/launcher-game.html" releases/1.25.82/launcher-game.html
+          python "$s/package_release.py" "$PWD" "$s" "$p/base.zip" "$p/archive-base.html" "$p/progress-base.md"
+          python tools/release_preflight.py --root .
+      - name: Replay tutorial on both editions
+        shell: bash
+        run: |
+          set -euo pipefail
+          p="$RUNNER_TEMP/mb12582"
+          npm install --prefix "$p" --no-audit --no-fund --ignore-scripts playwright@1.57.0
+          cd "$p"
+          CHROME="$(command -v google-chrome)" PLAYWRIGHT_MODULE="$p/node_modules/playwright" node "$GITHUB_WORKSPACE/work/tutorial-12582/test_tutorial_camera.cjs"
+      - name: Store validated outputs on build branch only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          install -m644 work/tutorial-12582/test_tutorial_camera.cjs tests-12582.cjs
+          mkdir -p tests
+          mv tests-12582.cjs tests/v1.25.82-tutorial.cjs
+          git add --sparse PROGRESS.md archive.html game.html latest.json releases/1.25.82/ tests/v1.25.82-tutorial.cjs
+          git commit -m 'Verify browser, launcher and ZIP for 1.25.82'
+          git rev-parse HEAD
+          git push origin HEAD:refs/heads/build/tutorial-1.25.82
