@@ -96,7 +96,39 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.open();document.write(html);document.close();
 },{once:true});
 """
-def pack(source):
+def dense_zlib(data):
+    # libdeflate's level 12 emits an ordinary zlib stream for the existing launcher.
+    import ctypes
+    from ctypes.util import find_library
+
+    name = find_library('deflate')
+    if not name:
+        raise RuntimeError('--dense requires libdeflate (libdeflate0 on Debian/Ubuntu)')
+    lib = ctypes.CDLL(name)
+    pointer = ctypes.c_void_p
+    size = ctypes.c_size_t
+    lib.libdeflate_alloc_compressor.argtypes = [ctypes.c_int]
+    lib.libdeflate_alloc_compressor.restype = pointer
+    lib.libdeflate_free_compressor.argtypes = [pointer]
+    lib.libdeflate_free_compressor.restype = None
+    lib.libdeflate_zlib_compress_bound.argtypes = [pointer, size]
+    lib.libdeflate_zlib_compress_bound.restype = size
+    lib.libdeflate_zlib_compress.argtypes = [pointer, pointer, size, pointer, size]
+    lib.libdeflate_zlib_compress.restype = size
+    compressor = lib.libdeflate_alloc_compressor(12)
+    if not compressor:
+        raise MemoryError('Could not allocate launcher compressor')
+    try:
+        out = ctypes.create_string_buffer(lib.libdeflate_zlib_compress_bound(compressor, len(data)))
+        length = lib.libdeflate_zlib_compress(compressor, data, len(data), out, len(out))
+        if not length:
+            raise ValueError('Launcher compression failed')
+        return out.raw[:length]
+    finally:
+        lib.libdeflate_free_compressor(compressor)
+
+
+def pack(source, dense=False):
     version = re.search(r"GAME_APP_VERSION='([\d.]+)'", source)[1]
     start = source.index('/* Embedded, unmodified pako ')
     end = source.index('\n})();', source.index('  return module.exports.inflate;', start)) + len('\n})();')
@@ -104,7 +136,7 @@ def pack(source):
     if MARKER in source or '</script' in inflater.lower():
         raise ValueError('Unsafe or ambiguous inflater marker')
     stripped = source[:start] + MARKER + source[end:]
-    compressed = zlib.compress(stripped.encode(), 9)
+    compressed = dense_zlib(stripped.encode()) if dense else zlib.compress(stripped.encode(), 9)
     data = encode_payload(compressed)
     restored = zlib.decompress(decode_payload(data, len(compressed))).decode().replace(MARKER, inflater)
     if restored != source:
@@ -120,8 +152,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('source', type=Path)
     parser.add_argument('destination', type=Path)
+    parser.add_argument('--dense', action='store_true', help='use libdeflate level 12 for a smaller offline HTML')
     args = parser.parse_args()
-    data = pack(args.source.read_text()).encode()
+    data = pack(args.source.read_text(), args.dense).encode()
     if len(data) > 4 * 1024 * 1024:
         raise SystemExit(f'Launcher exceeds 4 MiB: {len(data):,} bytes')
     args.destination.write_bytes(data)
