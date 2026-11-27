@@ -1,6 +1,15 @@
 # 1.25.80　牧場の観察手帳と建築メニューの検索
 
-## 再開地点
+## 最新の再開地点（公開済み）
+
+- 対象バージョン　1.25.80。2026年11月28日公開。
+- 保存先　[公開ゲーム](https://lion000097.github.io/monster-biyori/game.html)、[ZIP](https://lion000097.github.io/monster-biyori/releases/1.25.80/monster-biyori-1.25.80.zip)、GitHubのmainとこのメモ。ソースは `assets/ranch-notebook/`、生成コードは `work/ranch-notebook-12580/`。
+- 完了事項　観察手帳12場面・初発見日・ヒント・挿絵と、建築の施設名・敷地・道・未設置・役割の複合検索を公開した。
+- 確認結果　[Pagesの公開](https://github.com/lion000097/monster-biyori/actions/runs/46031724056)に成功。公開URLの8ファイルが配布コミット `1af5b26f` と一致し、ZIP448項目のCRC、継承443項目、更新用SHA-256を照合。配信された通常版・軽量版をChromiumで動かし、12場面と初発見日、建築後の絞り込み、1.25.79と1.25.80のセーブを読み書きできた。
+- 残作業　なし。
+- 次の操作　次回はまずmainと公開中の `latest.json` を照合し、この版を基準に新しい依頼を進める。
+
+## 開始時の確認
 
 - 対象バージョン　1.25.80。公開済み1.25.79を基準にする。
 - 保存先　GitHub の `feature/ranch-notebook-1.25.80`、本メモ、`assets/ranch-notebook/`。
