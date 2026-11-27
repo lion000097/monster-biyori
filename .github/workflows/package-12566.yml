@@ -1,0 +1,57 @@
+name: Verify 1.25.66 offline package
+on:
+  push:
+    branches: [build/town-facilities-1.25.66]
+    paths: ['.github/workflows/package-12566.yml']
+permissions:
+  contents: write
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            releases/1.25.64
+            releases/1.25.66
+            tools
+      - name: Assemble the offline game and preserve the existing extras
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
+          import hashlib
+          release = Path('releases/1.25.66')
+          target = release / 'monster-biyori-1.25.66.zip'
+          old = Path('releases/1.25.64/monster-biyori-1.25.64.zip')
+          updates = {'game.html': release / 'launcher-game.html'}
+          for name in ('CHANGELOG.md', 'TESTING.md'):
+              updates[name] = release / name
+              updates[str(release / name)] = release / name
+          with ZipFile(old) as source, ZipFile(target, 'w', compression=ZIP_DEFLATED, compresslevel=9) as out:
+              for info in source.infolist():
+                  if info.filename not in updates:
+                      out.writestr(info, source.read(info))
+              for name, origin in updates.items():
+                  info = ZipInfo(name, (2026, 11, 27, 0, 0, 0))
+                  info.compress_type = ZIP_DEFLATED
+                  info.external_attr = 0o100644 << 16
+                  out.writestr(info, origin.read_bytes(), compresslevel=9)
+          with ZipFile(old) as source, ZipFile(target) as out:
+              unchanged = set(source.namelist()) - updates.keys()
+              assert set(out.namelist()) == unchanged | updates.keys()
+              assert all(source.read(name) == out.read(name) for name in unchanged)
+              assert all(out.read(name) == origin.read_bytes() for name, origin in updates.items())
+              print(f'{len(unchanged)} preserved entries, {len(out.namelist())} total')
+          print('Archive SHA-256', hashlib.sha256(target.read_bytes()).hexdigest())
+          PY
+          echo '917ea94bbec39218d8cf38c1ec37167ec80cfdf10dca4bf898027c22be369c12  game.html' | sha256sum --check
+          echo '2cfbfe2f0c9ad7191646dd213ca65e2f597ab11e45781690a56a671ebee7d8db  releases/1.25.66/launcher-game.html' | sha256sum --check
+          python3 tools/release_preflight.py --root .
+      - name: Record the checked package
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- releases/1.25.66/monster-biyori-1.25.66.zip
+          git commit -m 'Record verified 1.25.66 offline package [skip ci]'
+          git push origin HEAD:refs/heads/build/town-facilities-1.25.66
