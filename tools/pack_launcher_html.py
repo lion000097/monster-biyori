@@ -2,6 +2,7 @@
 import argparse
 import base64
 import binascii
+from collections import Counter
 import json
 from pathlib import Path
 import re
@@ -166,7 +167,25 @@ def compact_sprite_streams(source):
     return re.sub(r'^(const (?:townAtlases|treeCrownAtlases)=)(.+);$', replace, source, flags=re.M)
 
 
-def bundle_assets(source):
+WORD_PATTERN = re.compile(r'[A-Za-z_$][A-Za-z0-9_$]{3,}')
+WORD_MARKER = '\x01'
+
+def compact_words(template):
+    """Use a reversible shared dictionary beyond DEFLATE's sliding window."""
+    if WORD_MARKER in template:
+        raise ValueError('Ambiguous launcher dictionary marker')
+    frequency = Counter(WORD_PATTERN.findall(template))
+    words = sorted((word for word, count in frequency.items() if len(word) <= 80 and count > 3),
+                   key=lambda word: (-(len(word)-3)*(frequency[word]-1), word))[:1200]
+    codes = {word: WORD_MARKER + chr(256+i) for i, word in enumerate(words)}
+    return ','.join(words) + '\n' + WORD_PATTERN.sub(lambda m: codes.get(m[0],m[0]), template)
+
+def expand_words(packed):
+    header, body = packed.split('\n', 1)
+    words = header.split(',')
+    return re.sub(WORD_MARKER + r'([\u0100-\u05af])', lambda m: words[ord(m[1])-256], body)
+
+def bundle_assets(source, dictionary=False):
     if BINARY_MARKER in source:
         raise ValueError('Ambiguous binary marker')
     assets = []
@@ -180,14 +199,16 @@ def bundle_assets(source):
             return encoded
         assets.append(raw)
         return BINARY_MARKER
-    template = re.sub(r'[A-Za-z0-9+/=]{1500,}', replace, source).encode()
+    template = re.sub(r'[A-Za-z0-9+/=]{1500,}', replace, source)
+    template = (compact_words(template) if dictionary else template).encode()
     return b''.join(struct.pack('<I', len(part)) + part for part in [template, *assets])
 
 
-def unbundle_assets(data):
+def unbundle_assets(data, dictionary=False):
     size = struct.unpack_from('<I', data)[0]
     cursor = 4 + size
-    sections = data[4:cursor].decode().split(BINARY_MARKER)
+    template = data[4:cursor].decode()
+    sections = (expand_words(template) if dictionary else template).split(BINARY_MARKER)
     restored = [sections[0]]
     for text in sections[1:]:
         size = struct.unpack_from('<I', data, cursor)[0]
@@ -199,7 +220,9 @@ def unbundle_assets(data):
     return ''.join(restored)
 
 
-def pack(source, dense=False, binary_assets=False):
+def pack(source, dense=False, binary_assets=False, dictionary=False):
+    if dictionary and not binary_assets:
+        raise ValueError('--word-dictionary requires --binary-assets')
     if binary_assets:
         source = compact_sprite_streams(source)
     version = re.search(r"GAME_APP_VERSION='([\d.]+)'", source)[1]
@@ -209,12 +232,17 @@ def pack(source, dense=False, binary_assets=False):
     if MARKER in source or '</script' in inflater.lower():
         raise ValueError('Unsafe or ambiguous inflater marker')
     stripped = source[:start] + MARKER + source[end:]
-    payload = bundle_assets(stripped) if binary_assets else stripped.encode()
+    payload = bundle_assets(stripped, dictionary) if binary_assets else stripped.encode()
     compressed = dense_zlib(payload) if dense else zlib.compress(payload, 9)
     data = encode_payload(compressed)
     raw = zlib.decompress(decode_payload(data, len(compressed)))
-    restored = (unbundle_assets(raw) if binary_assets else raw.decode()).replace(MARKER, inflater)
+    restored = (unbundle_assets(raw, dictionary) if binary_assets else raw.decode()).replace(MARKER, inflater)
     boot = BOOT.replace('const decoded=new TextDecoder().decode(inflateCharacter12523(bytes));', BINARY_BOOT) if binary_assets else BOOT
+    if dictionary:
+        boot = boot.replace('const template=new TextDecoder().decode(raw.subarray(4,cursor));',
+                            r"""const packedText=new TextDecoder().decode(raw.subarray(4,cursor));
+  const endHeader=packedText.indexOf('\n'), words=packedText.slice(0,endHeader).split(',');
+  const template=packedText.slice(endHeader+1).replace(/\x01([\u0100-\u05af])/g,(_,code)=>words[code.charCodeAt(0)-256]);""")
     if restored != source:
         raise ValueError('Launcher round trip changed the game')
     return ("<!doctype html><html lang=ja><meta charset=utf-8><title>もんすたー日和</title>"
@@ -231,8 +259,9 @@ if __name__ == '__main__':
     parser.add_argument('--dense', action='store_true', help='use libdeflate level 12 for a smaller offline HTML')
     parser.add_argument('--binary-assets', action='store_true',
                         help='store embedded base64 data as binary and recompress native pixel streams')
+    parser.add_argument('--word-dictionary', action='store_true', help='losslessly encode repeated game identifiers')
     args = parser.parse_args()
-    data = pack(args.source.read_text(), args.dense, args.binary_assets).encode()
+    data = pack(args.source.read_text(), args.dense, args.binary_assets, args.word_dictionary).encode()
     if len(data) > 4 * 1024 * 1024:
         raise SystemExit(f'Launcher exceeds 4 MiB: {len(data):,} bytes')
     args.destination.write_bytes(data)

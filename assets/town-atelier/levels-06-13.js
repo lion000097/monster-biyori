@@ -10,7 +10,7 @@ function earlyVillage(type,k,p){
    for(const x of [14.2,19.7,25.2])beam([x,26.5,10],[x,26.5,21.6],1.2,'oak');
    face([[13.7,21.5,25],[26,21.5,25],[26,27.2,21.1],[13.7,27.2,21.1]],'glass',18,'',true);
    for(const x of [14,18,22,25.9])beam([x,21.5,25.2],[x,27.2,21.2],.85,'brass');
-   for(let i=0;i<3;i++){const x=15.5+3.8*i;basket(x,25,11.2,1.45,'',false);if(i<phase)ball(x,25,16.5,1.02,1.08,2.6,'cream');}
+   for(let i=0;i<3;i++){const x=15.5+3.8*i;basket(x,25,11.2,1.45,'',false);if(i<phase)ball(x,25,16.5,1.12,1.15,2.9,(k.item?.eggs||0)&(1<<i)?'gold':'cream');}
    // Egg-shaped finial stays recognizable even when all three nests are empty.
    lathe(12.3,7,44.5,[[0,1.1],[1,1.5]],'brass');ball(12.3,7,48.1,1.5,1.5,3.25,'cream');
    planter(5,26,0,1);tuft(27,12,0,1);break;
@@ -43,7 +43,7 @@ function earlyVillage(type,k,p){
    lathe(20.7,9.3,26.4,[[0,6.6],[3.9,6.2],[8.8,4.8],[12.1,2.7],[13.7,.65]],'indigo',12);
    beam([20.7,9.3,39],[20.7,9.3,46],1,'brass');ball(20.7,9.3,46.2,.67,.67,1.3,'brass');
    plankTable(7,24.2,10,4.1,6);book(8,25,8.3,3.3,2.5,'dusk');
-   p.easel(21.6,25,0,6,13,'sky',['brass','gold','cream']);telescope(26.1,17.7,0,.82);break;
+   p.easel(21.6,25,0,6,13,k.item?.picture!=null?['sky','star','moon'][Math.abs(k.item.picture)%3]:'sky',['brass','gold','cream']);telescope(26.1,17.7,0,.82);break;
  }
  case 'toolRack': {
    for(const x of [4,28]){block(x-1,4,0,2.3,4.4,2,'bark');block(x,5,1,1,1.2,23,'oak');}

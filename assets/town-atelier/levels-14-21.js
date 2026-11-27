@@ -29,10 +29,10 @@ function middleVillage(type,k,p){
  }
  case 'amberShelf': {
    for(const x of [3.9,27.4])block(x,5,0,1.3,4.5,19.8,'bark');
-   for(const z of [3.8,10.3,17])block(3.3,4.9,z,26.3,5.2,1.4,'oak');
+   for(const z of [3.1,11.3])block(3.3,4.9,z,26.3,6.3,1.35,'oak');block(3.1,4.4,21,26.6,2,1.4,'honey');
    block(4.4,5.1,5,23.7,.65,11.8,'pine','wood');
-   for(const [x,z,s] of [[6.7,5.2,1.17],[11.3,5.2,1.4],[21.8,5.2,1.13],[25.8,11.7,1.21],[17,11.7,.9]]){
-     lathe(x,8,z,[[0,s*1.3],[.6,s*1.2]],'bark',8);crystal(x,8,z+.7,s,s*3.75,'gold');
+   for(const [x,z,s] of [[6.7,4.55,1.31],[11.3,4.55,1.55],[21.8,4.55,1.35],[25.8,12.75,1.6],[8.4,12.75,1.61]]){
+     lathe(x,9.3,z,[[0,s*1.3],[.6,s*1.2]],'bark',8);crystal(x,9.3,z+.7,s,s*3.75,'gold');
    }
    for(const x of [7,17,24])panel(x-1.15,10.2,8.1,2.4,1.8,'pale');break;
  }
@@ -47,7 +47,7 @@ function middleVillage(type,k,p){
    for(const x of [6,24,42])peg(x,7.6,28,'oak',.75);
    const cable=drape([6,7.6,26.5],[42,7.6,26.5],3.5);
    for(let i=0;i<7;i++){const [x,y,z]=cable((i+.6)/7);face([[x-1.45,y,z],[x+1.45,y,z],[x,y,z-4.6]],['berry','moss','gold','teal'][i%4],16,'weave',true);}
-   for(const [i,x] of [10,24,37].entries())easel(x,16+(i%2)*4,0,9.2,20,['peak','frame','flower'][(i+phase)%3],[['pine','moss','cream'],['bark','blue','linen'],['pine','pink','gold']][i]);
+   for(const [i,x] of [10,24,37].entries())easel(x,16+(i%2)*4,0,9.2,20,['peak','frame','flower'][(i+phase+Math.abs(k.item?.picture||0))%3],[['pine','moss','cream'],['bark','blue','linen'],['pine','pink','gold']][i]);
    plankTable(7,31,13,5,6.3);for(const x of [8.9,12.5,16.2])jar(x,33,8.5,1.1,3.4,x<10?'berry':x<14?'indigo':'moss');
    chair(27,32,0,1.25);planter(41,32,0,1.35);plaque(7,32.6,9,5.5,4.1,'frame',['bark','moss','gold'],'pale');break;
  }
@@ -105,7 +105,7 @@ function middleVillage(type,k,p){
    block(4.8,4.1,8,20.7,18.4,2.3,'oak');cottage(6.2,5,16,14,18,11,'indigo',{z:10.2,door:.10});
    for(const x of [12,16])beam([x,24.7,.6],[x,21.2,10.4],1.2,'honey');
    for(let i=0;i<5;i++)beam([12,24.6-.64*i,1.2+i*1.88],[16,24.6-.64*i,1.2+i*1.88],1,'oak');
-   telescope(23.1,18.6,10.2,.89);p.easel(23.7,25.6,0,5.1,8.7,'moon',['indigo','cream','gold']);
+   telescope(23.1,18.6,10.2,.89);p.easel(23.7,25.6,0,5.1,8.7,k.item?.picture!=null?['moon','sky','star'][Math.abs(k.item.picture)%3]:'moon',['indigo','cream','gold']);
    lantern(6.9,21.1,10.3,.64);break;
  }
  case 'spiritChime': {
@@ -138,19 +138,19 @@ function middleVillage(type,k,p){
  }
  case 'breadMarket': {
    canopy(4.4,6.4,25.2,22.1,14.6,'tile','cream',3.8);
-   plankTable(5.3,14.2,20.7,7.9,9.9);cloth(7.1,22.21,4.3,16.7,5.9,'tile','grain');
-   for(let i=0;i<3;i++){const x=8+i*6.1;block(x-1.9,15.3,12.1,4.65,5.6,.7,'honey');for(let j=0;j<3;j++)loaf(x+.5,16.3+j*1.55,12.9,.72,i===2);}
+   plankTable(5.3,18.2,20.7,7.9,9.9);cloth(7.1,26.21,4.3,16.7,5.9,'tile','grain');
+   for(let i=0;i<3;i++){const x=8+i*6.1;block(x-1.9,19.6,12.1,4.65,5.6,.7,'pale');for(let j=0;j<3;j++)loaf(x+.5,20.6+j*1.55,12.9,.8,i===2);}
    basket(6.3,25.4,0,2.05,'honey');sign(25.3,24.1,4.8,5.15,5.8,'grain','bark');break;
  }
  case 'grainMill': {
    lathe(8.7,7.6,0,[[0,3.9],[2,4.2],[3,3.4],[17,2.65]],'plaster',9,'stone');
    lathe(8.7,7.6,16.2,[[0,4],[1.8,4],[8.1,.38]],'tile',9);
-   const hub=[8.8,10.6,16.7];for(let i=0;i<4;i++){
+   const hub=[8.8,12.17,19.4];for(let i=0;i<4;i++){
      const a=(i+phase/4)*Math.PI/2+.25;
      const at=(len,wide)=>[hub[0]+Math.cos(a)*len-Math.sin(a)*wide,hub[1]+.17,hub[2]+(Math.sin(a)*len+Math.cos(a)*wide)*2.1];
-     beam(at(0,0),at(6.2,0),1.05,'bark');
-     face([at(2,.15),at(6.15,.15),at(6.15,1.35),at(2,1.07)],'pale',18,'weave',true);
-     for(const n of [3,4.3,5.6])stroke([at(n,0),at(n,1.18)],'oak',11);
+     beam(at(0,0),at(6.2,0),1.5,'bark');
+     face([at(2,.15),at(6.15,.15),at(6.15,1.85),at(2,1.48)],'pale',18,'weave',true);
+     for(const n of [3,4.3,5.6])stroke([at(n,0),at(n,1.6)],'bark',8);
    }ball(...hub,.77,.77,1.1,'brass');sack(11.4,10.5,0,.55);break;
  }
  case 'breadShelf': {

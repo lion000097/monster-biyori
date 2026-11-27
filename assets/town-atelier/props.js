@@ -64,9 +64,12 @@ function furnishings(k){
  }
  function basket(x,y,z,rad=2.3,filled='',handle=true){
    lathe(x,y,z,[[0,rad*.63],[1,rad*.72],[rad*1.7,rad],[rad*1.86,rad]],'honey',10,'wood',true);
-   lathe(x,y,z+rad*1.83,[[0,rad*.8],[.12,rad*.82]],'earth',10);
+   lathe(x,y,z+rad*1.87,[[0,rad*.8],[.16,rad*.82]],'bark',10);
    for(const h of [.65,1.15,1.64])lathe(x,y,z+h*rad,[[0,rad*(.68+h*.18)],[.52,rad*(.68+h*.18)]],'oak',10);
-   if(handle){const pts=Array.from({length:11},(_,i)=>[x+Math.cos(i*Math.PI/10)*rad*.92,y,z+rad*1.8+Math.sin(i*Math.PI/10)*rad*2]);for(let i=1;i<pts.length;i++)beam(pts[i-1],pts[i],.75,'oak',5);}
+   for(let n=0;n<10;n++){const a=n*tau/10;
+     for(const layer of [.87,1.39]){const rr=rad*(.69+layer*.18);
+       stroke([[x+Math.cos(a)*rr,y+Math.sin(a)*rr,z+rad*layer],[x+Math.cos(a+.20)*(rr+.09),y+Math.sin(a+.20)*(rr+.09),z+rad*layer+.62]],'pale',15);}}
+   if(handle){const pts=Array.from({length:11},(_,i)=>[x+Math.cos(i*Math.PI/10)*rad*.92,y,z+rad*1.8+Math.sin(i*Math.PI/10)*rad*2]);for(let i=1;i<pts.length;i++)beam(pts[i-1],pts[i],1.02,'bark',5);}
    if(filled)for(let i=0;i<6;i++){const a=i*2.4;ball(x+Math.cos(a)*rad*.55,y+Math.sin(a)*rad*.48,z+rad*2,rad*.36,rad*.37,rad*.65,filled);}
  }
  function loaf(x,y,z,s=1,round=false){

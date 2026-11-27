@@ -26,9 +26,9 @@ function highVillage(type,k,p){
  case 'postcards': {
    // Hinged display wings hold rows of individually framed views.
    canopy(4.4,5.8,24.9,21.4,13.4,'teal','cream',3.3);plankTable(5.2,13.6,20.2,7.6,8);
-   block(6.2,13.8,10.1,17.9,1.5,8.5,'oak');for(let i=0;i<5;i++){
-     const x=6.65+i*3.5;plaque(x,15.46,11.2,3.07,5.8,i%2?'peak':'frame',['pine',i%2?'blue':'teal','cream'],'linen');
-     book(x,17.3,10.2,2.86,1.95,i%2?'teal':'berry');}
+   block(6.2,18.2,9.1,17.9,1.5,10.2,'oak');for(let i=0;i<5;i++){
+     const x=6.65+i*3.5;plaque(x,19.86,10.2,3.07,5.8,i%2?'peak':'frame',['pine',i%2?'blue':'teal','cream'],'linen');
+     book(x,19.8,10.2,2.86,1.95,i%2?'teal':'berry');}
    easel(24.7,24,0,5.5,11.8,'peak',['indigo','blue','cream']);sack(6.5,24.1,0,.75);break;
  }
  case 'routeMap': {
@@ -51,6 +51,7 @@ function highVillage(type,k,p){
    plankTable(11.3,23.3,12,4.55,6.1);for(let i=0;i<7;i++)block(11.9+i*1.5,24.25-i*.1,8.36,1.11,2.2+i*.26,.92,i%2?'oak':'honey');
    ball(25,23.1,4.1,2.1,1.1,3.6,'honey');beam([25,23,6.8],[25.9,22.9,15.1],1.2,'oak');ball(25,24,4.3,.45,.32,.88,'ink');
    for(let i=0;i<4;i++)beam([5.8+i*1.3,23.7,4.1],[5.8+i*1.3,23.7,9.5+i*2.5],1.45,'brass',7);
+   for(const xx of [11,14])beam([xx,10,38],[xx+(xx<13?-.7:.7),10,44],1.2,'brass');beam([10.2,10,43.8],[14.8,10,43.8],.8,'brass');
    plaque(11.9,22.9,17.8,4.2,5.8,'score',['bark','gold','cream'],'pine');break;
  }
  case 'birdScore': {
@@ -97,7 +98,7 @@ function highVillage(type,k,p){
    }
    beam([21.5,9.2,.7],[24.8,13.4,18.8],1,'honey');wheel(25,13.6,19.5,2.1,'y','bark');
    for(let i=0;i<3;i++)stroke([[23.7+i*.83,13.65,16.4],[24.6+i*.35,13.65,13.5],[25.5,13.65,16.5]],'linen',13);
-   sack(6.3,24.1,0,.81);plaque(13,22.1,16.5,4.8,5.4,'fish',['bark','aqua','cream'],'oak');break;
+   beam([12.4,7,36.2],[12.4,7,42.5],.8,'brass');plaque(10.2,7.1,39.5,5.3,3.9,'fish',['brass','teal','cream'],'teal');sack(6.3,24.1,0,.81);plaque(13,22.1,16.5,4.8,5.4,'fish',['bark','aqua','cream'],'oak');break;
  }
  case 'pondWindow': {
    lathe(8,8,0,[[0,5.2],[1.5,5.45],[3.45,5.8]],'oak',12,'wood',true,.84);
@@ -115,12 +116,12 @@ function highVillage(type,k,p){
    break;
  }
  case 'maskStall': {
-   canopy(4.7,5.6,26.4,21.8,13.8,'berry','pale',3.6);block(5.8,9.1,5.2,19.3,1.3,15.3,'oak','planks');
-   for(let j=0;j<2;j++)for(let i=0;i<4;i++){const x=7.9+4.42*i,z=10+j*6.25,c=['cream','honey','teal','pink'][(j+i)%4];
-     ball(x,11.1,z,1.57,.74,2.55,c);for(const d of [-.88,.88])ball(x+d,11.27,z+2.2,.45,.46,.94,c);
-     for(const d of [-.53,.53])ball(x+d,11.73,z+.45,.25,.23,.42,'ink');}
-   plankTable(5.7,15.2,19.7,5.3,8.6);jar(8.6,17.6,10.85,1,2.9,'berry');jar(22,17.7,10.85,.9,2.6,'indigo');
-   cloth(11.2,20.7,3.5,8.9,5.2,'berry','mask');break;
+   canopy(4.7,5.6,26.4,21.8,13.8,'berry','pale',3.6);block(5.8,17.7,7,19.3,1.3,16.4,'dusk','planks');
+   for(let j=0;j<2;j++)for(let i=0;i<4;i++){const x=7.9+4.42*i,z=11.5+j*7.2,c=['cream','honey','teal','pink'][(j+i)%4];
+     ball(x,19.7,z,1.67,.84,2.8,c);for(const d of [-.88,.88])ball(x+d,19.87,z+2.35,.45,.46,.94,c);
+     for(const d of [-.53,.53])ball(x+d,20.4,z+.45,.32,.26,.55,'ink');}
+   plankTable(5.7,21.2,19.7,5.3,8.6);jar(8.6,23.6,10.85,1,2.9,'berry');jar(22,23.7,10.85,.9,2.6,'indigo');
+   cloth(11.2,26.7,3.5,8.9,5.2,'berry','mask');break;
  }
  case 'lanternLine': {
    peg(3.4,7.65,25.5,'bark',.67);peg(28.65,7.65,25.5,'bark',.67);
@@ -143,7 +144,7 @@ function highVillage(type,k,p){
      peg(x,25,11,'oak',.52);lathe(x,25,0,[[0,1.7],[.8,1.7]],'bark',8);
      lathe(x,25,4.5,[[0,2.45],[4.6,1.09],[7.85,1.69],[9.1,.78]],i?'teal':'berry',9,'weave');
      ball(x,25,14.9,.73,.73,1.13,'honey');lathe(x,25,9.55,[[0,1.21],[.81,1.23]],'brass',9);}
-   basket(26.1,20.4,0,1.8,'plum');break;
+   lathe(14.1,8.7,38,[[0,1.75],[1.4,1.7],[1.6,.95],[4.5,.95],[4.7,1.75],[5.8,1.75]],'honey',10,'wood');basket(26.1,20.4,0,1.8,'plum');break;
  }
  case 'playBill': {
    for(const x of [3.2,12.2])beam([x,9.5,.3],[x+.12,5.8,19.9],1.55,'oak');

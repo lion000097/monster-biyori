@@ -9,3 +9,5 @@
 GitHub Pagesの既存設定やランチャーEXEには変更なし。ブラウザから直接mainへアップロードするなど、上記の手順を使わない更新に対してサーバー側で検査を強制するものではない。
 
 1.25.71以降の冒険の背景・宝箱・旗は `assets/adventure/trail-*` の原画を使う。原画差し替え時は `python tools/draw_adventure_art.py game.html --embed` で更新する。展開済みの軽量HTMLには `--launcher` を付ける。軽量版の背景には同じ16場面のAVIFと、読み込みに失敗した場合のWebPを内蔵する。
+
+1.25.76で描き直した施設・装飾73種の描画定義は `assets/town-atelier/`。変更後は `python tools/embed_town_atelier.py game.html` で通常版に反映し、展開済みの軽量HTMLにも同じ処理をする。軽量版を `tools/pack_launcher_html.py --dense --binary-assets --word-dictionary` でパックすると、4 MiB以内の自己完結HTMLになる。辞書はオフラインで元のソースに完全復元される。

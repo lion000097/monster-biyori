@@ -36,7 +36,10 @@ const tau=Math.PI*2;
 function renderer(width,height,facing){
   const size=(width+height)*2,sw=facing%2?height:width,sh=facing%2?width:height;
   const depth=new Float32Array(size*size).fill(-1e6),color=new Uint32Array(size*size);
+  let spread=1,rise=1;
+  function setScale(horizontal,vertical){spread=horizontal;rise=vertical;}
   function project([x,y,z]){
+    x=width/2+(x-width/2)*spread;y=height/2+(y-height/2)*spread;z*=rise;
     let u=x,v=y;
     if(facing===1){u=height-y;v=x;}
     else if(facing===2){u=width-x;v=height-y;}
@@ -78,12 +81,12 @@ function renderer(width,height,facing){
         const row=Math.floor(gz),t=Math.floor((gx+gy)*2),s=Math.floor(gx*2)-Math.floor(gy*2);
         let shift=0;
         if(texture==='wood'){
-          if((row+Math.floor(Math.sin(t*.26)*.8))%5===0 && (t+row*3)%13<9)shift=-3;
-          else if((row*3+t)%19===0)shift=2;
+          if((row+Math.floor(Math.sin(t*.26)*.8))%5===0 && (t+row*3)%13<9)shift=-5;
+          else if((row*3+t)%19===0)shift=3;
         }else if(texture==='planks'){
           const board=Math.floor(gy/2.8),grain=Math.floor(gy*2.1+Math.sin(gx*.42)*.7);
-          shift=(Math.floor(gy*2)%6===0?-4:0)+(board%3-1);
-          if((grain%4===0)&&(Math.floor(gx*2)+board*4)%12<7)shift-=2;
+          shift=(Math.floor(gy*2)%6===0?-6:0)+(board%3-1);
+          if((grain%4===0)&&(Math.floor(gx*2)+board*4)%12<7)shift-=3;
         }else if(texture==='stone'||texture==='pavers'){
           const along=texture==='pavers'?gx*2:(gx+gy)*2,up=texture==='pavers'?gy*2:gz;
           const layer=Math.floor(up/4.7),m=(along+(layer%2)*5.8+1364)%11.6;
@@ -124,6 +127,17 @@ function renderer(width,height,facing){
       }
     }
   }
+  function exhibit(item){
+    if(!item.source)return;
+    const thumb=document.createElement('canvas');thumb.width=thumb.height=item.size;
+    const g=thumb.getContext('2d');g.imageSmoothingEnabled=false;
+    g.drawImage(...item.source,0,0,item.size,item.size);
+    const data=g.getImageData(0,0,item.size,item.size).data,[cx,cy,base]=project(item.anchor);
+    for(let y=0;y<item.size;y++)for(let x=0;x<item.size;x++){
+      const i=(y*item.size+x)*4;if(data[i+3]<128)continue;
+      ink(Math.round(cx-item.size/2+x),Math.round(cy-item.size+y),base+item.size-y+.6,(data[i]<<16)|(data[i+1]<<8)|data[i+2]);
+    }
+  }
   function finish(){
     const canvas=document.createElement('canvas');canvas.width=canvas.height=size;
     const g=canvas.getContext('2d'),im=g.createImageData(size,size);
@@ -137,5 +151,5 @@ function renderer(width,height,facing){
     }
     g.putImageData(im,0,0);return canvas;
   }
-  return {face,stroke,veneer,finish,project,facing};
+  return {face,stroke,veneer,exhibit,finish,project,setScale,facing};
 }
