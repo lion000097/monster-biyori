@@ -10,7 +10,8 @@ function draw(type,facing,phase=0,site=null){
  if(spec.role!=='decor'){k.floor();k.r.setScale(1.12,1.24);}
  else if(type!=='shellChannel')k.r.setScale(1.07,1.12);
  const plan=spec.unlock<=13?earlyVillage:spec.unlock<=21?middleVillage:highVillage;
- plan(type,k,furnishings(k));
+ const props=furnishings(k);
+ plan(type,k,{...props,...craftDetails(k,props)});
  k.r.exhibit(item);
  const canvas=k.r.finish();pictures.set(key,{item:item.key,canvas});return canvas;
 }

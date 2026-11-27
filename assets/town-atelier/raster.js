@@ -89,13 +89,18 @@ function renderer(width,height,facing){
           shift=(Math.floor(gy*2)%6===0?-6:0)+(board%3-1);
           if((grain%4===0)&&(Math.floor(gx*2)+board*4)%12<7)shift-=3;
         }else if(texture==='pavers'){
-          const course=Math.floor(gy/3.6),seam=(gx+course%2*3.8)%7.6;
-          shift=(gy-course*3.6<.28||seam<.32)?-3:(course+Math.floor((gx+course%2*3.8)/7.6))%3-1;
+          const course=Math.floor(gy/3.6),joint=(gx+course%2*3.8)%7.6,edge=gy-course*3.6;
+          const variation=(course*7+Math.floor((gx+course%2*3.8)/7.6)*5)%7-3;
+          shift=joint<.32||edge<.30?-7:edge<.68||joint<.66?3:variation*.75;
+          if(edge>2.6&&joint>6.3&&variation===0)shift-=3;
         }else if(texture==='stone'){
           const along=(gx+gy)*2,up=gz;
           const layer=Math.floor(up/4.7),m=(along+(layer%2)*5.8+1364)%11.6;
           shift=up-layer*4.7<.8||m<1?-5:up-layer*4.7<1.7?2:(Math.floor((along+(layer%2)*5.8)/11.6)+layer*3)%4-1;
-        }else if(texture==='weave'){shift=(t+row)%4===0?-1:0;}
+        }else if(texture==='weave'){
+          const thread=Math.floor((gx-gy)*2.1+gz*.55),weft=Math.floor(gy*1.7+gz*.88);
+          shift=(thread%7===0&&weft%5<3)?-3:(weft%7===0&&thread%5<3)?2:0;
+        }
         else if(texture==='water'){shift=(Math.floor(gy*2+Math.sin(gx*.64)*2.5)%6===0 && t%13<8)?4:0;}
         else if(texture==='speckle'){shift=((s*19+t*7+row*5)&31)===1?-3:0;}
         color[i]=palette[Math.max(0,Math.min(23,Math.round(light+shift)))];depth[i]=d;
@@ -104,7 +109,7 @@ function renderer(width,height,facing){
     if(outline)for(let i=0;i<p.length;i++)edgeScreen(p[i],p[(i+1)%p.length],palette[Math.max(0,Math.min(23,light-8))]);
   }
   function veneer(points,sample,options={}){
-    const frame=townNativeFrame('komorebiMaterial',0,materialAtlas),p=points.map(project),[a,b,c]=p;
+    const frame=townNativeFrame(options.sheet||'komorebiMaterial',0,materialAtlas),p=points.map(project),[a,b,c]=p;
     const dx=b[0]-a[0],dy=b[1]-a[1],ex=c[0]-a[0],ey=c[1]-a[1],det=dx*ey-ex*dy;
     if(Math.abs(det)<.05)return;
     const fourth=[b[0]+c[0]-a[0],b[1]+c[1]-a[1]];
@@ -145,9 +150,21 @@ function renderer(width,height,facing){
   function finish(){
     const canvas=document.createElement('canvas');canvas.width=canvas.height=size;
     const g=canvas.getContext('2d'),im=g.createImageData(size,size);
+    // Project the relief back onto occupied paving, leaving roads under decorations clear.
+    const shade=new Uint8Array(color.length);
+    for(let i=0;i<depth.length;i++){
+      if(depth[i]<-1e5)continue;
+      const x=i%size,y=Math.floor(i/size),height=(depth[i]-y+size-1-sw-sh)*.5;
+      if(height<2)continue;
+      const u=x+Math.round(height*.36),v=y+Math.round(height*1.08);
+      if(u>=size||v>=size)continue;
+      const at=v*size+u;
+      if(depth[at]>-1e5&&depth[at]-(v-size+1+sw+sh)<2)
+        shade[at]=Math.max(shade[at],Math.max(12,Math.round(36-height*.35)));
+    }
     for(let i=0;i<color.length;i++){
       if(depth[i]<-1e5)continue;
-      const x=i%size,y=Math.floor(i/size);let c=color[i];
+      const x=i%size,y=Math.floor(i/size);let c=shade[i]?tintColor(color[i],-shade[i]):color[i];
       // Ink the inner silhouette without expanding a decoration into the next tile.
       if(x===0||y===0||x+1===size||y+1===size||depth[i-1]<-1e5||depth[i+1]<-1e5||depth[i-size]<-1e5||depth[i+size]<-1e5){
         // At this scanline the unraised ground has a known projected depth.
