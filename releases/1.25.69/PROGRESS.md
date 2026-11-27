@@ -1,4 +1,15 @@
-# 1.25.69　冒険11-1〜15-5
+# 1.25.69　冒険11-1〜15-5（公開済み）
+
+## 公開結果
+
+- 対象バージョン　1.25.69。
+- 保存先　GitHubの `main`、公開コミット `2289d342`。本体は `game.html`、配布物は `releases/1.25.69/`、各段階の作業は `feature/adventure-1.25.69` の履歴。
+- 完了事項　[自動検査](https://github.com/lion000097/monster-biyori/actions/runs/45954857000)と[Pagesへの公開](https://github.com/lion000097/monster-biyori/actions/runs/45955067766)が完了。
+- 確認結果　検査済みの17ファイルと候補が全件一致。公開URLで通常版、版別通常版、軽量版、ZIP、更新情報、配布一覧、変更履歴、検査記録の8ファイルもSHA-256が一致した。取得した通常版を390px、軽量版を1280pxのChromiumで起動し、1.25.69のタイトルと冒険タブを確認。ZIPは14,034,120バイト、全422項目。Windowsランチャー・iPhone実機は未検証。
+- 残作業　なし。
+- 次の操作　次回は `main` の1.25.69とルートの `PROGRESS.md` から再開する。
+
+## 作業履歴
 
 - 対象バージョン　公開中の1.25.68から1.25.69。起点は main の 898ffbb9。
 - 保存先　GitHub の feature/adventure-1.25.69。作業中のゲーム差分は work/1.25.69/game.patch。起点の game.html に git apply --unidiff-zero で適用できる。検証結果と次の操作はこのファイルに追記する。
