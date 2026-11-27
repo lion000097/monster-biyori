@@ -1,5 +1,5 @@
 diff --git a/game.html b/game.html
-index 0507bff..5882cdf 100644
+index 0507bff..82f51ab 100644
 --- a/game.html
 +++ b/game.html
 @@ -6 +6 @@
@@ -19,9 +19,105 @@ index 0507bff..5882cdf 100644
 @@ -2074 +2078 @@ updateEconHUD();
 -$('buildMode').classList.toggle('active',!!(buildMode||moveMode||clearMode));if(buildMode)$('buildMode').innerHTML=`<span>🔨 「${B[buildMode].name}」を建設中！ ${Object.hasOwn(borderDecor,buildMode)?'始点からドラッグして、離すと1列に設置。':buildMode==='acorn250'?'道の横の草地1マスに置いてね。':townCatalog[buildMode]?.role==='decor'?'道と重ならない空き地を選んでね。':frontRoadOptional131(buildMode)?'正面に道がなくても置けるよ。足元はあとから塗り替えられるよ。':acceptsRoadFloor130(buildMode)?'草地や道の上に置けるよ。足元はあとから塗り替えられるよ。':'黄色い矢印のある正面を道に接してね。'}</span><button class="small-button secondary" data-action="cancelBuild">キャンセル ✕</button>`;
 +$('buildMode').classList.toggle('active',!!(buildMode||moveMode||clearMode));if(buildMode)$('buildMode').innerHTML=`<span>🔨 「${B[buildMode].name}」を建設中！ ${Object.hasOwn(borderDecor,buildMode)?'始点からドラッグして、離すと1列に設置。':buildMode==='acorn250'?'道の横の草地1マスに置いてね。':townCatalog[buildMode]?.role==='decor'&&!roadOrnament(buildMode)?'道と重ならない空き地を選んでね。':frontRoadOptional131(buildMode)?'正面に道がなくても置けるよ。足元はあとから塗り替えられるよ。':acceptsRoadFloor130(buildMode)?'草地や道の上に置けるよ。足元はあとから塗り替えられるよ。':'黄色い矢印のある正面を道に接してね。'}</span><button class="small-button secondary" data-action="cancelBuild">キャンセル ✕</button>`;
-@@ -8807 +8811 @@ function treeRequirements193(nextLevel){
+@@ -7976 +7980 @@ seek=function(actor,job){
+-function workAtSite211(w,b){
++function workAtSite211(w,b,job=w.job){
+@@ -7980 +7984 @@ function workAtSite211(w,b){
+- if(w.job==='gather'){
++ if(job==='gather'){
+@@ -7982 +7986 @@ function workAtSite211(w,b){
+- }else if(w.job==='keeper'){
++ }else if(job==='keeper'){
+@@ -7986 +7990 @@ function workAtSite211(w,b){
+- }else if(w.job==='sell'){
++ }else if(job==='sell'){
+@@ -7988 +7992 @@ function workAtSite211(w,b){
+- }else if(w.job==='study'){
++ }else if(job==='study'){
+@@ -7990 +7994 @@ function workAtSite211(w,b){
+- }else if(w.job==='explore'){
++ }else if(job==='explore'){
+@@ -8004 +8008 @@ function workAtSite211(w,b){
+- w.mastery[w.job]=(w.mastery[w.job]||0)+3;
++ w.mastery[job]=(w.mastery[job]||0)+3;
+@@ -8275 +8279,2 @@ function progressStaffWork212(dt){
+-  const resting=!!w.jobTarget211?.rest,exploring=!resting&&!duty&&w.job==='explore';
++  const job=w.jobTarget211?.referralJob||w.job;
++  const resting=!!w.jobTarget211?.rest,exploring=!resting&&!duty&&job==='explore';
+@@ -8282,0 +8288 @@ function progressStaffWork212(dt){
++    if(w.jobTarget211.referralJob)w.expeditionVisit.referred=true;
+@@ -8287 +8293 @@ function progressStaffWork212(dt){
+-   }else if(!resting)w.act='🔨 '+JOBS[w.job].label+'作業中';
++   }else if(!resting)w.act='🔨 '+JOBS[job].label+'作業中';
+@@ -8296 +8302 @@ function progressStaffWork212(dt){
+-    const foundTreasure=workAtSite211(w,building);
++    const foundTreasure=workAtSite211(w,building,job);
+@@ -8764,3 +8770,3 @@ const staffRewardBefore212=workAtSite211;
+-workAtSite211=function(w,b){
+- const foundTreasure=staffRewardBefore212(w,b);
+- if(w.job==='gather'&&b.type==='greenhouse212')gainFood(foodProduction.greenhouseGatherBonus(b.level));
++workAtSite211=function(w,b,job=w.job){
++ const foundTreasure=staffRewardBefore212(w,b,job);
++ if(job==='gather'&&b.type==='greenhouse212')gainFood(foodProduction.greenhouseGatherBonus(b.level));
+@@ -8807 +8813 @@ function treeRequirements193(nextLevel){
 - return Object.entries(B)
 + const requirements=Object.entries(B)
-@@ -8812,0 +8817,2 @@ function treeRequirements193(nextLevel){
+@@ -8812,0 +8819,2 @@ function treeRequirements193(nextLevel){
 + if(nextLevel===5)requirements.push({type:'jobOffice',count:1,minLevel:1,label:B.jobOffice.name+' 1軒'});
 + return requirements;
+@@ -8920 +8928 @@ load=function(){
+-   if(w.jobTarget211?.tradeDuty12543)w.act='待機中';
++   if(w.jobTarget211?.tradeDuty12543||w.jobTarget211?.referralJob)w.act='待機中';
+@@ -13331 +13339 @@ function resumeExpeditionVisit(worker){
+-  const {buildingId,remaining}=worker.expeditionVisit;
++  const {buildingId,remaining,referred}=worker.expeditionVisit;
+@@ -13333 +13341 @@ function resumeExpeditionVisit(worker){
+-  if(worker.job!=='explore'||!Number.isFinite(remaining)||remaining<0||remaining>staffWorkSeconds)return;
++  if((worker.job!=='explore'&&!referred)||!Number.isFinite(remaining)||remaining<0||remaining>staffWorkSeconds)return;
+@@ -13335,3 +13343,6 @@ function resumeExpeditionVisit(worker){
+-  const door=[worker.x,worker.y],walk=site&&beginPlotWalk(worker,site,door,remaining);
+-  if(!walk)return;
+-  worker.jobTarget211={id:buildingId,job:'explore',goal:door};
++  if(!site)return;
++  const door=[worker.x,worker.y];
++  worker.jobTarget211={id:buildingId,job:worker.job,goal:door};
++  if(referred)worker.jobTarget211.referralJob='explore';
++  const walk=beginPlotWalk(worker,site,door,remaining);
++  if(!walk){worker.jobTarget211=null;return;}
+@@ -13341,0 +13353 @@ function resumeExpeditionVisit(worker){
++  if(referred)worker.expeditionVisit.referred=true;
+@@ -13420 +13432 @@ function beginPlotWalk(actor,site,door,seconds){
+-  const bedroom=usesSleepingRoom(actor,site),exploring=actor.job==='explore'&&site.type==='expeditionOffice';
++  const bedroom=usesSleepingRoom(actor,site),exploring=(actor.jobTarget211?.referralJob||actor.job)==='explore'&&site.type==='expeditionOffice';
+@@ -14990,0 +15003,17 @@ beginPlotWalk=function(w,b,door,seconds){
++// The office borrows a citizen for one job at a time. Their selected profession
++// remains on the citizen, so changing it or loading an older ranch still works.
++const officeJobs={home:'keeper',farm:'gather',greenhouse212:'gather',lab:'study',expeditionOffice:'explore'};
++function referIdleCitizen(worker){
++ if(worker.jobTarget211||worker.jobTask212||worker.jobCooldown211>0||worker.indoorRest||
++    worker.expeditionVisit||worker.path?.length||plotWalks.has(worker)||ranchActors124.has(worker)||
++    greetings.has(worker))return;
++ const claimed=new Set(state.staff.filter(w=>w.jobTarget211&&!w.jobTarget211.rest).map(w=>w.jobTarget211.id));
++ const open=state.buildings.filter(b=>officeJobs[b.type]&&!claimed.has(b.id)&&homeHasRoom12545(worker,b));
++ const preferred=workplaceType211(worker.job);
++ const route=monsterRoute139(worker,open.filter(b=>b.type===preferred),1,true)||
++   monsterRoute139(worker,open.filter(b=>b.type!==preferred),1,true);
++ if(!route)return;
++ const {site,pt,path}=route;
++ worker.jobTarget211={id:site.id,goal:pt,job:worker.job,referralJob:officeJobs[site.type]};
++ worker.path=path;worker.act='📋 '+B[site.type].name+'へお仕事の応援';
++}
+@@ -14993,2 +15022,6 @@ seek=function(w,job){
+- if(w.kind===undefined&&job==='sell'){startDuty12543(w);return;}
+- return seekBefore12543(w,job);
++ if(w.kind!==undefined)return seekBefore12543(w,job);
++ if(job==='sell'&&startDuty12543(w))return;
++ if(phase213(state.hour)==='work'&&state.buildings.some(b=>b.type==='jobOffice')){
++  referIdleCitizen(w);return;
++ }
++ if(job!=='sell')return seekBefore12543(w,job);
+@@ -15452,0 +15486,4 @@ function townBuildingInfo(b){
++  if(b.type==='jobOffice'){
++    const working=state.staff.filter(w=>w.jobTarget211?.referralJob);
++    rows.push('紹介中 '+working.length+'人'+(working.length?' ・ '+working.map(w=>esc(w.name)+'（'+JOBS[w.jobTarget211.referralJob].label+'）').join('、'):''));
++  }
