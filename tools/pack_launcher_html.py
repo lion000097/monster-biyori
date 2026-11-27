@@ -221,7 +221,7 @@ def unbundle_assets(data, dictionary=False):
     return ''.join(restored)
 
 
-def pack(source, dense=False, binary_assets=False, dictionary=False, zstd_pack=False):
+def pack(source, dense=False, binary_assets=False, dictionary=False, zstd_pack=False, wide_words=False):
     if dictionary and not binary_assets:
         raise ValueError('--word-dictionary requires --binary-assets')
     if binary_assets:
@@ -238,12 +238,22 @@ def pack(source, dense=False, binary_assets=False, dictionary=False, zstd_pack=F
         compressed = subprocess.run(['zstd', '-q', '-19', '-c'], input=payload, capture_output=True, check=True).stdout
     else:
         compressed = dense_zlib(payload) if dense else zlib.compress(payload, 9)
-    data = encode_payload(compressed)
-    encoded = decode_payload(data, len(compressed))
+    if wide_words:
+        import launcher_utf8_words
+        data = launcher_utf8_words.encode(compressed)
+        encoded = launcher_utf8_words.decode(data, len(compressed))
+    else:
+        data = encode_payload(compressed)
+        encoded = decode_payload(data, len(compressed))
     raw = (subprocess.run(['zstd', '-q', '-d', '-c'], input=encoded, capture_output=True, check=True).stdout
            if zstd_pack else zlib.decompress(encoded))
     restored = (unbundle_assets(raw, dictionary) if binary_assets else raw.decode()).replace(MARKER, inflater)
-    boot = BOOT.replace('const decoded=new TextDecoder().decode(inflateCharacter12523(bytes));', BINARY_BOOT) if binary_assets else BOOT
+    boot = BOOT
+    if wide_words:
+        start = boot.index('  const lookup=')
+        end = boot.index('  const decoded=', start)
+        boot = boot[:start] + (Path(__file__).parent/'launcher_utf8_words.js').read_text() + boot[end:]
+    boot = boot.replace('const decoded=new TextDecoder().decode(inflateCharacter12523(bytes));', BINARY_BOOT) if binary_assets else boot
     if dictionary:
         boot = boot.replace('const template=new TextDecoder().decode(raw.subarray(4,cursor));',
                             r"""const packedText=new TextDecoder().decode(raw.subarray(4,cursor));
@@ -274,8 +284,9 @@ if __name__ == '__main__':
                         help='store embedded base64 data as binary and recompress native pixel streams')
     parser.add_argument('--word-dictionary', action='store_true', help='losslessly encode repeated game identifiers')
     parser.add_argument('--zstd', action='store_true', help='use Zstandard with the bundled offline decoder')
+    parser.add_argument('--wide-words', action='store_true', help='store 64-bit words in nine UTF-8 bytes')
     args = parser.parse_args()
-    data = pack(args.source.read_text(), args.dense, args.binary_assets, args.word_dictionary, args.zstd).encode()
+    data = pack(args.source.read_text(), args.dense, args.binary_assets, args.word_dictionary, args.zstd, args.wide_words).encode()
     if len(data) > 4 * 1024 * 1024:
         raise SystemExit(f'Launcher exceeds 4 MiB: {len(data):,} bytes')
     args.destination.write_bytes(data)

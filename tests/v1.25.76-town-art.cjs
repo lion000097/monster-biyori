@@ -47,6 +47,9 @@ function checks(){
     [state.hour,tickAccum]=clock;
     return {hashes,issues,reference,specs:JSON.stringify(villageAdditions75)};
   }
+  function bath(){
+    return [0,1,2,3].map(f=>hash(ranchFrame130('onsen130',f,0)));
+  }
   function legacy(){
     state.starterGuide='done';state.speed=0;state.villageLv=state.worldTreeLevel=30;
     state.buildings.find(b=>b.type==='worldtree').level=30;
@@ -107,7 +110,8 @@ function checks(){
     }
     return done;
   }
-  return {sprites,legacy,snapshot,phases,placements,ready:()=>facilitySheetReady&&exhibitMaterialSheet75.complete&&!!exhibitMaterialSheet75.naturalWidth};
+  return {sprites,bath,artCount:()=>typeof townIllustrations==='undefined'?null:townIllustrations.size,
+    bathReady:()=>ranchSheets130.onsen130.img.naturalWidth>0,legacy,snapshot,phases,placements,ready:()=>facilitySheetReady&&exhibitMaterialSheet75.complete&&!!exhibitMaterialSheet75.naturalWidth};
 }
 
 (async()=>{
@@ -129,10 +133,17 @@ function checks(){
         await route.fulfill({contentType:'text/html; charset=utf-8',body:compact&&!old?html:html.replace(marker,()=>hook+marker)});
       });
       await page.goto(origin+'old');await page.waitForFunction(()=>window.townArtCheck);
+      await page.waitForFunction(()=>townArtCheck.bathReady());
+      const oldBath=await page.evaluate(()=>townArtCheck.bath());
       const original=await page.evaluate(()=>townArtCheck.legacy());
       if(!oldArt)oldArt=await page.evaluate(()=>townArtCheck.sprites(false));
       await page.goto(origin+'new');await page.waitForFunction(()=>window.townArtCheck?.ready(),{},{timeout:50000});
       assert.deepEqual(await page.evaluate(()=>townArtCheck.snapshot()),original);
+      if(testedVersion.localeCompare('1.25.79','en',{numeric:true})>=0){
+        assert.equal(await page.evaluate(()=>townArtCheck.artCount()),73);
+        await page.waitForFunction(()=>townArtCheck.bathReady());
+        assert.deepEqual(await page.evaluate(()=>townArtCheck.bath()),oldBath,'Legacy bath sheet changed');
+      }
       const result=await page.evaluate(()=>townArtCheck.sprites(true));
       if(!compact)webPaint=result.hashes;
       else if(testedVersion.localeCompare('1.25.77','en',{numeric:true})>=0)assert.deepEqual(result.hashes,webPaint);
