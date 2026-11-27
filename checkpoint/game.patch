@@ -1,5 +1,5 @@
 diff --git a/game.html b/game.html
-index 0507bff..ca2428c 100644
+index 0507bff..07b5e92 100644
 --- a/game.html
 +++ b/game.html
 @@ -6 +6 @@
@@ -126,15 +126,37 @@ index 0507bff..ca2428c 100644
 +    const working=state.staff.filter(w=>w.jobTarget211?.referralJob);
 +    rows.push('紹介中 '+working.length+'人'+(working.length?' ・ '+working.map(w=>esc(w.name)+'（'+JOBS[w.jobTarget211.referralJob].label+'）').join('、'):''));
 +  }
-@@ -15913,0 +15952,2 @@ const townSceneRules = {
+@@ -15824,0 +15863,19 @@ function townPlazaDetails(g,frame,face,variant){
++function forestClockArt(frame,minutes){
++  if(frame.clockMinute===minutes)return frame.clockCanvas;
++  const canvas=frame.clockCanvas||(frame.clockCanvas=document.createElement('canvas'));
++  if(canvas.width!==frame.size||canvas.height!==frame.size)canvas.width=canvas.height=frame.size;
++  const g=canvas.getContext('2d');
++  g.clearRect(0,0,frame.size,frame.size);g.drawImage(frame.canvas,0,0);
++  for(const [x,y,slope] of [[48,57,.35],[80,56,-.38]]){
++    // The vertical dial faces share noon. Project their horizontal axes in opposite directions.
++    for(const [turn,rx,ry,width,ink] of [[minutes/720,5,6,2,'#55382c'],[minutes/60,8,9,1,'#704325']]){
++      const angle=turn*2*Math.PI,dx=Math.round(rx*Math.sin(angle)),dy=Math.round(dx*slope-ry*Math.cos(angle));
++      const length=Math.max(Math.abs(dx),Math.abs(dy));
++      g.fillStyle=ink;
++      for(let i=1;i<=length;i++)g.fillRect(x+Math.round(dx*i/length),y+Math.round(dy*i/length),width,1);
++    }
++    g.fillStyle='#bc914b';g.fillRect(x-1,y-1,3,3);
++    g.fillStyle='#ffdc82';g.fillRect(x,y-1,1,1);
++  }
++  frame.clockMinute=minutes;return canvas;
++}
+@@ -15827,0 +15885 @@ function townBuildingArt(type,level,facing,visual={}){
++  if(type==='forestClock')return forestClockArt(frame,Math.floor(((state?.hour??9)+tickAccum)*60)%720);
+@@ -15913,0 +15972,2 @@ const townSceneRules = {
 +  travelerRestPlaza:{people:['guest'],min:1,max:4,wait:15,stay:13},
 +  monsterPlayPlaza:{people:['monster'],min:2,max:4,wait:22,stay:12},
-@@ -15928,0 +15969 @@ const townSceneActs={
+@@ -15928,0 +15989 @@ const townSceneActs={
 +  travelerRestPlaza:'休憩広場のベンチでひと休み',monsterPlayPlaza:'遊び広場で仲間を待っている',
-@@ -15935 +15976 @@ const townSceneActs={
+@@ -15935 +15996 @@ const townSceneActs={
 -const townVenueGuests=new Set(['theater','aquarium','restaurant','bakery','guideOffice','treeGuesthouse']);
 +const townVenueGuests=new Set(['travelerRestPlaza','theater','aquarium','restaurant','bakery','guideOffice','treeGuesthouse']);
-@@ -15992,0 +16034,8 @@ function townLocalPoint(site,u,v){
+@@ -15992,0 +16054,8 @@ function townLocalPoint(site,u,v){
 +function playgroundPoint(site,slot,elapsed){
 +  // Two laps of the oval painted on the ground. Each visitor waits at their
 +  // own starting point. The runners change direction after the first lap.
@@ -143,31 +165,31 @@ index 0507bff..ca2428c 100644
 +  const angle=turn*2*Math.PI/lap-slot*1.04;
 +  return townLocalPoint(site,.5+.32*Math.sin(angle),.52-.29*Math.cos(angle));
 +}
-@@ -15993,0 +16043 @@ function townSeat(site,slot,mode){
+@@ -15993,0 +16063 @@ function townSeat(site,slot,mode){
 +  if(site.type==='monsterPlayPlaza')return playgroundPoint(site,slot,0);
-@@ -15994,0 +16045 @@ function townSeat(site,slot,mode){
+@@ -15994,0 +16065 @@ function townSeat(site,slot,mode){
 +    travelerRestPlaza:[[.30,.30],[.51,.30],[.76,.48],[.76,.68]],
-@@ -16002 +16053 @@ function townSeat(site,slot,mode){
+@@ -16002 +16073 @@ function townSeat(site,slot,mode){
 -  if(!options||mode==='guided')return null;
 +  if(!options||(mode==='guided'&&site.type!=='travelerRestPlaza'))return null;
-@@ -16073 +16124 @@ function townRelease(member,resumeGuest=true){
+@@ -16073 +16144 @@ function townRelease(member,resumeGuest=true){
 -function townGroupMode(v){return v.mode==='music'||v.mode==='festival'||v.mode==='meeting';}
 +function townGroupMode(v){return ['music','festival','meeting','chase'].includes(v.mode);}
-@@ -16080,0 +16132 @@ function townBeginRound(v){
+@@ -16080,0 +16152 @@ function townBeginRound(v){
 +  if(type==='monsterPlayPlaza')mode='chase';
-@@ -16176,0 +16229 @@ function townEnter(m){
+@@ -16176,0 +16249 @@ function townEnter(m){
 +    if(site.type==='travelerRestPlaza')walk.points.push(townLocalPoint(site,.50,.65));
-@@ -16242 +16295 @@ function townStepGroup(v,dt){
+@@ -16242 +16315 @@ function townStepGroup(v,dt){
 -  const min=kind==='music'?4:kind==='meeting'?2:3;
 +  const min=kind==='music'?4:kind==='meeting'||kind==='chase'?2:3;
-@@ -16248 +16301,2 @@ function townStepGroup(v,dt){
+@@ -16248 +16321,2 @@ function townStepGroup(v,dt){
 -    if(inside.length<min||(kind==='music'&&!inside.some(m=>m.slot===0&&m.kind==='monster')))return;
 +    if(inside.length<min||(kind==='music'&&!inside.some(m=>m.slot===0&&m.kind==='monster'))||
 +       (kind==='chase'&&inside.length!==v.members.length))return;
-@@ -16251 +16305 @@ function townStepGroup(v,dt){
+@@ -16251 +16325 @@ function townStepGroup(v,dt){
 -      m.actor.act=kind==='music'?(m.slot===0?'音楽堂で歌っている':'音楽に合わせてリズムを取っている'):
 +      m.actor.act=kind==='chase'?'🐾 広場で追いかけっこ':kind==='music'?(m.slot===0?'音楽堂で歌っている':'音楽に合わせてリズムを取っている'):
-@@ -16256 +16310,10 @@ function townStepGroup(v,dt){
+@@ -16256 +16330,10 @@ function townStepGroup(v,dt){
 -  if(v.elapsed<(kind==='music'?8.4:kind==='festival'?13.2:5.3)&&inside.length>=min)return;
 +  if(kind==='chase'){
 +    for(const m of inside){
@@ -179,16 +201,16 @@ index 0507bff..ca2428c 100644
 +  }
 +  const duration=kind==='festival'?13.2:townSceneRules[v.site.type].stay;
 +  if(v.elapsed<duration&&inside.length>=min)return;
-@@ -16319,0 +16383,6 @@ function stepTownScenes(dt){
+@@ -16319,0 +16403,6 @@ function stepTownScenes(dt){
 +    if(poll&&site.type==='travelerRestPlaza'&&townHoursAllow(site)&&v.members.length&&
 +       v.members.length<townSceneRules.travelerRestPlaza.max){
 +      const rule=townSceneRules.travelerRestPlaza;
 +      const arrivals=townScenePeople(v,townStreetRoutes(townSceneDoors(site),14),rule,1,rule.max-v.members.length);
 +      for(const item of arrivals)townJoin(v,item.actor,item.route);
 +    }
-@@ -16336 +16405 @@ function townIsCourtyard(walk,x,y){
+@@ -16336 +16425 @@ function townIsCourtyard(walk,x,y){
 -  return ['musicHall','festivalPlaza','rainPavilion'].includes(walk.site.type);
 +  return ['musicHall','festivalPlaza','rainPavilion','travelerRestPlaza','monsterPlayPlaza'].includes(walk.site.type);
-@@ -16341,0 +16411,2 @@ function townMemberPose(actor,size){
+@@ -16341,0 +16431,2 @@ function townMemberPose(actor,size){
 +  if(type==='travelerRestPlaza')return {seated:true,icon:t>2&&t<3.2?'♪':''};
 +  if(v.mode==='chase'&&v.running)return {side:m.side,dy:-Math.round(4*Math.abs(Math.sin(v.elapsed*9-m.slot)))};
