@@ -114,6 +114,52 @@ function menuFixture() {
   };
 }
 
+function placeFromMenu(type) {
+  if (buildMode!==type) throw Error('facility button did not enter placement mode');
+  const before=state.buildings.length;
+  for(let y=MIN_Y+1;y<H-1;y++) for(let x=MIN_X+1;x<W-1;x++) {
+    if(!canBuild(x,y,null,false,type)) continue;
+    place(type,x,y);
+    if(state.buildings.length!==before+1) throw Error('placement failed');
+    return;
+  }
+  throw Error('missing buildable tile');
+}
+
+async function openHelp(page,mobile) {
+  if (await page.locator('#help-tab-basics').isVisible()) {
+    await page.locator('#help-tab-basics').click();
+    return;
+  }
+  if(mobile) {
+    await page.locator('#mobileMoreToggle12521').click();
+    await page.locator('[data-mobile-open12521=help]').click();
+  } else await page.locator('#helpBtn').click();
+  await page.locator('#help-tab-basics').click();
+}
+
+async function exportSaveFile(page,mobile) {
+  await openHelp(page,mobile);
+  const download=page.waitForEvent('download');
+  await page.locator('#help-page-basics [data-action=export]').click();
+  return JSON.parse(fs.readFileSync(await (await download).path(),'utf8'));
+}
+
+async function importSaveFile(page,mobile,data) {
+  await openHelp(page,mobile);
+  await page.locator('#importInput').setInputFiles({
+    name:'ranch.json', mimeType:'application/json',buffer:Buffer.from(JSON.stringify(data))
+  });
+  await page.waitForFunction(()=>!document.querySelector('#modal').classList.contains('show'));
+}
+
+function saveFields(data) {
+  return {name:data.ranchName, coins:data.coins, food:data.food, magic:data.magic, day:data.day,
+    buildings:data.buildings.map(b=>[b.id,b.type,b.x,b.y,b.level,b.facing??0]),
+    monsters:data.monsters.map(m=>[m.id,m.kind,m.lv]), friends:data.catalog.friends,
+    observationDays:data.observationDays80??{}};
+}
+
 async function menuChecks(page,mobile) {
   if(mobile) await page.locator('[data-mobile-dock12521=build]').click();
   else await page.locator('.tab[data-tab=build]').click();
@@ -149,8 +195,12 @@ async function menuChecks(page,mobile) {
   const smallRoad=ids(b=>b.decor&&b.size==='1×1'&&b.road&&!b.placed);
   assert(smallRoad.length>0&&!smallRoad.includes('acorn250'));
   await assertResults(smallRoad);
-  await page.evaluate(type=>window.buildForFilter(type),smallRoad[0]);
-  await assertResults(smallRoad.slice(1));
+  const type='flowerbed211';
+  assert(smallRoad.includes(type));
+  await page.locator('#tabBody [data-action=build][data-id="'+type+'"]').click();
+  await page.evaluate(type=>window.buildForFilter(type),type);
+  if(mobile&&!await box.isVisible())await page.locator('[data-mobile-dock12521=build]').click();
+  await assertResults(smallRoad.filter(id=>id!==type));
   await page.locator('#buildReset80').click();
   await page.locator('#buildSize80').selectOption('1×2');await assertResults(ids(b=>b.size==='1×2'));
   await page.locator('#buildSize80').selectOption('6×6');await assertResults(ids(b=>b.size==='6×6'));
@@ -165,6 +215,10 @@ async function menuChecks(page,mobile) {
   await page.locator('[data-action=atlas][data-id=notebook]').click();
   assert.equal(await page.locator('.observation-book li').count(),12);
   assert.equal(await page.locator('.observation-book li.found').count(),1);
+  await page.waitForFunction(()=>{
+    const canvas=document.querySelector('.observation-book li.found canvas');
+    return canvas?.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data.some((v,i)=>i%4===3&&v>0);
+  });
   if(mobile) assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
 }
 
@@ -181,7 +235,7 @@ async function menuChecks(page,mobile) {
         ';window.readRanch=()=>JSON.parse(readRanchSave12556());window.exerciseScenes='+exerciseScenes.toString()+
         ';window.menuFixture='+menuFixture.toString()+';window.forceTabRefresh=()=>renderUI(true);'+
         'window.guideResetTarget=()=>guideConstruction("ranch","ranch").target?.id;'+
-        'window.buildForFilter=type=>{state.buildings.push({id:state.nextId++,type,level:1,x:-12,y:-12});renderUI(true);};\n';
+        'window.buildForFilter='+placeFromMenu.toString()+';\n';
       await page.addInitScript(({marker,hook})=>{
         const write = Document.prototype.write;
         Document.prototype.write = function(...args) {
@@ -202,6 +256,10 @@ async function menuChecks(page,mobile) {
       await page.goto(origin+'/old');
       await page.waitForFunction(()=>typeof oldFixture==='function' && document.querySelector('#ranchName').textContent);
       assert(await page.evaluate(()=>oldFixture()));
+      const stop=page.locator('#ranchGuideDialog[open] [data-guide-stop]');
+      await page.addLocatorHandler(stop,()=>stop.click());
+      const oldFile=await exportSaveFile(page,compact);
+      assert(!Object.hasOwn(oldFile,'observationDays80'));
       await page.goto(origin+'/new');
       await page.waitForFunction(()=>typeof journalSmoke==='function' && document.querySelector('#ranchName').textContent==='手帳の牧場');
       assert.deepEqual(await page.evaluate(()=>journalSmoke()),[0,'手帳の牧場',543210,8,12,'初発見　8日目',64]);
@@ -214,6 +272,12 @@ async function menuChecks(page,mobile) {
       await page.reload();
       await page.waitForFunction(()=>typeof readRanch==='function'&&document.querySelector('#ranchName').textContent==='手帳の牧場');
       assert.deepEqual((await page.evaluate(()=>readRanch())).observationDays80,allDays);
+      const newFile=await exportSaveFile(page,compact);
+      assert.deepEqual(newFile.observationDays80,allDays);
+      await importSaveFile(page,compact,oldFile);
+      assert.deepEqual(saveFields(await exportSaveFile(page,compact)),saveFields(oldFile));
+      await importSaveFile(page,compact,newFile);
+      assert.deepEqual(saveFields(await exportSaveFile(page,compact)),saveFields(newFile));
       assert.deepEqual(errors,[]);
       console.log(compact?'Offline mobile':'Web desktop','12 scenes, old save, pause, first days, illustrations, combined search, IME, guide and reload passed');
       await ctx.close();
