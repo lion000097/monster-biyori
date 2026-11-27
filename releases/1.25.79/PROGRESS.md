@@ -1,4 +1,16 @@
-# 1.25.79　施設と装飾73種の原画描き直し
+# 1.25.79　施設と装飾73種の原画描き直し（公開済み）
+
+## 公開結果
+
+- 対象バージョン　1.25.79。ゲームの公開コミットは `f75178fa`。
+- 保存先　[ゲーム](https://lion000097.github.io/monster-biyori/game.html)、[全73種の見本と新旧比較](town-art.png)、[動作確認](TESTING.md)。個別の原画は `assets/town-atelier/illustrations/`、配布物は `releases/1.25.79/`、修正ごとの履歴は `art/illustrated-town-1.25.79` にある。
+- 完了事項　こもれびハウスを手本に施設28種・装飾45種の四方向、計292枚を描き直し、通常版・軽量版・ZIP・更新情報を公開した。
+- 確認結果　[配布前検査](https://github.com/lion000097/monster-biyori/actions/runs/46026680729)と[Pages公開](https://github.com/lion000097/monster-biyori/actions/runs/46027089969)に成功。公開URLから取得した9ファイルが候補と一致し、ZIP446項目のCRCと同梱ゲームを照合した。
+- 公開後の動作　配信された通常版と軽量版で全292図、状態に応じて変化する33種、建築・回転・展示、1.25.75〜1.25.78の旧セーブの引き継ぎと再読込を再検査。両版とも建築メニューから操作できた。
+- 残作業　なし。
+- 次の操作　次回は公開版1.25.79と本メモから、新しく依頼された作業を開始する。配布物の再現資料は `verify/illustrated-town-1.25.79` の `work/illustrated-town-12579/` にある。
+
+## 修正ごとの記録
 
 - 対象バージョン　1.25.78を起点に、1.25.75で追加した施設28種と装飾45種を1.25.79で更新する。
 - 保存先　作業ブランチ `art/illustrated-town-1.25.79`、`assets/town-atelier/illustrations/`、このメモ。
