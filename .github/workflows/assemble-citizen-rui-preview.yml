@@ -1,0 +1,33 @@
+name: Assemble Rui town walking preview
+on:
+  push:
+    branches: ['preview/citizen-rui-town-walk']
+    paths:
+      - '.github/workflows/assemble-citizen-rui-preview.yml'
+      - 'work/citizen-rui-town-walk/*.js'
+      - 'work/citizen-rui-town-walk/*.py'
+      - 'work/citizen-rui-town-walk/*.png'
+permissions:
+  contents: write
+jobs:
+  preview:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /game.html
+            /releases/1.25.96/game.html
+            /work/citizen-rui-town-walk/
+      - run: |
+          python -c 'from PIL import Image' || python -m pip install Pillow
+          python work/citizen-rui-town-walk/build.py releases/1.25.96/game.html game.html
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add game.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'Assemble Rui preview from the published 1.25.96 game'
+            git push origin HEAD:refs/heads/preview/citizen-rui-town-walk
+          fi
