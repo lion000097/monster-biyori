@@ -2,7 +2,7 @@
 
 ## 対象と保存先
 
-本編 Ver.1.25.95（基準 `f75b57edaabc3c334bc6284e4183fc5e105b95b1`）をもとにした確認版。確認用ブランチは `preview/shirogao-town-walk`。原寸PNGと再構築スクリプトを `work/town-monster-motion/` に収録した。
+本編 Ver.1.25.95（基準 `f75b57edaabc3c334bc6284e4183fc5e105b95b1`）をもとにした確認版。確認用ブランチは `preview/shirogao-town-walk`。ブランチ直下の `game.html` に全127種を組み込んだ。配布した確認版ゲームと同一のGitオブジェクト `d49912a69a6128861998c2b2f20a07fcd8008536` であることを照合済み。原寸PNGと再構築スクリプトを `work/town-monster-motion/` に収録した。
 
 ## 完了事項
 
