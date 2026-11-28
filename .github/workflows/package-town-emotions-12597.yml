@@ -1,0 +1,56 @@
+name: Package town emotions 1.25.97
+on:
+  push:
+    branches: ['build/town-emotions-12597']
+    paths: ['.github/workflows/package-town-emotions-12597.yml']
+permissions:
+  contents: write
+jobs:
+  package:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /game.html
+            /latest.json
+            /archive.html
+            /PROGRESS.md
+            /tools/
+            /work/scene-camera-12581/
+            /work/town-emotions-12597/
+            /releases/1.25.96/
+      - name: Package, verify and stage
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python -c 'from PIL import Image' || python -m pip install Pillow
+          BASE="$(git rev-parse HEAD^)"
+          test "$BASE" = "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)"
+          W=work/town-emotions-12597
+          mkdir -p /tmp/town-emotions-base /tmp/town-emotions-release
+          cp game.html latest.json archive.html /tmp/town-emotions-base/
+          cp releases/1.25.96/{launcher-game.html,monster-biyori-1.25.96.zip} /tmp/town-emotions-base/
+          python "$W/build.py" /tmp/town-emotions-base /tmp/town-emotions-release work/scene-camera-12581/build.py
+          python tools/release_preflight.py --root /tmp/town-emotions-release
+          V=1.25.97
+          D=releases/$V
+          Z=monster-biyori-$V.zip
+          P=/tmp/town-emotions-release
+          cp "$P"/{game.html,latest.json,archive.html} .
+          mkdir -p "$D"
+          cp "$P/$D/"*.{html,js,md} "$D/"
+          { cat "$W/PROGRESS.md"; printf '\n'; cat PROGRESS.md; } > /tmp/latest-progress
+          cp /tmp/latest-progress PROGRESS.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --sparse game.html latest.json archive.html PROGRESS.md "$D/"
+          git commit -m 'Package verified town emotions for web and launcher'
+          git push origin HEAD:refs/heads/build/town-emotions-12597
+          test "$BASE" = "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)"
+          gh release create "v$V" "$P/$D/$Z" --target "$(git rev-parse HEAD)" --title "もんすたー日和 $V" --notes-file "$D/CHANGELOG.md" --latest
+          gh release download "v$V" --pattern "$Z" --dir /tmp/download-verify
+          cmp "$P/$D/$Z" "/tmp/download-verify/$Z"
