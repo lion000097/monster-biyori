@@ -1,0 +1,66 @@
+name: Verify the 1.25.88 traveler buildings
+on:
+  push:
+    branches: ['build/traveler-buildings-1.25.88']
+permissions:
+  contents: write
+jobs:
+  verify:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /archive.html
+            /latest.json
+            /game.html
+            /tools/release_preflight.py
+            /tools/pack_launcher_html.py
+            /tools/launcher_utf8_words.py
+            /work/scene-camera-12581/build.py
+            /work/building-review-12586/build.py
+            /work/traveler-art-12588/
+            /assets/town-axis/painted/
+            /assets/town-axis/painted-details.json
+            /assets/town-axis/painted-state.js
+            /assets/town-atelier/illustrated-town.js
+            /releases/1.25.87/game.html
+            /releases/1.25.87/launcher-game.html
+            /releases/1.25.87/monster-biyori-1.25.87.zip
+            /releases/1.25.88/
+      - name: Rebuild the web game and verify the offline update
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: |
+          set -eu
+          python3 work/traveler-art-12588/build.py web
+          python3 work/traveler-art-12588/build.py package
+          python3 tools/release_preflight.py --root .
+          echo '44c616f28e4a64aab40b5afc656dcdcfb47b5e23ea86e86decb44ab1f8ede82d  game.html' | sha256sum -c -
+          echo '64efb46b42d97200cb6a1df5d92cecd4e9e00bca9b5ff66ea1e768602497616f  releases/1.25.88/launcher-game.html' | sha256sum -c -
+          python3 - <<'PY'
+          import hashlib, runpy
+          from zipfile import ZipFile
+          build=runpy.run_path('work/traveler-art-12588/build.py')
+          release=build['RELEASE']
+          expanded=build['building_tools'].codec().unpack_launcher((release/'launcher-game.html').read_text())
+          assert expanded==build['expanded_launcher']()
+          assert hashlib.sha256(expanded.encode()).hexdigest()=='64da51e94dc4bd0378fac089717ce1c84716563f9b82a975d3e25d590c0d45e2'
+          digest=hashlib.sha256()
+          with ZipFile(release/'monster-biyori-1.25.88.zip') as z:
+              assert len(z.namelist())==len(set(z.namelist()))==472
+              for name in sorted(z.namelist()):
+                  digest.update(name.encode()+b'\0'+hashlib.sha256(z.read(name)).digest())
+          assert digest.hexdigest()=='00850ff96698aad03d6b431ff1149dffbdb48472c89482154e73f6630027684c'
+          PY
+      - name: Save the verified distribution
+        run: |
+          set -eu
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --sparse archive.html latest.json game.html releases/1.25.88/game.html releases/1.25.88/monster-biyori-1.25.88.zip
+          git commit -m 'Package the verified 1.25.88 building artwork'
+          git push origin HEAD:refs/heads/build/traveler-buildings-1.25.88
