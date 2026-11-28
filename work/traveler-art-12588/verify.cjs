@@ -38,7 +38,7 @@ async function exported(session){
 
 function progress(s){
   const project=(objects,keys)=>objects.map(o=>keys.map(k=>o[k]??null));
-  const keys=['ranchName','version','day','hour','coins','food','villageLv','villageXp','party','research','recipes','talentFruit','catalog','zones','paths','stoneTiles','ponds','materials','materialSeen211','observationDays80','starterGuide','treasures','gear','equipment','treeXp','ownedTreasures'];
+  const keys=['ranchName','version','day','hour','coins','food','villageLv','villageXp','party','research','recipes','talentFruit','catalog','zones','paths','stoneTiles','ponds','materials','materialSeen211','observationDays80','starterGuide','treasures','gear','equipment','treeXp','ownedTreasures','adventure','bestiary','achievements','expeditionTreasures','expeditionCounts213','expeditionArea213','expeditionAuto213','materialStock211','equipmentBlueprints12513','equipmentSeen12513','equipmentStock12512','stock','magic','fame','sceneCamera81','eggs'];
   return {...Object.fromEntries(keys.filter(k=>k in s).map(k=>[k,s[k]])),
     buildings:project(s.buildings,['id','type','level','x','y','facing','chart75','constructionPaid','picture75','activity75','townPicture','workSlots']),
     monsters:project(s.monsters,['id','kind','name','lv','shiny','iv','exp','equipment']),
