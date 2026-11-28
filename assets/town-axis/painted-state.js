@@ -5,7 +5,7 @@ await Promise.all(Object.entries(axisAtlas).map(async ([type,[size,uri]])=>{
   const image=new Image();
   image.src=uri;
   await image.decode();
-  axisSprites.set(type,{size:size*2,image,base:[],views:new Map()});
+  axisSprites.set(type,{size:travelerPlots[type] ? image.height : size*2,image,base:[],views:new Map()});
 }));
 
 function axisSprite(type,facing,phase=0,item={}){
@@ -92,6 +92,9 @@ function axisSprite(type,facing,phase=0,item={}){
   }else if(type==='jarHut'){
     const glazes=[[191,63,55],[104,154,85],[222,134,56],[112,139,193]];
     glaze(glazes[state],(r,green,b)=>r>green*1.13&&r>b*1.12&&r>65);
+  }else if(type==='seedSwap' && w>0){
+    const foliage=[[108,151,80],[119,165,88],[198,139,62],[128,160,183]];
+    glaze(foliage[state],(r,green,b)=>green>b*1.34 && green>r*.80);
   }else if(type==='umbrellaHut'){
     glaze([103,165,183],(r,green,b)=>Math.max(r,green,b)-Math.min(r,green,b)>28);
     g.strokeStyle='#d5e7df';g.lineWidth=.36;

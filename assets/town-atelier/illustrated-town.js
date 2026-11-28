@@ -54,6 +54,23 @@ return function draw(type,facing,phase=0,site=null){
   if(axisSprites.has(type)){
     const face=validFacing(facing),item=exhibition(type,site);
     const base=axisSprite(type,face,phase,item);
+    if(type==='openGallery' && (face===0||face===3) && illustratedSigns.naturalWidth &&
+       (Number.isInteger(item.picture)||phase)){
+      const id=((item.picture??phase)%16+16)%16, key='gallery-easel/'+face;
+      const cached=illustratedCache.get(key);
+      if(cached?.item===id)return cached.canvas;
+      const canvas=townCanvas(base.width), g=canvas.getContext('2d');
+      g.drawImage(base,0,0);
+      // Map the painting to the four inner edges of the tilted easel canvas.
+      const corners=face===0 ? [64.1,49.6,69.0,51.1,61.7,57.9]
+                             : [58.6,41.3,64.2,42.8,56.4,50.0];
+      const [x0,y0,x1,y1,x2,y2]=corners;
+      g.scale(base.width/100,base.height/100);
+      g.transform(x1-x0,y1-y0,x2-x0,y2-y0,x0,y0);
+      g.drawImage(illustratedSigns,(id%4)*32+2,Math.floor(id/4)*32+2,28,28,0,0,1,1);
+      illustratedCache.set(key,{item:id,canvas});
+      return canvas;
+    }
     if(type!=='starChart'||!Number.isInteger(item.picture)||(face!==0&&face!==3))return base;
     const key='recorded-chart/'+face,cached=illustratedCache.get(key);
     if(cached?.item===item.key)return cached.canvas;
