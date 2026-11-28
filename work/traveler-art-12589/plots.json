@@ -1,0 +1,74 @@
+{
+  "footBath": {
+    "size": 456,
+    "anchor": [
+      228,
+      348
+    ],
+    "span": 384,
+    "sourceOffset": [
+      -4,
+      156
+    ]
+  },
+  "seedSwap": {
+    "size": 480,
+    "anchor": [
+      240,
+      372
+    ],
+    "span": 384,
+    "sourceOffset": [
+      -16,
+      132
+    ]
+  },
+  "shoeRepair": {
+    "size": 504,
+    "anchor": [
+      252,
+      396
+    ],
+    "span": 384,
+    "sourceOffset": [
+      -28,
+      108
+    ]
+  },
+  "specimenHut": {
+    "size": 456,
+    "anchor": [
+      228,
+      348
+    ],
+    "span": 384,
+    "sourceOffset": [
+      -4,
+      156
+    ]
+  },
+  "openGallery": {
+    "size": 648,
+    "anchor": [
+      324,
+      492
+    ],
+    "span": 576,
+    "sourceOffset": [
+      -4,
+      108
+    ]
+  },
+  "umbrellaHut": {
+    "size": 504,
+    "anchor": [
+      252,
+      396
+    ],
+    "span": 384,
+    "sourceOffset": [
+      -28,
+      108
+    ]
+  }
+}
