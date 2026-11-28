@@ -1,0 +1,55 @@
+{
+  "frames": [
+    660,
+    1978268625
+  ],
+  "guests": 320,
+  "monster_frames": [
+    3048,
+    2256447317
+  ],
+  "resident_route": {
+    "frames": 675,
+    "meta": {
+      "facings": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "inside": 103,
+      "exit": 2
+    },
+    "route_sha256": "5dd56dca02201050977ff88b6255b729998f53885f8de832fc209c0bd312bc64"
+  },
+  "viewports": [
+    1200,
+    390
+  ],
+  "legacy": {
+    "tree": 30,
+    "monsters": 60,
+    "staff": 60,
+    "placements": 444
+  },
+  "sha256": {
+    "game.html": "c017c63e099fb873515d44f8c21837216f519333badbfd48a23b96a10f296e71",
+    "citizen-walk-1.25.98.js": "8c629941c1a069b0a1f9cfb1859036c4550fe709f23d5279913c593891c91a61",
+    "launcher-game.html": "8d991c409bf9574545d46f7e8fc0c5f811b58761208495316557998e31b6d058"
+  },
+  "unpacked_launcher_sha256": "94aa29d636058b57ca42b230b6f66dbbfe1a8946cbb84147d1e463d783c8baec"
+}

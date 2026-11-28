@@ -1,0 +1,76 @@
+name: Package citizen and traveler walking 1.25.98
+on:
+  push:
+    branches: ['build/citizen-walk-12598']
+    paths: ['.github/workflows/package-citizen-walk-12598.yml']
+permissions:
+  contents: write
+jobs:
+  package:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /game.html
+            /latest.json
+            /archive.html
+            /PROGRESS.md
+            /tools/
+            /work/scene-camera-12581/
+            /work/town-motion-12596/
+            /work/citizen-walk-12598/
+            /releases/1.25.97/
+      - name: Restore the checked sprites and verify the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          W=work/citizen-walk-12598
+          D=releases/1.25.98
+          SOURCE=monster-biyori-1.25.97.zip
+          ZIP=monster-biyori-1.25.98.zip
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          python -c 'from PIL import Image' || python -m pip install Pillow
+          gh release download v1.25.97 --pattern "$SOURCE" --dir "$RUNNER_TEMP"
+          python - "$RUNNER_TEMP/$SOURCE" <<'PY'
+          import base64, hashlib, json, sys
+          from pathlib import Path
+          w = Path('work/citizen-walk-12598')
+          src = Path(sys.argv[1])
+          assert hashlib.sha256(src.read_bytes()).hexdigest() == 'f63de04c75f64df8d03eb07f0f1d146f695e47049c89b057b443a48a3e3fc8b1'
+          remaining = {p['slot'] for p in json.loads((w/'roster.json').read_text())} - {106}
+          for batch in sorted((w/'transport').glob('group-*.json')):
+              for slot, digest, payload in json.loads(batch.read_text()):
+                  remaining.remove(slot)
+                  png = base64.b64decode(payload, validate=True)
+                  assert hashlib.sha256(png).hexdigest() == digest
+                  (w/'sprites'/f'{slot:03}.png').write_bytes(png)
+          assert not remaining
+          PY
+          python "$W/build.py" "$RUNNER_TEMP/$SOURCE"
+          python tools/release_preflight.py --root .
+          python - <<'PY'
+          import hashlib, json, runpy
+          from pathlib import Path
+          d = Path('releases/1.25.98')
+          expected = json.loads(Path('work/citizen-walk-12598/verification.json').read_text())
+          for name in ('game.html','citizen-walk-1.25.98.js'):
+              assert hashlib.sha256((d/name).read_bytes()).hexdigest() == expected['sha256'][name]
+          codec = runpy.run_path('work/scene-camera-12581/build.py')
+          text = codec['unpack_launcher']((d/'launcher-game.html').read_text())
+          assert hashlib.sha256(text.encode()).hexdigest() == expected['unpacked_launcher_sha256']
+          PY
+          git rm --sparse -r "$W/transport"
+          cp "$W/PROGRESS.md" "$D/PROGRESS.md"
+          git add --sparse "$W/sprites" "$D"/*.html "$D"/*.js "$D"/*.md game.html latest.json archive.html
+          git commit -m 'Package all 55 town walkers for the web game, updater and offline ZIP'
+          git push origin HEAD:refs/heads/build/citizen-walk-12598
+          current=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)
+          test "$current" = '5e8df11af2b8a4261e20385e3e31196aab7dc132'
+          gh release create v1.25.98 "$D/$ZIP" --target "$(git rev-parse HEAD)" --title 'もんすたー日和 1.25.98' --notes-file "$W/CHANGELOG.md" --latest
+          gh release download v1.25.98 --pattern "$ZIP" --dir "$RUNNER_TEMP/downloaded-98"
+          cmp "$D/$ZIP" "$RUNNER_TEMP/downloaded-98/$ZIP"
