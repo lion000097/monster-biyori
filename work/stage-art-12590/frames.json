@@ -1,0 +1,2006 @@
+{
+  "musicMaker": [
+    {
+      "index": 0,
+      "direction": "下",
+      "file": "森の楽器工房/下.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 0,
+      "cropBounds": [
+        142,
+        158,
+        485,
+        451
+      ],
+      "paintingOffset": [
+        -5,
+        120
+      ],
+      "paintedWidth": 343,
+      "originalPixels": 39,
+      "groundPixels": 36864,
+      "sha256": "281d8230ece25c84379fc3836b9706e33796f8ad29940ada6bdd987624787aa9",
+      "rgbaSha256": "2bb650224065ab4f00bc54c3ec6384b0ae89faf8d1381fadda7f6646c3f037d4"
+    },
+    {
+      "index": 1,
+      "direction": "左",
+      "file": "森の楽器工房/左.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 1,
+      "cropBounds": [
+        142,
+        159,
+        485,
+        449
+      ],
+      "paintingOffset": [
+        -15,
+        122
+      ],
+      "paintedWidth": 343,
+      "originalPixels": 92,
+      "groundPixels": 36864,
+      "sha256": "cb39502dbd02094b429ce8e4712cb63a8bb66df12d06a893f5d889322c57ca08",
+      "rgbaSha256": "0cfa72b8e9c3db4ee3f28a7eba30156057ee4075b6e14d92a43c58ae312cc847"
+    },
+    {
+      "index": 2,
+      "direction": "上",
+      "file": "森の楽器工房/上.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 2,
+      "cropBounds": [
+        141,
+        158,
+        484,
+        450
+      ],
+      "paintingOffset": [
+        -9,
+        122
+      ],
+      "paintedWidth": 343,
+      "originalPixels": 52,
+      "groundPixels": 36864,
+      "sha256": "a340f5c51d2bec8766f62ce72939953e94a99efafbc340a0714945a9bb0f52bc",
+      "rgbaSha256": "3e5618ce93e9f1ee462aa3362ff7728b8c7201cd4077d560bab60ef932988bcf"
+    },
+    {
+      "index": 3,
+      "direction": "右",
+      "file": "森の楽器工房/右.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 3,
+      "cropBounds": [
+        142,
+        157,
+        486,
+        450
+      ],
+      "paintingOffset": [
+        -17,
+        121
+      ],
+      "paintedWidth": 344,
+      "originalPixels": 117,
+      "groundPixels": 36864,
+      "sha256": "94ab3cfd3dcb0f2e236855d85a2c470645a2481a318242266cc5e946c997c8cc",
+      "rgbaSha256": "3e2ead9daef5d3ff81aac4c07c3dfa188a7816bac4a578116e0763aca2069b05"
+    }
+  ],
+  "freight": [
+    {
+      "index": 0,
+      "direction": "下",
+      "file": "交易品の荷分け所/下.png",
+      "plot": [
+        3,
+        3
+      ],
+      "size": 768,
+      "anchor": [
+        384,
+        612
+      ],
+      "span": 576,
+      "diamond": [
+        [
+          384,
+          468
+        ],
+        [
+          672,
+          612
+        ],
+        [
+          384,
+          756
+        ],
+        [
+          96,
+          612
+        ]
+      ],
+      "sourceFace": 0,
+      "cropBounds": [
+        68,
+        94,
+        560,
+        507
+      ],
+      "paintingOffset": [
+        78,
+        220
+      ],
+      "paintedWidth": 492,
+      "originalPixels": 148,
+      "groundPixels": 82944,
+      "sha256": "9a1f83f771fb53e50c835f019d5cdd9f1534f30adb89b45aeb73c63b46baa271",
+      "rgbaSha256": "1da601dbf4f65cff460ecdd924552b61d5f045b89e4657b431b9188f393f7aa7"
+    },
+    {
+      "index": 1,
+      "direction": "左",
+      "file": "交易品の荷分け所/左.png",
+      "plot": [
+        3,
+        3
+      ],
+      "size": 768,
+      "anchor": [
+        384,
+        612
+      ],
+      "span": 576,
+      "diamond": [
+        [
+          384,
+          468
+        ],
+        [
+          672,
+          612
+        ],
+        [
+          384,
+          756
+        ],
+        [
+          96,
+          612
+        ]
+      ],
+      "sourceFace": 1,
+      "cropBounds": [
+        67,
+        94,
+        558,
+        507
+      ],
+      "paintingOffset": [
+        69,
+        220
+      ],
+      "paintedWidth": 491,
+      "originalPixels": 228,
+      "groundPixels": 82944,
+      "sha256": "23ee0be46d5395be20e2b2a4d162f97fb199567c9539890b0371856fcb7ad11d",
+      "rgbaSha256": "8c08fcdcc3262fa5e179b5f25483f5d8af7757948ac9031c4b267f9a01ea93b9"
+    },
+    {
+      "index": 2,
+      "direction": "上",
+      "file": "交易品の荷分け所/上.png",
+      "plot": [
+        3,
+        3
+      ],
+      "size": 768,
+      "anchor": [
+        384,
+        612
+      ],
+      "span": 576,
+      "diamond": [
+        [
+          384,
+          468
+        ],
+        [
+          672,
+          612
+        ],
+        [
+          384,
+          756
+        ],
+        [
+          96,
+          612
+        ]
+      ],
+      "sourceFace": 2,
+      "cropBounds": [
+        68,
+        94,
+        560,
+        508
+      ],
+      "paintingOffset": [
+        78,
+        219
+      ],
+      "paintedWidth": 492,
+      "originalPixels": 158,
+      "groundPixels": 82944,
+      "sha256": "3ad91d40c0c9e071fbbe89af1854100c3a59974426123fa275bf02e03218a03e",
+      "rgbaSha256": "d9e502d830e8d4ed796a6bd4adeffb7189db06039407abfb9f9d48a3cc099262"
+    },
+    {
+      "index": 3,
+      "direction": "右",
+      "file": "交易品の荷分け所/右.png",
+      "plot": [
+        3,
+        3
+      ],
+      "size": 768,
+      "anchor": [
+        384,
+        612
+      ],
+      "span": 576,
+      "diamond": [
+        [
+          384,
+          468
+        ],
+        [
+          672,
+          612
+        ],
+        [
+          384,
+          756
+        ],
+        [
+          96,
+          612
+        ]
+      ],
+      "sourceFace": 3,
+      "cropBounds": [
+        67,
+        94,
+        559,
+        507
+      ],
+      "paintingOffset": [
+        66,
+        219
+      ],
+      "paintedWidth": 492,
+      "originalPixels": 88,
+      "groundPixels": 82944,
+      "sha256": "2d557b39b629f2be9f8ae1103c24bb3ee93b80291105db7b92514e58bfc067d3",
+      "rgbaSha256": "3f852e93848abe780c8e2c9de448a2866255d2bae2ae3d93badc76b88a14efa8"
+    }
+  ],
+  "rugShop": [
+    {
+      "index": 0,
+      "direction": "下",
+      "file": "異国の敷物屋/下.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 0,
+      "cropBounds": [
+        147,
+        180,
+        479,
+        463
+      ],
+      "paintingOffset": [
+        -12,
+        106
+      ],
+      "paintedWidth": 332,
+      "originalPixels": 58,
+      "groundPixels": 36864,
+      "sha256": "7c0f4b54a7cebd74c82adc7a23e016d37e4901d8415aabcf65b9364e3be00136",
+      "rgbaSha256": "8a2b72cef9710697a9be35e826dce5d27f1edbefbdcc20002376742141edaa96"
+    },
+    {
+      "index": 1,
+      "direction": "左",
+      "file": "異国の敷物屋/左.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 1,
+      "cropBounds": [
+        147,
+        180,
+        479,
+        463
+      ],
+      "paintingOffset": [
+        -13,
+        106
+      ],
+      "paintedWidth": 332,
+      "originalPixels": 17,
+      "groundPixels": 36864,
+      "sha256": "8c8329feaab24b1c6a5f30021ccac5fff7ac5f114615bc60124f1703de3ed4bd",
+      "rgbaSha256": "0ec6070ef030f1cce60f8f4fe69ea6d8e8a3aff28a7e0056af72bf4d905ceaa6"
+    },
+    {
+      "index": 2,
+      "direction": "上",
+      "file": "異国の敷物屋/上.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 2,
+      "cropBounds": [
+        147,
+        180,
+        479,
+        463
+      ],
+      "paintingOffset": [
+        -13,
+        106
+      ],
+      "paintedWidth": 332,
+      "originalPixels": 70,
+      "groundPixels": 36864,
+      "sha256": "c9935cc4cc8da6dfd21b12586cc8b8db07ddcf5f0676eb50758f825423f53283",
+      "rgbaSha256": "9069392505803ed23e41a08215d78189e5107244dddcddf4b3e4f4f669e916f3"
+    },
+    {
+      "index": 3,
+      "direction": "右",
+      "file": "異国の敷物屋/右.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 3,
+      "cropBounds": [
+        147,
+        180,
+        479,
+        463
+      ],
+      "paintingOffset": [
+        -14,
+        106
+      ],
+      "paintedWidth": 332,
+      "originalPixels": 21,
+      "groundPixels": 36864,
+      "sha256": "7505d4f19e76c8ec71189f35c17c637ef8ee310e2355ec2f82d780296e0e9064",
+      "rgbaSha256": "0fbf5dcbcfb3dae2a313327f546d85e6eb47bf7cb0ac4c569ad8c710df5ca177"
+    }
+  ],
+  "fishKeeper": [
+    {
+      "index": 0,
+      "direction": "下",
+      "file": "水辺の飼育小屋/下.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 0,
+      "cropBounds": [
+        137,
+        118,
+        488,
+        478
+      ],
+      "paintingOffset": [
+        -5,
+        91
+      ],
+      "paintedWidth": 351,
+      "originalPixels": 63,
+      "groundPixels": 36864,
+      "sha256": "0b097976c0abf8c2c2851fb076de3147cb1434f2148d3620dbf1fce64ea7fa6f",
+      "rgbaSha256": "11dce9f28229aa20f1320f2e3f83e09c05afc13cd447f51c9eef93fa94f61078"
+    },
+    {
+      "index": 1,
+      "direction": "左",
+      "file": "水辺の飼育小屋/左.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 1,
+      "cropBounds": [
+        138,
+        118,
+        490,
+        478
+      ],
+      "paintingOffset": [
+        -15,
+        92
+      ],
+      "paintedWidth": 352,
+      "originalPixels": 140,
+      "groundPixels": 36864,
+      "sha256": "4e40545a410964c21ffb0896aeb59994cf87338b7f6902469fa049d66a6e1650",
+      "rgbaSha256": "e8c0225333e5d40c19e36d9b42f2ecba18caad6523273564f224fed5a6dac3e2"
+    },
+    {
+      "index": 2,
+      "direction": "上",
+      "file": "水辺の飼育小屋/上.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 2,
+      "cropBounds": [
+        137,
+        94,
+        495,
+        464
+      ],
+      "paintingOffset": [
+        -12,
+        110
+      ],
+      "paintedWidth": 358,
+      "originalPixels": 50,
+      "groundPixels": 36864,
+      "sha256": "9a56345f1797cc518672a99ae4a4fd616e27f52aa822a1dec825cad48ece10f7",
+      "rgbaSha256": "7ab1d79da163c72bb47c14d7ffb0932ceefd27c08359cfd53b86e4536fc2df5c"
+    },
+    {
+      "index": 3,
+      "direction": "右",
+      "file": "水辺の飼育小屋/右.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 3,
+      "cropBounds": [
+        136,
+        94,
+        490,
+        464
+      ],
+      "paintingOffset": [
+        -15,
+        105
+      ],
+      "paintedWidth": 354,
+      "originalPixels": 56,
+      "groundPixels": 36864,
+      "sha256": "bac5ecebf6a522279e49a54988be183d42eb55e94f1f453bd5ea7076163b87e8",
+      "rgbaSha256": "a9819d75ca3aa389ff73d847f50d24a8e71d4490219912aede4df64ce23f4f7c"
+    }
+  ],
+  "maskStall": [
+    {
+      "index": 0,
+      "direction": "下",
+      "file": "お面づくりの屋台/下.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 0,
+      "cropBounds": [
+        143,
+        151,
+        480,
+        469
+      ],
+      "paintingOffset": [
+        -8,
+        99
+      ],
+      "paintedWidth": 337,
+      "originalPixels": 5,
+      "groundPixels": 36864,
+      "sha256": "a06eceb7a88fb77b0f156f4382f844dc02313f8ee0e05aa07d3b7c5d366a7f50",
+      "rgbaSha256": "5f08fc0cb8fe1cc48b487527e4c5cc171cc376b943c01785727fe02e1c22a0ca"
+    },
+    {
+      "index": 1,
+      "direction": "左",
+      "file": "お面づくりの屋台/左.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 1,
+      "cropBounds": [
+        144,
+        151,
+        484,
+        469
+      ],
+      "paintingOffset": [
+        -17,
+        100
+      ],
+      "paintedWidth": 340,
+      "originalPixels": 10,
+      "groundPixels": 36864,
+      "sha256": "1c78deca415d26e00b90a8bf8e2d52ac7d6bbd4c9210abc4f33a74a3d827207c",
+      "rgbaSha256": "e2a68595faeefff32333c244f6c50d387f916c5a603951bb79cc739039112c18"
+    },
+    {
+      "index": 2,
+      "direction": "上",
+      "file": "お面づくりの屋台/上.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 2,
+      "cropBounds": [
+        143,
+        152,
+        485,
+        474
+      ],
+      "paintingOffset": [
+        -11,
+        97
+      ],
+      "paintedWidth": 342,
+      "originalPixels": 15,
+      "groundPixels": 36864,
+      "sha256": "88058fc56d1d83567bef03ed6bf33fa1559fc1bfc2b16e2315abc546799904ac",
+      "rgbaSha256": "fce6def96cd3bde25f7f36a956d97d9cd6968a4f2838e30669351f2303f45d28"
+    },
+    {
+      "index": 3,
+      "direction": "右",
+      "file": "お面づくりの屋台/右.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 3,
+      "cropBounds": [
+        144,
+        152,
+        484,
+        474
+      ],
+      "paintingOffset": [
+        -16,
+        95
+      ],
+      "paintedWidth": 340,
+      "originalPixels": 6,
+      "groundPixels": 36864,
+      "sha256": "64d6c07fca84a2abc9430a548a9197c9e0b86ff68f8d3bf6f4e4f71cd00ad703",
+      "rgbaSha256": "80a3d36d2b1823b8385e97c79034df0918160bfaa3d6ad8ae08650857d44ed3a"
+    }
+  ],
+  "costumes": [
+    {
+      "index": 0,
+      "direction": "下",
+      "file": "舞台衣装の仕立屋/下.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 0,
+      "cropBounds": [
+        142,
+        98,
+        480,
+        472
+      ],
+      "paintingOffset": [
+        -3,
+        91
+      ],
+      "paintedWidth": 338,
+      "originalPixels": 59,
+      "groundPixels": 36864,
+      "sha256": "ac9099241252eb9b64d499b98f0b940a0806e046093aef998fb2b0983936d863",
+      "rgbaSha256": "7046b5d26ea1849490dc20350897a158f413bfd803cb66e86e17d99209ab6ea5"
+    },
+    {
+      "index": 1,
+      "direction": "左",
+      "file": "舞台衣装の仕立屋/左.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 1,
+      "cropBounds": [
+        147,
+        98,
+        485,
+        473
+      ],
+      "paintingOffset": [
+        -14,
+        96
+      ],
+      "paintedWidth": 338,
+      "originalPixels": 37,
+      "groundPixels": 36864,
+      "sha256": "64e3a34d26fb5d473c6d15782ec2c0dd4fb9dfa5974c3bf16481f59ebe263164",
+      "rgbaSha256": "f23e8cf0a55f05e9333a79201443d36abb22b340affdf6aa230965d7dedcb77a"
+    },
+    {
+      "index": 2,
+      "direction": "上",
+      "file": "舞台衣装の仕立屋/上.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 2,
+      "cropBounds": [
+        143,
+        99,
+        480,
+        472
+      ],
+      "paintingOffset": [
+        -12,
+        96
+      ],
+      "paintedWidth": 337,
+      "originalPixels": 58,
+      "groundPixels": 36864,
+      "sha256": "d401c9aa1a1b69bc9cb4efa65a55154cdd88f1b1aeac92abf55f953383283151",
+      "rgbaSha256": "88c20a2445a7087f697f0eac910eba668f8347581907d5f654bfca23739923b4"
+    },
+    {
+      "index": 3,
+      "direction": "右",
+      "file": "舞台衣装の仕立屋/右.png",
+      "plot": [
+        2,
+        2
+      ],
+      "size": 600,
+      "anchor": [
+        300,
+        492
+      ],
+      "span": 384,
+      "diamond": [
+        [
+          300,
+          396
+        ],
+        [
+          492,
+          492
+        ],
+        [
+          300,
+          588
+        ],
+        [
+          108,
+          492
+        ]
+      ],
+      "sourceFace": 3,
+      "cropBounds": [
+        147,
+        98,
+        485,
+        473
+      ],
+      "paintingOffset": [
+        -23,
+        91
+      ],
+      "paintedWidth": 338,
+      "originalPixels": 36,
+      "groundPixels": 36864,
+      "sha256": "2f1837a46d77c06940f23041143a951af5753b4fdc37e57b4b927fe2d1fc2a4f",
+      "rgbaSha256": "578859da03415ed4d8e75e0916b6796d204e59a0b83dbb01b03afc04b30f20fc"
+    }
+  ],
+  "backStage": [
+    {
+      "index": 0,
+      "direction": "下",
+      "file": "舞台裏の楽屋/下.png",
+      "plot": [
+        3,
+        3
+      ],
+      "size": 768,
+      "anchor": [
+        384,
+        612
+      ],
+      "span": 576,
+      "diamond": [
+        [
+          384,
+          468
+        ],
+        [
+          672,
+          612
+        ],
+        [
+          384,
+          756
+        ],
+        [
+          96,
+          612
+        ]
+      ],
+      "sourceFace": 0,
+      "cropBounds": [
+        69,
+        74,
+        558,
+        523
+      ],
+      "paintingOffset": [
+        73,
+        199
+      ],
+      "paintedWidth": 489,
+      "originalPixels": 142,
+      "groundPixels": 82944,
+      "sha256": "f61695c46c02c24c2887b606b4db806d2cdc0b71207cc87ae44e7554c83a6206",
+      "rgbaSha256": "3f5fc89c891d6fd05aae164c5a43ebf08e82b1ab9579d4c9d4a8f48918bfde93"
+    },
+    {
+      "index": 1,
+      "direction": "左",
+      "file": "舞台裏の楽屋/左.png",
+      "plot": [
+        3,
+        3
+      ],
+      "size": 768,
+      "anchor": [
+        384,
+        612
+      ],
+      "span": 576,
+      "diamond": [
+        [
+          384,
+          468
+        ],
+        [
+          672,
+          612
+        ],
+        [
+          384,
+          756
+        ],
+        [
+          96,
+          612
+        ]
+      ],
+      "sourceFace": 1,
+      "cropBounds": [
+        69,
+        74,
+        559,
+        522
+      ],
+      "paintingOffset": [
+        70,
+        199
+      ],
+      "paintedWidth": 490,
+      "originalPixels": 151,
+      "groundPixels": 82944,
+      "sha256": "35b49d19c399520ef65a177530f05566fd78c652dd64826fdd1e2664a2c04af1",
+      "rgbaSha256": "c30985376169934aeae7110557fabc42831f0c393fcc48bf223bdadb582bd692"
+    },
+    {
+      "index": 2,
+      "direction": "上",
+      "file": "舞台裏の楽屋/上.png",
+      "plot": [
+        3,
+        3
+      ],
+      "size": 768,
+      "anchor": [
+        384,
+        612
+      ],
+      "span": 576,
+      "diamond": [
+        [
+          384,
+          468
+        ],
+        [
+          672,
+          612
+        ],
+        [
+          384,
+          756
+        ],
+        [
+          96,
+          612
+        ]
+      ],
+      "sourceFace": 2,
+      "cropBounds": [
+        70,
+        74,
+        559,
+        522
+      ],
+      "paintingOffset": [
+        71,
+        199
+      ],
+      "paintedWidth": 489,
+      "originalPixels": 141,
+      "groundPixels": 82944,
+      "sha256": "6d479ef1c61b16070d3bf472c2067432b8f20166dc6ce212f64b2c9686692a90",
+      "rgbaSha256": "c08d2ff77b5fab793794aff07bbca2922a888099769286cda754eeee30cf0ccb"
+    },
+    {
+      "index": 3,
+      "direction": "右",
+      "file": "舞台裏の楽屋/右.png",
+      "plot": [
+        3,
+        3
+      ],
+      "size": 768,
+      "anchor": [
+        384,
+        612
+      ],
+      "span": 576,
+      "diamond": [
+        [
+          384,
+          468
+        ],
+        [
+          672,
+          612
+        ],
+        [
+          384,
+          756
+        ],
+        [
+          96,
+          612
+        ]
+      ],
+      "sourceFace": 3,
+      "cropBounds": [
+        68,
+        73,
+        558,
+        522
+      ],
+      "paintingOffset": [
+        70,
+        199
+      ],
+      "paintedWidth": 490,
+      "originalPixels": 101,
+      "groundPixels": 82944,
+      "sha256": "22fbc786616b324cbadf6fe64e164faa7596bb8e1ed517aa6afb524868f62bd4",
+      "rgbaSha256": "6cf2f17c83953efbd55ce76e869cc379d4329b1857fbdb50a37dbc7438745157"
+    }
+  ],
+  "starTerrace": [
+    {
+      "index": 0,
+      "direction": "下",
+      "file": "星空のテラス席/下.png",
+      "plot": [
+        3,
+        3
+      ],
+      "size": 768,
+      "anchor": [
+        384,
+        612
+      ],
+      "span": 576,
+      "diamond": [
+        [
+          384,
+          468
+        ],
+        [
+          672,
+          612
+        ],
+        [
+          384,
+          756
+        ],
+        [
+          96,
+          612
+        ]
+      ],
+      "sourceFace": 0,
+      "paintedWidth": 576,
+      "groundPixels": 82944,
+      "visiblePixels": 116679,
+      "groundMaterial": "full-bleed timber",
+      "cornerFeet": [
+        {
+          "groundCorner": [
+            384,
+            468
+          ],
+          "footprint": [
+            [
+              384,
+              468
+            ],
+            [
+              402,
+              477
+            ],
+            [
+              384,
+              486
+            ],
+            [
+              366,
+              477
+            ]
+          ]
+        },
+        {
+          "groundCorner": [
+            672,
+            612
+          ],
+          "footprint": [
+            [
+              654,
+              603
+            ],
+            [
+              672,
+              612
+            ],
+            [
+              654,
+              621
+            ],
+            [
+              636,
+              612
+            ]
+          ]
+        },
+        {
+          "groundCorner": [
+            384,
+            756
+          ],
+          "footprint": [
+            [
+              384,
+              738
+            ],
+            [
+              402,
+              747
+            ],
+            [
+              384,
+              756
+            ],
+            [
+              366,
+              747
+            ]
+          ]
+        },
+        {
+          "groundCorner": [
+            96,
+            612
+          ],
+          "footprint": [
+            [
+              114,
+              603
+            ],
+            [
+              132,
+              612
+            ],
+            [
+              114,
+              621
+            ],
+            [
+              96,
+              612
+            ]
+          ]
+        }
+      ],
+      "entrance": {
+        "edge": [
+          [
+            186,
+            657
+          ],
+          [
+            294,
+            711
+          ]
+        ],
+        "centre": [
+          240,
+          684
+        ]
+      },
+      "sha256": "040a07968fb9006f659a4c27732226fe344078d19ef0ce4b11875fc6e03ec4fd",
+      "rgbaSha256": "dc8a177009a0b3bf07bc87ea1dd1db07be679a399e59c4a80a84ecbec2faa5a3"
+    },
+    {
+      "index": 1,
+      "direction": "左",
+      "file": "星空のテラス席/左.png",
+      "plot": [
+        3,
+        3
+      ],
+      "size": 768,
+      "anchor": [
+        384,
+        612
+      ],
+      "span": 576,
+      "diamond": [
+        [
+          384,
+          468
+        ],
+        [
+          672,
+          612
+        ],
+        [
+          384,
+          756
+        ],
+        [
+          96,
+          612
+        ]
+      ],
+      "sourceFace": 1,
+      "paintedWidth": 576,
+      "groundPixels": 82944,
+      "visiblePixels": 113023,
+      "groundMaterial": "full-bleed timber",
+      "cornerFeet": [
+        {
+          "groundCorner": [
+            672,
+            612
+          ],
+          "footprint": [
+            [
+              672,
+              612
+            ],
+            [
+              654,
+              621
+            ],
+            [
+              636,
+              612
+            ],
+            [
+              654,
+              603
+            ]
+          ]
+        },
+        {
+          "groundCorner": [
+            384,
+            756
+          ],
+          "footprint": [
+            [
+              402,
+              747
+            ],
+            [
+              384,
+              756
+            ],
+            [
+              366,
+              747
+            ],
+            [
+              384,
+              738
+            ]
+          ]
+        },
+        {
+          "groundCorner": [
+            96,
+            612
+          ],
+          "footprint": [
+            [
+              132,
+              612
+            ],
+            [
+              114,
+              621
+            ],
+            [
+              96,
+              612
+            ],
+            [
+              114,
+              603
+            ]
+          ]
+        },
+        {
+          "groundCorner": [
+            384,
+            468
+          ],
+          "footprint": [
+            [
+              402,
+              477
+            ],
+            [
+              384,
+              486
+            ],
+            [
+              366,
+              477
+            ],
+            [
+              384,
+              468
+            ]
+          ]
+        }
+      ],
+      "entrance": {
+        "edge": [
+          [
+            294,
+            513
+          ],
+          [
+            186,
+            567
+          ]
+        ],
+        "centre": [
+          240,
+          540
+        ]
+      },
+      "sha256": "1748eac139d2c600a76bba95417ad08b4f8161e09c4f50abfc5450134ed3fc62",
+      "rgbaSha256": "0b0ed2bb4ff235cf2fbdce56bfb57287a7ad21f408f34a0ac4c27a893c61b573"
+    },
+    {
+      "index": 2,
+      "direction": "上",
+      "file": "星空のテラス席/上.png",
+      "plot": [
+        3,
+        3
+      ],
+      "size": 768,
+      "anchor": [
+        384,
+        612
+      ],
+      "span": 576,
+      "diamond": [
+        [
+          384,
+          468
+        ],
+        [
+          672,
+          612
+        ],
+        [
+          384,
+          756
+        ],
+        [
+          96,
+          612
+        ]
+      ],
+      "sourceFace": 2,
+      "paintedWidth": 576,
+      "groundPixels": 82944,
+      "visiblePixels": 109288,
+      "groundMaterial": "full-bleed timber",
+      "cornerFeet": [
+        {
+          "groundCorner": [
+            384,
+            756
+          ],
+          "footprint": [
+            [
+              384,
+              756
+            ],
+            [
+              366,
+              747
+            ],
+            [
+              384,
+              738
+            ],
+            [
+              402,
+              747
+            ]
+          ]
+        },
+        {
+          "groundCorner": [
+            96,
+            612
+          ],
+          "footprint": [
+            [
+              114,
+              621
+            ],
+            [
+              96,
+              612
+            ],
+            [
+              114,
+              603
+            ],
+            [
+              132,
+              612
+            ]
+          ]
+        },
+        {
+          "groundCorner": [
+            384,
+            468
+          ],
+          "footprint": [
+            [
+              384,
+              486
+            ],
+            [
+              366,
+              477
+            ],
+            [
+              384,
+              468
+            ],
+            [
+              402,
+              477
+            ]
+          ]
+        },
+        {
+          "groundCorner": [
+            672,
+            612
+          ],
+          "footprint": [
+            [
+              654,
+              621
+            ],
+            [
+              636,
+              612
+            ],
+            [
+              654,
+              603
+            ],
+            [
+              672,
+              612
+            ]
+          ]
+        }
+      ],
+      "entrance": {
+        "edge": [
+          [
+            582,
+            567
+          ],
+          [
+            474,
+            513
+          ]
+        ],
+        "centre": [
+          528,
+          540
+        ]
+      },
+      "sha256": "60de1aa8d907839580e99e8744ed8fecdebfaa8e0876260c24c9608bacd39039",
+      "rgbaSha256": "6d72999933949e19e2292963b61ac47ba9d109822231404df61f502e02192d25"
+    },
+    {
+      "index": 3,
+      "direction": "右",
+      "file": "星空のテラス席/右.png",
+      "plot": [
+        3,
+        3
+      ],
+      "size": 768,
+      "anchor": [
+        384,
+        612
+      ],
+      "span": 576,
+      "diamond": [
+        [
+          384,
+          468
+        ],
+        [
+          672,
+          612
+        ],
+        [
+          384,
+          756
+        ],
+        [
+          96,
+          612
+        ]
+      ],
+      "sourceFace": 3,
+      "paintedWidth": 576,
+      "groundPixels": 82944,
+      "visiblePixels": 113615,
+      "groundMaterial": "full-bleed timber",
+      "cornerFeet": [
+        {
+          "groundCorner": [
+            96,
+            612
+          ],
+          "footprint": [
+            [
+              96,
+              612
+            ],
+            [
+              114,
+              603
+            ],
+            [
+              132,
+              612
+            ],
+            [
+              114,
+              621
+            ]
+          ]
+        },
+        {
+          "groundCorner": [
+            384,
+            468
+          ],
+          "footprint": [
+            [
+              366,
+              477
+            ],
+            [
+              384,
+              468
+            ],
+            [
+              402,
+              477
+            ],
+            [
+              384,
+              486
+            ]
+          ]
+        },
+        {
+          "groundCorner": [
+            672,
+            612
+          ],
+          "footprint": [
+            [
+              636,
+              612
+            ],
+            [
+              654,
+              603
+            ],
+            [
+              672,
+              612
+            ],
+            [
+              654,
+              621
+            ]
+          ]
+        },
+        {
+          "groundCorner": [
+            384,
+            756
+          ],
+          "footprint": [
+            [
+              366,
+              747
+            ],
+            [
+              384,
+              738
+            ],
+            [
+              402,
+              747
+            ],
+            [
+              384,
+              756
+            ]
+          ]
+        }
+      ],
+      "entrance": {
+        "edge": [
+          [
+            474,
+            711
+          ],
+          [
+            582,
+            657
+          ]
+        ],
+        "centre": [
+          528,
+          684
+        ]
+      },
+      "sha256": "6c2062b510893f78feed9e2cf3c987d49c473cbe903e6644abff3f7488357dc0",
+      "rgbaSha256": "ddc72eb15695f7eef690617588d2b2ed1d384e1d51a0fbb3fe1896afd636826b"
+    }
+  ]
+}

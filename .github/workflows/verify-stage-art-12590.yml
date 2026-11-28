@@ -1,0 +1,61 @@
+name: Verify and package the approved eight buildings
+on:
+  push:
+    branches: ['build/stage-art-1.25.90']
+permissions:
+  contents: write
+jobs:
+  verify:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /archive.html
+            /latest.json
+            /game.html
+            /tools/
+            /assets/town-axis/painted/
+            /assets/town-axis/painted-details.json
+            /work/scene-camera-12581/build.py
+            /work/stage-art-12590/
+            /releases/1.25.89/
+            /releases/1.25.90/
+      - name: Rebuild and compare the approved game, automatic update and distribution
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: |
+          set -eu
+          python3 work/stage-art-12590/build.py web
+          python3 work/stage-art-12590/build.py package
+          python3 tools/release_preflight.py --root .
+          echo '9817c3ead372d9bf9ba14315cd24e2c20694f5e82a5f76d41c1894735a115134  game.html' | sha256sum -c -
+          echo 'dfc94527b64f863dd94c4d52aba9038f6ccf21f0faeec0108bace50971365ba2  releases/1.25.90/launcher-game.html' | sha256sum -c -
+          echo 'd0e7062ddc0c270afd6062ca1d502d018ddd97d6d3ed8aedb1893b9853bb5147  releases/1.25.90/stage-art-1.25.90.js' | sha256sum -c -
+          python3 - <<'PYCODE'
+          import hashlib,runpy
+          from zipfile import ZipFile
+          build=runpy.run_path('work/stage-art-12590/build.py')
+          codec=build['codec']()
+          previous=codec.unpack_launcher((build['source']/'launcher-game.html').read_text())
+          current=codec.unpack_launcher((build['release']/'launcher-game.html').read_text())
+          assert current==build['page'](previous,True)
+          digest=hashlib.sha256()
+          with ZipFile(build['release']/'monster-biyori-1.25.90.zip') as z:
+              assert len(z.namelist())==len(set(z.namelist()))==480
+              assert z.read(build['companion'])==build['make_companion']()
+              for name in sorted(z.namelist()):
+                  digest.update(name.encode()+b'\0'+hashlib.sha256(z.read(name)).digest())
+          assert digest.hexdigest()=='690f5de1557cdb38aa26a6eca6b30de6441bc2f49d047aa7a2c301544b338309'
+          PYCODE
+      - name: Save the verified files to the build branch
+        run: |
+          set -eu
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --sparse game.html archive.html latest.json releases/1.25.90/game.html releases/1.25.90/stage-art-1.25.90.js releases/1.25.90/monster-biyori-1.25.90.zip
+          git commit -m 'Package the verified 1.25.90 game and offline building artwork'
+          git push origin HEAD:refs/heads/build/stage-art-1.25.90
