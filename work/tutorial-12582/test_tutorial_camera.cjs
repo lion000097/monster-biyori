@@ -55,14 +55,19 @@ const server=http.createServer((req,res)=>{
    async function guidedMap(touchPlacement=false){
      await p.locator('#ranchGuideLocate').click();
      if(mobile&&touchPlacement){
-       await p.waitForFunction(()=>window.__guideTile?.u>0&&window.__guideTile?.u<1&&window.__guideTile?.v>0&&window.__guideTile?.v<1);
-       const pos=await p.evaluate(()=>{
-         const r=document.querySelector('#game').getBoundingClientRect();
-         return {x:r.left+r.width*window.__guideTile.u,y:r.top+r.height*window.__guideTile.v};
-       });
-       assert.equal(await p.evaluate(({x,y})=>document.elementFromPoint(x,y)?.id,pos),'game');
-       await p.touchscreen.tap(pos.x,pos.y);
-       await p.touchscreen.tap(pos.x,pos.y);
+       // Locate starts a 320 ms camera motion. Read the newly rendered marker
+       // after the movement, not a still-valid coordinate for the previous building.
+       await p.waitForTimeout(500);
+       for(let tap=0;tap<2;tap++){
+         await p.waitForFunction(()=>window.__guideTile?.u>0&&window.__guideTile?.u<1&&window.__guideTile?.v>0&&window.__guideTile?.v<1);
+         const pos=await p.evaluate(()=>{
+           const r=document.querySelector('#game').getBoundingClientRect();
+           return {x:r.left+r.width*window.__guideTile.u,y:r.top+r.height*window.__guideTile.v};
+         });
+         assert.equal(await p.evaluate(({x,y})=>document.elementFromPoint(x,y)?.id,pos),'game');
+         await p.touchscreen.tap(pos.x,pos.y);
+         if(tap===0)await p.waitForTimeout(100);
+       }
      }else await p.keyboard.press('Enter');
    }
    await p.locator('#ranchGuideDialog[open]').waitFor();
