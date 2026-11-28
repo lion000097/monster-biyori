@@ -78,6 +78,8 @@ def launcher_banks(source, digest, monster_hash):
   const prefix = 'globalThis.' + key + '=';
   const official = 'https://lion000097.github.io/monster-biyori/releases/' + version + '/' + filename;
 """ + shared[start:]
+    # Browser drawing adds canvases to installed assets. Keep the cached data cloneable.
+    shared = once(shared, 'townMotionSpecies.set(id, asset);', 'townMotionSpecies.set(id, {...asset});')
     shared = once(shared, 'const bank = globalThis.MBTownMotion96;\n        delete globalThis.MBTownMotion96;',
                   'const bank = globalThis[key];\n        delete globalThis[key];')
     shared = once(shared, '})().catch(() => {});', '''}
