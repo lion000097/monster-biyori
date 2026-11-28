@@ -1,6 +1,7 @@
 const {chromium}=require('/opt/codex/cua_node/lib/node_modules/playwright');
 const fs=require('fs'),path=require('path'),assert=require('node:assert/strict');
 const root=process.argv[2]||path.join(__dirname,'out');
+const compact=process.argv.includes('--compact');
 const hook='claimSave12556();\nconst didLoad=';
 const tests=`window.testEmotions97=()=>{
  const check=(ok,k)=>{if(!ok)throw Error(k)};
@@ -35,17 +36,28 @@ const tests=`window.testEmotions97=()=>{
   check(JSON.stringify(state)===prior,'heart changes no save state');
  }finally{snackPairValid126=s;snackShare126=null}
  state=old;check(JSON.stringify(state)===before,'existing save unchanged');
- check((!townMotionAssets97Dummy()),'dummy');
  return {version:GAME_APP_VERSION,species:SPECIES.length,feelings:Object.keys(townFeelingPixels97)};
-};`.replace(" check((!townMotionAssets97Dummy()),'dummy');\n","");
+};`;
 (async()=>{
- const html=fs.readFileSync(path.join(root,'game.html'),'utf8');
- assert.equal(html.split(hook).length,2);
+ const html=fs.readFileSync(path.join(root,compact?'launcher-game.html':'game.html'),'utf8');
+ if(!compact)assert.equal(html.split(hook).length,2);
  const b=await chromium.launch({executablePath:path.resolve('mb-73-save/chromium'),args:['--no-sandbox','--disable-dev-shm-usage']});
  try{for(const viewport of [{width:1200,height:900},{width:390,height:844}]){
   const p=await b.newPage({viewport}); const errs=[];p.on('pageerror',e=>errs.push(e.message));
   let url='https://lion000097.github.io/monster-biyori/game.html?v=1.25.97';
-  await p.route('**/*',r=>r.request().url()===url?r.fulfill({contentType:'text/html; charset=utf-8',body:html.replace(hook,()=>tests+hook)}):r.abort());
+  if(compact)await p.addInitScript(([anchor,qa])=>{
+   const original=Document.prototype.write;
+   Document.prototype.write=function(...args){
+    if(typeof args[0]==='string')args[0]=args[0].replace(anchor,()=>qa+anchor);
+    return original.apply(this,args);
+   };
+  },[hook,tests]);
+  await p.route('**/*',r=>{
+   if(r.request().url()===url)return r.fulfill({contentType:'text/html; charset=utf-8',body:compact?html:html.replace(hook,()=>tests+hook)});
+   const f=new URL(r.request().url()).pathname.split('/').at(-1);
+   if(compact&&['town-motion-1.25.96.js','stage-art-1.25.90.js'].includes(f))return r.fulfill({contentType:'application/javascript',path:path.join(root,f)});
+   return r.abort();
+  });
   await p.goto(url);await p.waitForFunction(()=>typeof window.testEmotions97==='function',null,{timeout:15000});
   const out=await p.evaluate(()=>window.testEmotions97());
   assert.equal(out.version,'1.25.97');assert.equal(out.species,127);assert.deepEqual(out.feelings,['joy','fond','startle']);

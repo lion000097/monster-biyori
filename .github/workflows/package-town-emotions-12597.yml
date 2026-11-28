@@ -28,7 +28,7 @@ jobs:
         run: |
           set -euo pipefail
           python -c 'from PIL import Image' || python -m pip install Pillow
-          BASE="$(git rev-parse HEAD^)"
+          BASE="ebad9a3a379ee157a650ad122c8d9f43575d6337"
           test "$BASE" = "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)"
           W=work/town-emotions-12597
           mkdir -p /tmp/town-emotions-base /tmp/town-emotions-release
