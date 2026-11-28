@@ -51,6 +51,22 @@ function nativeView(art,s,f){
 }
 const illustratedCache=new Map();
 return function draw(type,facing,phase=0,site=null){
+  if(axisSprites.has(type)){
+    const face=validFacing(facing),item=exhibition(type,site);
+    const base=axisSprite(type,face,phase,item);
+    if(type!=='starChart'||!Number.isInteger(item.picture)||(face!==0&&face!==3))return base;
+    const key='recorded-chart/'+face,cached=illustratedCache.get(key);
+    if(cached?.item===item.key)return cached.canvas;
+    const canvas=townCanvas(base.width),ctx=canvas.getContext('2d');
+    ctx.drawImage(base,0,0);
+    // Map the existing ten-by-seven constellation onto the face of the scroll.
+    // Both editions use the same 320-unit frame, at their own texture density.
+    const sheet=face===0?[3.0,1.0,-1.0,1.35,79,223]:[3.0,-1.0,1.0,1.35,160,242];
+    ctx.save();ctx.scale(base.width/320,base.height/320);ctx.transform(...sheet);
+    const chartX=face===0?48:31;
+    illustrateActivity(type,face,0,item,[-chartX,-74,101,101],ctx,base,null);
+    ctx.restore();illustratedCache.set(key,{item:item.key,canvas});return canvas;
+  }
   const art=townIllustrations.get(type),s=villageAdditions75[type],f=validFacing(facing);
   if(!art)return previousTownSprite(type,1,f);
   const variation=movingDesigns.has(type)?phase:0,item=exhibition(type,site);
