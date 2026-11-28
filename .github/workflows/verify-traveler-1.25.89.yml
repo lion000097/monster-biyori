@@ -1,0 +1,62 @@
+name: Verify and package the approved traveler foundations
+on:
+  push:
+    branches: ['build/traveler-foundations-1.25.89']
+permissions:
+  contents: write
+jobs:
+  verify:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /archive.html
+            /latest.json
+            /game.html
+            /tools/
+            /assets/town-axis/painted/
+            /assets/town-axis/painted-details.json
+            /assets/town-atelier/illustrated-town.js
+            /work/scene-camera-12581/build.py
+            /work/building-review-12586/build.py
+            /work/traveler-art-12588/registered-lots.js
+            /work/traveler-art-12589/
+            /releases/1.25.88/
+            /releases/1.25.89/
+      - name: Rebuild and compare both editions and the distribution
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: |
+          set -eu
+          python3 work/traveler-art-12589/build.py web
+          python3 work/traveler-art-12589/build.py package
+          python3 tools/release_preflight.py --root .
+          echo 'f27d87217d278f7c78099ff8084677885275819f9ec16b2c616be73ee89799c7  game.html' | sha256sum -c -
+          echo '0a72037603794f3fe79c80e08d8633d025a17d7e19ef7067335d96fcf95708eb  releases/1.25.89/launcher-game.html' | sha256sum -c -
+          python3 - <<'PYCODE'
+          import hashlib,runpy
+          from zipfile import ZipFile
+          b=runpy.run_path('work/traveler-art-12589/build.py')
+          codec=b['helpers'].codec()
+          previous=codec.unpack_launcher((b['SOURCE']/'launcher-game.html').read_text())
+          expanded=codec.unpack_launcher((b['RELEASE']/'launcher-game.html').read_text())
+          assert expanded==b['build_page'](previous,True)
+          total=hashlib.sha256()
+          with ZipFile(b['RELEASE']/'monster-biyori-1.25.89.zip') as z:
+              assert len(z.namelist())==len(set(z.namelist()))==475
+              for n in sorted(z.namelist()):
+                  total.update(n.encode()+b'\0'+hashlib.sha256(z.read(n)).digest())
+          assert total.hexdigest()=='a9a916aa20db914743d64c203ae56d6f3161e8b2e8fe703e09d4c65467e50942'
+          PYCODE
+      - name: Save only the verified distribution to the build branch
+        run: |
+          set -eu
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --sparse archive.html latest.json game.html releases/1.25.89/game.html releases/1.25.89/monster-biyori-1.25.89.zip
+          git commit -m 'Package the verified 1.25.89 stone foundations'
+          git push origin HEAD:refs/heads/build/traveler-foundations-1.25.89

@@ -62,8 +62,8 @@ return function draw(type,facing,phase=0,site=null){
       const canvas=townCanvas(base.width), g=canvas.getContext('2d');
       g.drawImage(base,0,0);
       // Map the painting to the four inner edges of the tilted easel canvas.
-      const corners=face===0 ? [64.1,49.6,69.0,51.1,61.7,57.9]
-                             : [58.6,41.3,64.2,42.8,56.4,50.0];
+      const corners=face===0 ? [67.05,59.277,72.429,60.696,64.163,67.204]
+                             : [59.123,49.297,64.512,53.643,57.146,57.008];
       const [x0,y0,x1,y1,x2,y2]=corners;
       g.scale(base.width/100,base.height/100);
       g.transform(x1-x0,y1-y0,x2-x0,y2-y0,x0,y0);

@@ -5,6 +5,8 @@ const assert=require('node:assert/strict');
 const {chromium}=require('playwright');
 const root=path.resolve(__dirname,'../..');
 const release=process.env.RELEASE_DIR || path.join(root,'releases/1.25.88');
+const version=process.env.GAME_VERSION||'1.25.88';
+const baseline=process.env.BASELINE_DIR||path.join(root,'releases/1.25.87');
 const hook='claimSave12556();\nconst didLoad=load();';
 const expose='window.inspectRanch=(expression,args)=>eval(expression);\n'+hook;
 const entry='http://ranch.test/game.html';
@@ -48,7 +50,7 @@ function progress(s){
 
 async function checkArt(session) {
   const {call,page,compact}=session;
-  assert.equal(await call('GAME_APP_VERSION'),'1.25.88');
+  assert.equal(await call('GAME_APP_VERSION'),version);
   await call(`(()=>{
     state.speed=0;state.day=4;state.hour=11;state.sceneCamera81=false;state.starterGuide='done';renderStarterGuide();
     state.zones=ZONES.map((_,i)=>i);state.removedDefaultPaths=[...DEFAULT_PATH_KEYS];
@@ -85,23 +87,30 @@ async function checkArt(session) {
       const result=await call(`(()=>{
         const [kind,face]=args,b=state.buildings.find(v=>v.type===kind),m=buildingOf(b);
         const rect=plotImageRect(b),center=projectGround(b.x+m.w/2,b.y+m.h/2),w=(m.w+m.h)*T;
-        const plot=travelerPlots[kind], [ax,ay,span]=plot.views[face],scale=w/span;
+        const plot=travelerPlots[kind], [ax,ay,span]=plot.views?plot.views[face]:[...plot.anchor,plot.span];
+        const scale=w/span;
         const art=townMapArt(b,face,true,0), displayed=townMapArt(b,face,false,0);
         const menu=spriteBuildingV161(kind,1,face);
         const data=art.getContext('2d').getImageData(0,0,art.width,art.height).data;
-        let front=-Infinity,hash=2166136261;
+        let front=-Infinity,hash=2166136261,outside=0,inside=0;
         for(let y=0;y<art.height;y++)for(let x=0;x<art.width;x++){
           const i=4*(y*art.width+x);hash=Math.imul(hash^data[i],16777619)>>>0;
-          if(data[i+3]<128)continue;
           const sx=rect.x+(x+.5)*rect.w/art.width-center.x,sy=rect.y+(y+.5)*rect.h/art.height-center.y;
+          if(!plot.views){
+            const inLot=Math.abs(sx)+2*Math.abs(sy)<=w/2;
+            if(inLot&&data[i+3]!==255)inside++;
+            if((sy+Math.abs(sx)/2>w/4||Math.abs(sx)>=w/2&&sy>=-3)&&data[i+3]>=128)outside++;
+          }
+          if(data[i+3]<128)continue;
           front=Math.max(front,sy+Math.abs(sx)/2-w/4);
         }
         drawWorld(1000);
-        const floor=travelerPaving.get(w),edges=floor.getContext('2d').getImageData(0,0,floor.width,floor.height).data;
-        let outside=0,inside=0;
-        for(let y=0;y<floor.height;y++)for(let x=0;x<floor.width;x++){
-          const within=Math.abs(x+.5-floor.width/2)+2*Math.abs(y+.5-floor.height/2)<=floor.width/2;
-          const solid=edges[4*(y*floor.width+x)+3]===255; if(solid&&!within)outside++;if(!solid&&within)inside++;
+        if(plot.views){
+          const floor=travelerPaving.get(w),edges=floor.getContext('2d').getImageData(0,0,floor.width,floor.height).data;
+          for(let y=0;y<floor.height;y++)for(let x=0;x<floor.width;x++){
+            const within=Math.abs(x+.5-floor.width/2)+2*Math.abs(y+.5-floor.height/2)<=floor.width/2;
+            const solid=edges[4*(y*floor.width+x)+3]===255;if(solid&&!within)outside++;if(!solid&&within)inside++;
+          }
         }
         const road=entranceRoads(b),expected=Array.from({length:m.w},(_,i)=>[
           [b.x+i,b.y+m.h],[b.x-1,b.y+i],[b.x+i,b.y-1],[b.x+m.w,b.y+i]][face]);
@@ -153,7 +162,7 @@ async function checkArt(session) {
     args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu']});
   try{
     const legacy=process.argv[2]?JSON.parse(fs.readFileSync(process.argv[2],'utf8')):null;
-    const old=await open(browser,path.join(root,'releases/1.25.87/game.html'),false,legacy);
+    const old=await open(browser,path.join(baseline,'game.html'),false,legacy);
     await old.call('state.speed=0;save(true);true');const original=await exported(old);
     assert.deepEqual(old.errors,[]);await old.context.close();
     const editions=process.env.WEB_ONLY?[['game.html',false]]:[['game.html',false],['launcher-game.html',true]];
