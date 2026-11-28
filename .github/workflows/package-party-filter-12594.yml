@@ -1,0 +1,31 @@
+name: Package adventure party filters 1.25.94
+on:
+  push:
+    branches: ['build/party-filter-12594']
+permissions:
+  contents: write
+jobs:
+  package:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /game.html
+            /latest.json
+            /archive.html
+            /tools/
+            /work/scene-camera-12581/
+            /work/party-filter-12594/
+            /releases/1.25.93/
+            /releases/1.25.94/
+      - run: |
+          python work/party-filter-12594/build_release.py
+          python tools/release_preflight.py --root .
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --sparse game.html latest.json archive.html releases/1.25.94/
+          git commit -m 'Package 1.25.94 browser and offline editions'
+          git push origin HEAD:refs/heads/build/party-filter-12594
