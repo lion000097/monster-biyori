@@ -1,0 +1,55 @@
+name: Verify the reviewed 1.25.86 distribution
+on:
+  push:
+    branches: ['build/reviewed-buildings-1.25.86']
+permissions:
+  contents: write
+jobs:
+  package:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /game.html
+            /archive.html
+            /latest.json
+            /assets/town-atelier/illustrated-town.js
+            /assets/town-axis/painted-details.json
+            /assets/town-axis/painted/starChart.webp
+            /assets/town-axis/painted/herbPlot.webp
+            /assets/town-axis/painted/jarHut.webp
+            /work/building-review-12586/
+            /tools/release_preflight.py
+            /releases/1.25.85/game.html
+            /releases/1.25.85/monster-biyori-1.25.85.zip
+            /releases/1.25.86/
+      - name: Build and verify the tested web, launcher and archive
+        run: |
+          set -eu
+          python3 work/building-review-12586/build.py --edition web
+          /usr/bin/python3 work/building-review-12586/package.py
+          python3 tools/release_preflight.py --root .
+          echo '1f77ef64f5dbb9d3ad9fde292e9db41a5b3c2884a8a7df810fc54ccd3ec98302  game.html' | sha256sum -c -
+          echo '531d2e5071b28c75a9f0e4444dfcdeee2a64ca9e7b43f177cf69b020b01ca9d2  releases/1.25.86/launcher-game.html' | sha256sum -c -
+          python3 - <<'PY'
+          from zipfile import ZipFile
+          from hashlib import sha256
+          h=sha256()
+          with ZipFile('releases/1.25.86/monster-biyori-1.25.86.zip') as z:
+              assert len(z.infolist())==466
+              for name in sorted(z.namelist()):
+                  h.update(name.encode()+b'\0'+sha256(z.read(name)).digest())
+          assert h.hexdigest()=='539ddff481f5c979023eb2728e269e4f55971a56de105d075503070548d5ae59'
+          PY
+      - name: Preserve the verified build on its branch
+        run: |
+          set -eu
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --sparse game.html archive.html latest.json releases/1.25.86/game.html releases/1.25.86/monster-biyori-1.25.86.zip
+          git commit -m 'Package the verified 1.25.86 distribution'
+          git push origin HEAD:refs/heads/build/reviewed-buildings-1.25.86
