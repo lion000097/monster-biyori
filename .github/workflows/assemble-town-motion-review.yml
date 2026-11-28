@@ -1,0 +1,31 @@
+name: Assemble town monster review
+on:
+  push:
+    branches: ['preview/shirogao-town-walk']
+    paths: ['.github/workflows/assemble-town-motion-review.yml']
+permissions:
+  contents: write
+jobs:
+  assemble:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /game.html
+            /work/town-monster-motion/
+      - name: Rebuild the checked review entry
+        run: |
+          set -euo pipefail
+          test "$(git hash-object game.html)" = 686ab61679d6264e281fc1747685a3bf04f284bc
+          python -c 'import PIL' || python -m pip install --quiet Pillow
+          python work/town-monster-motion/build.py game.html checked-town.html
+          test "$(git hash-object checked-town.html)" = d49912a69a6128861998c2b2f20a07fcd8008536
+          mv checked-town.html game.html
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --sparse -- game.html
+          git commit -m '全127種の街モーションを確認用ゲーム本体に組み込み'
+          git push origin HEAD:refs/heads/preview/shirogao-town-walk
