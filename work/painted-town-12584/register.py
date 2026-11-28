@@ -45,11 +45,14 @@ def register(im, points, key, facing):
         corner=front
     else:
         corner=n*np.clip(inset+(1-2*inset)*xc,.35,.65)
-    dst_x=np.array([inset*n,corner,(1-inset)*n])
+    if key in ('breadShelf','catLedge'):
+        dst_x=np.array([(.055+.89*x0)*n,corner,(.055+.89*x1)*n])
+    else:
+        dst_x=np.array([inset*n,corner,(1-inset)*n])
     # The two sides of the foundation run parallel to the tile edges in every view.
     foot=.960*n-abs(corner-front)/2
     tall=min(.925,.92*h/w)
-    if key in ('breadShelf','catLedge'):tall=min(.80,.88*h/w)
+    if key in ('breadShelf','catLedge'):tall=min(.905,.91*h/w)
     if key=='starTerrace':tall=min(.84,.92*h/w)
     # The same x transformation at every height keeps posts, shutters and chimneys upright.
     # Interpolate the vertical scale between the feet while leaving the roof ridge continuous.
