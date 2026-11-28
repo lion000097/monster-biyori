@@ -1,5 +1,14 @@
 # 1.25.88　旅の建築6種
 
+## 最新の状態　公開済み
+
+- 対象バージョン　1.25.88。2026年11月28日公開。
+- 保存先　[公式ゲーム](https://lion000097.github.io/monster-biyori/game.html?v=1.25.88)、[4方向の見本](buildings.webp)、[動作確認](TESTING.md)。原寸と描画は `assets/town-axis/`、再構築と検査は `work/traveler-art-12588/`。
+- 完了事項　建築6種の24方向、位置合わせ、展示・天気・苗の差分、通常版と軽量版、配布ZIPの公開。
+- 確認結果　[配布検査](https://github.com/lion000097/monster-biyori/actions/runs/46118735329)と[公式サイトへの配信](https://github.com/lion000097/monster-biyori/actions/runs/46118919362)に成功。配信9ファイルのSHA-256とZIP全472項目が一致。両版の旧牧場の読み書き・再読み込みと、施設・装飾452件、仲間60体、おやすみ25体、市民60人、冒険・装備・図鑑を確認した。
+- 残作業　なし。
+- 次の操作　次の依頼は[配布コミット](https://github.com/lion000097/monster-biyori/commit/763b48e65c9356589dce084f02e7a912a22f3586)から開始する。
+
 ## 引き継ぎ
 
 - 対象バージョン　公開1.25.87を基準に1.25.88を準備する。
