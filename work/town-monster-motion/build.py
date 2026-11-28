@@ -1,4 +1,4 @@
-"""Build a standalone town-motion preview from the unmodified 1.25.95 HTML."""
+"""Install or refresh the embedded town sprites in the base game's HTML."""
 import argparse
 import base64
 import json
@@ -8,6 +8,8 @@ from pathlib import Path
 from PIL import Image
 
 HERE = Path(__file__).resolve().parent
+ART_BEGIN = '\n/* Town monster motion: generated source begins. */\n'
+ART_END = '\n/* Town monster motion: generated source ends. */\n'
 
 
 def encode_art():
@@ -34,6 +36,14 @@ def encode_art():
 def build(source, destination):
     html = source.read_bytes().decode('utf-8')
     js = (HERE / 'town-motion.js').read_text().replace('__TOWN_MOTION_DATA__', encode_art())
+    block = ART_BEGIN + js + ART_END
+    if ART_BEGIN in html or ART_END in html:
+        if html.count(ART_BEGIN) != 1 or html.count(ART_END) != 1:
+            raise ValueError('Expected one complete town motion block')
+        left, rest = html.split(ART_BEGIN)
+        _, right = rest.split(ART_END)
+        destination.write_bytes((left + block + right).encode('utf-8'))
+        return
     edits = {
         'let dx=0,dy=Math.round(Math.sin(phase)*1.5);':
             'const motionAsset=monster && townMotionAsset(o);\n  let dx=0,dy=motionAsset?0:Math.round(Math.sin(phase)*1.5);',
@@ -47,7 +57,7 @@ def build(source, destination):
             'const pad=Math.max(2,Math.round(size*.07));\n    '
             'ctx.drawImage(townWaterBubble,left-pad,top-pad,size+pad*2,height+pad*2);\n  }\n  '
             'const flipped=!motionAsset && !!(townPose?.side?townPose.side<0:',
-        '\nclaimSave12556();\nconst didLoad=': '\n' + js + '\nclaimSave12556();\nconst didLoad=',
+        '\nclaimSave12556();\nconst didLoad=': block + 'claimSave12556();\nconst didLoad=',
     }
     for old, new in edits.items():
         if html.count(old) != 1:
