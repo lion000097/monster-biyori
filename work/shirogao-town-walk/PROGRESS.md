@@ -5,4 +5,4 @@
 - `town-walk.js` が実際の移動量を読み、街の描画に向きと歩行コマを渡す。待機中は最後の向きで静止。歩行の状態は個体ごとの一時データとして管理。
 - 試作の再生成には `python work/shirogao-town-walk/build.py game.html shirogao-preview.html` を使用。PythonとPillowが必要。
 - スマホ幅390px・マップ100％・ゲーム内1倍速で16.2秒を撮影。486フレームの移動座標と進行時刻が基準版と一致。4方向すべてで3コマと停止時の接地位置を確認。PCとスマホ幅で向きごとの選択判定、休憩、4倍速での向きを確認。世界樹Lv30の旧セーブ読み込みと通常色・色違いも確認済み。
-- 確認用動画は `shirogao-town-walk.mp4`。次の操作は、手前・奥の見た目と足運びについてユーザーの確認を受けること。
+- 確認用動画は `shirogao-town-walk.mp4`。ユーザー確認で採用。後続の88種の確認版・確認結果・飛行と遊泳の残作業は `work/town-monster-motion/PROGRESS.md` に記録。
