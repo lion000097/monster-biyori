@@ -19,7 +19,7 @@ CHECK="""(()=>{
    if(bottom[x]<0)continue;
    const p=unprojectGround(rect.x+(x+.5)*rect.w/n,rect.y+(bottom[x]+.5)*rect.h/n);
    // Express each signed edge distance in vertical pixels of the registered sprite.
-   const unit=n*T/(2*rect.w);
+   const unit=n*T/rect.w;
    const back=Math.min(p.x-b.x,p.y-b.y)*unit,front=Math.min(b.x+m.w-p.x,b.y+m.h-p.y)*unit;
    nearMargin=Math.min(nearMargin,front);
    if(columns.some(([a,z])=>a<=x&&x<=z)){
