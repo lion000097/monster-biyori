@@ -1,0 +1,70 @@
+name: Verify the 1.25.87 workshop release
+on:
+  push:
+    branches: ['build/reviewed-workshops-1.25.87']
+permissions:
+  contents: write
+jobs:
+  release:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /latest.json
+            /archive.html
+            /game.html
+            /tools/release_preflight.py
+            /tools/pack_launcher_html.py
+            /tools/launcher_utf8_words.py
+            /work/scene-camera-12581/build.py
+            /work/building-review-12586/build.py
+            /work/workshop-review-12587/
+            /assets/town-axis/painted-details.json
+            /assets/town-axis/painted/toyRepair.webp
+            /assets/town-axis/painted/bookBind.webp
+            /assets/town-axis/painted/stoneStudy.webp
+            /releases/1.25.86/game.html
+            /releases/1.25.86/launcher-game.html
+            /releases/1.25.86/monster-biyori-1.25.86.zip
+            /releases/1.25.87/
+      - name: Build and verify the editions and the update archive
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: |
+          set -eu
+          python3 work/workshop-review-12587/build.py web
+          python3 work/workshop-review-12587/build.py package
+          python3 tools/release_preflight.py --root .
+          echo '6dd3dd3ff1822c7fa741a258e87b1a2abc5a7f7ac1fa5f4433d4c0c070b4d2c4  game.html' | sha256sum -c -
+          echo '27c0abe45589bb88b7c96a38338b1790ce69f521fa5690e4c6fb541ad9f637d4  releases/1.25.87/launcher-game.html' | sha256sum -c -
+          python3 - <<'PY'
+          from pathlib import Path
+          from hashlib import sha256
+          from zipfile import ZipFile
+          import runpy
+          build=runpy.run_path('work/workshop-review-12587/build.py')
+          codec=build['reviewed'].codec()
+          release=build['RELEASE']
+          previous=codec.unpack_launcher((build['SOURCE']/'launcher-game.html').read_text())
+          expanded=codec.unpack_launcher((release/'launcher-game.html').read_text())
+          assert expanded==build['build_page'](previous,True)
+          assert sha256(expanded.encode()).hexdigest()=='f6401fa333b85fd1a74011f1de96797452bbeff17733a27032fe2d2a975e7a02'
+          digest=sha256()
+          with ZipFile(release/'monster-biyori-1.25.87.zip') as z:
+              assert len(z.namelist())==len(set(z.namelist()))==469
+              for name in sorted(set(z.namelist())-{'game.html'}):
+                  digest.update(name.encode()+b'\0'+sha256(z.read(name)).digest())
+          assert digest.hexdigest()=='8a82848afcc450e513ad6780bd89ef7a60a1baef8f4af08a96eb66d87d122d43'
+          PY
+      - name: Preserve the verified candidate
+        run: |
+          set -eu
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --sparse archive.html latest.json game.html releases/1.25.87/game.html releases/1.25.87/monster-biyori-1.25.87.zip
+          git commit -m 'Package verified 1.25.87 workshop artwork and update'
+          git push origin HEAD:refs/heads/build/reviewed-workshops-1.25.87
