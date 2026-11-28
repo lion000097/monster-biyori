@@ -1,0 +1,57 @@
+name: Verify the 1.25.84 distribution
+on:
+  push:
+    branches: ['build/painted-town-1.25.84']
+permissions:
+  contents: write
+jobs:
+  distribution:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /game.html
+            /latest.json
+            /archive.html
+            /work/painted-town-12584/package.py
+            /work/painted-town-12584/transfer/paintings.zlib
+            /tools/release_preflight.py
+            /releases/1.25.83/game.html
+            /releases/1.25.83/monster-biyori-1.25.83.zip
+            /releases/1.25.84/
+      - name: Assemble the tested full-resolution game
+        run: |
+          set -eu
+          /usr/bin/python3 - <<'PY'
+          from pathlib import Path
+          from hashlib import sha256
+          import zlib
+          src=Path('releases/1.25.83/game.html').read_text()
+          assert src.count('1.25.83')==3
+          src=src.replace('1.25.83','1.25.84').replace('施設の四方向と街の歩きやすさ</footer>','建築15種の原画仕上げ</footer>')
+          start=src.index('const axisAtlas=')
+          end=src.index('// END town illustration preload',start)
+          block=zlib.decompress(Path('work/painted-town-12584/transfer/paintings.zlib').read_bytes()).decode()
+          body=(src[:start]+block+src[end:]).encode()
+          assert sha256(body).hexdigest()=='21c52c404bc4b05ba48d5514db5a060b532aabaad1cc8c9141ac5def882982f2'
+          Path('game.html').write_bytes(body)
+          Path('releases/1.25.84/game.html').write_bytes(body)
+          PY
+      - name: Package and verify the exact distribution
+        run: |
+          set -eu
+          /usr/bin/python3 work/painted-town-12584/package.py
+          python3 tools/release_preflight.py --root .
+          echo 'd8dc1eff388f8b4dd1efcd3472b01b02ccf22c375118f56666de9dc00677d785  releases/1.25.84/monster-biyori-1.25.84.zip' | sha256sum -c -
+      - name: Preserve tested files on the build branch
+        run: |
+          set -eu
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --sparse game.html archive.html latest.json releases/1.25.84/game.html releases/1.25.84/monster-biyori-1.25.84.zip
+          git commit -m 'Verify and preserve the 1.25.84 distribution'
+          git push origin HEAD:refs/heads/build/painted-town-1.25.84
