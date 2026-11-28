@@ -1,4 +1,13 @@
-# 1.25.85　建築の足元と敷地
+# 1.25.85　建築の足元と敷地（公開済み）
+
+- 対象バージョン　1.25.85。2026年11月28日公開。
+- 保存先　[公式ゲーム](https://lion000097.github.io/monster-biyori/game.html?v=1.25.85)、[配布コミット](https://github.com/lion000097/monster-biyori/commit/f94a0cca9578633308748aacab18a14879ded049)、[赤丸の箇所の修正前後](comparison.webp)、[道沿いの四方向](roads.webp)。元絵と接地の検査は `work/town-foundations-12585/`。
+- 完了事項　赤丸の3棟と同じずれのある10種で土台を敷地に合わせ、通常版・軽量版・ZIPを公式サイトに公開した。
+- 確認結果　両版とも全15種60方向で土台のはみ出しは0。[配布前検査](https://github.com/lion000097/monster-biyori/actions/runs/46098807671)・[公式サイトへの配信](https://github.com/lion000097/monster-biyori/actions/runs/46098878751)とも成功。公開10ファイルとZIP全463項目を照合。公開通常版・軽量版で既存の牧場を再読み込みし、施設・装飾452件と向き、仲間、持ち物、冒険進捗を含む40項目が一致した。[動作確認](TESTING.md)
+- 残作業　なし。
+- 次の操作　次回はこの公開版1.25.85を起点にする。
+
+## 指摘画像の3棟
 
 - 対象バージョン　公開版1.25.84から1.25.85へ。
 - 保存先　作業ブランチ `fix/town-foundations-1.25.85`。元の絵と接地点は `work/town-foundations-12585/`、ゲームに組み込む四方向の絵は `assets/town-axis/painted/`、記録はこのファイル。
