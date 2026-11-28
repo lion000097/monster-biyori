@@ -27,7 +27,7 @@ function axisSprite(type,facing,phase=0,item={}){
   if(!config)return base;
   const state=Math.min(config.phases-1,Math.max(0,phase|0));
   const bits=type==='eggWatch'?(item.eggs||0)&((1<<state)-1):0;
-  const exhibit=type==='stoneStudy'||type==='maskStall';
+  const exhibit=type==='stoneStudy'||type==='maskStall'||type==='backStage';
   if(!state&&type!=='eggWatch'&&!(exhibit&&item.source))return base;
   const key=facing+'/'+state+'/'+bits,subject=exhibit?(item.key||''):'';
   const cached=art.views.get(key);
@@ -89,6 +89,9 @@ function axisSprite(type,facing,phase=0,item={}){
       g.bezierCurveTo(rx,ry*1.15,-rx,ry*1.15,-rx,ry*.35);
       g.bezierCurveTo(-rx,0,-rx*.68,-ry,0,-ry);g.fill();g.stroke();g.restore();
     }
+  }else if(type==='rugShop'&&state&&w>0){
+    const dye=[[211,126,105],[109,167,93],[225,136,63],[126,161,202]][state%4];
+    glaze(dye,(r,green,b)=>r>green*1.25&&r>b*1.05&&r>58);
   }else if(type==='jarHut'){
     const glazes=[[191,63,55],[104,154,85],[222,134,56],[112,139,193]];
     glaze(glazes[state],(r,green,b)=>r>green*1.13&&r>b*1.12&&r>65);
